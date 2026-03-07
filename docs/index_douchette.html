@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دش التوربو المُنقي - تجربة استحمام فاخرة في منزلك</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- ⚙️ Settings Configuration - Load First -->
+    <script src="config.js"></script>
+    
+    <style>
+        * {
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        /* Pulse Animation for CTA */
+        @keyframes pulse-orange {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 15px rgba(249, 115, 22, 0);
+            }
+        }
+        
+        .btn-pulse {
+            animation: pulse-orange 2s infinite;
+        }
+        
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Gradient Background */
+        .hero-gradient {
+            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+        }
+        
+        /* Feature Card Hover Effect */
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Price Strike */
+        .price-strike {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .price-strike::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 2px;
+            background: red;
+            transform: rotate(-15deg);
+        }
+
+        /* Delivery Badge */
+        .delivery-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 12px 24px;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+    </style>
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '818374091234421');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=818374091234421&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+</head>
+ 
+<body class="bg-gray-50">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-cyan-600">
+                💧 Microllix
+            </div>
+            <a href="#order-form" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full font-semibold text-sm md:text-base transition duration-300">
+                اطلب الآن
+            </a>
+        </div>
+    </header>
+
+    <section class="hero-gradient text-white py-12 md:py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-3xl md:text-5xl font-black mb-4 leading-tight">
+                يزيل الكلور ويصفي المياه<br>بشكل واضح ✨
+            </h1>
+            <p class="text-lg md:text-xl mb-6 text-cyan-50 max-w-2xl mx-auto">
+                استمتع بتجربة استحمام فاخرة كالمنتجعات الصحية في منزلك مع ضغط ماء قوي ومياه نقية خالية من الشوائب
+            </p>
+            
+            <div class="mb-8">
+                <div class="inline-block bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-4">
+                    <div class="flex items-center justify-center gap-4 flex-wrap">
+                        <span class="text-gray-200 text-xl line-through" id="oldPrice">5200 دج</span>
+                        <span class="text-5xl md:text-6xl font-black text-white" id="newPrice">3200 دج</span>
+                    </div>
+                    <p class="text-cyan-100 mt-2 text-lg">🎁 عرض خاص - خصم حصري!</p>
+                </div>
+                
+                <div class="flex flex-col md:flex-row gap-4 justify-center items-center mb-6">
+                    <div class="delivery-badge">
+                        🚚 التوصيل داخل العاصمة: <span id="deliveryCapital">400</span> دج
+                    </div>
+                    <div class="delivery-badge">
+                        📦 التوصيل خارج العاصمة: <span id="deliveryOther">700</span> دج
+                    </div>
+                </div>
+            </div>
+            
+            <a href="#order-form" class="inline-block bg-orange-500 hover:bg-orange-600 text-white px-10 py-4 rounded-full text-xl font-bold shadow-2xl btn-pulse transition duration-300">
+                🛒 أطلب الآن - الدفع عند الاستلام
+            </a>
+            
+            <div class="mt-10">
+                <img src="1.png" alt="دش التوربو المنقي - تصفية مزدوجة للميكروبات" class="mx-auto rounded-2xl shadow-2xl max-w-full h-auto">
+            </div>
+        </div>
+    </section>
+
+    <section class="py-8 bg-white border-y-4 border-cyan-500">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                <div>
+                    <div class="text-4xl mb-2">✅</div>
+                    <p class="font-bold text-gray-800">منتج أصلي</p>
+                    <p class="text-sm text-gray-600">مضمون 100%</p>
+                </div>
+                <div>
+                    <div class="text-4xl mb-2">🧪</div>
+                    <p class="font-bold text-gray-800">مجرب لمدة سنة</p>
+                    <p class="text-sm text-gray-600">من عملاء راضين</p>
+                </div>
+                <div>
+                    <div class="text-4xl mb-2">💰</div>
+                    <p class="font-bold text-gray-800">دفع عند الاستلام</p>
+                    <p class="text-sm text-gray-600">آمن ومريح</p>
+                </div>
+                <div>
+                    <div class="text-4xl mb-2">🚚</div>
+                    <p class="font-bold text-gray-800">توصيل سريع</p>
+                    <p class="text-sm text-gray-600">لكل الولايات</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                    يزيد ضغط الماء المنخفض بشكل قوي وفعّال ⚡
+                </h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    تحويل ضغط الماء الضعيف إلى دش قوي ومنعش
+                </p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <img src="6.png" alt="مقارنة ضغط الماء - قبل وبعد" class="mx-auto rounded-xl shadow-2xl max-w-full h-auto border-4 border-cyan-100">
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8 items-center max-w-4xl mx-auto mt-12">
+                <div class="text-center">
+                    <div class="bg-red-50 rounded-xl p-6 border-2 border-red-200">
+                        <span class="text-red-600 text-5xl mb-3 block">❌</span>
+                        <h3 class="text-xl font-bold text-red-700 mb-2">قبل الاستخدام</h3>
+                        <ul class="text-gray-700 space-y-2">
+                            <li>• ضغط ماء ضعيف ومتقطع</li>
+                            <li>• مياه غير نقية</li>
+                            <li>• استحمام غير مريح</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="bg-green-50 rounded-xl p-6 border-2 border-green-200">
+                        <span class="text-green-600 text-5xl mb-3 block">✅</span>
+                        <h3 class="text-xl font-bold text-green-700 mb-2">بعد الاستخدام</h3>
+                        <ul class="text-gray-700 space-y-2">
+                            <li>• ضغط ماء قوي ومنتظم</li>
+                            <li>• مياه نقية ومصفاة</li>
+                            <li>• تجربة سبا منزلية</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 md:py-16 bg-gradient-to-b from-cyan-50 to-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                    يزيل الكلور ويصفي المياه بشكل واضح 💧
+                </h2>
+                <p class="text-lg text-gray-600">
+                    شاهد الفرق بعينك - مياه نقية وصافية
+                </p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <img src="5.png" alt="تصفية المياه من الكلور والشوائب" class="mx-auto rounded-xl shadow-2xl max-w-full h-auto">
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                    تقنية التصفية المزدوجة المتقدمة 🔬
+                </h2>
+                <p class="text-lg text-gray-600">
+                    حبيبات معدنية متنوعة تُنتج معادن نافعة
+                </p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto mb-10">
+                <img src="2.png" alt="نظام التصفية المزدوجة - حبيبات معدنية" class="mx-auto rounded-xl shadow-lg max-w-full h-auto">
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                <div class="bg-white rounded-xl p-6 shadow-lg feature-card text-center border-2 border-cyan-100">
+                    <div class="text-5xl mb-4">🧪</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">يزيل الشوائب</h3>
+                    <p class="text-gray-600">تصفية دقيقة تزيل جميع الشوائب والرواسب من المياه</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-lg feature-card text-center border-2 border-cyan-100">
+                    <div class="text-5xl mb-4">🛡️</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">يقضي على الصدأ</h3>
+                    <p class="text-gray-600">يحمي بشرتك من آثار الصدأ والمعادن الضارة</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-lg feature-card text-center border-2 border-cyan-100">
+                    <div class="text-5xl mb-4">💧</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">يزيل الكلور</h3>
+                    <p class="text-gray-600">تقنية متقدمة لإزالة الكلور والمواد الكيميائية</p>
+                </div>
+            </div>
+
+            <div class="mt-10 max-w-3xl mx-auto">
+                <div class="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-6 border-r-4 border-cyan-500">
+                    <h4 class="font-bold text-gray-800 mb-3 text-lg">✨ الفوائد الصحية:</h4>
+                    <ul class="text-gray-700 space-y-2">
+                        <li>• تُنشط الخلايا وتُعزز دوران الدم</li>
+                        <li>• تؤخر شيخوخة البشرة وتجعلها نضرة</li>
+                        <li>• تعمل كمرشح فعّال لشوائب المياه</li>
+                        <li>• تُنتج معادن نافعة تسهل امتصاصها من الجلد</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 md:py-16 bg-gradient-to-b from-cyan-50 to-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                    فوائد صحية مذهلة لك ولعائلتك 💚
+                </h2>
+                <p class="text-lg text-gray-600">
+                    استثمر في صحتك وصحة عائلتك
+                </p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto mb-10">
+                <img src="4.png" alt="الفوائد الصحية - بشرة ناعمة وشعر حريري" class="mx-auto rounded-xl shadow-lg max-w-full h-auto">
+            </div>
+            
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+                <div class="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-6 feature-card text-center border border-pink-200">
+                    <div class="text-6xl mb-4">✨</div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">بشرة ناعمة</h3>
+                    <p class="text-gray-600 text-sm">يجعل البشرة الجافة ناعمة ومنتعشة</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 feature-card text-center border border-purple-200">
+                    <div class="text-6xl mb-4">💇‍♀️</div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">شعر حريري</h3>
+                    <p class="text-gray-600 text-sm">تساعد على جعل الشعر ناعماً ولامعاً</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 feature-card text-center border border-blue-200">
+                    <div class="text-6xl mb-4">👶</div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">حماية الأطفال</h3>
+                    <p class="text-gray-600 text-sm">يحافظ على بشرة الأطفال الحساسة</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 feature-card text-center border border-green-200">
+                    <div class="text-6xl mb-4">🌿</div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">انتعاش دائم</h3>
+                    <p class="text-gray-600 text-sm">يُنقي مياه الاستحمام ويقضي على الروائح</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                    سهل التركيب - لا تحتاج إلى سباك! 🔧
+                </h2>
+                <p class="text-lg text-gray-600">
+                    قم بتركيبه بنفسك في أقل من 5 دقائق
+                </p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <img src="3.png" alt="سهولة التركيب - خطوات بسيطة" class="mx-auto rounded-xl shadow-lg max-w-full h-auto mb-8">
+                
+                <div class="grid md:grid-cols-3 gap-6 mt-8">
+                    <div class="bg-cyan-50 rounded-xl p-6 text-center border-2 border-cyan-200">
+                        <div class="bg-cyan-500 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-2xl mx-auto mb-4">1</div>
+                        <h3 class="font-bold text-gray-800 mb-2">افصل الدش القديم</h3>
+                        <p class="text-gray-600 text-sm">قم بفك رأس الدش القديم بسهولة</p>
+                    </div>
+                    
+                    <div class="bg-cyan-50 rounded-xl p-6 text-center border-2 border-cyan-200">
+                        <div class="bg-cyan-500 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-2xl mx-auto mb-4">2</div>
+                        <h3 class="font-bold text-gray-800 mb-2">ركب الدش الجديد</h3>
+                        <p class="text-gray-600 text-sm">ركب رأس الدش التوربيني المُنقي</p>
+                    </div>
+                    
+                    <div class="bg-cyan-50 rounded-xl p-6 text-center border-2 border-cyan-200">
+                        <div class="bg-cyan-500 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-2xl mx-auto mb-4">3</div>
+                        <h3 class="font-bold text-gray-800 mb-2">استمتع بالنتيجة</h3>
+                        <p class="text-gray-600 text-sm">تجربة استحمام فاخرة فوراً!</p>
+                    </div>
+                </div>
+                
+                <div class="mt-8 bg-green-50 border-r-4 border-green-500 p-6 rounded-lg">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-3xl">✓</span>
+                        <h4 class="font-bold text-gray-800 text-lg">متوافق مع جميع أنواع الحمامات</h4>
+                    </div>
+                    <ul class="text-gray-700 space-y-2 mr-10">
+                        <li>• لا يحتاج أدوات خاصة</li>
+                        <li>• يناسب جميع أنواع الخراطيم</li>
+                        <li>• سهل التنظيف والصيانة</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 md:py-16 bg-gradient-to-b from-cyan-50 to-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                    آراء العملاء الراضين 🌟
+                </h2>
+                <p class="text-lg text-gray-600">
+                    مُجرب من عملاء حقيقيين لمدة سنة كاملة
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-yellow-500 text-xl">⭐⭐⭐⭐⭐</span>
+                    </div>
+                    <p class="text-gray-700 mb-4">"منتج رائع! فعلاً حسّن من ضغط الماء وبشرتي أصبحت أنعم. أنصح الجميع بتجربته."</p>
+                    <p class="font-bold text-cyan-600">- سفيان، الجزائر</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-yellow-500 text-xl">⭐⭐⭐⭐⭐</span>
+                    </div>
+                    <p class="text-gray-700 mb-4">"استخدمته منذ 8 أشهر، المياه أصبحت أنقى والفرق واضح. سعره ممتاز مقارنة بجودته."</p>
+                    <p class="font-bold text-cyan-600">- عبد الرحيم، تلمسان</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-yellow-500 text-xl">⭐⭐⭐⭐⭐</span>
+                    </div>
+                    <p class="text-gray-700 mb-4">"مناسب جداً لبشرة أطفالي الحساسة. التركيب سهل والتوصيل كان سريع. شكراً!"</p>
+                    <p class="font-bold text-cyan-600">- كاهنة، الجزائر</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="order-form" class="py-12 md:py-20 bg-gradient-to-br from-orange-50 to-orange-100">
+        <div class="container mx-auto px-4">
+            <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-10">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl md:text-4xl font-black text-gray-800 mb-3">
+                        🎁 اطلب الآن بسعر مخفض!
+                    </h2>
+                    
+                    <div class="bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-4 px-6 rounded-2xl inline-block mb-4">
+                        <div class="flex items-center gap-3 justify-center">
+                            <span class="text-lg line-through opacity-75" id="formOldPrice">5200 دج</span>
+                            <span class="text-4xl font-black" id="formNewPrice">3200 دج</span>
+                        </div>
+                    </div>
+                    
+                    <p class="text-lg text-gray-600 mb-4">
+                        املأ الاستمارة للطلب الآن
+                    </p>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="bg-green-100 text-green-800 py-2 px-4 rounded-lg inline-flex items-center gap-2">
+                            <span class="text-xl">🚚</span>
+                            <span class="font-semibold">التوصيل داخل العاصمة: <span id="formDeliveryCapital">400</span> دج</span>
+                        </div>
+                        <br>
+                        <div class="bg-blue-100 text-blue-800 py-2 px-4 rounded-lg inline-flex items-center gap-2">
+                            <span class="text-xl">📦</span>
+                            <span class="font-semibold">التوصيل خارج العاصمة: <span id="formDeliveryOther">700</span> دج</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 px-6 rounded-full inline-block font-bold text-lg">
+                        💰 الدفع عند الاستلام
+                    </div>
+                </div>
+                
+                <form id="orderForm" class="space-y-5">
+                    <div>
+                        <label for="fullName" class="block text-gray-700 font-semibold mb-2">
+                            الاسم الكامل <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="fullName" 
+                            name="fullName" 
+                            required
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:outline-none transition duration-200"
+                            placeholder="أدخل اسمك الكامل"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="phone" class="block text-gray-700 font-semibold mb-2">
+                            رقم الهاتف <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            required
+                            pattern="[0-9]{10}"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:outline-none transition duration-200 text-left"
+                            placeholder="0555123456"
+                            dir="ltr"
+                        >
+                        <p class="text-sm text-gray-500 mt-1">يجب أن يكون 10 أرقام</p>
+                    </div>
+                    
+                    <div>
+                        <label for="wilaya" class="block text-gray-700 font-semibold mb-2">
+                            الولاية <span class="text-red-500">*</span>
+                        </label>
+                        <select 
+                            id="wilaya" 
+                            name="wilaya" 
+                            required
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:outline-none transition duration-200"
+                        >
+                            <option value="">اختر الولاية</option>
+                            <option value="الجزائر">الجزائر</option>
+                            <option value="أدرار">أدرار</option>
+                            <option value="الشلف">الشلف</option>
+                            <option value="الأغواط">الأغواط</option>
+                            <option value="أم البواقي">أم البواقي</option>
+                            <option value="باتنة">باتنة</option>
+                            <option value="بجاية">بجاية</option>
+                            <option value="بسكرة">بسكرة</option>
+                            <option value="بشار">بشار</option>
+                            <option value="البليدة">البليدة</option>
+                            <option value="البويرة">البويرة</option>
+                            <option value="تمنراست">تمنراست</option>
+                            <option value="تبسة">تبسة</option>
+                            <option value="تلمسان">تلمسان</option>
+                            <option value="تيارت">تيارت</option>
+                            <option value="تيزي وزو">تيزي وزو</option>
+                            <option value="الجلفة">الجلفة</option>
+                            <option value="جيجل">جيجل</option>
+                            <option value="سطيف">سطيف</option>
+                            <option value="سعيدة">سعيدة</option>
+                            <option value="سكيكدة">سكيكدة</option>
+                            <option value="سيدي بلعباس">سيدي بلعباس</option>
+                            <option value="عنابة">عنابة</option>
+                            <option value="قالمة">قالمة</option>
+                            <option value="قسنطينة">قسنطينة</option>
+                            <option value="المدية">المدية</option>
+                            <option value="مستغانم">مستغانم</option>
+                            <option value="المسيلة">المسيلة</option>
+                            <option value="معسكر">معسكر</option>
+                            <option value="ورقلة">ورقلة</option>
+                            <option value="وهران">وهران</option>
+                            <option value="البيض">البيض</option>
+                            <option value="إليزي">إليزي</option>
+                            <option value="برج بوعريريج">برج بوعريريج</option>
+                            <option value="بومرداس">بومرداس</option>
+                            <option value="الطارف">الطارف</option>
+                            <option value="تندوف">تندوف</option>
+                            <option value="تيسمسيلت">تيسمسيلت</option>
+                            <option value="الوادي">الوادي</option>
+                            <option value="خنشلة">خنشلة</option>
+                            <option value="سوق أهراس">سوق أهراس</option>
+                            <option value="تيبازة">تيبازة</option>
+                            <option value="ميلة">ميلة</option>
+                            <option value="عين الدفلى">عين الدفلى</option>
+                            <option value="النعامة">النعامة</option>
+                            <option value="عين تموشنت">عين تموشنت</option>
+                            <option value="غرداية">غرداية</option>
+                            <option value="غليزان">غليزان</option>
+                            <option value="تيميمون">تيميمون</option>
+                            <option value="برج باجي مختار">برج باجي مختار</option>
+                            <option value="أولاد جلال">أولاد جلال</option>
+                            <option value="بني عباس">بني عباس</option>
+                            <option value="عين صالح">عين صالح</option>
+                            <option value="عين قزام">عين قزام</option>
+                            <option value="تقرت">تقرت</option>
+                            <option value="جانت">جانت</option>
+                            <option value="المغير">المغير</option>
+                            <option value="المنيعة">المنيعة</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="municipality" class="block text-gray-700 font-semibold mb-2">
+                            البلدية <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="municipality" 
+                            name="municipality" 
+                            required
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:outline-none transition duration-200"
+                            placeholder="أدخل اسم البلدية"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="quantity" class="block text-gray-700 font-semibold mb-2">
+                            عدد رؤوس الدش (المنقي) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex items-center gap-4">
+                            <button 
+                                type="button"
+                                onclick="decreaseQuantity()"
+                                class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg transition duration-200 text-2xl"
+                            >
+                                −
+                            </button>
+                            <input 
+                                type="number" 
+                                id="quantity" 
+                                name="quantity" 
+                                value="1"
+                                min="1"
+                                max="50"
+                                required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:outline-none transition duration-200 text-center text-xl font-bold"
+                                onchange="updatePricePreview()"
+                            >
+                            <button 
+                                type="button"
+                                onclick="increaseQuantity()"
+                                class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg transition duration-200 text-2xl"
+                            >
+                                +
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">الحد الأقصى: <span id="maxQuantity">50</span> قطعة</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl p-6 border-2 border-orange-200">
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="text-4xl">🔄</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 text-lg mb-2">قارورة فلتر إضافية</h4>
+                                <p class="text-gray-600 text-sm mb-3">احصل على قارورة فلتر احتياطية بـ <span class="font-bold text-orange-600" id="bottlePrice">600</span> دج فقط!</p>
+                                <ul class="text-sm text-gray-600 space-y-1 mb-4">
+                                    <li>✓ للاستبدال عند الحاجة</li>
+                                    <li>✓ تدوم لمدة 6 أشهر</li>
+                                    <li>✓ سهلة التركيب</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <label class="flex items-center justify-between bg-white rounded-lg p-4 cursor-pointer hover:shadow-md transition duration-200 border-2 border-transparent hover:border-orange-300">
+                            <div class="flex items-center gap-3">
+                                <input 
+                                    type="checkbox" 
+                                    id="extraBottle" 
+                                    name="extraBottle"
+                                    onchange="updateExtraBottle()"
+                                    class="w-6 h-6 text-orange-500 rounded focus:ring-orange-500"
+                                >
+                                <span class="font-semibold text-gray-800">نعم، أريد إضافة قارورة فلتر إضافية</span>
+                            </div>
+                            <span class="font-bold text-orange-600">+<span id="bottlePriceLabel">600</span> دج</span>
+                        </label>
+
+                        <div id="extraBottleQuantitySection" class="hidden mt-4">
+                            <label class="block text-gray-700 font-semibold mb-2">
+                                عدد القوارير الإضافية
+                            </label>
+                            <div class="flex items-center gap-4">
+                                <button 
+                                    type="button"
+                                    onclick="decreaseBottleQuantity()"
+                                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-5 rounded-lg transition duration-200 text-xl"
+                                >
+                                    −
+                                </button>
+                                <input 
+                                    type="number" 
+                                    id="bottleQuantity" 
+                                    name="bottleQuantity" 
+                                    value="1"
+                                    min="1"
+                                    max="20"
+                                    class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:outline-none transition duration-200 text-center text-lg font-bold"
+                                    onchange="updatePricePreview()"
+                                >
+                                <button 
+                                    type="button"
+                                    onclick="increaseBottleQuantity()"
+                                    class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-5 rounded-lg transition duration-200 text-xl"
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-6 border-2 border-cyan-200">
+                        <h4 class="font-bold text-gray-800 mb-3 text-lg">📋 ملخص الطلب:</h4>
+                        <div class="space-y-2 text-gray-700">
+                            <div class="flex justify-between items-center">
+                                <span>سعر رأس الدش (الوحدة):</span>
+                                <span class="font-bold" id="unitPriceDisplay">3200 دج</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span>عدد رؤوس الدش:</span>
+                                <span class="font-bold" id="previewQuantity">1</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2">
+                                <span>مجموع رؤوس الدش:</span>
+                                <span class="font-bold text-cyan-600" id="previewProductTotal">3200 دج</span>
+                            </div>
+                            
+                            <div id="previewBottleSection" class="hidden border-t border-cyan-200 pt-2 pb-2">
+                                <div class="flex justify-between items-center text-orange-700">
+                                    <span>🔄 قوارير الفلتر الإضافية:</span>
+                                    <span class="font-bold" id="previewBottleQuantity">0</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm">سعر القارورة: <span id="previewBottleUnit">600</span> دج</span>
+                                    <span class="font-bold text-orange-600" id="previewBottleTotal">0 دج</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center text-sm border-t border-cyan-200 pt-2 pb-2">
+                                <span>رسوم التوصيل:</span>
+                                <span class="font-semibold" id="previewDelivery">سيتم الحساب</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-3 border-t-2 border-cyan-400 bg-green-50 -mx-6 px-6 py-3 rounded-b-xl">
+                                <span class="text-xl font-black text-gray-800">المجموع الكلي:</span>
+                                <span class="text-3xl font-black text-green-600" id="previewTotal">4,300 دج</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        type="submit"
+                        class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-4 px-6 rounded-xl font-black text-xl shadow-2xl btn-pulse transition duration-300 transform hover:scale-105"
+                    >
+                        ✅ تأكيد الطلب الآن
+                    </button>
+                    
+                    <div class="text-center text-sm text-gray-500 mt-4">
+                        <p>🔒 معلوماتك آمنة ومحمية 100%</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <div class="mb-4">
+                <h3 class="text-2xl font-bold text-cyan-400 mb-2">💧 Microllix</h3>
+                <p class="text-gray-300">تجربة استحمام فاخرة في منزلك</p>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-4 mt-4">
+                <p class="text-gray-400 text-sm">
+                    © 2025 Microllix. جميع الحقوق محفوظة.
+                </p>
+                <p class="text-gray-500 text-xs mt-2">
+                    📞 للاستفسار: <span id="footerPhone">0555-123-456</span> | 📧 <span id="footerEmail">info@microllix.com</span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-2xl transform transition-all">
+            <div class="text-6xl mb-4">🎉</div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-3">تم استلام طلبك بنجاح!</h3>
+            <p class="text-gray-600 mb-2">رقم الطلب: <span id="orderNumber" class="font-bold text-cyan-600"></span></p>
+            <p class="text-gray-600 mb-6">سنتصل بك خلال 24 ساعة لتأكيد الطلب والعنوان</p>
+            <button 
+                onclick="closeModal()"
+                class="bg-cyan-500 hover:bg-cyan-600 text-white px-8 py-3 rounded-full font-bold transition duration-300"
+            >
+                حسناً
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ⚙️ Initialize prices from config on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // إزالة المعالج القديم وإضافة الجديد
+            const form = document.getElementById('orderForm');
+            if (!form) {
+                console.error('Form not found! Looking for id="orderForm"');
+                return;
+            }
+            
+            // إزالة جميع المعالجات السابقة
+            const newForm = form.cloneNode(true);
+            form.parentNode.replaceChild(newForm, form);
+            
+            // إضافة المعالج الصحيح
+            newForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                console.log('📝 Form submitted');
+                
+                // جمع البيانات من النموذج
+                const fullName = document.getElementById('fullName').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const wilaya = document.getElementById('wilaya').value;
+                const municipality = document.getElementById('municipality').value.trim();
+                const showerHeadQuantity = parseInt(document.getElementById('quantity').value) || 1;
+                const extraBottle = document.getElementById('extraBottle').checked;
+                const bottleQuantity = extraBottle ? (parseInt(document.getElementById('bottleQuantity').value) || 1) : 0;
+                
+                // التحقق من صحة البيانات
+                if (!fullName || !phone || !wilaya || !municipality) {
+                    alert('⚠️ يرجى ملء جميع الحقول المطلوبة');
+                    return;
+                }
+                
+                const phoneRegex = /^[0-9]{10}$/;
+                if (!phoneRegex.test(phone)) {
+                    alert('⚠️ يرجى إدخال رقم هاتف صحيح (10 أرقام)');
+                    return;
+                }
+                
+                if (fullName.split(' ').filter(word => word.length > 0).length < 2) {
+                    alert('⚠️ يرجى إدخال الاسم الكامل (الاسم واللقب)');
+                    return;
+                }
+                
+                // حساب الأسعار
+                const productPrice = SETTINGS.prices.showerHead;
+                const bottlePrice = SETTINGS.prices.extraBottle;
+                const productTotal = productPrice * showerHeadQuantity;
+                const bottleTotal = bottlePrice * bottleQuantity;
+                
+                // حساب رسوم التوصيل
+                const deliveryFee = SETTINGS.capitalWilayas.includes(wilaya) 
+                    ? SETTINGS.prices.deliveryCapital 
+                    : SETTINGS.prices.deliveryOther;
+                
+                const totalPrice = productTotal + bottleTotal + deliveryFee;
+                
+                // إنشاء كائن الطلب
+                const orderData = {
+                    orderNumber: 'ORD-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                    fullName: fullName,
+                    phone: phone,
+                    wilaya: wilaya,
+                    municipality: municipality,
+                    showerHeadQuantity: showerHeadQuantity,
+                    showerHeadUnitPrice: productPrice,
+                    showerHeadTotal: productTotal,
+                    hasExtraBottles: extraBottle,
+                    extraBottleQuantity: bottleQuantity,
+                    extraBottleUnitPrice: bottlePrice,
+                    extraBottleTotal: bottleTotal,
+                    deliveryFee: deliveryFee,
+                    totalPrice: totalPrice,
+                    orderDate: new Date().toISOString(),
+                    status: 'pending'
+                };
+                
+                console.log('📦 Order data:', orderData);
+                
+                // حفظ احتياطي محلي
+                try {
+                    let localOrders = JSON.parse(localStorage.getItem('orders_backup') || '[]');
+                    localOrders.push(orderData);
+                    localStorage.setItem('orders_backup', JSON.stringify(localOrders));
+                    console.log('✅ Saved to localStorage backup');
+                } catch (e) {
+                    console.warn('⚠️ Failed to save to localStorage:', e);
+                }
+                
+                // إرسال للسيرفر
+                try {
+                    console.log('🌐 Sending to server:', SETTINGS.api.saveOrderUrl);
+                    
+                    const response = await fetch(SETTINGS.api.saveOrderUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json; charset=utf-8'
+                        },
+                        body: JSON.stringify(orderData)
+                    });
+                    
+                    console.log('📡 Response status:', response.status);
+                    
+                    if (!response.ok) {
+                        throw new Error('خطأ في الاتصال بالسيرفر: ' + response.status);
+                    }
+                    
+                    const result = await response.json();
+                    console.log('📬 Server response:', result);
+                    
+                    if (result.success) {
+                        // Facebook Pixel Tracking
+                        if (typeof fbq !== 'undefined') {
+                            try {
+                                fbq('track', 'Purchase', {
+                                    currency: "DZD", 
+                                    value: totalPrice,
+                                    content_name: "Microllix Shower Head",
+                                    content_ids: ['microllix_001'],
+                                    content_type: 'product',
+                                    num_items: showerHeadQuantity
+                                });
+                                console.log('✅ Facebook Pixel tracked');
+                            } catch (e) {
+                                console.warn('⚠️ Facebook Pixel error:', e);
+                            }
+                        }
+                        
+                        // عرض رسالة النجاح
+                        const modal = document.getElementById('successModal');
+                        const orderNumberSpan = document.getElementById('orderNumber');
+                        if (orderNumberSpan) {
+                            orderNumberSpan.textContent = orderData.orderNumber;
+                        }
+                        if (modal) {
+                            modal.classList.remove('hidden');
+                        }
+                        
+                        // إعادة تعيين النموذج
+                        newForm.reset();
+                        
+                        // إعادة تعيين القيم الافتراضية
+                        if (document.getElementById('quantity')) {
+                            document.getElementById('quantity').value = 1;
+                        }
+                        if (document.getElementById('extraBottle')) {
+                            document.getElementById('extraBottle').checked = false;
+                        }
+                        if (document.getElementById('extraBottleQuantitySection')) {
+                            document.getElementById('extraBottleQuantitySection').classList.add('hidden');
+                        }
+                        
+                        // تحديث معاينة السعر
+                        if (typeof updatePricePreview === 'function') {
+                            updatePricePreview();
+                        }
+                        
+                        console.log('✅✅✅ Order saved successfully!');
+                        alert('✅ تم حفظ الطلب بنجاح!\n\nرقم الطلب: ' + orderData.orderNumber + '\n\nسنتصل بك قريباً لتأكيد الطلب.');
+                        
+                    } else {
+                        throw new Error(result.message || 'فشل حفظ الطلب');
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Error:', error);
+                    
+                    // حفظ في قائمة الطلبات الفاشلة
+                    try {
+                        let failedOrders = JSON.parse(localStorage.getItem('orders_failed') || '[]');
+                        orderData.savedLocally = true;
+                        orderData.saveError = error.message;
+                        orderData.saveErrorTime = new Date().toISOString();
+                        failedOrders.push(orderData);
+                        localStorage.setItem('orders_failed', JSON.stringify(failedOrders));
+                        console.log('💾 Saved to failed orders list');
+                    } catch (e) {
+                        console.error('❌ Failed to save to failed list:', e);
+                    }
+                    
+                    alert('⚠️ حدث خطأ في الاتصال بالسيرفر.\n\nتم حفظ طلبك محلياً برقم: ' + orderData.orderNumber + '\n\nسنتواصل معك قريباً.\n\nالخطأ: ' + error.message);
+                }
+            });
+            
+            console.log('✅ Form handler updated successfully');
+        });
+
+        // Generate unique order number
+        function generateOrderNumber() {
+            const timestamp = Date.now();
+            const random = Math.floor(Math.random() * 1000);
+            return `ORD-${timestamp}-${random}`;
+        }
+
+        // Calculate delivery fee based on wilaya
+        function calculateDeliveryFee(wilaya) {
+            return SETTINGS.capitalWilayas.includes(wilaya) ? SETTINGS.prices.deliveryCapital : SETTINGS.prices.deliveryOther;
+        }
+
+        // Increase quantity
+        function increaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            let currentValue = parseInt(quantityInput.value) || 1;
+            if (currentValue < SETTINGS.limits.maxShowerHeads) {
+                quantityInput.value = currentValue + 1;
+                updatePricePreview();
+            }
+        }
+
+        // Decrease quantity
+        function decreaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            let currentValue = parseInt(quantityInput.value) || 1;
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
+                updatePricePreview();
+            }
+        }
+
+        // Increase bottle quantity
+        function increaseBottleQuantity() {
+            const bottleInput = document.getElementById('bottleQuantity');
+            let currentValue = parseInt(bottleInput.value) || 1;
+            if (currentValue < SETTINGS.limits.maxBottles) {
+                bottleInput.value = currentValue + 1;
+                updatePricePreview();
+            }
+        }
+
+        // Decrease bottle quantity
+        function decreaseBottleQuantity() {
+            const bottleInput = document.getElementById('bottleQuantity');
+            let currentValue = parseInt(bottleInput.value) || 1;
+            if (currentValue > 1) {
+                bottleInput.value = currentValue - 1;
+                updatePricePreview();
+            }
+        }
+
+        // Update extra bottle visibility
+        function updateExtraBottle() {
+            const extraBottleCheckbox = document.getElementById('extraBottle');
+            const bottleSection = document.getElementById('extraBottleQuantitySection');
+            
+            if (extraBottleCheckbox.checked) {
+                bottleSection.classList.remove('hidden');
+            } else {
+                bottleSection.classList.add('hidden');
+            }
+            
+            updatePricePreview();
+        }
+
+        // Update price preview
+        function updatePricePreview() {
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const wilaya = document.getElementById('wilaya').value;
+            const extraBottleChecked = document.getElementById('extraBottle').checked;
+            const bottleQuantity = extraBottleChecked ? (parseInt(document.getElementById('bottleQuantity').value) || 1) : 0;
+            
+            const productPrice = SETTINGS.prices.showerHead;
+            const bottlePrice = SETTINGS.prices.extraBottle;
+            const productTotal = productPrice * quantity;
+            const bottleTotal = bottlePrice * bottleQuantity;
+            
+            // Update preview
+            document.getElementById('previewQuantity').textContent = quantity;
+            document.getElementById('previewProductTotal').textContent = productTotal.toLocaleString('ar-DZ') + ' دج';
+            
+            // Show/hide bottle section
+            const bottleSection = document.getElementById('previewBottleSection');
+            if (extraBottleChecked && bottleQuantity > 0) {
+                bottleSection.classList.remove('hidden');
+                document.getElementById('previewBottleQuantity').textContent = bottleQuantity;
+                document.getElementById('previewBottleTotal').textContent = bottleTotal.toLocaleString('ar-DZ') + ' دج';
+            } else {
+                bottleSection.classList.add('hidden');
+            }
+            
+            // Calculate and show total
+            let total = productTotal + bottleTotal;
+            if (wilaya) {
+                const deliveryFee = calculateDeliveryFee(wilaya);
+                total += deliveryFee;
+                document.getElementById('previewDelivery').textContent = deliveryFee.toLocaleString('ar-DZ') + ' دج';
+                document.getElementById('previewTotal').textContent = total.toLocaleString('ar-DZ') + ' دج';
+            } else {
+                document.getElementById('previewDelivery').textContent = 'سيتم الحساب';
+                document.getElementById('previewTotal').textContent = total.toLocaleString('ar-DZ') + ' دج + توصيل';
+            }
+            
+            return total;
+        }
+
+        // Save order to server
+        async function saveOrder(orderData) {
+            try {
+                // إرسال الطلب للسيرفر
+                const response = await fetch(SETTINGS.api.saveOrderUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8'
+                    },
+                    body: JSON.stringify(orderData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('خطأ في الاتصال بالسيرفر');
+                }
+
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.message || 'فشل حفظ الطلب');
+                }
+
+                // حفظ نسخة احتياطية محلية
+                try {
+                    let localOrders = JSON.parse(localStorage.getItem('orders_backup') || '[]');
+                    localOrders.push(orderData);
+                    localStorage.setItem('orders_backup', JSON.stringify(localOrders));
+                } catch (e) {
+                    console.warn('تحذير: فشل الحفظ المحلي الاحتياطي');
+                }
+
+                console.log('✅ تم حفظ الطلب بنجاح على السيرفر:', result);
+                return result.orderNumber;
+                
+            } catch (error) {
+                console.error('❌ خطأ في حفظ الطلب:', error);
+                
+                // في حالة فشل السيرفر، حفظ محلي فقط
+                try {
+                    let localOrders = JSON.parse(localStorage.getItem('orders_failed') || '[]');
+                    orderData.savedLocally = true;
+                    orderData.saveError = error.message;
+                    localOrders.push(orderData);
+                    localStorage.setItem('orders_failed', JSON.stringify(localOrders));
+                    
+                    console.warn('⚠️ تم حفظ الطلب محلياً فقط');
+                } catch (e) {
+                    alert('❌ فشل حفظ الطلب تماماً. يرجى التحقق من الاتصال بالإنترنت والمحاولة مرة أخرى.');
+                    throw error;
+                }
+                
+                return orderData.orderNumber;
+            }
+        }
+
+        // Form submission handler
+        document.getElementById('orderForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const fullName = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const wilaya = document.getElementById('wilaya').value;
+            const municipality = document.getElementById('municipality').value.trim();
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const extraBottle = document.getElementById('extraBottle').checked;
+            const bottleQuantity = extraBottle ? (parseInt(document.getElementById('bottleQuantity').value) || 0) : 0;
+
+            // Validation
+            if (!fullName || !phone || !wilaya || !municipality) {
+                alert('⚠️ يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+            if (quantity < 1 || quantity > SETTINGS.limits.maxShowerHeads) {
+                alert(`⚠️ الكمية يجب أن تكون بين 1 و ${SETTINGS.limits.maxShowerHeads}`);
+                return;
+            }
+            const phoneRegex = /^[0-9]{10}$/;
+            if (!phoneRegex.test(phone)) {
+                alert('⚠️ يرجى إدخال رقم هاتف صحيح (10 أرقام)');
+                return;
+            }
+            if (fullName.split(' ').filter(word => word.length > 0).length < 2) {
+                alert('⚠️ يرجى إدخال الاسم الكامل (الاسم واللقب)');
+                return;
+            }
+            
+            // Calculate totals
+            const productPrice = SETTINGS.prices.showerHead;
+            const bottlePrice = SETTINGS.prices.extraBottle;
+            const productTotal = productPrice * quantity;
+            const bottleTotal = bottlePrice * bottleQuantity;
+            const deliveryFee = calculateDeliveryFee(wilaya);
+            const totalPrice = productTotal + bottleTotal + deliveryFee;
+            
+            // Facebook Pixel Tracking
+            if(typeof fbq !== 'undefined') {
+                fbq('track', 'Purchase', {
+                    currency: "DZD", 
+                    value: totalPrice,
+                    content_name: "Turbo Shower Head",
+                    content_ids: ['microllix_001'],
+                    content_type: 'product',
+                    num_items: quantity,
+                    user_data: {
+                        ph: phone
+                    }
+                });
+            }
+
+            // Create order object
+            const orderData = {
+                orderNumber: generateOrderNumber(),
+                fullName: fullName,
+                phone: phone,
+                wilaya: wilaya,
+                municipality: municipality,
+                showerHeadQuantity: quantity,
+                showerHeadUnitPrice: productPrice,
+                showerHeadTotal: productTotal,
+                hasExtraBottles: extraBottle,
+                extraBottleQuantity: bottleQuantity,
+                extraBottleUnitPrice: bottlePrice,
+                extraBottleTotal: bottleTotal,
+                deliveryFee: deliveryFee,
+                totalPrice: totalPrice,
+                orderDate: new Date().toISOString(),
+                status: 'pending'
+            };
+            
+            // Save order
+            const orderNumber = await saveOrder(orderData);
+            
+            // Show order number in modal
+            document.getElementById('orderNumber').textContent = orderNumber;
+            
+            // Show success modal
+            document.getElementById('successModal').classList.remove('hidden');
+            
+            // Reset form
+            document.getElementById('orderForm').reset();
+            updatePricePreview();
+            
+            // Log order
+            console.log('New Order:', orderData);
+        });
+        
+        function closeModal() {
+            const modal = document.getElementById('successModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // التعامل مع النقر خارج النافذة المنبثقة
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('successModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('successModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Auto-update delivery fee
+        document.getElementById('wilaya').addEventListener('change', function(e) {
+            updatePricePreview();
+        });
+    </script>
+
+    <script src="fixes.js"></script>
+        <!-- Analytics Tracking -->
+    <script src="analytics.js"></script>
+
+</body>
+</html>

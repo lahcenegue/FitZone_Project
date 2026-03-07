@@ -1,0 +1,827 @@
+# Arabic translations for FitZone Provider Portal
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "Provider Portal"
+msgstr "بوابة مزودي الخدمات"
+
+msgid "Grow your fitness business"
+msgstr "طوّر نشاطك في اللياقة البدنية"
+
+msgid "The complete platform for gyms, trainers, restaurants, and sports stores across Saudi Arabia."
+msgstr "المنصة الشاملة للصالات الرياضية والمدربين والمطاعم والمتاجر الرياضية في المملكة العربية السعودية."
+
+msgid "Providers"
+msgstr "مزودو الخدمات"
+
+msgid "Active users"
+msgstr "مستخدم نشط"
+
+msgid "Cities"
+msgstr "مدينة"
+
+msgid "Sign In"
+msgstr "تسجيل الدخول"
+
+msgid "Welcome back to your portal"
+msgstr "مرحباً بعودتك إلى بوابتك"
+
+msgid "Manage subscriptions, bookings, and earnings — all in one place."
+msgstr "أدر اشتراكاتك وحجوزاتك وأرباحك — كل شيء في مكان واحد."
+
+msgid "Sign in"
+msgstr "تسجيل الدخول"
+
+msgid "Enter your credentials to access your account"
+msgstr "أدخل بيانات حسابك للوصول إلى لوحة التحكم"
+
+msgid "Email address"
+msgstr "البريد الإلكتروني"
+
+msgid "Password"
+msgstr "كلمة المرور"
+
+msgid "Don't have an account?"
+msgstr "ليس لديك حساب؟"
+
+msgid "Create one"
+msgstr "أنشئ حساباً"
+
+msgid "Create Account"
+msgstr "إنشاء حساب"
+
+msgid "Start managing your fitness business"
+msgstr "ابدأ بإدارة نشاطك في اللياقة البدنية"
+
+msgid "Join hundreds of providers who use FitZone to grow their client base across Saudi Arabia."
+msgstr "انضم إلى مئات مزودي الخدمات الذين يستخدمون فيت زون لتنمية قاعدة عملائهم في المملكة."
+
+msgid "Registration steps"
+msgstr "خطوات التسجيل"
+
+msgid "Account"
+msgstr "الحساب"
+
+msgid "Type"
+msgstr "النوع"
+
+msgid "Business"
+msgstr "النشاط التجاري"
+
+msgid "Review"
+msgstr "المراجعة"
+
+msgid "Create your account"
+msgstr "إنشاء حسابك"
+
+msgid "Personal information to get started"
+msgstr "المعلومات الشخصية للبدء"
+
+msgid "Full name"
+msgstr "الاسم الكامل"
+
+msgid "Your full name"
+msgstr "اكتب اسمك الكامل"
+
+msgid "Phone number"
+msgstr "رقم الهاتف"
+
+msgid "Min. 8 characters"
+msgstr "٨ أحرف على الأقل"
+
+msgid "Confirm password"
+msgstr "تأكيد كلمة المرور"
+
+msgid "Continue"
+msgstr "متابعة"
+
+msgid "Already have an account?"
+msgstr "هل لديك حساب بالفعل؟"
+
+msgid "What do you offer?"
+msgstr "ما الذي تقدمه؟"
+
+msgid "Select your provider category"
+msgstr "اختر فئة مزود الخدمة"
+
+msgid "Gym"
+msgstr "صالة رياضية"
+
+msgid "Branches & subscriptions"
+msgstr "الفروع والاشتراكات"
+
+msgid "Trainer"
+msgstr "مدرب شخصي"
+
+msgid "Sessions & bookings"
+msgstr "الجلسات والحجوزات"
+
+msgid "Restaurant"
+msgstr "مطعم صحي"
+
+msgid "Menu & delivery"
+msgstr "القائمة والتوصيل"
+
+msgid "Store"
+msgstr "متجر رياضي"
+
+msgid "Products & equipment"
+msgstr "المنتجات والمعدات"
+
+msgid "Back"
+msgstr "رجوع"
+
+msgid "Your business"
+msgstr "نشاطك التجاري"
+
+msgid "Tell us about your business"
+msgstr "أخبرنا عن نشاطك التجاري"
+
+msgid "Business name"
+msgstr "اسم النشاط التجاري"
+
+msgid "Your brand name"
+msgstr "اسم علامتك التجارية"
+
+msgid "City"
+msgstr "المدينة"
+
+msgid "Select a city"
+msgstr "اختر مدينة"
+
+msgid "Commercial registration"
+msgstr "السجل التجاري"
+
+msgid "optional"
+msgstr "اختياري"
+
+msgid "CR number"
+msgstr "رقم السجل التجاري"
+
+msgid "Tax ID"
+msgstr "الرقم الضريبي"
+
+msgid "VAT number"
+msgstr "رقم ضريبة القيمة المضافة"
+
+msgid "Description"
+msgstr "الوصف"
+
+msgid "What makes your service unique?"
+msgstr "ما الذي يميز خدمتك؟"
+
+msgid "Review & confirm"
+msgstr "مراجعة وتأكيد"
+
+msgid "Check your details before submitting"
+msgstr "تحقق من بياناتك قبل الإرسال"
+
+msgid "Personal"
+msgstr "الشخصية"
+
+msgid "Name"
+msgstr "الاسم"
+
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+msgid "Phone"
+msgstr "الهاتف"
+
+msgid "Provider"
+msgstr "مزود خدمة"
+
+msgid "Create account"
+msgstr "إنشاء الحساب"
+
+msgid "Under Review"
+msgstr "قيد المراجعة"
+
+msgid "Almost there"
+msgstr "اقتربت من الهدف"
+
+msgid "We carefully review every application to ensure quality for our users."
+msgstr "نراجع كل طلب بعناية لضمان الجودة لمستخدمينا."
+
+msgid "Application received"
+msgstr "تم استلام طلبك"
+
+msgid "Under review"
+msgstr "قيد المراجعة"
+
+msgid "Your application is being reviewed. You'll receive an email notification within 1–2 business days."
+msgstr "طلبك قيد المراجعة حالياً. ستتلقى إشعاراً على بريدك الإلكتروني خلال ١-٢ يوم عمل."
+
+msgid "Notification will be sent to"
+msgstr "سيُرسل الإشعار إلى"
+
+msgid "Sign out"
+msgstr "تسجيل الخروج"
+
+msgid "Account Suspended"
+msgstr "الحساب موقوف"
+
+msgid "Account suspended"
+msgstr "الحساب موقوف"
+
+msgid "Contact our support team to resolve your account status."
+msgstr "تواصل مع فريق الدعم لحل مشكلة حسابك."
+
+msgid "Access restricted"
+msgstr "الوصول مقيّد"
+
+msgid "Your provider account has been suspended. Contact our support team to understand the reason and restore access."
+msgstr "تم إيقاف حساب مزود الخدمة الخاص بك. تواصل مع فريق الدعم لمعرفة السبب واستعادة الوصول."
+
+msgid "Support email"
+msgstr "البريد الإلكتروني للدعم"
+
+msgid "Main navigation"
+msgstr "التنقل الرئيسي"
+
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+msgid "Branches"
+msgstr "الفروع"
+
+msgid "Subscription Plans"
+msgstr "خطط الاشتراك"
+
+msgid "Subscribers"
+msgstr "المشتركون"
+
+msgid "Professional Profile"
+msgstr "الملف المهني"
+
+msgid "Availability"
+msgstr "أوقات الإتاحة"
+
+msgid "Bookings"
+msgstr "الحجوزات"
+
+msgid "Menu"
+msgstr "القائمة"
+
+msgid "Orders"
+msgstr "الطلبات"
+
+msgid "Products"
+msgstr "المنتجات"
+
+msgid "Finance"
+msgstr "المالية"
+
+msgid "Earnings"
+msgstr "الأرباح"
+
+msgid "Profile"
+msgstr "الملف الشخصي"
+
+msgid "Logout"
+msgstr "تسجيل الخروج"
+
+msgid "Toggle menu"
+msgstr "فتح/إغلاق القائمة"
+
+msgid "Notifications"
+msgstr "الإشعارات"
+
+msgid "unread notifications"
+msgstr "إشعارات غير مقروءة"
+
+msgid "Language switcher"
+msgstr "تغيير اللغة"
+
+msgid "Enter your full name"
+msgstr "أدخل اسمك الكامل"
+
+msgid "Minimum 8 characters"
+msgstr "٨ أحرف على الأقل"
+
+msgid "Repeat your password"
+msgstr "أعد إدخال كلمة المرور"
+
+msgid "This email address is already registered."
+msgstr "هذا البريد الإلكتروني مسجل بالفعل."
+
+msgid "Enter a valid Saudi phone number (e.g. 0512345678)."
+msgstr "أدخل رقم هاتف سعودياً صحيحاً (مثال: 0512345678)."
+
+msgid "Password must be at least %(min)d characters long."
+msgstr "يجب أن تتكون كلمة المرور من %(min)d أحرف على الأقل."
+
+msgid "Passwords do not match."
+msgstr "كلمتا المرور غير متطابقتين."
+
+msgid "Please select a valid provider type."
+msgstr "يرجى اختيار نوع مزود خدمة صحيح."
+
+msgid "Please select your city."
+msgstr "يرجى اختيار مدينتك."
+
+msgid "Registration failed due to a system error. Please try again."
+msgstr "فشل التسجيل بسبب خطأ في النظام. يرجى المحاولة مرة أخرى."
+
+msgid "Invalid email or password. Please try again."
+msgstr "البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى."
+
+msgid "This account has been deactivated. Please contact support."
+msgstr "تم تعطيل هذا الحساب. يرجى التواصل مع الدعم."
+
+msgid "Account setup is incomplete. Please contact support."
+msgstr "إعداد الحساب غير مكتمل. يرجى التواصل مع الدعم."
+
+msgid "Current password is incorrect."
+msgstr "كلمة المرور الحالية غير صحيحة."
+
+msgid "Your session expired. Please start over."
+msgstr "انتهت صلاحية جلستك. يرجى البدء من جديد."
+
+msgid "Please add your bank details before requesting a withdrawal."
+msgstr "يرجى إضافة بياناتك البنكية قبل طلب السحب."
+
+msgid "Withdrawal amount exceeds your available balance of %(balance)s SAR."
+msgstr "مبلغ السحب يتجاوز رصيدك المتاح البالغ %(balance)s ريال."
+
+msgid "Minimum withdrawal amount is %(min)s SAR."
+msgstr "الحد الأدنى لمبلغ السحب هو %(min)s ريال."
+
+msgid "Maximum withdrawal amount is %(max)s SAR."
+msgstr "الحد الأقصى لمبلغ السحب هو %(max)s ريال."
+
+msgid "Failed to submit withdrawal request. Please try again."
+msgstr "فشل إرسال طلب السحب. يرجى المحاولة مرة أخرى."
+
+msgid "Branch not found."
+msgstr "الفرع غير موجود."
+
+msgid "Failed to create branch. Please try again."
+msgstr "فشل إنشاء الفرع. يرجى المحاولة مرة أخرى."
+
+msgid "Failed to update branch. Please try again."
+msgstr "فشل تحديث الفرع. يرجى المحاولة مرة أخرى."
+
+msgid "Failed to delete branch. Please try again."
+msgstr "فشل حذف الفرع. يرجى المحاولة مرة أخرى."
+
+msgid "Subscription plan not found."
+msgstr "خطة الاشتراك غير موجودة."
+
+msgid "Failed to create plan. Please try again."
+msgstr "فشل إنشاء الخطة. يرجى المحاولة مرة أخرى."
+
+msgid "Failed to update plan. Please try again."
+msgstr "فشل تحديث الخطة. يرجى المحاولة مرة أخرى."
+
+msgid "Failed to update profile. Please try again."
+msgstr "فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى."
+
+msgid "Failed to save availability. Please try again."
+msgstr "فشل حفظ أوقات الإتاحة. يرجى المحاولة مرة أخرى."
+
+msgid "Booking not found."
+msgstr "الحجز غير موجود."
+
+msgid "Only pending bookings can be accepted."
+msgstr "يمكن قبول الحجوزات المعلقة فقط."
+
+msgid "Only pending bookings can be rejected."
+msgstr "يمكن رفض الحجوزات المعلقة فقط."
+
+msgid "Pending"
+msgstr "قيد المراجعة"
+
+msgid "Approved"
+msgstr "مقبول"
+
+msgid "Active"
+msgstr "نشط"
+
+msgid "Suspended"
+msgstr "موقوف"
+
+msgid "User"
+msgstr "مستخدم"
+
+msgid "Status"
+msgstr "الحالة"
+
+msgid "Logo"
+msgstr "الشعار"
+
+msgid "Address"
+msgstr "العنوان"
+
+msgid "Commercial registration number"
+msgstr "رقم السجل التجاري"
+
+msgid "Tax ID number"
+msgstr "الرقم الضريبي"
+
+msgid "Bank name"
+msgstr "اسم البنك"
+
+msgid "IBAN"
+msgstr "رقم الآيبان"
+
+msgid "Bank account number"
+msgstr "رقم الحساب البنكي"
+
+msgid "Created at"
+msgstr "تاريخ الإنشاء"
+
+msgid "Updated at"
+msgstr "تاريخ التحديث"
+
+msgid "Customer"
+msgstr "عميل"
+
+msgid "Admin"
+msgstr "مدير"
+
+msgid "Male"
+msgstr "ذكر"
+
+msgid "Female"
+msgstr "أنثى"
+
+msgid "Unspecified"
+msgstr "غير محدد"
+
+msgid "Email address is required."
+msgstr "البريد الإلكتروني مطلوب."
+
+msgid "Phone verified"
+msgstr "تم التحقق من الهاتف"
+
+msgid "Avatar"
+msgstr "الصورة الشخصية"
+
+msgid "Date of birth"
+msgstr "تاريخ الميلاد"
+
+msgid "Gender"
+msgstr "الجنس"
+
+msgid "Role"
+msgstr "الدور"
+
+msgid "Staff"
+msgstr "موظف"
+
+msgid "Verified"
+msgstr "موثق"
+
+msgid "Premium"
+msgstr "مميز"
+
+msgid "Premium since"
+msgstr "عضوية مميزة منذ"
+
+msgid "Points balance"
+msgstr "رصيد النقاط"
+
+msgid "Total points earned"
+msgstr "إجمالي النقاط المكتسبة"
+
+msgid "Date joined"
+msgstr "تاريخ التسجيل"
+
+msgid "Users"
+msgstr "المستخدمون"
+
+msgid "Credentials"
+msgstr "بيانات الدخول"
+
+msgid "Personal info"
+msgstr "المعلومات الشخصية"
+
+msgid "Location"
+msgstr "الموقع"
+
+msgid "Role & Status"
+msgstr "الدور والحالة"
+
+msgid "Points"
+msgstr "النقاط"
+
+msgid "Permissions"
+msgstr "الصلاحيات"
+
+msgid "Timestamps"
+msgstr "التواريخ"
+
+msgid "Legal"
+msgstr "المعلومات القانونية"
+
+msgid "Financial"
+msgstr "المعلومات المالية"
+
+msgid "Activate selected providers"
+msgstr "تفعيل مزودي الخدمات المحددين"
+
+msgid "Selected providers have been activated."
+msgstr "تم تفعيل مزودي الخدمات المحددين."
+
+msgid "Suspend selected providers"
+msgstr "إيقاف مزودي الخدمات المحددين"
+
+msgid "Selected providers have been suspended."
+msgstr "تم إيقاف مزودي الخدمات المحددين."
+
+msgid "Approve selected providers"
+msgstr "قبول مزودي الخدمات المحددين"
+
+msgid "Selected providers have been approved."
+msgstr "تم قبول مزودي الخدمات المحددين."
+
+msgid "Resale"
+msgstr "إعادة البيع"
+
+msgid "Restaurants"
+msgstr "المطاعم"
+
+msgid "Reviews"
+msgstr "التقييمات"
+
+msgid "Stores"
+msgstr "المتاجر"
+
+msgid "Subscriptions"
+msgstr "الاشتراكات"
+
+msgid "Trainers"
+msgstr "المدربون"
+
+msgid "Riyadh"
+msgstr "الرياض"
+
+msgid "Jeddah"
+msgstr "جدة"
+
+msgid "Mecca"
+msgstr "مكة المكرمة"
+
+msgid "Medina"
+msgstr "المدينة المنورة"
+
+msgid "Dammam"
+msgstr "الدمام"
+
+msgid "Al Khobar"
+msgstr "الخبر"
+
+msgid "Dhahran"
+msgstr "الظهران"
+
+msgid "Tabuk"
+msgstr "تبوك"
+
+msgid "Abha"
+msgstr "أبها"
+
+msgid "Khamis Mushait"
+msgstr "خميس مشيط"
+
+msgid "Hail"
+msgstr "حائل"
+
+msgid "Najran"
+msgstr "نجران"
+
+msgid "Jubail"
+msgstr "الجبيل"
+
+msgid "Yanbu"
+msgstr "ينبع"
+
+msgid "Taif"
+msgstr "الطائف"
+
+msgid "Buraidah"
+msgstr "بريدة"
+
+msgid "Qatif"
+msgstr "القطيف"
+
+msgid "Al Hofuf"
+msgstr "الأحساء"
+
+msgid "Jizan"
+msgstr "جازان"
+
+msgid "Arar"
+msgstr "عرعر"
+
+msgid "Profile photo"
+msgstr "الصورة الشخصية"
+
+msgid "Street, district, building"
+msgstr "الشارع، الحي، المبنى"
+
+msgid "Business logo"
+msgstr "شعار النشاط التجاري"
+
+msgid "e.g. Al Rajhi Bank"
+msgstr "مثال: بنك الراجحي"
+
+msgid "SA followed by 22 digits"
+msgstr "SA متبوعة بـ 22 رقم"
+
+msgid "Enter a valid Saudi IBAN (SA followed by 22 digits)."
+msgstr "أدخل رقم آيبان سعودياً صحيحاً (SA متبوعة بـ 22 رقم)."
+
+msgid "Current password"
+msgstr "كلمة المرور الحالية"
+
+msgid "New password"
+msgstr "كلمة المرور الجديدة"
+
+msgid "Confirm new password"
+msgstr "تأكيد كلمة المرور الجديدة"
+
+msgid "Weight Loss"
+msgstr "إنقاص الوزن"
+
+msgid "Muscle Gain"
+msgstr "بناء العضلات"
+
+msgid "Rehabilitation"
+msgstr "إعادة التأهيل"
+
+msgid "Yoga"
+msgstr "يوغا"
+
+msgid "CrossFit"
+msgstr "كروس فيت"
+
+msgid "Boxing"
+msgstr "الملاكمة"
+
+msgid "Swimming"
+msgstr "السباحة"
+
+msgid "Nutrition Coaching"
+msgstr "التغذية الرياضية"
+
+msgid "Kids Fitness"
+msgstr "لياقة الأطفال"
+
+msgid "Senior Fitness"
+msgstr "لياقة كبار السن"
+
+msgid "Bio"
+msgstr "نبذة تعريفية"
+
+msgid "Tell clients about your background and approach"
+msgstr "أخبر العملاء عن خلفيتك وأسلوبك التدريبي"
+
+msgid "Years of experience"
+msgstr "سنوات الخبرة"
+
+msgid "Session price (SAR)"
+msgstr "سعر الجلسة (ريال)"
+
+msgid "Specializations"
+msgstr "التخصصات"
+
+msgid "Certification document"
+msgstr "وثيقة الاعتماد"
+
+msgid "PDF or image. Maximum 10MB."
+msgstr "PDF أو صورة. الحد الأقصى 10 ميجابايت."
+
+msgid "Start"
+msgstr "البداية"
+
+msgid "End"
+msgstr "النهاية"
+
+msgid "Plan name"
+msgstr "اسم الخطة"
+
+msgid "e.g. Monthly Premium"
+msgstr "مثال: الخطة الشهرية المميزة"
+
+msgid "What is included in this plan?"
+msgstr "ما الذي يتضمنه هذا الاشتراك؟"
+
+msgid "Duration (days)"
+msgstr "المدة (بالأيام)"
+
+msgid "e.g. 30"
+msgstr "مثال: 30"
+
+msgid "Price (SAR)"
+msgstr "السعر (ريال)"
+
+msgid "0.00"
+msgstr "0.00"
+
+msgid "Transferable (can be resold)"
+msgstr "قابل للتحويل (يمكن إعادة بيعه)"
+
+msgid "Features"
+msgstr "المميزات"
+
+msgid "One feature per line"
+msgstr "ميزة واحدة في كل سطر"
+
+msgid "Enter each feature on a new line."
+msgstr "أدخل كل ميزة في سطر جديد."
+
+msgid "Item name"
+msgstr "اسم الصنف"
+
+msgid "e.g. Grilled Chicken Salad"
+msgstr "مثال: سلطة الدجاج المشوي"
+
+msgid "Category"
+msgstr "الفئة"
+
+msgid "e.g. Salads, Main Course"
+msgstr "مثال: سلطات، أطباق رئيسية"
+
+msgid "Ingredients, preparation notes"
+msgstr "المكونات، ملاحظات التحضير"
+
+msgid "Calories"
+msgstr "السعرات الحرارية"
+
+msgid "Available"
+msgstr "متاح"
+
+msgid "Photo"
+msgstr "الصورة"
+
+msgid "Product name"
+msgstr "اسم المنتج"
+
+msgid "e.g. Whey Protein 1kg"
+msgstr "مثال: واي بروتين 1 كجم"
+
+msgid "e.g. Supplements, Equipment"
+msgstr "مثال: مكملات غذائية، معدات"
+
+msgid "Product details, specifications"
+msgstr "تفاصيل المنتج، المواصفات"
+
+msgid "Stock quantity"
+msgstr "الكمية في المخزون"
+
+msgid "SKU"
+msgstr "رمز المنتج"
+
+msgid "Product code"
+msgstr "كود المنتج"
+
+msgid "Withdrawal amount (SAR)"
+msgstr "مبلغ السحب (ريال)"
+
+msgid "Notes"
+msgstr "ملاحظات"
+
+msgid "Optional notes for this withdrawal"
+msgstr "ملاحظات اختيارية لهذا السحب"
+
+msgid "I confirm my bank details are correct"
+msgstr "أؤكد أن بياناتي البنكية صحيحة"
+
+msgid "Superuser must have is_staff=True."
+msgstr "يجب أن يكون المدير العام موظفاً."
+
+msgid "Superuser must have is_superuser=True."
+msgstr "يجب تفعيل صلاحيات المدير العام."
+
+msgid "Welcome!"
+msgstr "أهلاً بك!"
+
+msgid "Your Path to Strength"
+msgstr "طريقك إلى القوة"
+
+msgid "Provider Portal — Live"
+msgstr "بوابة مزودي الخدمة — مباشر"
+
+msgid "Forgot password?"
+msgstr "نسيت كلمة المرور؟"
+
+msgid "Login"
+msgstr "دخول"
+
+msgid "Or continue with"
+msgstr "أو تابع بواسطة"
+
+msgid "Google"
+msgstr "جوجل"
+
+msgid "Apple"
+msgstr "آبل"
+
+msgid "Sign Up"
+msgstr "إنشاء حساب"
+

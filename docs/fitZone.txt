@@ -1,0 +1,74 @@
+===> Name you project
+FitZone KSA
+
+
+===> Describe your project, goals, subject, etc ...
+
+FitZone is a Saudi fitness super-app that unifies the entire sports and wellness ecosystem into a single platform. Instead of juggling multiple apps, users find everything they need in one place: gyms, certified personal trainers, healthy restaurants, and sports equipment stores.
+The platform serves two distinct audiences simultaneously — regular users who consume fitness services, and business owners who provide them. Both are served through dedicated, professional interfaces.
+
+The Problem Being Solved
+Saudi athletes face four specific problems today:
+
+Lost subscriptions — Gym subscriptions are lost when a user can no longer attend. There is no way to recover the money or transfer the value to someone else.
+Fragmented discovery — Finding a good gym, a certified trainer, or a healthy restaurant requires searching across multiple platforms with no unified experience.
+Opaque billing — Gym billing is manual and non-transparent. Cancellation often requires an in-person visit.
+Unverified quality — Reviews are unverified. Trainer certifications are unconfirmed. Users cannot trust what they see.
+
+FitZone solves all four problems in a single platform.
+
+The Four Pillars
+Pillar 1 — Unified Smart Map
+The home screen is an interactive map centered on the user's current location. All nearby gyms, trainers, restaurants, and stores appear as live markers. The user taps any marker to open a full profile with photos, verified reviews, available plans, and a direct action — subscribe, book, or order. A professional filter system lets users narrow results by service type and adjust the search radius.
+Pillar 2 — Subscription Resale Marketplace
+The first of its kind in Saudi Arabia. When a user can no longer complete their gym subscription, instead of losing it entirely, they list it for sale on the platform. Another user in the same area finds it on the map, purchases it at a discounted price, and receives a new active QR code instantly. The transfer is atomic — the seller's QR is invalidated and the buyer's QR is activated in the same moment, with no room for fraud or duplication. The platform takes a transparent commission from every transaction.
+Pillar 3 — Digital QR Subscriptions
+Every gym subscription is a unique QR code tied to the user's identity. Gym entry is by scan. Billing is fully transparent. Cancellation is one tap — no in-person visits required.
+Pillar 4 — Verified Trust System
+Reviews are linked to verified check-ins only — a user can only review a gym after a confirmed real visit. Trainer certifications are manually reviewed by the platform before approval. No unverified claims, no anonymous feedback.
+
+Who We Serve
+Users (Athletes)
+Regular people looking for nearby gyms, reliable trainers, healthy food, and sports equipment. The app is completely free for them. They benefit from the map, the QR subscription system, and the resale marketplace.
+Gyms
+Gym owners who need a digital subscription system, a new marketing channel, and a way to appear in front of an active fitness audience. They manage everything through the Provider Portal — branches, subscription plans, earnings, and withdrawals.
+Personal Trainers
+Certified trainers who want a platform that validates their credentials and brings them bookings. Their certifications are reviewed and approved by the platform before they appear to users.
+Healthy Restaurants
+Restaurants targeting the fitness audience. They pay a recurring listing fee for visibility on the map and manage their presence through the Provider Portal.
+Sports Stores
+Equipment and supplements stores targeting active users. Same model as restaurants — listing fee and full Provider Portal access.
+
+The Three Interfaces
+1. User Mobile App (Flutter)
+The primary consumer interface. Available on iOS and Android. Features the interactive map, service discovery, subscription purchase, QR wallet, resale marketplace, and verified reviews. Arabic RTL as primary language, English as secondary.
+2. Provider Portal (Web + Tablet/Mobile Web)
+The interface for all service providers — gyms, trainers, restaurants, and stores. Web-first, responsive for tablets and phones. Providers register, set up their profile, add services, manage bookings and subscriptions, view earnings, and request withdrawals. This is the first interface to be built because without providers, there are no services to show users.
+3. Admin Dashboard (Web)
+A fully custom internal dashboard for the FitZone team. Manages every detail of the platform — user accounts, provider approvals, subscription oversight, resale market monitoring, financial reports, commission management, and platform-wide analytics. Built with complete control over every feature and report.
+
+Business Model
+Revenue comes entirely from the business side — the app is completely free for regular users.
+Revenue StreamSourceSubscription commissionGyms pay a percentage of every subscription sold through the platformListing feeRestaurants and stores pay a recurring fee for map presenceResale commissionPlatform takes a transparent cut from every peer-to-peer subscription transfer
+
+Tech Stack
+LayerTechnologyReasonBackendDjango 5.2 + Django REST FrameworkMature, scalable, excellent for complex data modelsDatabasePostgreSQL 16 + PostGISPostGIS enables professional geo-spatial search from day oneCache + QueueRedis 7 + CeleryAsync tasks, notifications, real-time operationsMobileFlutter + RiverpodSingle codebase for iOS and Android, RTL supportMaps (web)OpenStreetMap + Leaflet.jsFree, no API key required, professional qualityMaps (mobile)flutter_mapFlutter-native, works with OpenStreetMapPaymentsSaudi gateway (TBD)Mada, STC Pay, Apple Pay support requiredNotificationsFirebase FCMIndustry standard for push notificationsAuthJWT for API, Sessions for web portalsCorrect tool for each contextContainerDocker + Docker ComposeConsistent environment across all machines
+
+Development Phases
+PhaseScopePriority1Foundation — Docker, PostGIS, Django setup, tokens.css, base templates, i18n, User modelFirst — nothing else starts until this is verified2Provider Portal (web) — registration, login, dashboard, profile management, earningsSecond — needed before user app3Admin Dashboard — full custom dashboard, reports, approvals, financial overviewThird4Core API — all endpoints for the mobile appFourth5Mobile App (Flutter) — map, discovery, subscriptions, QR, resale, reviewsFifth6Payments + Notifications — payment gateway, FCM, email, Celery tasksSixth
+
+Key Technical Decisions
+PostGIS from day one — geo-spatial search is core to the product. Migrating from standard PostgreSQL later would be painful and risky.
+Provider Portal before user app — without providers and their services on the platform, the user app has nothing to show. The portal is the foundation.
+Atomic resale transfers — the QR invalidation and activation must happen in a single database transaction. If any step fails, everything rolls back. This is non-negotiable for security.
+Verified reviews only — no review is accepted without a confirmed check-in linked to a real subscription. This is what makes the trust system credible.
+Single tokens.css file — every color, spacing value, font, shadow, and border radius defined once. No value ever hardcoded in any page or component. Changing a color across the entire platform means changing one line in one file.
+i18n from day one — all user-facing text wrapped in {% trans %} from the first template written. Adding a new language in the future requires only a new .po translation file — zero code changes.
+
+What Makes FitZone Different
+
+The resale marketplace is the first of its kind in Saudi Arabia — a genuine competitive moat
+QR-based subscriptions eliminate all the friction of traditional gym billing
+Verified reviews tied to real check-ins create genuine trust — not just star ratings
+One map shows everything — gyms, trainers, restaurants, stores — no other platform does this in Saudi Arabia
+Vision 2030's focus on health and sports creates strong institutional and cultural demand for exactly this type of infrastructure

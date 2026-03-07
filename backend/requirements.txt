@@ -1,0 +1,31 @@
+# Core
+Django==5.2
+djangorestframework==3.16.0
+djangorestframework-simplejwt==5.5.0
+
+# Environment
+django-environ==0.12.0
+
+# CORS
+django-cors-headers==4.7.0
+
+# Database
+psycopg2-binary==2.9.10
+
+# Encryption
+django-encrypted-model-fields==0.6.5
+cryptography==44.0.0
+
+# Storage & Images
+Pillow==11.1.0
+
+# Cache & Queue
+redis==5.2.0
+celery==5.5.0
+django-celery-results==2.5.1
+
+# Dev utilities
+django-extensions==3.2.3
+
+# Production server
+gunicorn==23.0.0

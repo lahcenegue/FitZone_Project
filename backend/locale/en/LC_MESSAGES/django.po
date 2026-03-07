@@ -1,0 +1,1390 @@
+# English translations for FitZone.
+# Copyright (C) 2025 FitZone
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: FitZone 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-05 10:16+0300\n"
+"PO-Revision-Date: 2025-01-01 00:00+0300\n"
+"Last-Translator: FitZone Team\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps/dashboard/apps.py:12 templates/provider_portal/base.html:348
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: apps/gyms/apps.py:12
+msgid "Gyms"
+msgstr "Gyms"
+
+#: apps/notifications/apps.py:12 templates/provider_portal/base.html:512
+msgid "Notifications"
+msgstr "Notifications"
+
+#: apps/payments/apps.py:12
+msgid "Payments"
+msgstr "Payments"
+
+#: apps/provider_portal/apps.py:12
+#: templates/provider_portal/auth/base_auth.html:10
+#: templates/provider_portal/auth/login.html:10
+#: templates/provider_portal/base.html:10
+msgid "Provider Portal"
+msgstr "Provider Portal"
+
+#: apps/provider_portal/constants.py:47
+msgid "Riyadh"
+msgstr ""
+
+#: apps/provider_portal/constants.py:48
+msgid "Jeddah"
+msgstr ""
+
+#: apps/provider_portal/constants.py:49
+msgid "Mecca"
+msgstr ""
+
+#: apps/provider_portal/constants.py:50
+msgid "Medina"
+msgstr ""
+
+#: apps/provider_portal/constants.py:51
+msgid "Dammam"
+msgstr ""
+
+#: apps/provider_portal/constants.py:52
+msgid "Al Khobar"
+msgstr ""
+
+#: apps/provider_portal/constants.py:53
+msgid "Dhahran"
+msgstr ""
+
+#: apps/provider_portal/constants.py:54
+msgid "Tabuk"
+msgstr ""
+
+#: apps/provider_portal/constants.py:55
+msgid "Abha"
+msgstr ""
+
+#: apps/provider_portal/constants.py:56
+msgid "Khamis Mushait"
+msgstr ""
+
+#: apps/provider_portal/constants.py:57
+msgid "Hail"
+msgstr ""
+
+#: apps/provider_portal/constants.py:58
+msgid "Najran"
+msgstr ""
+
+#: apps/provider_portal/constants.py:59
+msgid "Jubail"
+msgstr ""
+
+#: apps/provider_portal/constants.py:60
+msgid "Yanbu"
+msgstr ""
+
+#: apps/provider_portal/constants.py:61
+msgid "Taif"
+msgstr ""
+
+#: apps/provider_portal/constants.py:62
+msgid "Buraidah"
+msgstr ""
+
+#: apps/provider_portal/constants.py:63
+msgid "Qatif"
+msgstr ""
+
+#: apps/provider_portal/constants.py:64
+msgid "Al Hofuf"
+msgstr ""
+
+#: apps/provider_portal/constants.py:65
+msgid "Jizan"
+msgstr ""
+
+#: apps/provider_portal/constants.py:66
+msgid "Arar"
+msgstr ""
+
+#: apps/provider_portal/constants.py:114
+msgid "Sunday"
+msgstr ""
+
+#: apps/provider_portal/constants.py:115
+msgid "Monday"
+msgstr ""
+
+#: apps/provider_portal/constants.py:116
+msgid "Tuesday"
+msgstr ""
+
+#: apps/provider_portal/constants.py:117
+msgid "Wednesday"
+msgstr ""
+
+#: apps/provider_portal/constants.py:118
+msgid "Thursday"
+msgstr ""
+
+#: apps/provider_portal/constants.py:119
+msgid "Friday"
+msgstr ""
+
+#: apps/provider_portal/constants.py:120
+msgid "Saturday"
+msgstr ""
+
+#: apps/provider_portal/decorators.py:103
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:34
+#: apps/provider_portal/forms/profile_forms.py:22 apps/users/models.py:101
+#: templates/provider_portal/auth/register.html:45
+msgid "Full name"
+msgstr "Full name"
+
+#: apps/provider_portal/forms/auth_forms.py:37
+msgid "Enter your full name"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:42
+#: apps/provider_portal/forms/auth_forms.py:201 apps/users/models.py:96
+#: templates/provider_portal/auth/login.html:18
+#: templates/provider_portal/auth/register.html:54
+msgid "Email address"
+msgstr "Email address"
+
+#: apps/provider_portal/forms/auth_forms.py:44
+#: apps/provider_portal/forms/auth_forms.py:203
+msgid "example@domain.com"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:49
+#: apps/provider_portal/forms/profile_forms.py:27 apps/users/models.py:105
+#: templates/provider_portal/auth/register.html:63
+msgid "Phone number"
+msgstr "Phone number"
+
+#: apps/provider_portal/forms/auth_forms.py:52
+#: apps/provider_portal/forms/gym_forms.py:56
+#: apps/provider_portal/forms/profile_forms.py:30
+msgid "05XXXXXXXX"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:57
+#: apps/provider_portal/forms/auth_forms.py:208
+#: templates/provider_portal/auth/login.html:39
+#: templates/provider_portal/auth/register.html:72
+msgid "Password"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:59
+msgid "Minimum 8 characters"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:64
+#: templates/provider_portal/auth/register.html:80
+msgid "Confirm password"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:66
+msgid "Repeat your password"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:76
+#: apps/provider_portal/services/auth_service.py:50
+#, fuzzy
+#| msgid "Email address is required."
+msgid "This email address is already registered."
+msgstr "Email address is required."
+
+#: apps/provider_portal/forms/auth_forms.py:97
+#: apps/provider_portal/forms/profile_forms.py:50
+msgid "Enter a valid Saudi phone number (e.g. 0512345678)."
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:106
+#: apps/provider_portal/forms/profile_forms.py:170
+#, python-format
+msgid "Password must be at least %(min)d characters long."
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:118
+#: apps/provider_portal/forms/profile_forms.py:182
+msgid "Passwords do not match."
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:129 apps/providers/models.py:67
+#, fuzzy
+#| msgid "Provider"
+msgid "Provider type"
+msgstr "Provider"
+
+#: apps/provider_portal/forms/auth_forms.py:139
+msgid "Please select a valid provider type."
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:150
+#: apps/provider_portal/forms/profile_forms.py:62 apps/providers/models.py:82
+#: templates/provider_portal/auth/register.html:201
+msgid "Business name"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:153
+msgid "Your gym, studio, or brand name"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:157
+#: apps/provider_portal/forms/gym_forms.py:28
+#: apps/provider_portal/forms/profile_forms.py:72 apps/providers/models.py:100
+#: apps/users/models.py:150 templates/provider_portal/auth/register.html:210
+#: templates/provider_portal/auth/register.html:308
+msgid "City"
+msgstr "City"
+
+#: apps/provider_portal/forms/auth_forms.py:158
+#: apps/provider_portal/forms/gym_forms.py:29
+#: apps/provider_portal/forms/profile_forms.py:73
+#: templates/provider_portal/auth/register.html:213
+msgid "Select a city"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:161
+#: apps/provider_portal/forms/profile_forms.py:84 apps/providers/models.py:113
+msgid "Commercial registration number"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:165
+msgid "CR number (optional)"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:169
+#: apps/provider_portal/forms/profile_forms.py:89 apps/providers/models.py:119
+msgid "Tax ID number"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:173
+msgid "VAT registration number (optional)"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:177
+#, fuzzy
+#| msgid "Subscriptions"
+msgid "Brief description"
+msgstr "Subscriptions"
+
+#: apps/provider_portal/forms/auth_forms.py:182
+msgid "Tell clients what makes your service unique"
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:190
+#: apps/provider_portal/forms/profile_forms.py:103
+msgid "Please select your city."
+msgstr ""
+
+#: apps/provider_portal/forms/auth_forms.py:210
+msgid "Your password"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:21
+msgid "Branch name"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:24
+msgid "e.g. Main Branch - Riyadh"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:32
+#: apps/provider_portal/forms/profile_forms.py:76 apps/providers/models.py:105
+#: apps/users/models.py:144
+msgid "Address"
+msgstr "Address"
+
+#: apps/provider_portal/forms/gym_forms.py:35
+msgid "Street, district, building number"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:39
+msgid "Latitude"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:46
+msgid "Longitude"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:53
+#, fuzzy
+#| msgid "Phone number"
+msgid "Branch phone number"
+msgstr "Phone number"
+
+#: apps/provider_portal/forms/gym_forms.py:59
+#: apps/provider_portal/forms/gym_forms.py:145 apps/providers/models.py:40
+#: apps/users/models.py:166
+msgid "Active"
+msgstr "Active"
+
+#: apps/provider_portal/forms/gym_forms.py:65
+msgid "Sunday open"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:66
+msgid "Sunday close"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:67
+msgid "Monday open"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:68
+msgid "Monday close"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:69
+msgid "Tuesday open"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:70
+msgid "Tuesday close"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:71
+msgid "Wednesday open"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:72
+msgid "Wednesday close"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:73
+msgid "Thursday open"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:74
+msgid "Thursday close"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:75
+msgid "Friday open"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:76
+msgid "Friday close"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:77
+msgid "Saturday open"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:78
+msgid "Saturday close"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:84
+msgid "Please select a city."
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:96
+msgid "Closing time must be after opening time."
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:108
+#, fuzzy
+#| msgid "Full name"
+msgid "Plan name"
+msgstr "Full name"
+
+#: apps/provider_portal/forms/gym_forms.py:111
+msgid "e.g. Monthly Premium"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:115
+#: apps/provider_portal/forms/profile_forms.py:66
+#: apps/provider_portal/forms/restaurant_store_forms.py:33
+#: apps/provider_portal/forms/restaurant_store_forms.py:89
+#: apps/providers/models.py:87 templates/provider_portal/auth/register.html:244
+#, fuzzy
+#| msgid "Subscriptions"
+msgid "Description"
+msgstr "Subscriptions"
+
+#: apps/provider_portal/forms/gym_forms.py:120
+msgid "What is included in this plan?"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:124
+msgid "Duration (days)"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:127
+msgid "e.g. 30"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:130
+#: apps/provider_portal/forms/restaurant_store_forms.py:42
+#: apps/provider_portal/forms/restaurant_store_forms.py:98
+msgid "Price (SAR)"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:135
+msgid "0.00"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:140
+msgid "Transferable (can be resold)"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:150
+msgid "Features"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:154
+msgid "One feature per line"
+msgstr ""
+
+#: apps/provider_portal/forms/gym_forms.py:156
+msgid "Enter each feature on a new line."
+msgstr ""
+
+#: apps/provider_portal/forms/profile_forms.py:35
+msgid "Profile photo"
+msgstr ""
+
+#: apps/provider_portal/forms/profile_forms.py:80
+msgid "Street, district, building"
+msgstr ""
+
+#: apps/provider_portal/forms/profile_forms.py:94
+msgid "Business logo"
+msgstr ""
+
+#: apps/provider_portal/forms/profile_forms.py:114 apps/providers/models.py:127
+msgid "Bank name"
+msgstr ""
+
+#: apps/provider_portal/forms/profile_forms.py:117
+msgid "e.g. Al Rajhi Bank"
+msgstr ""
+
+#: apps/provider_portal/forms/profile_forms.py:121 apps/providers/models.py:133
+msgid "IBAN"
+msgstr ""
+
+#: apps/provider_portal/forms/profile_forms.py:124
+msgid "SA followed by 22 digits"
+msgstr ""
+
+#: apps/provider_portal/forms/profile_forms.py:129 apps/providers/models.py:139
+msgid "Bank account number"
+msgstr ""
+
+#: apps/provider_portal/forms/profile_forms.py:140
+msgid "Enter a valid Saudi IBAN (SA followed by 22 digits)."
+msgstr ""
+
+#: apps/provider_portal/forms/profile_forms.py:152
+msgid "Current password"
+msgstr ""
+
+#: apps/provider_portal/forms/profile_forms.py:156
+msgid "New password"
+msgstr ""
+
+#: apps/provider_portal/forms/profile_forms.py:160
+msgid "Confirm new password"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:19
+msgid "Item name"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:22
+msgid "e.g. Grilled Chicken Salad"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:26
+#: apps/provider_portal/forms/restaurant_store_forms.py:82
+msgid "Category"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:29
+msgid "e.g. Salads, Main Course"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:38
+msgid "Ingredients, preparation notes"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:52
+msgid "Calories"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:58
+#: apps/provider_portal/forms/restaurant_store_forms.py:120
+msgid "Available"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:63
+#: apps/provider_portal/forms/restaurant_store_forms.py:125
+msgid "Photo"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:75
+msgid "Product name"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:78
+msgid "e.g. Whey Protein 1kg"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:85
+msgid "e.g. Supplements, Equipment"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:94
+msgid "Product details, specifications"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:108
+msgid "Stock quantity"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:114
+msgid "SKU"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:117
+msgid "Product code"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:138
+msgid "Withdrawal amount (SAR)"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:148
+msgid "Notes"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:153
+msgid "Optional notes for this withdrawal"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:157
+msgid "I confirm my bank details are correct"
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:167
+#: apps/provider_portal/services/earnings_service.py:112
+#, python-format
+msgid "Minimum withdrawal amount is %(min)s SAR."
+msgstr ""
+
+#: apps/provider_portal/forms/restaurant_store_forms.py:173
+#: apps/provider_portal/services/earnings_service.py:119
+#, python-format
+msgid "Maximum withdrawal amount is %(max)s SAR."
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:14
+msgid "Weight Loss"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:15
+msgid "Muscle Gain"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:16
+msgid "Rehabilitation"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:17
+msgid "Yoga"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:18
+msgid "CrossFit"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:19
+msgid "Boxing"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:20
+msgid "Swimming"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:21
+msgid "Nutrition Coaching"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:22
+msgid "Kids Fitness"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:23
+msgid "Senior Fitness"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:34
+msgid "Bio"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:39
+msgid "Tell clients about your background and approach"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:43
+msgid "Years of experience"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:49
+msgid "Session price (SAR)"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:59
+msgid "Specializations"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:65
+msgid "Certification document"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:70
+msgid "PDF or image. Maximum 10MB."
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:88
+msgid "Start"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:93
+msgid "End"
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:109
+#, python-format
+msgid "Start time is required for %(day)s."
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:114
+#, python-format
+msgid "End time is required for %(day)s."
+msgstr ""
+
+#: apps/provider_portal/forms/trainer_forms.py:119
+#, python-format
+msgid "End time must be after start time for %(day)s."
+msgstr ""
+
+#: apps/provider_portal/services/auth_service.py:89
+msgid "Registration failed due to a system error. Please try again."
+msgstr ""
+
+#: apps/provider_portal/services/auth_service.py:114
+#: apps/provider_portal/services/auth_service.py:129
+msgid "Invalid email or password. Please try again."
+msgstr ""
+
+#: apps/provider_portal/services/auth_service.py:120
+msgid "This account has been deactivated. Please contact support."
+msgstr ""
+
+#: apps/provider_portal/services/auth_service.py:135
+msgid "Account setup is incomplete. Please contact support."
+msgstr ""
+
+#: apps/provider_portal/services/auth_service.py:178
+msgid "Current password is incorrect."
+msgstr ""
+
+#: apps/provider_portal/services/earnings_service.py:97
+msgid "Please add your bank details before requesting a withdrawal."
+msgstr ""
+
+#: apps/provider_portal/services/earnings_service.py:105
+#, python-format
+msgid "Withdrawal amount exceeds your available balance of %(balance)s SAR."
+msgstr ""
+
+#: apps/provider_portal/services/earnings_service.py:144
+msgid "Failed to submit withdrawal request. Please try again."
+msgstr ""
+
+#: apps/provider_portal/services/gym_service.py:63
+msgid "Branch not found."
+msgstr ""
+
+#: apps/provider_portal/services/gym_service.py:111
+msgid "Failed to create branch. Please try again."
+msgstr ""
+
+#: apps/provider_portal/services/gym_service.py:158
+msgid "Failed to update branch. Please try again."
+msgstr ""
+
+#: apps/provider_portal/services/gym_service.py:185
+msgid "Failed to delete branch. Please try again."
+msgstr ""
+
+#: apps/provider_portal/services/gym_service.py:251
+msgid "Subscription plan not found."
+msgstr ""
+
+#: apps/provider_portal/services/gym_service.py:288
+msgid "Failed to create plan. Please try again."
+msgstr ""
+
+#: apps/provider_portal/services/gym_service.py:328
+msgid "Failed to update plan. Please try again."
+msgstr ""
+
+#: apps/provider_portal/services/trainer_service.py:67
+msgid "Failed to update profile. Please try again."
+msgstr ""
+
+#: apps/provider_portal/services/trainer_service.py:109
+msgid "Failed to save availability. Please try again."
+msgstr ""
+
+#: apps/provider_portal/services/trainer_service.py:171
+msgid "Booking not found."
+msgstr ""
+
+#: apps/provider_portal/services/trainer_service.py:191
+msgid "Only pending bookings can be accepted."
+msgstr ""
+
+#: apps/provider_portal/services/trainer_service.py:220
+msgid "Only pending bookings can be rejected."
+msgstr ""
+
+#: apps/provider_portal/views/auth_views.py:243
+msgid "Your session expired. Please start over."
+msgstr ""
+
+#: apps/providers/admin.py:32 templates/provider_portal/auth/register.html:22
+#: templates/provider_portal/base.html:466
+msgid "Account"
+msgstr ""
+
+#: apps/providers/admin.py:35 templates/provider_portal/auth/register.html:24
+#: templates/provider_portal/auth/register.html:302
+msgid "Business"
+msgstr ""
+
+#: apps/providers/admin.py:38
+msgid "Legal"
+msgstr ""
+
+#: apps/providers/admin.py:41
+msgid "Financial"
+msgstr ""
+
+#: apps/providers/admin.py:45 apps/users/admin.py:28
+msgid "Timestamps"
+msgstr "Timestamps"
+
+#: apps/providers/admin.py:52
+msgid "Activate selected providers"
+msgstr ""
+
+#: apps/providers/admin.py:57
+msgid "Selected providers have been activated."
+msgstr ""
+
+#: apps/providers/admin.py:59
+msgid "Suspend selected providers"
+msgstr ""
+
+#: apps/providers/admin.py:64
+msgid "Selected providers have been suspended."
+msgstr ""
+
+#: apps/providers/admin.py:66
+msgid "Approve selected providers"
+msgstr ""
+
+#: apps/providers/admin.py:71
+msgid "Selected providers have been approved."
+msgstr ""
+
+#: apps/providers/apps.py:14 apps/providers/models.py:157
+#: templates/provider_portal/auth/base_auth.html:793
+msgid "Providers"
+msgstr "Providers"
+
+#: apps/providers/models.py:24 templates/provider_portal/auth/register.html:127
+#: templates/provider_portal/base.html:352
+#, fuzzy
+#| msgid "Gyms"
+msgid "Gym"
+msgstr "Gyms"
+
+#: apps/providers/models.py:25 templates/provider_portal/auth/register.html:139
+#: templates/provider_portal/base.html:383
+#, fuzzy
+#| msgid "Trainers"
+msgid "Trainer"
+msgstr "Trainers"
+
+#: apps/providers/models.py:26 templates/provider_portal/auth/register.html:152
+#: templates/provider_portal/base.html:412
+#, fuzzy
+#| msgid "Restaurants"
+msgid "Restaurant"
+msgstr "Restaurants"
+
+#: apps/providers/models.py:27 templates/provider_portal/auth/register.html:166
+#: templates/provider_portal/base.html:433
+#, fuzzy
+#| msgid "Stores"
+msgid "Store"
+msgstr "Stores"
+
+#: apps/providers/models.py:38
+msgid "Pending"
+msgstr ""
+
+#: apps/providers/models.py:39
+msgid "Approved"
+msgstr ""
+
+#: apps/providers/models.py:41
+msgid "Suspended"
+msgstr ""
+
+#: apps/providers/models.py:62 apps/users/models.py:215
+msgid "User"
+msgstr "User"
+
+#: apps/providers/models.py:73
+#, fuzzy
+#| msgid "Role & Status"
+msgid "Status"
+msgstr "Role & Status"
+
+#: apps/providers/models.py:92
+msgid "Logo"
+msgstr ""
+
+#: apps/providers/models.py:147
+#, fuzzy
+#| msgid "Updated at"
+msgid "Created at"
+msgstr "Updated at"
+
+#: apps/providers/models.py:151 apps/users/models.py:205
+msgid "Updated at"
+msgstr "Updated at"
+
+#: apps/providers/models.py:156 apps/users/models.py:23
+#: templates/provider_portal/auth/register.html:294
+msgid "Provider"
+msgstr "Provider"
+
+#: apps/resale/apps.py:12
+msgid "Resale"
+msgstr "Resale"
+
+#: apps/restaurants/apps.py:12
+msgid "Restaurants"
+msgstr "Restaurants"
+
+#: apps/reviews/apps.py:12
+msgid "Reviews"
+msgstr "Reviews"
+
+#: apps/stores/apps.py:12
+msgid "Stores"
+msgstr "Stores"
+
+#: apps/subscriptions/apps.py:12
+msgid "Subscriptions"
+msgstr "Subscriptions"
+
+#: apps/trainers/apps.py:12
+msgid "Trainers"
+msgstr "Trainers"
+
+#: apps/users/admin.py:21
+msgid "Credentials"
+msgstr "Credentials"
+
+#: apps/users/admin.py:22
+msgid "Personal info"
+msgstr "Personal info"
+
+#: apps/users/admin.py:23 apps/users/models.py:137
+msgid "Location"
+msgstr "Location"
+
+#: apps/users/admin.py:24
+msgid "Role & Status"
+msgstr "Role & Status"
+
+#: apps/users/admin.py:25 apps/users/models.py:180
+msgid "Premium"
+msgstr "Premium"
+
+#: apps/users/admin.py:26
+#, fuzzy
+#| msgid "Points balance"
+msgid "Points"
+msgstr "Points balance"
+
+#: apps/users/admin.py:27
+msgid "Permissions"
+msgstr "Permissions"
+
+#: apps/users/apps.py:14 apps/users/models.py:216
+msgid "Users"
+msgstr "Users"
+
+#: apps/users/models.py:22
+msgid "Customer"
+msgstr "Customer"
+
+#: apps/users/models.py:24
+msgid "Admin"
+msgstr "Admin"
+
+#: apps/users/models.py:29
+msgid "Male"
+msgstr "Male"
+
+#: apps/users/models.py:30
+msgid "Female"
+msgstr "Female"
+
+#: apps/users/models.py:31
+msgid "Unspecified"
+msgstr "Unspecified"
+
+#: apps/users/models.py:49
+msgid "Email address is required."
+msgstr "Email address is required."
+
+#: apps/users/models.py:73
+msgid "Superuser must have is_staff=True."
+msgstr "Superuser must have is_staff=True."
+
+#: apps/users/models.py:75
+msgid "Superuser must have is_superuser=True."
+msgstr "Superuser must have is_superuser=True."
+
+#: apps/users/models.py:112
+msgid "Phone verified"
+msgstr "Phone verified"
+
+#: apps/users/models.py:118
+msgid "Avatar"
+msgstr "Avatar"
+
+#: apps/users/models.py:124
+msgid "Date of birth"
+msgstr "Date of birth"
+
+#: apps/users/models.py:129
+msgid "Gender"
+msgstr "Gender"
+
+#: apps/users/models.py:159
+msgid "Role"
+msgstr "Role"
+
+#: apps/users/models.py:170
+msgid "Staff"
+msgstr "Staff"
+
+#: apps/users/models.py:174
+msgid "Verified"
+msgstr "Verified"
+
+#: apps/users/models.py:184
+msgid "Premium since"
+msgstr "Premium since"
+
+#: apps/users/models.py:191
+msgid "Points balance"
+msgstr "Points balance"
+
+#: apps/users/models.py:195
+msgid "Total points earned"
+msgstr "Total points earned"
+
+#: apps/users/models.py:201
+msgid "Date joined"
+msgstr "Date joined"
+
+#: templates/base.html:31
+msgid "Language switcher"
+msgstr "Language switcher"
+
+#: templates/provider_portal/auth/base_auth.html:785
+msgid "Grow your fitness business"
+msgstr ""
+
+#: templates/provider_portal/auth/base_auth.html:786
+msgid ""
+"The complete platform for gyms, trainers, restaurants, and sports stores "
+"across Saudi Arabia."
+msgstr ""
+
+#: templates/provider_portal/auth/base_auth.html:797
+#, fuzzy
+#| msgid "Active"
+msgid "Active users"
+msgstr "Active"
+
+#: templates/provider_portal/auth/base_auth.html:801
+msgid "Cities"
+msgstr ""
+
+#: templates/provider_portal/auth/login.html:4
+msgid "Sign In"
+msgstr ""
+
+#: templates/provider_portal/auth/login.html:5
+msgid "Welcome back to your portal"
+msgstr ""
+
+#: templates/provider_portal/auth/login.html:6
+msgid "Manage subscriptions, bookings, and earnings — all in one place."
+msgstr ""
+
+#: templates/provider_portal/auth/login.html:11
+#: templates/provider_portal/auth/login.html:65
+#: templates/provider_portal/auth/register.html:102
+msgid "Sign in"
+msgstr ""
+
+#: templates/provider_portal/auth/login.html:12
+msgid "Enter your credentials to access your account"
+msgstr ""
+
+#: templates/provider_portal/auth/login.html:71
+msgid "Don't have an account?"
+msgstr ""
+
+#: templates/provider_portal/auth/login.html:72
+#, fuzzy
+#| msgid "Date joined"
+msgid "Create one"
+msgstr "Date joined"
+
+#: templates/provider_portal/auth/pending.html:4
+#, fuzzy
+#| msgid "Reviews"
+msgid "Under Review"
+msgstr "Reviews"
+
+#: templates/provider_portal/auth/pending.html:5
+msgid "Almost there"
+msgstr ""
+
+#: templates/provider_portal/auth/pending.html:6
+msgid "We carefully review every application to ensure quality for our users."
+msgstr ""
+
+#: templates/provider_portal/auth/pending.html:18
+msgid "Application received"
+msgstr ""
+
+#: templates/provider_portal/auth/pending.html:19
+msgid "Under review"
+msgstr ""
+
+#: templates/provider_portal/auth/pending.html:21
+msgid ""
+"Your application is being reviewed. You'll receive an email notification "
+"within 1–2 business days."
+msgstr ""
+
+#: templates/provider_portal/auth/pending.html:25
+#, fuzzy
+#| msgid "Notifications"
+msgid "Notification will be sent to"
+msgstr "Notifications"
+
+#: templates/provider_portal/auth/pending.html:31
+#: templates/provider_portal/auth/suspended.html:31
+msgid "Sign out"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:4
+msgid "Create Account"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:5
+msgid "Start managing your fitness business"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:6
+msgid ""
+"Join hundreds of providers who use FitZone to grow their client base across "
+"Saudi Arabia."
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:11
+msgid "Registration steps"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:23
+#: templates/provider_portal/auth/register.html:296
+msgid "Type"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:25
+#, fuzzy
+#| msgid "Reviews"
+msgid "Review"
+msgstr "Reviews"
+
+#: templates/provider_portal/auth/register.html:37
+msgid "Create your account"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:38
+msgid "Personal information to get started"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:49
+#, fuzzy
+#| msgid "Full name"
+msgid "Your full name"
+msgstr "Full name"
+
+#: templates/provider_portal/auth/register.html:75
+msgid "Min. 8 characters"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:93
+#: templates/provider_portal/auth/register.html:182
+#: templates/provider_portal/auth/register.html:259
+msgid "Continue"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:102
+msgid "Already have an account?"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:108
+msgid "What do you offer?"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:109
+msgid "Select your provider category"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:128
+#, fuzzy
+#| msgid "Subscriptions"
+msgid "Branches & subscriptions"
+msgstr "Subscriptions"
+
+#: templates/provider_portal/auth/register.html:140
+msgid "Sessions & bookings"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:153
+msgid "Menu & delivery"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:167
+msgid "Products & equipment"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:179
+#: templates/provider_portal/auth/register.html:256
+#: templates/provider_portal/auth/register.html:324
+msgid "Back"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:193
+msgid "Your business"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:194
+msgid "Tell us about your business"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:205
+msgid "Your brand name"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:224
+msgid "Commercial registration"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:225
+#: templates/provider_portal/auth/register.html:235
+#: templates/provider_portal/auth/register.html:245
+#, fuzzy
+#| msgid "Location"
+msgid "optional"
+msgstr "Location"
+
+#: templates/provider_portal/auth/register.html:229
+#: templates/provider_portal/auth/register.html:313
+#, fuzzy
+#| msgid "Phone number"
+msgid "CR number"
+msgstr "Phone number"
+
+#: templates/provider_portal/auth/register.html:234
+msgid "Tax ID"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:239
+#, fuzzy
+#| msgid "Phone number"
+msgid "VAT number"
+msgstr "Phone number"
+
+#: templates/provider_portal/auth/register.html:248
+msgid "What makes your service unique?"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:270
+msgid "Review & confirm"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:271
+msgid "Check your details before submitting"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:278
+#, fuzzy
+#| msgid "Personal info"
+msgid "Personal"
+msgstr "Personal info"
+
+#: templates/provider_portal/auth/register.html:280
+#: templates/provider_portal/auth/register.html:304
+msgid "Name"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:284
+msgid "Email"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:288
+msgid "Phone"
+msgstr ""
+
+#: templates/provider_portal/auth/register.html:327
+msgid "Create account"
+msgstr ""
+
+#: templates/provider_portal/auth/suspended.html:4
+msgid "Account Suspended"
+msgstr ""
+
+#: templates/provider_portal/auth/suspended.html:5
+#: templates/provider_portal/auth/suspended.html:19
+msgid "Account suspended"
+msgstr ""
+
+#: templates/provider_portal/auth/suspended.html:6
+msgid "Contact our support team to resolve your account status."
+msgstr ""
+
+#: templates/provider_portal/auth/suspended.html:18
+msgid "Access restricted"
+msgstr ""
+
+#: templates/provider_portal/auth/suspended.html:21
+msgid ""
+"Your provider account has been suspended. Contact our support team to "
+"understand the reason and restore access."
+msgstr ""
+
+#: templates/provider_portal/auth/suspended.html:25
+msgid "Support email"
+msgstr ""
+
+#: templates/provider_portal/base.html:332
+msgid "Main navigation"
+msgstr ""
+
+#: templates/provider_portal/base.html:359
+msgid "Branches"
+msgstr ""
+
+#: templates/provider_portal/base.html:369
+#, fuzzy
+#| msgid "Subscriptions"
+msgid "Subscription Plans"
+msgstr "Subscriptions"
+
+#: templates/provider_portal/base.html:378
+#, fuzzy
+#| msgid "Subscriptions"
+msgid "Subscribers"
+msgstr "Subscriptions"
+
+#: templates/provider_portal/base.html:390
+msgid "Professional Profile"
+msgstr ""
+
+#: templates/provider_portal/base.html:399
+msgid "Availability"
+msgstr ""
+
+#: templates/provider_portal/base.html:407
+msgid "Bookings"
+msgstr ""
+
+#: templates/provider_portal/base.html:419
+msgid "Menu"
+msgstr ""
+
+#: templates/provider_portal/base.html:428
+#: templates/provider_portal/base.html:450
+#, fuzzy
+#| msgid "Providers"
+msgid "Orders"
+msgstr "Providers"
+
+#: templates/provider_portal/base.html:441
+msgid "Products"
+msgstr ""
+
+#: templates/provider_portal/base.html:455
+msgid "Finance"
+msgstr ""
+
+#: templates/provider_portal/base.html:462
+msgid "Earnings"
+msgstr ""
+
+#: templates/provider_portal/base.html:473
+msgid "Profile"
+msgstr ""
+
+#: templates/provider_portal/base.html:489
+msgid "Logout"
+msgstr ""
+
+#: templates/provider_portal/base.html:499
+msgid "Toggle menu"
+msgstr ""
+
+#: templates/provider_portal/base.html:518
+#, fuzzy
+#| msgid "Notifications"
+msgid "unread notifications"
+msgstr "Notifications"

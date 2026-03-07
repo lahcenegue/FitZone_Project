@@ -1,0 +1,55 @@
+{% load i18n static %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="google" content="notranslate" />
+  <meta name="description" content="{% block meta_description %}FitZone{% endblock %}" />
+  <title>{% block title %}FitZone{% endblock %}</title>
+
+  <!--
+    Fonts:
+    - Tajawal → Arabic (RTL) — selected via CSS [dir="rtl"]
+    - Inter   → English (LTR) — selected via CSS [dir="ltr"]
+    Switching is automatic based on the dir attribute above.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!--
+    Design tokens — single source of truth for every visual value.
+    Every color, spacing, radius, and shadow is a CSS variable defined here.
+    No value is ever hardcoded in any template or component.
+    To change a color across the entire project: change it once in tokens.css.
+  -->
+  <link rel="stylesheet" href="{% static 'global/css/tokens.css' %}" />
+
+  <!--
+    Logo — stored at: static/global/img/logo.png
+    Use it anywhere in any child template with:
+      <img src="{% static 'global/img/logo.png' %}" alt="FitZone" height="48">
+    No {% load static %} needed in child templates — it is already loaded above.
+  -->
+
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+  {% block body %}{% endblock %}
+
+  <!-- Global JS utilities: getCsrfToken, showAlert, formatCurrency, debounce, fetchWithCsrf -->
+  <script src="{% static 'global/js/global.js' %}"></script>
+
+  {% block extra_js %}{% endblock %}
+
+</body>
+</html>

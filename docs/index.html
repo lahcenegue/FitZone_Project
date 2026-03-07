@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitZone KSA — Investment Brief 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+/*
+  FitZone KSA — Investor Pitch
+  Direction: Swiss Editorial × Financial Times
+  Palette: Cream / Ink Black / Single Red Accent
+  Font: Cairo only — weights 200 to 900
+*/
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+
+:root {
+  --cream:    #F8F6F0;
+  --cream2:   #F1EEE6;
+  --paper:    #FFFFFF;
+  --ink:      #0C0C09;
+  --ink-70:   rgba(12,12,9,.70);
+  --ink-40:   rgba(12,12,9,.40);
+  --ink-20:   rgba(12,12,9,.20);
+  --ink-10:   rgba(12,12,9,.10);
+  --ink-05:   rgba(12,12,9,.05);
+  --red:      #B83320;
+  --red-lt:   rgba(184,51,32,.08);
+  --red-bd:   rgba(184,51,32,.20);
+  --f:        'Cairo', sans-serif;
+  --ease:     cubic-bezier(.22,1,.36,1);
+  --side:     clamp(24px, 6.5%, 100px);
+  --vsec:     clamp(90px, 11vw, 160px);
+}
+
+body {
+  font-family: var(--f);
+  background: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: var(--f); cursor: none; }
+
+/* ══════════════════════════════════════════
+   CURSOR — DOT + TRAILING RING
+══════════════════════════════════════════ */
+.c-dot {
+  position: fixed; z-index: 9999; pointer-events: none;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--ink);
+  transform: translate(-50%,-50%);
+  transition: width .15s, height .15s, background .2s;
+}
+.c-ring {
+  position: fixed; z-index: 9998; pointer-events: none;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1.5px solid rgba(12,12,9,.18);
+  transform: translate(-50%,-50%);
+  transition: width .35s var(--ease), height .35s var(--ease),
+              border-color .2s, background .2s;
+}
+.c-ring.on-hover  { width: 56px; height: 56px; border-color: rgba(12,12,9,.10); }
+.c-dot.on-hover   { width: 4px; height: 4px; }
+.c-ring.on-red    { border-color: var(--red-bd); background: var(--red-lt); }
+@media(hover:none){ .c-dot,.c-ring{display:none} body{cursor:auto} button{cursor:pointer} }
+
+/* ══════════════════════════════════════════
+   SCROLL REVEAL
+══════════════════════════════════════════ */
+.sr { opacity:0; transform:translateY(30px);
+  transition: opacity .9s var(--ease), transform .9s var(--ease); }
+.sr.vis { opacity:1; transform:none; }
+.sr.d1{transition-delay:.07s}.sr.d2{transition-delay:.15s}
+.sr.d3{transition-delay:.23s}.sr.d4{transition-delay:.33s}
+.sr.d5{transition-delay:.45s}
+
+/* ══════════════════════════════════════════
+   NAV
+══════════════════════════════════════════ */
+.nav {
+  position: fixed; top:0; inset-inline:0; z-index:200;
+  height: 58px;
+  display: flex; align-items: center;
+  padding: 0 var(--side);
+  justify-content: space-between;
+  border-bottom: 1px solid transparent;
+  transition: background .4s, border-color .4s, backdrop-filter .4s;
+}
+.nav.pinned {
+  background: rgba(248,246,240,.9);
+  backdrop-filter: blur(20px) saturate(160%);
+  border-color: var(--ink-10);
+}
+.nav-logo {
+  font-size: 12px; font-weight: 900;
+  letter-spacing: 7px; text-transform: uppercase;
+  color: var(--ink);
+}
+.nav-logo b { color: var(--red); font-style: normal; }
+.nav-links { display: flex; gap: 28px; list-style: none; }
+.nav-links a {
+  font-size: 11.5px; font-weight: 600; letter-spacing: .3px;
+  color: var(--ink-40); transition: color .2s;
+}
+.nav-links a:hover { color: var(--ink); }
+.nav-cta {
+  font-size: 12px; font-weight: 700;
+  padding: 9px 22px; border-radius: 4px;
+  background: var(--ink); color: var(--cream);
+  border: none; position: relative; overflow: hidden;
+  transition: transform .15s;
+}
+.nav-cta::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: var(--red);
+  transform: translateY(100%);
+  transition: transform .36s var(--ease);
+}
+.nav-cta:hover { transform: scale(1.04); }
+.nav-cta:hover::after { transform: translateY(0); }
+.nav-cta span { position: relative; z-index:1; }
+@media(max-width:840px){.nav-links{display:none}}
+
+/* ══════════════════════════════════════════
+   SECTION BASE
+══════════════════════════════════════════ */
+.sec { padding: var(--vsec) var(--side); position: relative; }
+.sec-cream  { background: var(--cream); }
+.sec-cream2 { background: var(--cream2); }
+.sec-paper  { background: var(--paper); }
+.sec-ink    { background: var(--ink); }
+
+/* Section header — label above rule */
+.sec-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center; gap: 16px;
+  margin-bottom: clamp(48px, 6vw, 88px);
+}
+.sh-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 4px; text-transform: uppercase;
+  color: var(--ink-40); white-space: nowrap;
+}
+.sh-rule { height: 1px; background: var(--ink-10); }
+.sh-num {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; color: var(--ink-20);
+}
+
+/* Headings */
+.h2 {
+  font-size: clamp(36px, 5.5vw, 76px);
+  font-weight: 900; line-height: .95;
+  letter-spacing: -2.5px; color: var(--ink);
+}
+.h2 .muted { color: var(--ink-20); }
+.h2 .accent { color: var(--red); }
+
+.lead {
+  font-size: 15px; font-weight: 400;
+  line-height: 1.9; color: var(--ink-40);
+  max-width: 520px;
+}
+
+/* ══════════════════════════════════════════
+   ① HERO — SPLIT + OVERSIZED TYPOGRAPHY
+══════════════════════════════════════════ */
+.hero {
+  min-height: 100svh;
+  padding-top: calc(58px + clamp(48px, 8vw, 96px));
+  padding-bottom: clamp(48px, 7vw, 88px);
+  padding-inline: var(--side);
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  align-items: end;
+  gap: clamp(40px, 6vw, 88px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Oversized background text */
+.hero-bg {
+  position: absolute;
+  bottom: -24px;
+  left: var(--side);
+  font-size: clamp(100px, 18vw, 200px);
+  font-weight: 200;
+  letter-spacing: -6px;
+  color: rgba(12,12,9,.04);
+  line-height: 1;
+  pointer-events: none; user-select: none;
+  white-space: nowrap;
+}
+
+/* Top accent stripe */
+.hero::before {
+  content: '';
+  position: absolute; top:0; right:0; left:0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, var(--red) 30%, transparent 100%);
+}
+
+.hero-kicker {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 32px;
+}
+.hk-dash { width: 20px; height: 2px; background: var(--red); }
+.hk-text {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 3.5px; text-transform: uppercase;
+  color: var(--red);
+}
+
+.hero-h1 {
+  font-size: clamp(48px, 7.5vw, 104px);
+  font-weight: 900; line-height: .92;
+  letter-spacing: -3.5px; color: var(--ink);
+  margin-bottom: 32px;
+}
+/* Animated underline */
+.hero-h1 .hl {
+  display: inline-block; position: relative;
+}
+.hero-h1 .hl::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; right:0; left:0;
+  height: 3px; background: var(--red);
+  transform-origin: right;
+  transform: scaleX(0);
+  transition: transform 1.2s var(--ease) 1.4s;
+}
+.hero-h1 .hl.go::after { transform: scaleX(1); }
+
+.hero-p {
+  font-size: 16px; font-weight: 400;
+  line-height: 1.85; color: var(--ink-40);
+  max-width: 520px; margin-bottom: 44px;
+}
+
+.hero-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 64px; }
+
+.btn-fill {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 13px 28px; border-radius: 4px;
+  background: var(--ink); color: var(--cream);
+  font-size: 13px; font-weight: 700; border: none;
+  position: relative; overflow: hidden;
+  transition: transform .15s;
+}
+.btn-fill::after {
+  content: '';
+  position: absolute; inset:0;
+  background: var(--red);
+  transform: translateX(110%);
+  transition: transform .42s var(--ease);
+}
+.btn-fill:hover { transform: scale(1.04); }
+.btn-fill:hover::after { transform: translateX(0); }
+.btn-fill span { position:relative; z-index:1; }
+
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 26px; border-radius: 4px;
+  background: transparent; color: var(--ink-40);
+  font-size: 13px; font-weight: 600;
+  border: 1px solid var(--ink-10);
+  transition: border-color .2s, color .2s;
+}
+.btn-ghost:hover { border-color: var(--ink-20); color: var(--ink-70); }
+
+/* Hero stat bar */
+.hero-stats {
+  display: flex;
+  border: 1px solid var(--ink-10);
+  border-radius: 6px; overflow: hidden;
+  width: fit-content;
+}
+.hs {
+  padding: 18px 28px;
+  border-left: 1px solid var(--ink-10);
+  transition: background .25s;
+}
+.hs:first-child { border-left: none; }
+.hs:hover { background: rgba(12,12,9,.03); }
+.hs-n {
+  font-size: 28px; font-weight: 900;
+  line-height: 1; letter-spacing: -1px;
+  color: var(--ink);
+}
+.hs-n.r { color: var(--red); }
+.hs-l {
+  font-size: 10.5px; font-weight: 500;
+  color: var(--ink-20); margin-top: 5px; line-height: 1.3;
+}
+
+/* ── Hero right: Problem analysis panel ── */
+.hero-panel {
+  background: var(--paper);
+  border: 1px solid var(--ink-10);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(12,12,9,.04),
+              0 16px 48px rgba(12,12,9,.08),
+              0 40px 80px rgba(12,12,9,.06);
+}
+.panel-top {
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--ink-05);
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(12,12,9,.02);
+}
+.panel-title {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--ink-20);
+}
+.panel-live {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--ink-20);
+}
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #22C55E;
+  animation: liveblink 2.6s ease-in-out infinite;
+}
+@keyframes liveblink { 0%,100%{opacity:1}50%{opacity:.3} }
+
+.panel-rows { padding: 6px 0; }
+.prow {
+  display: grid;
+  grid-template-columns: 22px 28px 1fr auto;
+  align-items: center; gap: 8px;
+  padding: 10px 18px;
+  transition: background .2s; cursor: default;
+  margin-bottom: 2px;
+}
+.prow:hover { background: rgba(12,12,9,.025); }
+.prow-idx {
+  font-size: 10px; font-weight: 700;
+  color: var(--ink-20); text-align: center;
+}
+/* Severity bars */
+.sev-bars {
+  display: flex; gap: 2px; align-items: flex-end;
+  height: 18px; padding-bottom: 2px;
+}
+.sb { width: 4px; border-radius: 1.5px; }
+.sev-high .sb:nth-child(1){ height:6px; background:rgba(184,51,32,.8); }
+.sev-high .sb:nth-child(2){ height:10px; background:rgba(184,51,32,.8); }
+.sev-high .sb:nth-child(3){ height:15px; background:rgba(184,51,32,.8); }
+.sev-med  .sb:nth-child(1){ height:6px; background:rgba(180,130,0,.8); }
+.sev-med  .sb:nth-child(2){ height:10px; background:rgba(180,130,0,.8); }
+.sev-med  .sb:nth-child(3){ height:15px; background:rgba(180,130,0,.15); }
+.sev-low  .sb:nth-child(1){ height:6px; background:var(--ink-20); }
+.sev-low  .sb:nth-child(2){ height:10px; background:var(--ink-10); }
+.sev-low  .sb:nth-child(3){ height:15px; background:var(--ink-05); }
+
+.prow-text {}
+.prow-t { font-size: 12px; font-weight: 700; color: var(--ink-70); line-height: 1.3; }
+.prow-s { font-size: 10px; font-weight: 400; color: var(--ink-20); margin-top: 1px; }
+.prow-tag {
+  font-size: 9px; font-weight: 700;
+  padding: 2px 8px; border-radius: 3px;
+  white-space: nowrap;
+}
+.tag-r { background: rgba(184,51,32,.10); color: var(--red); }
+.tag-a { background: rgba(180,130,0,.10); color: rgba(160,100,0,.9); }
+.tag-g { background: rgba(12,12,9,.06); color: var(--ink-40); }
+
+.panel-divider {
+  height: 1px; background: var(--ink-05);
+  margin: 6px 18px; position: relative;
+}
+.panel-divider::after {
+  content: 'الحل المقترح';
+  position: absolute; top: -8px; right: 50%;
+  transform: translateX(50%);
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--red); background: var(--paper);
+  padding: 0 10px;
+}
+.panel-sol { padding: 12px 18px 18px; }
+.sol-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  background: var(--red-lt);
+  border: 1px solid var(--red-bd);
+  border-radius: 8px;
+}
+.sol-ck {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--red); flex-shrink:0; position:relative;
+}
+.sol-ck::before {
+  content: '';
+  position:absolute; top:5px; left:5px;
+  width:4px; height:7px;
+  border-right:2px solid white; border-bottom:2px solid white;
+  transform: rotate(45deg);
+}
+.sol-txt { font-size: 12px; font-weight: 700; color: var(--red); }
+
+/* ══════════════════════════════════════════
+   ② MARQUEE — STATS TICKER
+══════════════════════════════════════════ */
+.ticker {
+  background: var(--ink);
+  padding: 0;
+  overflow: hidden;
+  height: 48px;
+  display: flex; align-items: center;
+  border-top: 1px solid rgba(255,255,255,.06);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.ticker-track {
+  display: flex; gap: 0;
+  animation: ticker-scroll 30s linear infinite;
+  white-space: nowrap;
+}
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.ticker-item {
+  display: flex; align-items: center; gap: 0;
+  padding: 0 28px;
+  border-left: 1px solid rgba(255,255,255,.07);
+  height: 48px;
+}
+.ti-val {
+  font-size: 12px; font-weight: 800;
+  letter-spacing: .5px;
+  color: rgba(255,255,255,.85);
+  margin-left: 8px;
+}
+.ti-lbl {
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: rgba(255,255,255,.3);
+}
+.ti-sep { color: var(--red); margin: 0 4px; font-weight: 900; }
+
+/* ══════════════════════════════════════════
+   ③ MARKET — BIG NUMBERS
+══════════════════════════════════════════ */
+.mkt-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(40px, 6vw, 96px);
+  align-items: end;
+  margin-bottom: clamp(48px, 6vw, 80px);
+}
+.mkt-tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ink-40);
+  padding: 7px 14px;
+  border: 1px solid var(--ink-10);
+  border-radius: 4px;
+  margin-top: 28px;
+}
+.mkt-tag::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--red); flex-shrink: 0;
+}
+
+/* Number blocks — horizontal scroll feel */
+.mkt-nums {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  border: 1px solid var(--ink-10);
+  border-radius: 10px; overflow: hidden;
+  background: var(--ink-05); gap: 1px;
+  margin-bottom: clamp(40px,5vw,64px);
+}
+.mn {
+  background: var(--cream2);
+  padding: 36px 26px;
+  position: relative; overflow: hidden;
+  transition: background .3s; cursor: default;
+}
+.mn::after {
+  content: '';
+  position: absolute; top:0; right:0; left:0;
+  height: 2px; background: transparent;
+  transition: background .3s;
+}
+.mn:hover { background: var(--paper); }
+.mn:hover::after { background: var(--red); }
+.mn-big {
+  font-size: clamp(36px, 4vw, 58px);
+  font-weight: 900; line-height: 1;
+  letter-spacing: -2px; color: var(--ink);
+  margin-bottom: 10px;
+}
+.mn-big b { color: var(--red); }
+.mn-big small { font-size: 16px; opacity: .35; letter-spacing: 0; font-weight: 600; }
+.mn-lbl { font-size: 12px; font-weight: 500; color: var(--ink-40); line-height: 1.5; }
+.mn-src { font-size: 10px; color: var(--ink-20); margin-top: 6px; }
+
+/* Pain bars */
+.pain-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 28px 64px;
+}
+.pain-it { cursor: default; }
+.pain-top {
+  display: flex; justify-content: space-between;
+  align-items: baseline; margin-bottom: 10px;
+}
+.pain-lbl { font-size: 12px; font-weight: 600; color: var(--ink-40); max-width: 240px; line-height: 1.4; }
+.pain-pct { font-size: 28px; font-weight: 900; color: var(--ink); letter-spacing: -1px; line-height:1; }
+.pain-pct small { font-size: 14px; opacity: .4; font-weight: 500; }
+.pain-bar { height: 2px; background: var(--ink-10); border-radius: 1px; overflow: hidden; }
+.pain-fill {
+  height: 100%; width: 0;
+  background: var(--red); border-radius: 1px;
+  transition: width 1.8s var(--ease);
+}
+.pain-src { font-size: 10px; color: var(--ink-20); margin-top: 6px; }
+
+/* ══════════════════════════════════════════
+   ④ SOLUTION — FOUR PILLARS
+══════════════════════════════════════════ */
+.sol-intro {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: clamp(32px,5vw,80px); align-items: end;
+  margin-bottom: clamp(40px,5vw,68px);
+}
+.pillars {
+  display: grid; grid-template-columns: repeat(2,1fr);
+  border: 1px solid var(--ink-10);
+  border-radius: 12px; overflow: hidden;
+  background: var(--ink-10); gap: 1px;
+}
+.pill {
+  background: var(--paper);
+  padding: 40px 34px;
+  position: relative; overflow: hidden;
+  transition: background .3s; cursor: default;
+}
+.pill:hover { background: #FDFCF8; }
+.pill-wm {
+  position: absolute; top: -14px; left: 16px;
+  font-size: 96px; font-weight: 900;
+  color: rgba(12,12,9,.03); line-height: 1;
+  pointer-events: none; user-select: none;
+}
+.pill-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 22px; position: relative; z-index:1;
+}
+.pill-num {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--ink-20);
+}
+.pill-badge {
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 3px;
+}
+.pb-red  { background: var(--red-lt); color: var(--red); border: 1px solid var(--red-bd); }
+.pb-gray { background: var(--ink-05); color: var(--ink-40); border: 1px solid var(--ink-10); }
+.pb-grn  { background: rgba(16,185,129,.08); color: #065F46; border: 1px solid rgba(16,185,129,.18); }
+
+/* CSS-only icons */
+.pill-ico {
+  width: 46px; height: 46px;
+  border: 1px solid var(--ink-10);
+  border-radius: 10px;
+  display: grid; place-items: center;
+  margin-bottom: 20px;
+  position: relative; z-index:1;
+}
+.ico-pin { width:14px; height:14px; position:relative; }
+.ico-pin::before {
+  content:''; position:absolute; top:0; left:50%;
+  transform:translateX(-50%) rotate(-45deg);
+  width:12px; height:12px;
+  border:2px solid var(--ink-40);
+  border-radius:50% 50% 50% 0;
+}
+.ico-pin::after {
+  content:''; position:absolute;
+  top:3px; left:50%; transform:translateX(-50%);
+  width:4px; height:4px; border-radius:50%;
+  background:var(--ink-40);
+}
+.ico-swap { width:18px; height:14px; position:relative; }
+.ico-swap::before,.ico-swap::after {
+  content:''; position:absolute;
+  width:13px; height:2px;
+  background:var(--ink-40); border-radius:1px;
+}
+.ico-swap::before{top:3px;right:0}
+.ico-swap::after{bottom:3px;left:0}
+.ico-qr { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; width:18px; }
+.qb { aspect-ratio:1; border-radius:1.5px; background:var(--ink-40); }
+.qb.e { background:transparent; }
+.ico-star { width:18px; height:18px; position:relative; }
+.ico-star::before {
+  content:'';
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:16px; height:16px;
+  border:2px solid var(--ink-40);
+  border-radius:50%;
+}
+.ico-star::after {
+  content:'';
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:5px; height:5px; border-radius:50%;
+  background:var(--ink-40);
+}
+.pill-title {
+  font-size: 18px; font-weight: 900;
+  color: var(--ink); margin-bottom: 10px;
+  line-height: 1.2; position:relative; z-index:1;
+}
+.pill-body {
+  font-size: 12.5px; line-height: 1.8;
+  color: var(--ink-40); position:relative; z-index:1;
+}
+.pill-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 700; color: var(--red);
+  margin-top: 18px; position: relative; z-index:1;
+  transition: gap .2s;
+}
+.pill:hover .pill-link { gap: 13px; }
+.pl-arr { width:14px; height:1px; background:var(--red); position:relative; }
+.pl-arr::after {
+  content:''; position:absolute; top:-3px; left:-1px;
+  border-top:3px solid transparent;
+  border-bottom:3px solid transparent;
+  border-right:5px solid var(--red);
+  transform:rotate(180deg);
+}
+
+/* ══════════════════════════════════════════
+   ⑤ RESALE FEATURE
+══════════════════════════════════════════ */
+.resale-layout {
+  display: grid; grid-template-columns: 1fr 400px;
+  gap: clamp(48px, 7vw, 96px); align-items: center;
+}
+.resale-steps { display: flex; flex-direction: column; }
+.rstep {
+  display: flex; gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--ink-05);
+  position: relative; cursor: default;
+}
+.rstep:first-child { padding-top: 0; }
+.rstep:last-child  { border-bottom: none; padding-bottom: 0; }
+.rstep::after {
+  content: '';
+  position: absolute; bottom: 0; right: 11px;
+  width: 1px; height: 20px;
+  background: var(--ink-10);
+}
+.rstep:last-child::after { display:none; }
+.rs-n {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1.5px solid var(--ink-10);
+  display: grid; place-items: center;
+  font-size: 10px; font-weight: 900; color: var(--ink-20);
+  flex-shrink:0; margin-top:2px;
+  background: var(--cream2); position:relative; z-index:1;
+  transition: border-color .2s, color .2s;
+}
+.rstep:hover .rs-n { border-color: var(--red); color: var(--red); }
+.rs-t { font-size: 14px; font-weight: 800; color: var(--ink-70); margin-bottom: 5px; }
+.rs-d { font-size: 12.5px; color: var(--ink-40); line-height: 1.7; }
+
+/* Resale card mockup */
+.rcard-wrap { position: relative; }
+.rcard-flag {
+  position: absolute; top: -12px; right: 18px;
+  background: var(--red); color: #fff;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(184,51,32,.3);
+  z-index: 2;
+}
+.rcard {
+  background: var(--paper);
+  border: 1px solid var(--ink-10);
+  border-radius: 14px; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(12,12,9,.04),
+              0 16px 48px rgba(12,12,9,.08);
+}
+.rc-head { padding: 22px 22px 0; }
+.rc-live {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--ink-20); margin-bottom: 12px;
+}
+.rc-ldot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--red);
+  animation: liveblink 2.6s ease-in-out infinite;
+}
+.rc-gym  { font-size: 20px; font-weight: 900; color: var(--ink); line-height: 1.1; }
+.rc-plan { font-size: 12px; color: var(--ink-20); margin-top: 4px; }
+.rc-prog { padding: 18px 22px; }
+.rc-pm {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--ink-20); margin-bottom: 8px;
+}
+.rc-bar { height: 3px; background: var(--ink-05); border-radius: 2px; overflow: hidden; }
+.rc-fill {
+  height: 100%; width:0;
+  background: var(--ink-40); border-radius: 2px;
+  transition: width 2s var(--ease);
+}
+.rc-hr { height:1px; background: var(--ink-05); margin: 0 22px; }
+.rc-prices { padding: 18px 22px; }
+.rcp-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+.rcp-l { font-size:11px; font-weight:500; color:var(--ink-20); }
+.rcp-old { font-size:13px; font-weight:600; color:var(--ink-20); text-decoration:line-through; }
+.rcp-new { font-size:42px; font-weight:900; color:var(--ink); letter-spacing:-2px; line-height:1; }
+.rcp-new span { font-size:13px; font-weight:500; letter-spacing:0; opacity:.35; }
+.rcp-save {
+  display:inline-flex; align-items:center;
+  background: rgba(16,185,129,.08);
+  border: 1px solid rgba(16,185,129,.18);
+  color: #065F46;
+  font-size:11px; font-weight:700;
+  padding:4px 11px; border-radius:4px; margin-top:10px;
+}
+.rc-foot { padding: 14px 22px 22px; }
+.rc-btn {
+  width:100%; padding:13px;
+  background:var(--ink); color:var(--cream);
+  font-family:var(--f); font-size:14px; font-weight:700;
+  border:none; border-radius:8px;
+  transition: background .2s;
+}
+.rc-btn:hover { background: var(--red); }
+.rc-note { text-align:center; margin-top:9px; font-size:10px; color:var(--ink-20); }
+
+/* ══════════════════════════════════════════
+   ⑥ BUSINESS MODEL
+══════════════════════════════════════════ */
+.biz-intro {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: clamp(32px,5vw,80px); align-items:end;
+  margin-bottom: clamp(40px,5vw,64px);
+}
+.rev-grid {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  border: 1px solid var(--ink-10);
+  border-radius: 10px; overflow:hidden;
+  background: var(--ink-10); gap:1px;
+  margin-bottom: 16px;
+}
+.rv {
+  background: var(--cream);
+  padding: 30px 22px;
+  transition: background .25s; cursor:default;
+}
+.rv:hover { background: var(--cream2); }
+.rv-n { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--ink-20); margin-bottom:14px; }
+.rv-t  { font-size:13px; font-weight:800; color:var(--ink-70); margin-bottom:8px; }
+.rv-m  { font-size:20px; font-weight:900; color:var(--red); letter-spacing:-.5px; margin-bottom:8px; line-height:1.1; }
+.rv-d  { font-size:11.5px; color:var(--ink-20); line-height:1.6; }
+.biz-summary {
+  padding: 22px 26px;
+  background: var(--ink);
+  border-radius: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.bsum-l { font-size:11px; font-weight:600; color:rgba(255,255,255,.25); }
+.bsum-r { font-size:12.5px; font-weight:700; color:rgba(255,255,255,.5); }
+
+/* ══════════════════════════════════════════
+   ⑦ ROADMAP
+══════════════════════════════════════════ */
+.road-intro { margin-bottom: clamp(40px,5vw,64px); }
+.road-track {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 18px;
+}
+.rph {
+  background: var(--cream2);
+  border: 1px solid var(--ink-10);
+  border-radius: 12px; padding: 34px 28px;
+  position: relative; overflow: hidden;
+  transition: transform .3s, border-color .3s, box-shadow .3s;
+}
+.rph:hover {
+  transform: translateY(-5px);
+  border-color: var(--ink-20);
+  box-shadow: 0 16px 48px rgba(12,12,9,.08);
+}
+.rph-wm {
+  position: absolute; top:-8px; right:12px;
+  font-size: 84px; font-weight: 900;
+  color: rgba(12,12,9,.04); line-height:1;
+  pointer-events:none; user-select:none;
+}
+.rph-badge {
+  font-size:9.5px; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase;
+  padding:4px 10px; border-radius:3px;
+  border:1px solid var(--ink-10); color:var(--ink-20);
+  display:inline-block; margin-bottom:20px;
+}
+.rph.act .rph-badge {
+  background: var(--red-lt);
+  border-color: var(--red-bd);
+  color: var(--red);
+}
+.rph-weeks { font-size:44px; font-weight:900; line-height:1; letter-spacing:-2px; color:var(--ink); margin-bottom:6px; }
+.rph-weeks b { color:var(--red); }
+.rph-title { font-size:14px; font-weight:800; color:var(--ink-70); margin-bottom:18px; }
+.rph-list { display:flex; flex-direction:column; gap:9px; }
+.rph-item { display:flex; align-items:center; gap:9px; font-size:12px; color:var(--ink-40); font-weight:500; }
+.ri-dot { width:4px; height:4px; border-radius:50%; background:var(--ink-20); flex-shrink:0; }
+.rph.act .ri-dot { background:var(--red); }
+
+/* ══════════════════════════════════════════
+   ⑧ CTA — DARK
+══════════════════════════════════════════ */
+.cta-sec {
+  padding: clamp(100px,13vw,170px) var(--side);
+  text-align: center; position:relative; overflow:hidden;
+}
+/* Subtle grid */
+.cta-sec::before {
+  content:''; position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+.cta-sec::after {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height:2px;
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+}
+.cta-sec .sec-head .sh-label { color:rgba(255,255,255,.25); }
+.cta-sec .sec-head .sh-rule  { background:rgba(255,255,255,.08); }
+.cta-sec .sec-head .sh-num   { color:rgba(255,255,255,.15); }
+
+.cta-inner { position:relative; z-index:1; }
+.cta-h2 {
+  font-size: clamp(44px, 7.5vw, 96px);
+  font-weight: 900; line-height: .93;
+  letter-spacing: -3.5px; color: #fff;
+  margin-bottom: 24px;
+}
+.cta-h2 .ghost { color: rgba(255,255,255,.12); }
+.cta-p {
+  font-size: 16px; color: rgba(255,255,255,.4);
+  line-height: 1.8; max-width: 440px;
+  margin: 0 auto 52px;
+}
+.cta-btns { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+.btn-white {
+  display:inline-flex; align-items:center; gap:10px;
+  padding:13px 32px; border-radius:4px;
+  background:#fff; color:var(--ink);
+  font-family:var(--f); font-size:13px; font-weight:700;
+  border:none; transition: background .2s, transform .15s;
+}
+.btn-white:hover { background:var(--cream2); transform:scale(1.04); }
+.btn-wghost {
+  display:inline-flex; align-items:center; gap:10px;
+  padding:12px 26px; border-radius:4px;
+  background:transparent; color:rgba(255,255,255,.4);
+  font-family:var(--f); font-size:13px; font-weight:600;
+  border:1px solid rgba(255,255,255,.10);
+  transition: border-color .2s, color .2s;
+}
+.btn-wghost:hover { border-color:rgba(255,255,255,.25); color:#fff; }
+.cta-email { margin-top:52px; font-size:12px; color:rgba(255,255,255,.2); }
+.cta-email a { color:rgba(255,255,255,.4); transition: color .2s; }
+.cta-email a:hover { color:#fff; }
+
+/* ══════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════ */
+footer {
+  padding: 30px var(--side);
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:14px;
+  border-top: 1px solid rgba(255,255,255,.05);
+  background: #070706;
+}
+.f-logo { font-size:11px; font-weight:900; letter-spacing:6px; text-transform:uppercase; color:rgba(255,255,255,.2); }
+.f-logo b { color: rgba(184,51,32,.7); font-style:normal; }
+.f-copy { font-size:11px; color:rgba(255,255,255,.18); }
+.f-links { display:flex; gap:22px; list-style:none; }
+.f-links a { font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,.18); transition:color .2s; }
+.f-links a:hover { color:rgba(255,255,255,.5); }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+@media(max-width:1060px){
+  .hero{grid-template-columns:1fr;gap:44px}
+  .mkt-layout{grid-template-columns:1fr}
+  .mkt-nums{grid-template-columns:repeat(2,1fr)}
+  .pain-grid{grid-template-columns:1fr;gap:28px}
+  .sol-intro{grid-template-columns:1fr}
+  .resale-layout{grid-template-columns:1fr;gap:52px}
+  .biz-intro{grid-template-columns:1fr}
+  .rev-grid{grid-template-columns:repeat(2,1fr)}
+  .road-track{grid-template-columns:1fr}
+}
+@media(max-width:680px){
+  .pillars{grid-template-columns:1fr}
+  .mkt-nums{grid-template-columns:1fr}
+  .rev-grid{grid-template-columns:1fr}
+  .hero-stats{flex-direction:column;width:100%}
+  .hs{border-left:none!important;border-bottom:1px solid var(--ink-10)}
+  .hs:last-child{border-bottom:none}
+  .biz-summary{flex-direction:column;gap:8px;text-align:center}
+  footer{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<div class="c-dot" id="cDot"></div>
+<div class="c-ring" id="cRing"></div>
+
+<!-- ════════ NAV ════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-logo">FIT<b>ZONE</b></div>
+  <ul class="nav-links">
+    <li><a href="#mkt">السوق</a></li>
+    <li><a href="#sol">الحل</a></li>
+    <li><a href="#resale">إعادة البيع</a></li>
+    <li><a href="#biz">نموذج الأعمال</a></li>
+    <li><a href="#road">خارطة الطريق</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
+    <span>تواصل معنا</span>
+  </button>
+</nav>
+
+
+<!-- ════════ HERO ════════ -->
+<div class="hero">
+  <div class="hero-bg" aria-hidden="true">FITZONE KSA</div>
+
+  <div class="hero-left">
+    <div class="hero-kicker sr">
+      <div class="hk-dash"></div>
+      <span class="hk-text">فرصة استثمارية — المملكة العربية السعودية 2026</span>
+    </div>
+
+    <h1 class="hero-h1">
+      <span class="sr d1">المنظومة الرقمية</span><br>
+      <span class="sr d2">التي <span class="hl" id="hlWord">يحتاجها</span></span><br>
+      <span class="sr d3">الرياضي السعودي</span>
+    </h1>
+
+    <p class="hero-p sr d3">
+      قاعات، مدربون، مطاعم صحية، ومعدات — في منصة واحدة تحل مشاكل موثقة يعانيها الملايين يومياً. مع أول سوق في المملكة لإعادة بيع الاشتراكات الرياضية.
+    </p>
+
+    <div class="hero-btns sr d4">
+      <button class="btn-fill" onclick="document.getElementById('sol').scrollIntoView({behavior:'smooth'})">
+        <span>استعرض الفكرة</span>
+      </button>
+      <button class="btn-ghost" onclick="document.getElementById('biz').scrollIntoView({behavior:'smooth'})">
+        نموذج الأعمال
+      </button>
+    </div>
+
+    <div class="hero-stats sr d5">
+      <div class="hs">
+        <div class="hs-n r" id="hProb">0</div>
+        <div class="hs-l">مشكلة موثقة<br>في السوق</div>
+      </div>
+      <div class="hs">
+        <div class="hs-n" id="hServ">0</div>
+        <div class="hs-l">خدمات في<br>منصة واحدة</div>
+      </div>
+      <div class="hs">
+        <div class="hs-n r">10%</div>
+        <div class="hs-l">عمولة سوق<br>إعادة البيع</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Problem panel -->
+  <div class="hero-right sr d2">
+    <div class="hero-panel">
+      <div class="panel-top">
+        <span class="panel-title">pain-analysis.report</span>
+        <span class="panel-live"><span class="live-dot"></span>موثق</span>
+      </div>
+      <div class="panel-rows">
+
+        <div class="prow">
+          <span class="prow-idx">01</span>
+          <div class="sev-bars sev-high">
+            <div class="sb"></div><div class="sb"></div><div class="sb"></div>
+          </div>
+          <div class="prow-text">
+            <div class="prow-t">خسارة الاشتراكات غير المكتملة</div>
+            <div class="prow-s">لا خيار استرداد — المستخدم يخسر كل شيء</div>
+          </div>
+          <div class="prow-tag tag-r">حرج</div>
+        </div>
+
+        <div class="prow">
+          <span class="prow-idx">02</span>
+          <div class="sev-bars sev-med">
+            <div class="sb"></div><div class="sb"></div><div class="sb"></div>
+          </div>
+          <div class="prow-text">
+            <div class="prow-t">فوترة تعسفية وإلغاء معقد</div>
+            <div class="prow-s">خصومات مستمرة بعد طلب الإلغاء</div>
+          </div>
+          <div class="prow-tag tag-a">عالي</div>
+        </div>
+
+        <div class="prow">
+          <span class="prow-idx">03</span>
+          <div class="sev-bars sev-med">
+            <div class="sb"></div><div class="sb"></div><div class="sb"></div>
+          </div>
+          <div class="prow-text">
+            <div class="prow-t">تشتت الخدمات الرياضية</div>
+            <div class="prow-s">4 تطبيقات منفصلة لحياة رياضية واحدة</div>
+          </div>
+          <div class="prow-tag tag-a">عالي</div>
+        </div>
+
+        <div class="prow">
+          <span class="prow-idx">04</span>
+          <div class="sev-bars sev-low">
+            <div class="sb"></div><div class="sb"></div><div class="sb"></div>
+          </div>
+          <div class="prow-text">
+            <div class="prow-t">مدربون غير موثقين وغير معتمدين</div>
+            <div class="prow-s">لا معيار شفاف للتحقق من الكفاءة</div>
+          </div>
+          <div class="prow-tag tag-g">متوسط</div>
+        </div>
+
+      </div>
+      <div class="panel-divider"></div>
+      <div class="panel-sol">
+        <div class="sol-row">
+          <div class="sol-ck"></div>
+          <div class="sol-txt">FitZone — منظومة واحدة تحل المشاكل الأربع</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════ TICKER ════════ -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="tickerTrack">
+    <!-- JS duplicates content -->
+    <div class="ticker-item">
+      <span class="ti-val">87 مليار ر.س</span>
+      <span class="ti-sep">·</span>
+      <span class="ti-lbl">حجم سوق الفتنس السعودي</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ti-val">67%</span>
+      <span class="ti-sep">·</span>
+      <span class="ti-lbl">خسروا اشتراكات دون استرداد</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ti-val">صفر منافس</span>
+      <span class="ti-sep">·</span>
+      <span class="ti-lbl">لا منصة محلية مماثلة</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ti-val">10%</span>
+      <span class="ti-sep">·</span>
+      <span class="ti-lbl">عمولة ثابتة على إعادة البيع</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ti-val">4 خدمات</span>
+      <span class="ti-sep">·</span>
+      <span class="ti-lbl">في منصة واحدة</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ti-val">رؤية 2030</span>
+      <span class="ti-sep">·</span>
+      <span class="ti-lbl">أولوية وطنية للصحة والرياضة</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ti-val">Flutter · Django</span>
+      <span class="ti-sep">·</span>
+      <span class="ti-lbl">تقنيات حديثة موثوقة</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ti-val">مدى · STC Pay</span>
+      <span class="ti-sep">·</span>
+      <span class="ti-lbl">دفع محلي متكامل</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════ MARKET ════════ -->
+<section class="sec sec-cream2" id="mkt">
+  <div class="sec-head sr">
+    <span class="sh-label">حجم السوق</span>
+    <div class="sh-rule"></div>
+    <span class="sh-num">01</span>
+  </div>
+
+  <div class="mkt-layout sr d1">
+    <div>
+      <h2 class="h2">
+        سوق بمليارات.<br>
+        <span class="muted">بنية رقمية</span><br>
+        <span class="accent">غائبة تقريباً.</span>
+      </h2>
+    </div>
+    <div>
+      <p class="lead" style="margin-bottom:24px">
+        رؤية 2030 تضع الصحة والرياضة أولوية وطنية مع استثمارات ضخمة. القاعات تتضاعف في كل حي — لكن لا منصة رقمية واحدة تجمع هذا السوق وتحل مشاكله.
+      </p>
+      <div class="mkt-tag">لا منافس مباشر في السوق السعودي اليوم</div>
+    </div>
+  </div>
+
+  <div class="mkt-nums sr d2">
+    <div class="mn">
+      <div class="mn-big"><b><span data-cnt="87">0</span></b><small> مليار ر.س</small></div>
+      <div class="mn-lbl">حجم سوق الفتنس السعودي المتوقع</div>
+      <div class="mn-src">Vision 2030 Report</div>
+    </div>
+    <div class="mn">
+      <div class="mn-big"><b><span data-cnt="67">0</span><span style="font-size:20px">%</span></b></div>
+      <div class="mn-lbl">خسروا اشتراكات دون أي استرداد</div>
+      <div class="mn-src">Reddit & X Survey Analysis</div>
+    </div>
+    <div class="mn">
+      <div class="mn-big"><b><span data-cnt="4">0</span></b><small> تطبيقات</small></div>
+      <div class="mn-lbl">يحتاجها الرياضي اليوم لخدماته</div>
+      <div class="mn-src">Market Analysis 2024</div>
+    </div>
+    <div class="mn">
+      <div class="mn-big" style="font-size:clamp(24px,2.8vw,42px);letter-spacing:-1px"><b>صفر منصة</b></div>
+      <div class="mn-lbl">تجمع الخدمات مع إعادة البيع محلياً</div>
+      <div class="mn-src">Competitive Analysis</div>
+    </div>
+  </div>
+
+  <div class="pain-grid sr d3">
+    <div class="pain-it">
+      <div class="pain-top">
+        <span class="pain-lbl">يعانون من الزحام والمعدات المعطلة</span>
+        <span class="pain-pct"><span data-cnt="73">0</span><small>%</small></span>
+      </div>
+      <div class="pain-bar"><div class="pain-fill" data-w="73"></div></div>
+      <div class="pain-src">Reddit & X — Overcrowding + Equipment</div>
+    </div>
+    <div class="pain-it">
+      <div class="pain-top">
+        <span class="pain-lbl">واجهوا فوترة تعسفية أو إلغاء صعب</span>
+        <span class="pain-pct"><span data-cnt="58">0</span><small>%</small></span>
+      </div>
+      <div class="pain-bar"><div class="pain-fill" data-w="58"></div></div>
+      <div class="pain-src">Facebook Groups — Billing Issues</div>
+    </div>
+    <div class="pain-it">
+      <div class="pain-top">
+        <span class="pain-lbl">لم يجدوا مدرباً موثوقاً بسهولة</span>
+        <span class="pain-pct"><span data-cnt="81">0</span><small>%</small></span>
+      </div>
+      <div class="pain-bar"><div class="pain-fill" data-w="81"></div></div>
+      <div class="pain-src">YouTube & Reddit — Unqualified Trainers</div>
+    </div>
+    <div class="pain-it">
+      <div class="pain-top">
+        <span class="pain-lbl">يريدون منصة رياضية متكاملة واحدة</span>
+        <span class="pain-pct"><span data-cnt="91">0</span><small>%</small></span>
+      </div>
+      <div class="pain-bar"><div class="pain-fill" data-w="91"></div></div>
+      <div class="pain-src">Cross-Platform Survey</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════ SOLUTION ════════ -->
+<section class="sec sec-paper" id="sol">
+  <div class="sec-head sr">
+    <span class="sh-label">الحل</span>
+    <div class="sh-rule"></div>
+    <span class="sh-num">02</span>
+  </div>
+
+  <div class="sol-intro">
+    <h2 class="h2 sr">
+      أربعة أعمدة.<br>
+      <span class="muted">حل واحد متكامل.</span>
+    </h2>
+    <p class="lead sr d1">
+      كل عمود يعالج مشكلة موثقة ومتكررة في السوق. معاً يشكّلون منظومة لا يستطيع الرياضي السعودي الاستغناء عنها — ولا يجدها في أي تطبيق آخر.
+    </p>
+  </div>
+
+  <div class="pillars sr d2">
+
+    <div class="pill">
+      <div class="pill-wm" aria-hidden="true">01</div>
+      <div class="pill-hd">
+        <span class="pill-num">01 — الخريطة</span>
+        <span class="pill-badge pb-red">Core</span>
+      </div>
+      <div class="pill-ico"><div class="ico-pin"></div></div>
+      <div class="pill-title">خريطة ذكية موحدة</div>
+      <div class="pill-body">
+        بدلاً من أربعة تطبيقات منفصلة، خريطة واحدة تعرض القاعات والمدربين والمطاعم والمعدات الأقرب جغرافياً — مع تقييمات حقيقية مرتبطة باشتراكات مدفوعة مُوثقة.
+      </div>
+      <div class="pill-link">
+        يحل مشكلة التشتت وعدم الموثوقية
+        <div class="pl-arr"></div>
+      </div>
+    </div>
+
+    <div class="pill">
+      <div class="pill-wm" aria-hidden="true">02</div>
+      <div class="pill-hd">
+        <span class="pill-num">02 — إعادة البيع</span>
+        <span class="pill-badge pb-grn">الأول محلياً</span>
+      </div>
+      <div class="pill-ico"><div class="ico-swap"></div></div>
+      <div class="pill-title">سوق إعادة بيع الاشتراكات</div>
+      <div class="pill-body">
+        أول سوق في المملكة لإعادة بيع الاشتراكات الرياضية. البائع يسترجع جزءاً من ماله، والمشتري يحصل على خصم حقيقي يصل إلى 35٪.
+      </div>
+      <div class="pill-link">
+        يحل مشكلة خسارة الاشتراكات نهائياً
+        <div class="pl-arr"></div>
+      </div>
+    </div>
+
+    <div class="pill">
+      <div class="pill-wm" aria-hidden="true">03</div>
+      <div class="pill-hd">
+        <span class="pill-num">03 — الاشتراك</span>
+        <span class="pill-badge pb-gray">QR System</span>
+      </div>
+      <div class="pill-ico">
+        <div class="ico-qr">
+          <div class="qb"></div><div class="qb e"></div><div class="qb"></div>
+          <div class="qb e"></div><div class="qb"></div><div class="qb e"></div>
+          <div class="qb"></div><div class="qb e"></div><div class="qb"></div>
+        </div>
+      </div>
+      <div class="pill-title">اشتراكات رقمية موثوقة</div>
+      <div class="pill-body">
+        نظام QR يلغي الفوترة التعسفية نهائياً. كل اشتراك موثق بالمنصة — لا خصومات غير مبررة، لا عمليات إلغاء معقدة.
+      </div>
+      <div class="pill-link">
+        يحل مشكلة الفوترة التعسفية
+        <div class="pl-arr"></div>
+      </div>
+    </div>
+
+    <div class="pill">
+      <div class="pill-wm" aria-hidden="true">04</div>
+      <div class="pill-hd">
+        <span class="pill-num">04 — الثقة</span>
+        <span class="pill-badge pb-grn">Verified</span>
+      </div>
+      <div class="pill-ico"><div class="ico-star"></div></div>
+      <div class="pill-title">منظومة ثقة موثقة</div>
+      <div class="pill-body">
+        كل تقييم مرتبط بزيارة فعلية مُوثقة. المدربون يعرضون شهاداتهم للتحقق. لا حسابات وهمية. الثقة بيانات قابلة للتحقق — لا مجرد شعار.
+      </div>
+      <div class="pill-link">
+        يحل أزمة المدربين غير المؤهلين
+        <div class="pl-arr"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ════════ RESALE ════════ -->
+<section class="sec sec-cream" id="resale">
+  <div class="sec-head sr">
+    <span class="sh-label">الميزة الحصرية</span>
+    <div class="sh-rule"></div>
+    <span class="sh-num">03</span>
+  </div>
+
+  <div class="resale-layout">
+    <div>
+      <h2 class="h2 sr">
+        بع اشتراكك.<br>
+        <span class="muted">اشترِ بسعر أقل.</span>
+      </h2>
+      <p class="lead sr d1" style="margin:16px 0 40px">
+        الأول من نوعه في المملكة. آلية بسيطة وشفافة تحوّل خسارة الاشتراكات إلى فرصة مالية حقيقية — للبائع والمشتري والمنصة.
+      </p>
+
+      <div class="resale-steps sr d2">
+        <div class="rstep">
+          <div class="rs-n">١</div>
+          <div>
+            <div class="rs-t">المستخدم يضع اشتراكه للبيع</div>
+            <div class="rs-d">يحدد السعر المطلوب — المنصة تعرض صافي الربح بعد رسوم 10٪ شفافة. الاشتراك يظهر فوراً على الخريطة حسب موقع القاعة.</div>
+          </div>
+        </div>
+        <div class="rstep">
+          <div class="rs-n">٢</div>
+          <div>
+            <div class="rs-t">مشترٍ في المنطقة يجد العرض</div>
+            <div class="rs-d">يجد الاشتراك على الخريطة، يطّلع على تقييمات القاعة الحقيقية قبل الشراء، ويدفع بمدى أو STC Pay.</div>
+          </div>
+        </div>
+        <div class="rstep">
+          <div class="rs-n">٣</div>
+          <div>
+            <div class="rs-t">تحويل آمن في ثوانٍ</div>
+            <div class="rs-d">عملية Atomic محمية: QR البائع يُلغى ويُنشأ رمز جديد للمشتري في نفس اللحظة. المبلغ يصل للمحفظة فوراً.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rcard-wrap sr d3">
+      <div class="rcard-flag">متاح للبيع الآن</div>
+      <div class="rcard">
+        <div class="rc-head">
+          <div class="rc-live"><div class="rc-ldot"></div>إعادة بيع — نشط</div>
+          <div class="rc-gym">Gold's Gym — الرياض</div>
+          <div class="rc-plan">اشتراك شهري · كامل الخدمات</div>
+        </div>
+        <div class="rc-prog">
+          <div class="rc-pm"><span>المتبقي من الاشتراك</span><span>65٪ — 20 يوم</span></div>
+          <div class="rc-bar"><div class="rc-fill" id="rcBar"></div></div>
+        </div>
+        <div class="rc-hr"></div>
+        <div class="rc-prices">
+          <div class="rcp-row"><span class="rcp-l">السعر الأصلي</span><span class="rcp-old">299 ريال</span></div>
+          <div class="rcp-row" style="margin-top:8px;align-items:flex-end">
+            <span class="rcp-l">سعر البيع</span>
+            <div class="rcp-new">195 <span>ريال</span></div>
+          </div>
+          <div class="rcp-save">وفّر 104 ريال — خصم 35٪</div>
+        </div>
+        <div class="rc-foot">
+          <button class="rc-btn">اشترِ هذا الاشتراك</button>
+          <div class="rc-note">رسوم المنصة 10٪ مخصومة من البائع · الدفع عبر مدى أو STC Pay</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════ BIZ MODEL ════════ -->
+<section class="sec sec-cream2" id="biz">
+  <div class="sec-head sr">
+    <span class="sh-label">نموذج الأعمال</span>
+    <div class="sh-rule"></div>
+    <span class="sh-num">04</span>
+  </div>
+
+  <div class="biz-intro">
+    <h2 class="h2 sr">
+      مجاني للمستخدمين.<br>
+      <span class="muted">مربح من الأعمال.</span>
+    </h2>
+    <p class="lead sr d1">
+      المستخدم العادي لا يدفع شيئاً. الإيرادات تأتي من الطرف التجاري بأربعة مصادر مستقلة — لا اعتماد على مصدر واحد يُضعف المنصة.
+    </p>
+  </div>
+
+  <div class="rev-grid sr d2">
+    <div class="rv">
+      <div class="rv-n">01</div>
+      <div class="rv-t">القاعات الرياضية</div>
+      <div class="rv-m">رسوم متفق عليها</div>
+      <div class="rv-d">من كل اشتراك يُبرم عبر المنصة — نسبة حسب حجم الشراكة.</div>
+    </div>
+    <div class="rv">
+      <div class="rv-n">02</div>
+      <div class="rv-t">المحلات والمطاعم</div>
+      <div class="rv-m">299 ر.س / شهر</div>
+      <div class="rv-d">ظهور مستهدف على المنصة. خيار سنوي 2,499 ريال بخصم 30٪.</div>
+    </div>
+    <div class="rv">
+      <div class="rv-n">03</div>
+      <div class="rv-t">سوق إعادة البيع</div>
+      <div class="rv-m">10٪ ثابتة</div>
+      <div class="rv-d">من كل عملية بيع — محتجزة تلقائياً. لا فواتير يدوية.</div>
+    </div>
+    <div class="rv">
+      <div class="rv-n">04</div>
+      <div class="rv-t">المدربون</div>
+      <div class="rv-m">عمولة متفاوتة</div>
+      <div class="rv-d">من كل جلسة تُحجز عبر المنصة — تزيد مع حجم النشاط.</div>
+    </div>
+  </div>
+
+  <div class="biz-summary sr d3">
+    <span class="bsum-l">نموذج الإيرادات مبني على</span>
+    <span class="bsum-r">تعدد المصادر · لا اعتماد على مصدر واحد · كل خدمة تموّل نفسها</span>
+  </div>
+</section>
+
+
+
+
+
+<!-- ════════ CTA ════════ -->
+<section class="sec sec-ink cta-sec" id="cta">
+  <div class="sec-head sr">
+    <span class="sh-label">التواصل</span>
+    <div class="sh-rule"></div>
+    <span class="sh-num">06</span>
+  </div>
+  <div class="cta-inner">
+    <h2 class="cta-h2 sr">
+      الفرصة موجودة.<br>
+      <span class="ghost">الوقت مناسب.</span>
+    </h2>
+    <p class="cta-p sr d1">
+      سوق رياضي سعودي متنامٍ، بنية رقمية غائبة، وفريق مستعد للبناء. هل أنت مستعد للشراكة؟
+    </p>
+    <div class="cta-btns sr d2">
+      <button class="btn-white">طلب عرض تفصيلي</button>
+      <button class="btn-wghost">تحميل ملف الاستثمار</button>
+    </div>
+    <div class="cta-email sr d3">
+      للتواصل المباشر — <a href="mailto:invest@fitzone.sa">invest@fitzone.sa</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════ FOOTER ════════ -->
+<footer>
+  <div class="f-logo">FIT<b>ZONE</b></div>
+  <div class="f-copy">© 2026 FitZone KSA — جميع الحقوق محفوظة</div>
+  <ul class="f-links">
+    <li><a href="#mkt">السوق</a></li>
+    <li><a href="#sol">الحل</a></li>
+    <li><a href="#biz">الأعمال</a></li>
+  </ul>
+</footer>
+
+
+<script>
+/* ── CURSOR ──────────────────────────────── */
+const cDot = document.getElementById('cDot');
+const cRing = document.getElementById('cRing');
+let mx=0, my=0, rx=0, ry=0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cDot.style.left = mx+'px'; cDot.style.top = my+'px';
+});
+(function loop(){
+  rx += (mx-rx)*.10; ry += (my-ry)*.10;
+  cRing.style.left = rx+'px'; cRing.style.top = ry+'px';
+  requestAnimationFrame(loop);
+})();
+document.querySelectorAll('button,a,.prow,.pill,.mn,.rv,.rstep,.rph,.pain-it').forEach(el=>{
+  el.addEventListener('mouseenter', ()=>{ cDot.classList.add('on-hover'); cRing.classList.add('on-hover'); });
+  el.addEventListener('mouseleave', ()=>{ cDot.classList.remove('on-hover'); cRing.classList.remove('on-hover'); });
+});
+// Red hover for special elements
+document.querySelectorAll('.btn-fill,.nav-cta,.rc-btn,.btn-white').forEach(el=>{
+  el.addEventListener('mouseenter', ()=> cRing.classList.add('on-red'));
+  el.addEventListener('mouseleave', ()=> cRing.classList.remove('on-red'));
+});
+
+/* ── NAV SCROLL ──────────────────────────── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', ()=> nav.classList.toggle('pinned', scrollY>20), {passive:true});
+
+/* ── SCROLL REVEAL ───────────────────────── */
+const srIO = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('vis'); srIO.unobserve(e.target); } });
+},{threshold:.1, rootMargin:'0px 0px -44px 0px'});
+document.querySelectorAll('.sr').forEach(el=>srIO.observe(el));
+
+/* ── UNDERLINE DRAW ──────────────────────── */
+setTimeout(()=>{ const el=document.getElementById('hlWord'); if(el) el.classList.add('go'); }, 1300);
+
+/* ── COUNTER ANIMATION ───────────────────── */
+function count(el, to, dur=1500){
+  let s=null;
+  (function step(ts){
+    if(!s) s=ts;
+    const p=Math.min((ts-s)/dur,1);
+    const e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(e*to);
+    if(p<1) requestAnimationFrame(step);
+  })(performance.now());
+}
+const cntIO=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ count(e.target, +e.target.dataset.cnt); cntIO.unobserve(e.target); }
+  });
+},{threshold:.5});
+document.querySelectorAll('[data-cnt]').forEach(el=>cntIO.observe(el));
+
+/* Hero stats */
+['hProb','hServ'].forEach((id,i)=>{
+  const el=document.getElementById(id);
+  if(!el) return;
+  const targets=[15,4];
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ count(e.target, targets[i]); io.unobserve(e.target); } });
+  },{threshold:.5});
+  io.observe(el);
+});
+
+/* ── PAIN BARS ───────────────────────────── */
+const barIO=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ setTimeout(()=>{ e.target.style.width=e.target.dataset.w+'%'; },150); barIO.unobserve(e.target); }
+  });
+},{threshold:.3});
+document.querySelectorAll('.pain-fill').forEach(el=>barIO.observe(el));
+
+/* RC bar */
+const rcBar=document.getElementById('rcBar');
+if(rcBar){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ setTimeout(()=>rcBar.style.width='65%',500); io.unobserve(e.target); } });
+  },{threshold:.5});
+  io.observe(rcBar);
+}
+
+/* ── TICKER DUPLICATE ────────────────────── */
+const track = document.getElementById('tickerTrack');
+if(track){ track.innerHTML += track.innerHTML; }
+
+/* ── SMOOTH ANCHORS ──────────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth'}); }
+  });
+});
+</script>
+</body>
+</html>

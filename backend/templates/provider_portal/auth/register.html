@@ -1,0 +1,340 @@
+{% extends "provider_portal/auth/base_auth.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create Account" %} — FitZone Portal{% endblock %}
+
+{% block content %}
+<div class="step-bar">
+  {% for i in steps %}
+    <div class="step-node">
+      <div class="step-circle {% if i < current_step %}is-done{% elif i == current_step %}is-active{% endif %}">
+        {% if i < current_step %}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        {% else %}
+          {{ i }}
+        {% endif %}
+      </div>
+      <span class="step-label {% if i < current_step %}is-done{% elif i == current_step %}is-active{% endif %}">
+        {% if i == 1 %}{% trans "Account" %}
+        {% elif i == 2 %}{% trans "Type" %}
+        {% elif i == 3 %}{% trans "Business" %}
+        {% elif i == 4 %}{% trans "Review" %}
+        {% endif %}
+      </span>
+    </div>
+    {% if not forloop.last %}
+    <div class="step-connector {% if i < current_step %}is-done{% endif %}"></div>
+    {% endif %}
+  {% endfor %}
+</div>
+
+{% if current_step == 1 %}
+<h2 class="card-title">{% trans "Create your account" %}</h2>
+<p class="card-sub">{% trans "Personal information to get started" %}</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  <input type="hidden" name="step" value="1" />
+
+  <div class="f-group">
+    <div class="f-label"><label for="s1_full_name">{% trans "Full name" %}</label></div>
+    <div class="fi-wrap">
+      <span class="fi-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+      <input type="text" id="s1_full_name" name="full_name" value="{{ form.full_name.value|default:'' }}" class="f-input {% if form.full_name.errors %}is-error{% endif %}" placeholder="{% trans 'Your full name' %}" autocomplete="name" required />
+    </div>
+    {% for e in form.full_name.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+  </div>
+
+  <div class="f-group">
+    <div class="f-label"><label for="s1_email">{% trans "Email address" %}</label></div>
+    <div class="fi-wrap">
+      <span class="fi-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+      <input type="email" id="s1_email" name="email" value="{{ form.email.value|default:'' }}" class="f-input {% if form.email.errors %}is-error{% endif %}" placeholder="you@example.com" autocomplete="email" required />
+    </div>
+    {% for e in form.email.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+  </div>
+
+  <div class="f-group">
+    <div class="f-label"><label for="s1_phone">{% trans "Phone number" %}</label></div>
+    <div class="fi-wrap">
+      <span class="fi-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+      <input type="tel" id="s1_phone" name="phone_number" value="{{ form.phone_number.value|default:'' }}" class="f-input {% if form.phone_number.errors %}is-error{% endif %}" placeholder="05XXXXXXXX" autocomplete="tel" required />
+    </div>
+    {% for e in form.phone_number.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+  </div>
+
+  <div class="f-group">
+    <div class="f-label"><label for="s1_pw">{% trans "Password" %}</label></div>
+    <div class="fi-wrap">
+      <span class="fi-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+      <input type="password" id="s1_pw" name="password" class="f-input {% if form.password.errors %}is-error{% endif %}" placeholder="{% trans 'Min. 8 characters' %}" autocomplete="new-password" required />
+      
+      <button class="pw-eye" onclick="togglePw(this)" type="button">
+        <svg class="eye-on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="eye-off" style="display:none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+      </button>
+
+    </div>
+    {% for e in form.password.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+  </div>
+
+  <div class="f-group">
+    <div class="f-label"><label for="s1_pw2">{% trans "Confirm password" %}</label></div>
+    <div class="fi-wrap">
+      <span class="fi-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+      <input type="password" id="s1_pw2" name="password_confirm" class="f-input {% if form.password_confirm.errors %}is-error{% endif %}" placeholder="••••••••" autocomplete="new-password" required />
+      
+      <button class="pw-eye" onclick="togglePw(this)" type="button">
+        <svg class="eye-on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="eye-off" style="display:none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+      </button>
+
+    </div>
+    {% for e in form.password_confirm.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+  </div>
+
+  {% if form.non_field_errors %}
+  <div style="color:#ef4444; font-size:12px; margin-bottom:12px; text-align:center;">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+  {% endif %}
+
+  <button class="btn-primary" type="submit" style="margin-top: 24px;">
+    {% trans "Continue" %}
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      {% if LANGUAGE_BIDI %}<polyline points="15 18 9 12 15 6"/>{% else %}<polyline points="9 18 15 12 9 6"/>{% endif %}
+    </svg>
+  </button>
+</form>
+
+<div class="card-foot" style="margin-top:20px;">
+  <span>{% trans "Already have an account?" %} <a href="{% url 'provider_portal:login' %}">{% trans "Sign in" %}</a></span>
+</div>
+{% endif %}
+
+{% if current_step == 2 %}
+<h2 class="card-title">{% trans "What do you offer?" %}</h2>
+<p class="card-sub">{% trans "Select your provider category" %}</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  <input type="hidden" name="step" value="2" />
+
+  <div class="type-grid">
+    <label class="type-card {% if form.provider_type.value == 'gym' %}is-selected{% endif %}">
+      <input type="radio" name="provider_type" value="gym" {% if form.provider_type.value == 'gym' %}checked{% endif %} onchange="onTypeSelect(this)"/>
+      <span class="type-card-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      <span class="type-card-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 17.5h11M3 10h18M3 14h18"/><circle cx="6.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="6.5" r="1.5"/><circle cx="6.5" cy="17.5" r="1.5"/><circle cx="17.5" cy="17.5" r="1.5"/></svg>
+      </span>
+      <span class="type-card-name">{% trans "Gym" %}</span>
+      <span class="type-card-hint">{% trans "Branches & subscriptions" %}</span>
+    </label>
+
+    <label class="type-card {% if form.provider_type.value == 'trainer' %}is-selected{% endif %}">
+      <input type="radio" name="provider_type" value="trainer" {% if form.provider_type.value == 'trainer' %}checked{% endif %} onchange="onTypeSelect(this)"/>
+      <span class="type-card-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      <span class="type-card-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </span>
+      <span class="type-card-name">{% trans "Trainer" %}</span>
+      <span class="type-card-hint">{% trans "Sessions & bookings" %}</span>
+    </label>
+
+    <label class="type-card {% if form.provider_type.value == 'restaurant' %}is-selected{% endif %}">
+      <input type="radio" name="provider_type" value="restaurant" {% if form.provider_type.value == 'restaurant' %}checked{% endif %} onchange="onTypeSelect(this)"/>
+      <span class="type-card-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      <span class="type-card-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
+      </span>
+      <span class="type-card-name">{% trans "Restaurant" %}</span>
+      <span class="type-card-hint">{% trans "Menu & delivery" %}</span>
+    </label>
+
+    <label class="type-card {% if form.provider_type.value == 'store' %}is-selected{% endif %}">
+      <input type="radio" name="provider_type" value="store" {% if form.provider_type.value == 'store' %}checked{% endif %} onchange="onTypeSelect(this)"/>
+      <span class="type-card-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      <span class="type-card-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      </span>
+      <span class="type-card-name">{% trans "Store" %}</span>
+      <span class="type-card-hint">{% trans "Products & equipment" %}</span>
+    </label>
+  </div>
+
+  {% for e in form.provider_type.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+
+  <div class="form-actions">
+    <button type="submit" name="direction" value="back" class="btn-secondary" style="margin-top: 0;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        {% if LANGUAGE_BIDI %}<polyline points="9 18 15 12 9 6"/>{% else %}<polyline points="15 18 9 12 15 6"/>{% endif %}
+      </svg>
+      {% trans "Back" %}
+    </button>
+    <button type="submit" name="direction" value="next" class="btn-primary" style="margin-top: 0;">
+      {% trans "Continue" %}
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        {% if LANGUAGE_BIDI %}<polyline points="15 18 9 12 15 6"/>{% else %}<polyline points="9 18 15 12 9 6"/>{% endif %}
+      </svg>
+    </button>
+  </div>
+</form>
+{% endif %}
+
+{% if current_step == 3 %}
+<h2 class="card-title">{% trans "Your business" %}</h2>
+<p class="card-sub">{% trans "Tell us about your business" %}</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  <input type="hidden" name="step" value="3" />
+
+  <div class="f-group">
+    <div class="f-label"><label for="s3_name">{% trans "Business name" %}</label></div>
+    <div class="fi-wrap">
+      <span class="fi-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+      <input type="text" id="s3_name" name="business_name" value="{{ form.business_name.value|default:'' }}" class="f-input {% if form.business_name.errors %}is-error{% endif %}" placeholder="{% trans 'Your brand name' %}" autofocus required />
+    </div>
+    {% for e in form.business_name.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+  </div>
+
+  <div class="f-group">
+    <div class="f-label"><label for="s3_city">{% trans "City" %}</label></div>
+    <div class="fi-wrap">
+      <span class="fi-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+      <select id="s3_city" name="city" class="f-input {% if form.city.errors %}is-error{% endif %}" style="appearance: none; cursor:pointer;" required>
+        <option value="">{% trans "Select a city" %}</option>
+        {% for value, label in city_choices %}
+        <option value="{{ value }}" {% if form.city.value == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% for e in form.city.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+  </div>
+
+  <div class="f-group">
+    <div class="f-label">
+      <label for="s3_cr">{% trans "Commercial registration" %}</label>
+      <span style="font-size:11px; color:var(--text-s);">{% trans "optional" %}</span>
+    </div>
+    <input type="text" id="s3_cr" name="commercial_registration" value="{{ form.commercial_registration.value|default:'' }}" class="f-input" placeholder="{% trans 'CR number' %}" />
+  </div>
+
+  <div class="f-group">
+    <div class="f-label">
+      <label for="s3_tax">{% trans "Tax ID" %}</label>
+      <span style="font-size:11px; color:var(--text-s);">{% trans "optional" %}</span>
+    </div>
+    <input type="text" id="s3_tax" name="tax_id" value="{{ form.tax_id.value|default:'' }}" class="f-input" placeholder="{% trans 'VAT number' %}" />
+  </div>
+
+  <div class="f-group">
+    <div class="f-label">
+      <label for="s3_desc">{% trans "Description" %}</label>
+      <span style="font-size:11px; color:var(--text-s);">{% trans "optional" %}</span>
+    </div>
+    <textarea id="s3_desc" name="description" class="f-textarea" placeholder="{% trans 'What makes your service unique?' %}">{{ form.description.value|default:'' }}</textarea>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" name="direction" value="back" class="btn-secondary" style="margin-top: 0;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        {% if LANGUAGE_BIDI %}<polyline points="9 18 15 12 9 6"/>{% else %}<polyline points="15 18 9 12 15 6"/>{% endif %}
+      </svg>
+      {% trans "Back" %}
+    </button>
+    <button type="submit" name="direction" value="next" class="btn-primary" style="margin-top: 0;">
+      {% trans "Continue" %}
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        {% if LANGUAGE_BIDI %}<polyline points="15 18 9 12 15 6"/>{% else %}<polyline points="9 18 15 12 9 6"/>{% endif %}
+      </svg>
+    </button>
+  </div>
+</form>
+{% endif %}
+
+{% if current_step == 4 %}
+<h2 class="card-title">{% trans "Review & confirm" %}</h2>
+<p class="card-sub">{% trans "Check your details before submitting" %}</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  <input type="hidden" name="step" value="4" />
+
+  <div class="review-block">
+    <div class="review-block-header">{% trans "Personal" %}</div>
+    <div class="review-row">
+      <span class="review-key">{% trans "Name" %}</span>
+      <span class="review-value">{{ review_data.full_name }}</span>
+    </div>
+    <div class="review-row">
+      <span class="review-key">{% trans "Email" %}</span>
+      <span class="review-value">{{ review_data.email }}</span>
+    </div>
+    <div class="review-row">
+      <span class="review-key">{% trans "Phone" %}</span>
+      <span class="review-value">{{ review_data.phone_number }}</span>
+    </div>
+  </div>
+
+  <div class="review-block">
+    <div class="review-block-header">{% trans "Provider" %}</div>
+    <div class="review-row">
+      <span class="review-key">{% trans "Type" %}</span>
+      <span class="review-value">{{ review_data.provider_type_display }}</span>
+    </div>
+  </div>
+
+  <div class="review-block">
+    <div class="review-block-header">{% trans "Business" %}</div>
+    <div class="review-row">
+      <span class="review-key">{% trans "Name" %}</span>
+      <span class="review-value">{{ review_data.business_name }}</span>
+    </div>
+    <div class="review-row">
+      <span class="review-key">{% trans "City" %}</span>
+      <span class="review-value">{{ review_data.city_display }}</span>
+    </div>
+    {% if review_data.commercial_registration %}
+    <div class="review-row">
+      <span class="review-key">{% trans "CR number" %}</span>
+      <span class="review-value">{{ review_data.commercial_registration }}</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" name="direction" value="back" class="btn-secondary" style="margin-top: 0;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        {% if LANGUAGE_BIDI %}<polyline points="9 18 15 12 9 6"/>{% else %}<polyline points="15 18 9 12 15 6"/>{% endif %}
+      </svg>
+      {% trans "Back" %}
+    </button>
+    <button type="submit" name="direction" value="submit" class="btn-primary" style="margin-top: 0;">
+      {% trans "Create account" %}
+    </button>
+  </div>
+</form>
+{% endif %}
+
+{% endblock content %}
+
+{% block auth_js %}
+<script>
+  'use strict';
+  // وظيفة تغيير لون البطاقة
+  function onTypeSelect(radio) {
+    document.querySelectorAll('.type-card').forEach(function (c) { 
+      c.classList.remove('is-selected'); 
+    });
+    radio.closest('.type-card').classList.add('is-selected');
+  }
+
+  // وظيفة إظهار/إخفاء كلمة المرور
+  function togglePw(btn) {
+    var inp = btn.closest('.fi-wrap').querySelector('.f-input');
+    var show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.querySelector('.eye-on').style.display  = show ? 'none' : '';
+    btn.querySelector('.eye-off').style.display = show ? ''     : 'none';
+  }
+</script>
+{% endblock auth_js %}
