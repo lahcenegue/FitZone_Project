@@ -1,0 +1,620 @@
+Folder PATH listing
+Volume serial number is 888A-01F6
+C:.
+|   .env
+|   .env.example
+|   .gitignore
+|   docker-compose.yml
+|   project_tree.txt
+|   
++---backend
+|   |   manage.py
+|   |   requirements.txt
+|   |   
+|   +---apps
+|   |   |   __init__.py
+|   |   |   
+|   |   +---dashboard
+|   |   |   |   admin.py
+|   |   |   |   apps.py
+|   |   |   |   models.py
+|   |   |   |   serializers.py
+|   |   |   |   urls.py
+|   |   |   |   views.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           admin.cpython-313.pyc
+|   |   |           apps.cpython-313.pyc
+|   |   |           models.cpython-313.pyc
+|   |   |           urls.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   +---gyms
+|   |   |   |   admin.py
+|   |   |   |   apps.py
+|   |   |   |   models.py
+|   |   |   |   serializers.py
+|   |   |   |   urls.py
+|   |   |   |   views.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           admin.cpython-313.pyc
+|   |   |           apps.cpython-313.pyc
+|   |   |           models.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   +---notifications
+|   |   |   |   admin.py
+|   |   |   |   apps.py
+|   |   |   |   models.py
+|   |   |   |   serializers.py
+|   |   |   |   urls.py
+|   |   |   |   views.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           admin.cpython-313.pyc
+|   |   |           apps.cpython-313.pyc
+|   |   |           models.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   +---payments
+|   |   |   |   admin.py
+|   |   |   |   apps.py
+|   |   |   |   models.py
+|   |   |   |   serializers.py
+|   |   |   |   urls.py
+|   |   |   |   views.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           admin.cpython-313.pyc
+|   |   |           apps.cpython-313.pyc
+|   |   |           models.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   +---providers
+|   |   |   |   admin.py
+|   |   |   |   apps.py
+|   |   |   |   constants.py
+|   |   |   |   emails.py
+|   |   |   |   models.py
+|   |   |   |   serializers.py
+|   |   |   |   services.py
+|   |   |   |   urls.py
+|   |   |   |   views.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   +---migrations
+|   |   |   |   |   0001_initial.py
+|   |   |   |   |   0002_add_registration_fields.py
+|   |   |   |   |   __init__.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           0001_initial.cpython-313.pyc
+|   |   |   |           0002_add_registration_fields.cpython-313.pyc
+|   |   |   |           __init__.cpython-313.pyc
+|   |   |   |           
+|   |   |   \---__pycache__
+|   |   |           admin.cpython-313.pyc
+|   |   |           apps.cpython-313.pyc
+|   |   |           constants.cpython-313.pyc
+|   |   |           emails.cpython-313.pyc
+|   |   |           models.cpython-313.pyc
+|   |   |           serializers.cpython-313.pyc
+|   |   |           services.cpython-313.pyc
+|   |   |           urls.cpython-313.pyc
+|   |   |           views.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   +---provider_portal
+|   |   |   |   admin.py
+|   |   |   |   apps.py
+|   |   |   |   constants.py
+|   |   |   |   context_processors.py
+|   |   |   |   decorators.py
+|   |   |   |   models.py
+|   |   |   |   serializers.py
+|   |   |   |   urls.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   +---forms
+|   |   |   |   |   auth_forms.py
+|   |   |   |   |   gym_forms.py
+|   |   |   |   |   profile_forms.py
+|   |   |   |   |   restaurant_store_forms.py
+|   |   |   |   |   trainer_forms.py
+|   |   |   |   |   __init__.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           auth_forms.cpython-313.pyc
+|   |   |   |           __init__.cpython-313.pyc
+|   |   |   |           
+|   |   |   +---services
+|   |   |   |   |   auth_service.py
+|   |   |   |   |   earnings_service.py
+|   |   |   |   |   gym_service.py
+|   |   |   |   |   trainer_service.py
+|   |   |   |   |   __init__.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           auth_service.cpython-313.pyc
+|   |   |   |           __init__.cpython-313.pyc
+|   |   |   |           
+|   |   |   +---views
+|   |   |   |   |   auth_views.py
+|   |   |   |   |   dashboard_views.py
+|   |   |   |   |   earnings_views.py
+|   |   |   |   |   gym_views.py
+|   |   |   |   |   profile_views.py
+|   |   |   |   |   restaurant_views.py
+|   |   |   |   |   store_views.py
+|   |   |   |   |   trainer_views.py
+|   |   |   |   |   __init__.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           auth_views.cpython-313.pyc
+|   |   |   |           dashboard_views.cpython-313.pyc
+|   |   |   |           earnings_views.cpython-313.pyc
+|   |   |   |           gym_views.cpython-313.pyc
+|   |   |   |           profile_views.cpython-313.pyc
+|   |   |   |           restaurant_views.cpython-313.pyc
+|   |   |   |           store_views.cpython-313.pyc
+|   |   |   |           trainer_views.cpython-313.pyc
+|   |   |   |           __init__.cpython-313.pyc
+|   |   |   |           
+|   |   |   \---__pycache__
+|   |   |           admin.cpython-313.pyc
+|   |   |           apps.cpython-313.pyc
+|   |   |           constants.cpython-313.pyc
+|   |   |           context_processors.cpython-313.pyc
+|   |   |           decorators.cpython-313.pyc
+|   |   |           models.cpython-313.pyc
+|   |   |           urls.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   +---resale
+|   |   |   |   admin.py
+|   |   |   |   apps.py
+|   |   |   |   models.py
+|   |   |   |   serializers.py
+|   |   |   |   urls.py
+|   |   |   |   views.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           admin.cpython-313.pyc
+|   |   |           apps.cpython-313.pyc
+|   |   |           models.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   +---restaurants
+|   |   |   |   admin.py
+|   |   |   |   apps.py
+|   |   |   |   models.py
+|   |   |   |   serializers.py
+|   |   |   |   urls.py
+|   |   |   |   views.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           admin.cpython-313.pyc
+|   |   |           apps.cpython-313.pyc
+|   |   |           models.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   +---reviews
+|   |   |   |   admin.py
+|   |   |   |   apps.py
+|   |   |   |   models.py
+|   |   |   |   serializers.py
+|   |   |   |   urls.py
+|   |   |   |   views.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           admin.cpython-313.pyc
+|   |   |           apps.cpython-313.pyc
+|   |   |           models.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   +---stores
+|   |   |   |   admin.py
+|   |   |   |   apps.py
+|   |   |   |   models.py
+|   |   |   |   serializers.py
+|   |   |   |   urls.py
+|   |   |   |   views.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           admin.cpython-313.pyc
+|   |   |           apps.cpython-313.pyc
+|   |   |           models.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   +---subscriptions
+|   |   |   |   admin.py
+|   |   |   |   apps.py
+|   |   |   |   models.py
+|   |   |   |   serializers.py
+|   |   |   |   urls.py
+|   |   |   |   views.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           admin.cpython-313.pyc
+|   |   |           apps.cpython-313.pyc
+|   |   |           models.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   +---trainers
+|   |   |   |   admin.py
+|   |   |   |   apps.py
+|   |   |   |   models.py
+|   |   |   |   serializers.py
+|   |   |   |   urls.py
+|   |   |   |   views.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           admin.cpython-313.pyc
+|   |   |           apps.cpython-313.pyc
+|   |   |           models.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   +---users
+|   |   |   |   admin.py
+|   |   |   |   apps.py
+|   |   |   |   models.py
+|   |   |   |   serializers.py
+|   |   |   |   urls.py
+|   |   |   |   views.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   +---migrations
+|   |   |   |   |   0001_initial.py
+|   |   |   |   |   __init__.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           0001_initial.cpython-313.pyc
+|   |   |   |           __init__.cpython-313.pyc
+|   |   |   |           
+|   |   |   \---__pycache__
+|   |   |           admin.cpython-313.pyc
+|   |   |           apps.cpython-313.pyc
+|   |   |           models.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   \---__pycache__
+|   |           __init__.cpython-313.pyc
+|   |           
+|   +---config
+|   |   |   api_router.py
+|   |   |   asgi.py
+|   |   |   celery.py
+|   |   |   urls.py
+|   |   |   wsgi.py
+|   |   |   __init__.py
+|   |   |   
+|   |   +---settings
+|   |   |   |   base.py
+|   |   |   |   development.py
+|   |   |   |   production.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           base.cpython-313.pyc
+|   |   |           development.cpython-313.pyc
+|   |   |           __init__.cpython-313.pyc
+|   |   |           
+|   |   \---__pycache__
+|   |           api_router.cpython-313.pyc
+|   |           celery.cpython-313.pyc
+|   |           urls.cpython-313.pyc
+|   |           wsgi.cpython-313.pyc
+|   |           __init__.cpython-313.pyc
+|   |           
+|   +---locale
+|   |   +---ar
+|   |   |   \---LC_MESSAGES
+|   |   |           django.mo
+|   |   |           django.po
+|   |   |           
+|   |   \---en
+|   |       \---LC_MESSAGES
+|   |               django.mo
+|   |               django.po
+|   |               
+|   +---static
+|   |   \---global
+|   |       +---css
+|   |       |       tokens.css
+|   |       |       
+|   |       +---img
+|   |       |       logo.png
+|   |       |       
+|   |       \---js
+|   |               global.js
+|   |               
+|   +---staticfiles
+|   |   +---admin
+|   |   |   +---css
+|   |   |   |   |   autocomplete.css
+|   |   |   |   |   base.css
+|   |   |   |   |   changelists.css
+|   |   |   |   |   dark_mode.css
+|   |   |   |   |   dashboard.css
+|   |   |   |   |   forms.css
+|   |   |   |   |   login.css
+|   |   |   |   |   nav_sidebar.css
+|   |   |   |   |   responsive.css
+|   |   |   |   |   responsive_rtl.css
+|   |   |   |   |   rtl.css
+|   |   |   |   |   unusable_password_field.css
+|   |   |   |   |   widgets.css
+|   |   |   |   |   
+|   |   |   |   \---vendor
+|   |   |   |       \---select2
+|   |   |   |               LICENSE-SELECT2.md
+|   |   |   |               select2.css
+|   |   |   |               select2.min.css
+|   |   |   |               
+|   |   |   +---img
+|   |   |   |   |   calendar-icons.svg
+|   |   |   |   |   icon-addlink.svg
+|   |   |   |   |   icon-alert.svg
+|   |   |   |   |   icon-calendar.svg
+|   |   |   |   |   icon-changelink.svg
+|   |   |   |   |   icon-clock.svg
+|   |   |   |   |   icon-deletelink.svg
+|   |   |   |   |   icon-hidelink.svg
+|   |   |   |   |   icon-no.svg
+|   |   |   |   |   icon-unknown-alt.svg
+|   |   |   |   |   icon-unknown.svg
+|   |   |   |   |   icon-viewlink.svg
+|   |   |   |   |   icon-yes.svg
+|   |   |   |   |   inline-delete.svg
+|   |   |   |   |   LICENSE
+|   |   |   |   |   README.txt
+|   |   |   |   |   search.svg
+|   |   |   |   |   selector-icons.svg
+|   |   |   |   |   sorting-icons.svg
+|   |   |   |   |   tooltag-add.svg
+|   |   |   |   |   tooltag-arrowright.svg
+|   |   |   |   |   
+|   |   |   |   \---gis
+|   |   |   |           move_vertex_off.svg
+|   |   |   |           move_vertex_on.svg
+|   |   |   |           
+|   |   |   \---js
+|   |   |       |   actions.js
+|   |   |       |   autocomplete.js
+|   |   |       |   calendar.js
+|   |   |       |   cancel.js
+|   |   |       |   change_form.js
+|   |   |       |   core.js
+|   |   |       |   filters.js
+|   |   |       |   inlines.js
+|   |   |       |   jquery.init.js
+|   |   |       |   nav_sidebar.js
+|   |   |       |   popup_response.js
+|   |   |       |   prepopulate.js
+|   |   |       |   prepopulate_init.js
+|   |   |       |   SelectBox.js
+|   |   |       |   SelectFilter2.js
+|   |   |       |   theme.js
+|   |   |       |   unusable_password_field.js
+|   |   |       |   urlify.js
+|   |   |       |   
+|   |   |       +---admin
+|   |   |       |       DateTimeShortcuts.js
+|   |   |       |       RelatedObjectLookups.js
+|   |   |       |       
+|   |   |       \---vendor
+|   |   |           +---jquery
+|   |   |           |       jquery.js
+|   |   |           |       jquery.min.js
+|   |   |           |       LICENSE.txt
+|   |   |           |       
+|   |   |           +---select2
+|   |   |           |   |   LICENSE.md
+|   |   |           |   |   select2.full.js
+|   |   |           |   |   select2.full.min.js
+|   |   |           |   |   
+|   |   |           |   \---i18n
+|   |   |           |           af.js
+|   |   |           |           ar.js
+|   |   |           |           az.js
+|   |   |           |           bg.js
+|   |   |           |           bn.js
+|   |   |           |           bs.js
+|   |   |           |           ca.js
+|   |   |           |           cs.js
+|   |   |           |           da.js
+|   |   |           |           de.js
+|   |   |           |           dsb.js
+|   |   |           |           el.js
+|   |   |           |           en.js
+|   |   |           |           es.js
+|   |   |           |           et.js
+|   |   |           |           eu.js
+|   |   |           |           fa.js
+|   |   |           |           fi.js
+|   |   |           |           fr.js
+|   |   |           |           gl.js
+|   |   |           |           he.js
+|   |   |           |           hi.js
+|   |   |           |           hr.js
+|   |   |           |           hsb.js
+|   |   |           |           hu.js
+|   |   |           |           hy.js
+|   |   |           |           id.js
+|   |   |           |           is.js
+|   |   |           |           it.js
+|   |   |           |           ja.js
+|   |   |           |           ka.js
+|   |   |           |           km.js
+|   |   |           |           ko.js
+|   |   |           |           lt.js
+|   |   |           |           lv.js
+|   |   |           |           mk.js
+|   |   |           |           ms.js
+|   |   |           |           nb.js
+|   |   |           |           ne.js
+|   |   |           |           nl.js
+|   |   |           |           pl.js
+|   |   |           |           ps.js
+|   |   |           |           pt-BR.js
+|   |   |           |           pt.js
+|   |   |           |           ro.js
+|   |   |           |           ru.js
+|   |   |           |           sk.js
+|   |   |           |           sl.js
+|   |   |           |           sq.js
+|   |   |           |           sr-Cyrl.js
+|   |   |           |           sr.js
+|   |   |           |           sv.js
+|   |   |           |           th.js
+|   |   |           |           tk.js
+|   |   |           |           tr.js
+|   |   |           |           uk.js
+|   |   |           |           vi.js
+|   |   |           |           zh-CN.js
+|   |   |           |           zh-TW.js
+|   |   |           |           
+|   |   |           \---xregexp
+|   |   |                   LICENSE.txt
+|   |   |                   xregexp.js
+|   |   |                   xregexp.min.js
+|   |   |                   
+|   |   +---django_extensions
+|   |   |   +---css
+|   |   |   |       jquery.autocomplete.css
+|   |   |   |       
+|   |   |   +---img
+|   |   |   |       indicator.gif
+|   |   |   |       
+|   |   |   \---js
+|   |   |           jquery.ajaxQueue.js
+|   |   |           jquery.autocomplete.js
+|   |   |           jquery.bgiframe.js
+|   |   |           
+|   |   +---gis
+|   |   |   +---css
+|   |   |   |       ol3.css
+|   |   |   |       
+|   |   |   +---img
+|   |   |   |       draw_line_off.svg
+|   |   |   |       draw_line_on.svg
+|   |   |   |       draw_point_off.svg
+|   |   |   |       draw_point_on.svg
+|   |   |   |       draw_polygon_off.svg
+|   |   |   |       draw_polygon_on.svg
+|   |   |   |       
+|   |   |   \---js
+|   |   |           OLMapWidget.js
+|   |   |           
+|   |   +---global
+|   |   |   +---css
+|   |   |   |       tokens.css
+|   |   |   |       
+|   |   |   +---img
+|   |   |   |       logo.png
+|   |   |   |       
+|   |   |   \---js
+|   |   |           global.js
+|   |   |           
+|   |   \---rest_framework
+|   |       +---css
+|   |       |       bootstrap-theme.min.css
+|   |       |       bootstrap-theme.min.css.map
+|   |       |       bootstrap-tweaks.css
+|   |       |       bootstrap.min.css
+|   |       |       bootstrap.min.css.map
+|   |       |       default.css
+|   |       |       font-awesome-4.0.3.css
+|   |       |       prettify.css
+|   |       |       
+|   |       +---docs
+|   |       |   +---css
+|   |       |   |       base.css
+|   |       |   |       highlight.css
+|   |       |   |       jquery.json-view.min.css
+|   |       |   |       
+|   |       |   +---img
+|   |       |   |       favicon.ico
+|   |       |   |       grid.png
+|   |       |   |       
+|   |       |   \---js
+|   |       |           api.js
+|   |       |           highlight.pack.js
+|   |       |           jquery.json-view.min.js
+|   |       |           
+|   |       +---fonts
+|   |       |       fontawesome-webfont.eot
+|   |       |       fontawesome-webfont.svg
+|   |       |       fontawesome-webfont.ttf
+|   |       |       fontawesome-webfont.woff
+|   |       |       glyphicons-halflings-regular.eot
+|   |       |       glyphicons-halflings-regular.svg
+|   |       |       glyphicons-halflings-regular.ttf
+|   |       |       glyphicons-halflings-regular.woff
+|   |       |       glyphicons-halflings-regular.woff2
+|   |       |       
+|   |       +---img
+|   |       |       glyphicons-halflings-white.png
+|   |       |       glyphicons-halflings.png
+|   |       |       grid.png
+|   |       |       
+|   |       \---js
+|   |               ajax-form.js
+|   |               bootstrap.min.js
+|   |               coreapi-0.1.1.js
+|   |               csrf.js
+|   |               default.js
+|   |               jquery-3.7.1.min.js
+|   |               load-ajax-form.js
+|   |               prettify-min.js
+|   |               
+|   \---templates
+|       |   base.html
+|       |   
+|       +---dashboard
+|       \---provider_portal
+|           |   base.html
+|           |   
+|           +---auth
+|           |       base_auth.html
+|           |       login.html
+|           |       pending.html
+|           |       register.html
+|           |       suspended.html
+|           |       
+|           +---dashboard
+|           +---emails
+|           |       approval.html
+|           |       approval.txt
+|           |       rejection.html
+|           |       rejection.txt
+|           |       verify_email.html
+|           |       verify_email.txt
+|           |       
+|           +---gym
+|           +---restaurant
+|           +---store
+|           \---trainer
++---docker
+|   \---backend
+|           Dockerfile
+|           
+\---docs
+        fitZone.txt
+        index.html
+        index_douchette.html
+        logo.png
+        logo.svg
+        ??? ?????.docx
+        

@@ -39,6 +39,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "django_extensions",
     "django_celery_results",
@@ -76,6 +77,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "apps.providers.middleware.EnglishOnlyAPIMiddleware",
 ]
 
 # ---------------------------------------------------------------------------
@@ -92,6 +94,7 @@ ASGI_APPLICATION = "config.asgi.application"
 # ---------------------------------------------------------------------------
 
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:8000")
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # ---------------------------------------------------------------------------
 # Templates

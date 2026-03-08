@@ -9,6 +9,7 @@ from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
+from django.db import transaction
 from apps.provider_portal.forms.auth_forms import (
     RegistrationStep1Form,
     RegistrationStep2Form,
@@ -32,6 +33,7 @@ from apps.provider_portal.constants import (
     SAUDI_CITIES,
 )
 from apps.providers.models import ProviderType
+from django.contrib.auth.hashers import make_password
 
 logger = logging.getLogger(__name__)
 
@@ -193,11 +195,14 @@ class RegisterView(View):
             form = RegistrationStep1Form(request.POST)
             if not form.is_valid():
                 return render(request, self.template_name, self._build_context(request, form, step))
+            
+            hashed_pw = make_password(form.cleaned_data["password"])
+
             self._save_step_data(request, "step1", {
                 "full_name":    form.cleaned_data["full_name"],
                 "email":        form.cleaned_data["email"],
                 "phone_number": form.cleaned_data["phone_number"],
-                "password":     form.cleaned_data["password"],
+                "password":     hashed_pw,
             })
             self._set_step(request, 2)
             return redirect("provider_portal:register")
@@ -293,8 +298,9 @@ class VerifyEmailView(View):
                 messages.error(request, _("This verification link has expired or has already been used."))
                 return redirect("provider_portal:login")
             
-            token_obj.consume()
-            token_obj.provider.mark_email_verified()
+            with transaction.atomic():
+                token_obj.consume()
+                token_obj.provider.mark_email_verified()
             
             if not request.user.is_authenticated:
                 from django.contrib.auth import login

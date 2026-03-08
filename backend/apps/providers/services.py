@@ -238,6 +238,29 @@ class ProviderRegistrationService:
             email,
         )
         return True
+    
+    @staticmethod
+    def authenticate_provider(email: str, password: str) -> Provider:
+        """Authenticate a provider by email and password."""
+        from django.contrib.auth import authenticate
+        
+        user = authenticate(username=email, password=password)
+        
+        if user is None:
+            raise ValueError("Invalid email or password.")
+            
+        if getattr(user, "role", None) != UserRole.PROVIDER:
+            raise ValueError("This account is not a provider account.")
+            
+        if not hasattr(user, "provider_profile"):
+            raise ValueError("Provider profile not found.")
+            
+        provider = user.provider_profile
+        
+        if provider.status == ProviderStatus.SUSPENDED:
+            raise ValueError("This account has been suspended by the administration.")
+            
+        return provider
 
 
 # ---------------------------------------------------------------------------
@@ -304,3 +327,4 @@ class ProviderReviewService:
             frontend_base_url=_frontend_base_url(),
         )
         return provider
+    

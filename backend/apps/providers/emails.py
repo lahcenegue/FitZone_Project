@@ -1,12 +1,8 @@
 """
 Email utilities for the providers app.
-
 All outgoing emails for provider registration go through this module.
 Each function is pure — it takes explicit arguments, has no side effects
 beyond sending the email, and returns True/False.
-
-When a real email service (SendGrid, Mailgun, etc.) is integrated,
-only this file changes. Services and views are untouched.
 """
 
 import logging
@@ -29,13 +25,11 @@ def send_verification_email(
 ) -> bool:
     """
     Send the email verification link to a newly registered provider.
-
-    Returns True on success, False on failure (failure is logged, not raised).
+    Uses a standard deep-link friendly URL format for the Flutter app.
+    Returns True on success, False on failure.
     """
-    verification_url = (
-        f"{frontend_base_url.rstrip('/')}"
-        f"/portal/verify-email/?token={verification_token}"
-    )
+    # Deep link format for Flutter application
+    verification_url = f"{frontend_base_url.rstrip('/')}/verify?token={verification_token}"
 
     context = {
         "recipient_name":   recipient_name,
@@ -45,31 +39,39 @@ def send_verification_email(
         "support_email":    getattr(settings, "SUPPORT_EMAIL", "support@fitzone.sa"),
     }
 
+    # Fallback text to ensure the email is never empty
+    fallback_text = (
+        f"Welcome {business_name},\n\n"
+        f"Please click the link below to verify your email address:\n\n"
+        f"{verification_url}\n\n"
+        f"If you did not request this, please ignore this email."
+    )
+
     try:
-        text_body = render_to_string(
-            "provider_portal/emails/verify_email.txt", context
-        )
-        html_body = render_to_string(
-            "provider_portal/emails/verify_email.html", context
-        )
+        try:
+            text_body = render_to_string("provider_portal/emails/verify_email.txt", context)
+            if not text_body.strip():
+                text_body = fallback_text
+        except Exception:
+            text_body = fallback_text
+
+        try:
+            html_body = render_to_string("provider_portal/emails/verify_email.html", context)
+        except Exception:
+            html_body = None
+
         send_mail(
-            subject=str(_("Verify your email — FitZone Provider Portal")),
+            subject=str(_("Verify your FitZone account")),
             message=text_body,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[recipient_email],
             html_message=html_body,
             fail_silently=False,
         )
-        logger.info(
-            "Verification email sent | recipient: %s | business: %s",
-            recipient_email, business_name,
-        )
+        logger.info("Verification email sent | recipient: %s", recipient_email)
         return True
     except Exception as exc:
-        logger.error(
-            "Verification email failed | recipient: %s | error: %s",
-            recipient_email, exc,
-        )
+        logger.error("Verification email failed | recipient: %s | error: %s", recipient_email, exc)
         return False
 
 
@@ -80,11 +82,7 @@ def send_approval_email(
     business_name: str,
     frontend_base_url: str,
 ) -> bool:
-    """
-    Notify a provider that their application has been approved.
-
-    Returns True on success, False on failure.
-    """
+    """Notify a provider that their application has been approved."""
     login_url = f"{frontend_base_url.rstrip('/')}/portal/login/"
 
     context = {
@@ -98,23 +96,17 @@ def send_approval_email(
         text_body = render_to_string("provider_portal/emails/approval.txt",  context)
         html_body = render_to_string("provider_portal/emails/approval.html", context)
         send_mail(
-            subject=str(_("Your FitZone provider account has been approved")),
+            subject=str(_("Your FitZone provider application has been approved!")),
             message=text_body,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[recipient_email],
             html_message=html_body,
             fail_silently=False,
         )
-        logger.info(
-            "Approval email sent | recipient: %s | business: %s",
-            recipient_email, business_name,
-        )
+        logger.info("Approval email sent | recipient: %s | business: %s", recipient_email, business_name)
         return True
     except Exception as exc:
-        logger.error(
-            "Approval email failed | recipient: %s | error: %s",
-            recipient_email, exc,
-        )
+        logger.error("Approval email failed | recipient: %s | error: %s", recipient_email, exc)
         return False
 
 
@@ -126,11 +118,7 @@ def send_rejection_email(
     rejection_note: str,
     frontend_base_url: str,
 ) -> bool:
-    """
-    Notify a provider that their application has been rejected.
-
-    Returns True on success, False on failure.
-    """
+    """Notify a provider that their application has been rejected."""
     context = {
         "recipient_name": recipient_name,
         "business_name":  business_name,
@@ -149,14 +137,8 @@ def send_rejection_email(
             html_message=html_body,
             fail_silently=False,
         )
-        logger.info(
-            "Rejection email sent | recipient: %s | business: %s",
-            recipient_email, business_name,
-        )
+        logger.info("Rejection email sent | recipient: %s | business: %s", recipient_email, business_name)
         return True
     except Exception as exc:
-        logger.error(
-            "Rejection email failed | recipient: %s | error: %s",
-            recipient_email, exc,
-        )
+        logger.error("Rejection email failed | recipient: %s | error: %s", recipient_email, exc)
         return False

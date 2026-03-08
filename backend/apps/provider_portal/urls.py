@@ -1,6 +1,5 @@
 """
 URL configuration for the FitZone Provider Portal.
-Arabic: /portal/...  |  English: /en/portal/...
 """
 
 from django.urls import path
@@ -8,7 +7,7 @@ from django.shortcuts import redirect
 from apps.providers.models import ProviderStatus
 
 def login_redirect_view(request):
-    """Route user based on verification and status."""
+    """Redirect portal root based on auth and email verification state."""
     if not request.user.is_authenticated or not hasattr(request.user, "provider_profile"):
         return redirect("provider_portal:login")
 
@@ -39,7 +38,7 @@ urlpatterns = [
     path("pending/", auth_views.PendingView.as_view(), name="pending"),
     path("suspended/", auth_views.SuspendedView.as_view(), name="suspended"),
     
-    # Email Verification
+    # Email Verification Routes
     path("verify-email/<str:token>/", auth_views.VerifyEmailView.as_view(), name="verify_email"),
     path("resend-verification/", auth_views.ResendVerificationView.as_view(), name="resend_verification"),
 
