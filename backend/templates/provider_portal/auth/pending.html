@@ -1,34 +1,45 @@
 {% extends "provider_portal/auth/base_auth.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Under Review" %} — FitZone Portal{% endblock %}
+{% block title %}{% trans "Verify Email" %} — FitZone Portal{% endblock %}
 
 {% block content %}
-<div style="display:flex; flex-direction:column; align-items:center; text-align: center; padding: 20px 0;">
+<div style="display:flex; flex-direction:column; align-items:center; text-align: center; padding: 10px 0;">
   
-  <div class="status-icon">
-    <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="10"/>
-      <polyline points="12 6 12 12 16 14"/>
+  <div class="status-icon" style="background: linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(59,130,246,0.05) 100%); border-color: rgba(59,130,246,0.2); box-shadow: 0 8px 32px rgba(59,130,246,0.1);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+      <polyline points="22,6 12,13 2,6"/>
     </svg>
   </div>
 
-  <p style="font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 8px;">
-    {% trans "Application received" %}
+  <p style="font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #3b82f6; margin-bottom: 8px;">
+    {% trans "Action Required" %}
   </p>
   
-  <h2 class="card-title" style="font-size: 28px; margin-bottom: 12px;">{% trans "Under review" %}</h2>
+  <h2 class="card-title" style="font-size: 26px; margin-bottom: 12px;">{% trans "Verify your email" %}</h2>
   
-  <p class="card-sub" style="font-size: 15px; max-width: 90%; margin-bottom: 32px; line-height: 1.7;">
-    {% trans "Your application is being reviewed. You'll receive an email notification within 1–2 business days." %}
+  <p class="card-sub" style="font-size: 14px; max-width: 95%; margin-bottom: 28px; line-height: 1.7;">
+    {% trans "We've sent an activation link to your email. Please check your inbox and click the link to activate your account." %}
   </p>
 
-  <div style="background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 16px; padding: 20px; margin-bottom: 32px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-    <span style="font-size: 13px; color: var(--color-text-secondary); font-weight: 500;">{% trans "Notification will be sent to" %}</span>
+  <div style="background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 16px; padding: 16px; margin-bottom: 28px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+    <span style="font-size: 13px; color: var(--color-text-secondary); font-weight: 500;">{% trans "Activation link sent to" %}</span>
     <span style="font-size: 15px; font-weight: 700; color: var(--color-text-primary); background: #fff; padding: 8px 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(15,23,42,0.04); border: 1px solid rgba(226,232,240,0.6);">
       {{ request.user.email }}
     </span>
   </div>
+
+  <form method="post" action="{% url 'provider_portal:resend_verification' %}" style="width: 100%; margin-bottom: 12px;">
+    {% csrf_token %}
+    <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); box-shadow: 0 4px 20px rgba(59,130,246,0.38);">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-inline-end: 8px;">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+      {% trans "Resend activation link" %}
+    </button>
+  </form>
 
   <form method="post" action="{% url 'provider_portal:logout' %}" style="width: 100%;">
     {% csrf_token %}

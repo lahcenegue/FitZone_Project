@@ -87,6 +87,13 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 # ---------------------------------------------------------------------------
+# Frontend base URL — used in outgoing email links
+# Change to the real domain when deploying to production.
+# ---------------------------------------------------------------------------
+
+FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:8000")
+
+# ---------------------------------------------------------------------------
 # Templates
 # ---------------------------------------------------------------------------
 
@@ -245,15 +252,35 @@ CELERY_RESULT_EXTENDED = True
 
 # ---------------------------------------------------------------------------
 # Email
+#
+# EMAIL_BACKEND is read from the environment so that:
+#   - Development (.env): django.core.mail.backends.console.EmailBackend
+#     → emails print to the Docker console, no SMTP needed
+#   - Production (.env): django.core.mail.backends.smtp.EmailBackend
+#     → emails are delivered via SMTP
+#
+# All other EMAIL_* variables are also read from .env.
 # ---------------------------------------------------------------------------
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
-EMAIL_PORT = env.int("EMAIL_PORT", default=587)
-EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
-EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_BACKEND    = env(
+    "EMAIL_BACKEND",
+    default="django.core.mail.backends.smtp.EmailBackend",
+)
+EMAIL_HOST       = env("EMAIL_HOST",       default="smtp.gmail.com")
+EMAIL_PORT       = env.int("EMAIL_PORT",   default=587)
+EMAIL_USE_TLS    = env.bool("EMAIL_USE_TLS", default=True)
+EMAIL_HOST_USER  = env("EMAIL_HOST_USER",  default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="FitZone <noreply@fitzone.sa>")
+DEFAULT_FROM_EMAIL  = env(
+    "DEFAULT_FROM_EMAIL",
+    default="FitZone <noreply@fitzone.sa>",
+)
+
+# ---------------------------------------------------------------------------
+# Support email — shown in outgoing transactional emails
+# ---------------------------------------------------------------------------
+
+SUPPORT_EMAIL = env("SUPPORT_EMAIL", default="support@fitzone.sa")
 
 # ---------------------------------------------------------------------------
 # CORS

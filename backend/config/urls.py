@@ -20,6 +20,7 @@ from config.api_router import api_router
 urlpatterns = [
     path("api/v1/", include(api_router.urls)),
     path("i18n/", include("django.conf.urls.i18n")),
+    path("api/v1/providers/", include("apps.providers.urls")),
 ]
 
 # ---------------------------------------------------------------------------

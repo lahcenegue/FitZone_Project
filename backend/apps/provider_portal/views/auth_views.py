@@ -262,29 +262,77 @@ class RegisterView(View):
         return redirect("provider_portal:register")
 
 
+from apps.providers.models import EmailVerificationToken
+from apps.provider_portal.services.auth_service import send_verification_email
+
 class PendingView(View):
     """
-    Shown to providers with PENDING or APPROVED status.
-    Requires authentication — unauthenticated users go to login.
+    Shown to providers who need to verify their email.
+    Redirects to dashboard if already verified.
     """
     template_name = "provider_portal/auth/pending.html"
 
     def get(self, request):
-        """Render the pending approval page."""
-        if not request.user.is_authenticated:
+        if not request.user.is_authenticated or not hasattr(request.user, "provider_profile"):
             return redirect("provider_portal:login")
+            
+        if request.user.provider_profile.email_verified:
+            return redirect("provider_portal:dashboard")
+            
         return render(request, self.template_name)
 
 
+class VerifyEmailView(View):
+    """Handles email verification link clicks."""
+    
+    def get(self, request, token):
+        try:
+            token_obj = EmailVerificationToken.objects.get(token=token)
+            
+            if not token_obj.is_valid:
+                messages.error(request, _("This verification link has expired or has already been used."))
+                return redirect("provider_portal:login")
+            
+            token_obj.consume()
+            token_obj.provider.mark_email_verified()
+            
+            if not request.user.is_authenticated:
+                from django.contrib.auth import login
+                login(request, token_obj.provider.user, backend="django.contrib.auth.backends.ModelBackend")
+            
+            messages.success(request, _("Email verified successfully! Welcome to your dashboard."))
+            return redirect("provider_portal:dashboard")
+            
+        except EmailVerificationToken.DoesNotExist:
+            messages.error(request, _("Invalid verification link."))
+            return redirect("provider_portal:login")
+
+
+class ResendVerificationView(View):
+    """Generates a new token and resends the verification email."""
+    
+    def post(self, request):
+        if not request.user.is_authenticated or not hasattr(request.user, "provider_profile"):
+            return redirect("provider_portal:login")
+            
+        provider = request.user.provider_profile
+        
+        if provider.email_verified:
+            messages.info(request, _("Your email is already verified."))
+            return redirect("provider_portal:dashboard")
+            
+        token_obj = EmailVerificationToken.create_for_provider(provider)
+        send_verification_email(request, provider, token_obj)
+        
+        messages.success(request, _("A new activation link has been sent to your email."))
+        return redirect("provider_portal:pending")
+
+
 class SuspendedView(View):
-    """
-    Shown to providers with SUSPENDED status.
-    Requires authentication — unauthenticated users go to login.
-    """
+    """Shown to suspended providers."""
     template_name = "provider_portal/auth/suspended.html"
 
     def get(self, request):
-        """Render the suspended account page."""
         if not request.user.is_authenticated:
             return redirect("provider_portal:login")
         return render(request, self.template_name)

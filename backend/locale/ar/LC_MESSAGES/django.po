@@ -825,3 +825,27 @@ msgstr "آبل"
 msgid "Sign Up"
 msgstr "إنشاء حساب"
 
+msgid "Verify Email"
+msgstr "تأكيد البريد الإلكتروني"
+
+msgid "Action Required"
+msgstr "إجراء مطلوب"
+
+msgid "Verify your email"
+msgstr "قم بتأكيد بريدك الإلكتروني"
+
+msgid "We've sent an activation link to your email. Please check your inbox and click the link to activate your account."
+msgstr "لقد أرسلنا رابط التفعيل إلى بريدك الإلكتروني. يرجى التحقق من صندوق الوارد والنقر على الرابط لتنشيط حسابك."
+
+msgid "Activation link sent to"
+msgstr "تم إرسال رابط التفعيل إلى"
+
+msgid "Resend activation link"
+msgstr "إعادة إرسال رابط التفعيل"
+
+msgid "A new activation link has been sent to your email."
+msgstr "تم إرسال رابط تفعيل جديد إلى بريدك الإلكتروني."
+
+msgid "Email verified successfully! Welcome to your dashboard."
+msgstr "تم تأكيد البريد الإلكتروني بنجاح! أهلاً بك في لوحة التحكم."
+
