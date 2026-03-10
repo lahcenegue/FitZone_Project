@@ -1,0 +1,45 @@
+{% extends "provider_portal/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Settings" %} - {% trans "Financial Details" %}{% endblock %}
+{% block nav_profile %}active{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+  .content-header { padding: var(--space-6) var(--space-8); border-bottom: 1px solid var(--color-border); }
+  .content-header h2 { margin: 0; font-size: 20px; }
+  .content-body { padding: var(--space-8); }
+  .form-group { display: flex; flex-direction: column; margin-bottom: var(--space-6); }
+  .form-label { font-weight: bold; margin-bottom: 8px; color: var(--color-text-primary); font-size: 14px; }
+  .form-control { padding: 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 14px; background: var(--color-bg); direction: ltr; text-align: left; }
+  .form-control:focus { outline: none; border-color: var(--color-primary); }
+  .btn-save { background: var(--color-primary); color: white; border: none; padding: 12px 32px; border-radius: var(--radius-md); font-weight: bold; cursor: pointer; float: left; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-wrapper">
+  {% include "provider_portal/profile/sidebar.html" %}
+  <main class="settings-content">
+      <div class="content-header"><h2>{% trans "Financial Information" %}</h2></div>
+      <div class="content-body">
+          <p style="color: var(--color-text-secondary); margin-bottom: 24px; font-size: 14px;">
+              {% trans "This information is encrypted in our database. It is used to transfer your earnings directly to your bank account." %}
+          </p>
+          <form method="post">
+              {% csrf_token %}
+              <div class="form-group"><label class="form-label" style="text-align:right;">{{ form.bank_name.label }}</label>{{ form.bank_name }}</div>
+              <div class="form-group"><label class="form-label" style="text-align:right;">{{ form.iban.label }}</label>{{ form.iban }}</div>
+              <div class="form-group"><label class="form-label" style="text-align:right;">{{ form.bank_account_number.label }}</label>{{ form.bank_account_number }}</div>
+              <div style="overflow: hidden;"><button type="submit" class="btn-save">{% trans "Save Information" %}</button></div>
+          </form>
+      </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>document.querySelectorAll('input').forEach(el => el.classList.add('form-control'));</script>
+{% endblock %}

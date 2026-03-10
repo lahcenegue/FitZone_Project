@@ -5,6 +5,11 @@ URL configuration for the FitZone Provider Portal.
 from django.urls import path
 from django.shortcuts import redirect
 from apps.providers.models import ProviderStatus
+from apps.provider_portal.views import (
+    auth_views, dashboard_views, profile_views, gym_views,
+    trainer_views, restaurant_views, store_views, earnings_views, verification_views,
+)
+
 
 def login_redirect_view(request):
     """Redirect portal root based on auth and email verification state."""
@@ -22,10 +27,6 @@ def login_redirect_view(request):
     return redirect("provider_portal:dashboard")
 
 
-from apps.provider_portal.views import (
-    auth_views, dashboard_views, profile_views, gym_views,
-    trainer_views, restaurant_views, store_views, earnings_views,
-)
 
 app_name = "provider_portal"
 
@@ -44,6 +45,8 @@ urlpatterns = [
 
     # Dashboard
     path("dashboard/", dashboard_views.DashboardView.as_view(), name="dashboard"),
+    # Verification
+    path("verification/upload/", verification_views.DocumentUploadView.as_view(), name="document_upload"),
 
     # Notifications
     path("notifications/", dashboard_views.NotificationsView.as_view(), name="notifications"),
@@ -56,11 +59,13 @@ urlpatterns = [
 
     # Gym
     path("gym/branches/", gym_views.BranchListView.as_view(), name="gym_branches"),
+    path("gym/branches/<int:branch_id>/", gym_views.BranchDetailView.as_view(), name="gym_branch_detail"),
     path("gym/branches/add/", gym_views.BranchAddView.as_view(), name="gym_branch_add"),
     path("gym/branches/<int:branch_id>/edit/", gym_views.BranchEditView.as_view(), name="gym_branch_edit"),
     path("gym/branches/<int:branch_id>/delete/", gym_views.BranchDeleteView.as_view(), name="gym_branch_delete"),
     path("gym/branches/<int:branch_id>/photos/", gym_views.BranchPhotosView.as_view(), name="gym_branch_photos"),
     path("gym/plans/", gym_views.PlanListView.as_view(), name="gym_plans"),
+    path("gym/plans/<int:plan_id>/", gym_views.PlanDetailView.as_view(), name="gym_plan_detail"),
     path("gym/plans/add/", gym_views.PlanAddView.as_view(), name="gym_plan_add"),
     path("gym/plans/<int:plan_id>/edit/", gym_views.PlanEditView.as_view(), name="gym_plan_edit"),
     path("gym/plans/<int:plan_id>/toggle/", gym_views.PlanToggleView.as_view(), name="gym_plan_toggle"),

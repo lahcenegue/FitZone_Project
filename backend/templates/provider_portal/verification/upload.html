@@ -1,0 +1,99 @@
+{% extends "provider_portal/base.html" %}
+{% load i18n static %}
+
+{% block page_title %}{% trans "Upload Verification Documents" %}{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+  .upload-container {
+    max-width: 600px;
+    background: var(--color-surface);
+    padding: var(--space-8);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+  }
+  .form-group {
+    margin-bottom: var(--space-6);
+  }
+  .form-label {
+    display: block;
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--space-2);
+    color: var(--color-text-primary);
+  }
+  .form-help {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-top: var(--space-1);
+  }
+  .form-control-file {
+    display: block;
+    width: 100%;
+    padding: var(--space-3);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg);
+    cursor: pointer;
+    transition: border-color var(--transition);
+  }
+  .form-control-file:hover {
+    border-color: var(--color-accent);
+  }
+  .btn-submit {
+    width: 100%;
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+    height: var(--touch-target);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-bold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+  }
+  .btn-submit:hover {
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+  }
+  .error-message {
+    color: var(--color-error);
+    font-size: var(--font-size-sm);
+    margin-top: var(--space-1);
+  }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="upload-container">
+  <p style="margin-bottom: var(--space-6); color: var(--color-text-secondary); line-height: var(--line-height-base);">
+    {% trans "To activate your account and start receiving clients, we need to verify your business identity. Please upload clear copies of the following documents." %}
+  </p>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    {% for field in form %}
+      <div class="form-group">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        
+        {% if field.help_text %}
+          <span class="form-help">{{ field.help_text }}</span>
+        {% endif %}
+        
+        {% for error in field.errors %}
+          <div class="error-message">{{ error }}</div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="btn-submit">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      {% trans "Submit Documents" %}
+    </button>
+  </form>
+</div>
+{% endblock content %}

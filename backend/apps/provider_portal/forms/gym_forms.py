@@ -7,6 +7,7 @@ import logging
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from ..constants import SAUDI_CITIES, WEEK_DAYS
+from apps.gyms.models import GymBranch
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,9 @@ class BranchForm(forms.Form):
         label=_("Address"),
         max_length=512,
         widget=forms.TextInput(attrs={
-            "placeholder": _("Street, district, building number"),
+            "readonly": "readonly",
+            "placeholder": _("Will be auto-filled from the map"),
+            "style": "background-color: var(--color-bg); cursor: not-allowed;"
         }),
     )
     latitude = forms.DecimalField(
@@ -60,6 +63,24 @@ class BranchForm(forms.Form):
         required=False,
         initial=True,
     )
+
+    description = forms.CharField(
+        label=_("Branch Description"),
+        required=False,
+        widget=forms.Textarea(attrs={
+            "rows": 3,
+            "placeholder": _("Describe this branch, its atmosphere, and rules..."),
+        }),
+    )    
+    custom_amenities = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(attrs={"id": "hidden_amenities"})
+    )
+    branch_logo = forms.ImageField(
+        label=_("Branch Logo (Optional)"),
+        required=False,
+    )
+
 
     # Opening hours — one open/close pair per day
     sunday_open    = forms.TimeField(label=_("Sunday open"),    required=False, widget=forms.TimeInput(attrs={"type": "time"}))
@@ -100,64 +121,58 @@ class BranchForm(forms.Form):
 
 class SubscriptionPlanForm(forms.Form):
     """
-    Add or edit a gym subscription plan.
-    Defines pricing, duration, and transferability.
+    Form for creating and editing subscription plans.
+    Injects the provider instance to filter available branches dynamically.
     """
-
     name = forms.CharField(
-        label=_("Plan name"),
+        label=_("Plan Name"),
         max_length=255,
-        widget=forms.TextInput(attrs={
-            "placeholder": _("e.g. Monthly Premium"),
-        }),
+        widget=forms.TextInput(attrs={"placeholder": _("e.g. Monthly Premium")}),
     )
     description = forms.CharField(
-        label=_("Description"),
+        label=_("Plan Description"),
         max_length=1000,
         required=False,
-        widget=forms.Textarea(attrs={
-            "rows": 3,
-            "placeholder": _("What is included in this plan?"),
-        }),
+        widget=forms.Textarea(attrs={"rows": 3, "placeholder": _("What is included in this plan?")}),
     )
     duration_days = forms.IntegerField(
-        label=_("Duration (days)"),
+        label=_("Duration in Days"),
         min_value=1,
-        max_value=3650,
-        widget=forms.NumberInput(attrs={"placeholder": _("e.g. 30")}),
+        widget=forms.NumberInput(attrs={"placeholder": "30"}),
     )
     price = forms.DecimalField(
-        label=_("Price (SAR)"),
+        label=_("Price"),
         max_digits=8,
         decimal_places=2,
         min_value=0,
-        widget=forms.NumberInput(attrs={
-            "placeholder": _("0.00"),
-            "step": "0.01",
-        }),
+        widget=forms.NumberInput(attrs={"placeholder": "0.00", "step": "0.01"}),
     )
-    is_transferable = forms.BooleanField(
-        label=_("Transferable (can be resold)"),
+    
+    # Branch assignment (ModelMultipleChoiceField)
+    branches = forms.ModelMultipleChoiceField(
+        queryset=GymBranch.objects.none(), # Populated dynamically in __init__
+        widget=forms.CheckboxSelectMultiple,
+        required=True,
+        label=_("Available Branches")
+    )
+
+    # Hidden field to capture dynamic tags for features
+    custom_features = forms.CharField(
         required=False,
-        initial=False,
+        widget=forms.HiddenInput(attrs={"id": "hidden_features"})
     )
+    
     is_active = forms.BooleanField(
-        label=_("Active"),
+        label=_("Is Active"),
         required=False,
         initial=True,
     )
-    features = forms.CharField(
-        label=_("Features"),
-        required=False,
-        widget=forms.Textarea(attrs={
-            "rows": 3,
-            "placeholder": _("One feature per line"),
-        }),
-        help_text=_("Enter each feature on a new line."),
-    )
 
-    def clean_features(self):
-        """Parse features text into a clean list, removing empty lines."""
-        raw = self.cleaned_data.get("features", "")
-        lines = [line.strip() for line in raw.splitlines() if line.strip()]
-        return lines
+    def __init__(self, *args, **kwargs):
+        # Extract provider from kwargs before initializing the superclass
+        provider = kwargs.pop('provider', None)
+        super().__init__(*args, **kwargs)
+        
+        if provider:
+            # FIX: Removed is_active=True so pending providers can see their branches
+            self.fields['branches'].queryset = GymBranch.objects.filter(provider=provider)

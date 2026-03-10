@@ -4,20 +4,20 @@ Personal info, business info, financial info, and password change.
 """
 
 import logging
+import re
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from ..constants import SAUDI_CITIES, PHONE_PREFIX, PHONE_MAX_LENGTH
-import re
 
 logger = logging.getLogger(__name__)
 
 
-class PersonalInfoForm(forms.Form):
-    """
-    Update provider's personal information.
-    Linked to the User model fields.
-    """
+# --- CUSTOM WIDGET FOR MULTIPLE FILES UPLOAD ---
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
 
+
+class PersonalInfoForm(forms.Form):
     full_name = forms.CharField(
         label=_("Full name"),
         max_length=255,
@@ -38,7 +38,6 @@ class PersonalInfoForm(forms.Form):
     )
 
     def clean_phone_number(self):
-        """Normalize and validate Saudi phone number."""
         phone = self.cleaned_data["phone_number"].strip()
         if phone.startswith("05") and len(phone) == 10:
             phone = PHONE_PREFIX + phone[1:]
@@ -53,20 +52,25 @@ class PersonalInfoForm(forms.Form):
 
 
 class BusinessInfoForm(forms.Form):
-    """
-    Update provider's business information.
-    Linked to the Provider model fields.
-    """
-
+    email = forms.EmailField(
+        label=_("Email Address"),
+        widget=forms.EmailInput(attrs={"placeholder": _("e.g. admin@gym.com")}),
+    )
     business_name = forms.CharField(
         label=_("Business name"),
         max_length=255,
+    )
+    business_phone = forms.CharField(
+        label=_("Business phone"),
+        max_length=20,
+        required=True, 
+        widget=forms.TextInput(attrs={"placeholder": _("e.g. 05XXXXXXXX")}),
     )
     description = forms.CharField(
         label=_("Description"),
         max_length=1000,
         required=False,
-        widget=forms.Textarea(attrs={"rows": 4}),
+        widget=forms.Textarea(attrs={"rows": 3}),
     )
     city = forms.ChoiceField(
         label=_("City"),
@@ -76,14 +80,19 @@ class BusinessInfoForm(forms.Form):
         label=_("Address"),
         max_length=512,
         required=False,
-        widget=forms.TextInput(attrs={
-            "placeholder": _("Street, district, building"),
-        }),
     )
     commercial_registration = forms.CharField(
         label=_("Commercial registration number"),
         max_length=100,
         required=False,
+    )
+    commercial_register_document = forms.FileField(
+        label=_("Official Documents"),
+        required=False,
+        # استخدام الكلاس المخصص بدلاً من الكلاس العادي لمنع انهيار السيرفر
+        widget=MultipleFileInput(attrs={
+            "accept": ".pdf,image/jpeg,image/png,image/webp"
+        }),
     )
     tax_id = forms.CharField(
         label=_("Tax ID number"),
@@ -97,7 +106,6 @@ class BusinessInfoForm(forms.Form):
     )
 
     def clean_city(self):
-        """Validate a city was selected."""
         city = self.cleaned_data["city"]
         if not city:
             raise forms.ValidationError(_("Please select your city."))
@@ -105,11 +113,6 @@ class BusinessInfoForm(forms.Form):
 
 
 class FinancialInfoForm(forms.Form):
-    """
-    Update provider's bank and payment details.
-    Data is encrypted before being saved to the database.
-    """
-
     bank_name = forms.CharField(
         label=_("Bank name"),
         max_length=255,
@@ -133,7 +136,6 @@ class FinancialInfoForm(forms.Form):
     )
 
     def clean_iban(self):
-        """Validate Saudi IBAN format: SA followed by 22 digits."""
         iban = self.cleaned_data["iban"].strip().upper().replace(" ", "")
         if not re.match(r"^SA\d{22}$", iban):
             raise forms.ValidationError(
@@ -143,11 +145,6 @@ class FinancialInfoForm(forms.Form):
 
 
 class PasswordChangeForm(forms.Form):
-    """
-    Change provider account password.
-    Requires current password for verification.
-    """
-
     current_password = forms.CharField(
         label=_("Current password"),
         widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}),
@@ -162,7 +159,6 @@ class PasswordChangeForm(forms.Form):
     )
 
     def clean_new_password(self):
-        """Validate new password meets minimum length."""
         from ..constants import PASSWORD_MIN_LENGTH
         password = self.cleaned_data["new_password"]
         if len(password) < PASSWORD_MIN_LENGTH:
@@ -174,7 +170,6 @@ class PasswordChangeForm(forms.Form):
         return password
 
     def clean(self):
-        """Validate new passwords match."""
         cleaned = super().clean()
         new_password = cleaned.get("new_password")
         new_password_confirm = cleaned.get("new_password_confirm")

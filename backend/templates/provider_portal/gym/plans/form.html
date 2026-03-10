@@ -1,0 +1,325 @@
+{% extends "provider_portal/base.html" %}
+{% load i18n %}
+
+{% block page_title %}
+  {% if is_edit %}
+    {% trans "Edit Plan" %}: {{ plan.name }}
+  {% else %}
+    {% trans "Create New Plan" %}
+  {% endif %}
+{% endblock %}
+
+{% block nav_plans %}active{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+  /* --- Layout & Containers --- */
+  .form-container { 
+      max-width: 800px; background: var(--color-surface); padding: var(--space-8); 
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--color-border); 
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-6); }
+  .form-group { display: flex; flex-direction: column; position: relative; }
+  .full-width { grid-column: 1 / -1; }
+  
+  /* --- Typography & Inputs --- */
+  .form-label { font-weight: var(--font-weight-bold); margin-bottom: var(--space-2); color: var(--color-text-primary); }
+  .form-control { 
+      padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); 
+      font-family: inherit; font-size: 14px; background: var(--color-bg); transition: border-color var(--transition);
+  }
+  .form-control:focus { outline: none; border-color: var(--color-primary); }
+  
+  /* --- DRY Currency Input Group --- */
+  .input-group { display: flex; align-items: center; position: relative; }
+  .input-group .form-control { flex: 1; padding-inline-end: 45px; }
+  .currency-wrapper { position: absolute; inset-inline-end: 12px; display: flex; align-items: center; }
+
+  /* --- Custom Multi-Select Dropdown --- */
+  .custom-dropdown-header {
+      padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md);
+      background: var(--color-bg); display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; font-size: 14px; transition: border-color var(--transition);
+  }
+  .custom-dropdown-header:hover { border-color: var(--color-primary); }
+  .custom-dropdown-content {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--color-surface);
+      border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+      z-index: 10; display: none; max-height: 250px; overflow-y: auto; padding: var(--space-2);
+  }
+  .custom-dropdown-content.show { display: block; }
+  
+  .dropdown-actions {
+      display: flex; justify-content: flex-end; padding-bottom: 8px; margin-bottom: 8px;
+      border-bottom: 1px solid var(--color-border);
+  }
+  .btn-text { background: none; border: none; color: var(--color-primary); font-size: 12px; font-weight: bold; cursor: pointer; padding: 0 8px; }
+  
+  .branch-item {
+      display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: var(--radius-sm);
+      cursor: pointer; transition: background var(--transition); font-size: 14px;
+  }
+  .branch-item:hover { background: var(--color-bg); }
+  .branch-item input[type="checkbox"] { cursor: pointer; }
+  .branch-item label { cursor: pointer; margin: 0; flex: 1; }
+
+  /* --- Dynamic Tags for Features --- */
+  .features-input-group { display: flex; gap: var(--space-2); }
+  .btn-add-tag { background: var(--color-primary); color: white; border: none; padding: 0 var(--space-4); border-radius: var(--radius-md); cursor: pointer; font-weight: bold; }
+  .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: var(--space-3); }
+  .tag { background: var(--color-surface); border: 1px solid var(--color-border); padding: 6px 14px; border-radius: var(--radius-full); font-size: 13px; display: flex; align-items: center; gap: 8px; font-weight: 500; }
+  .tag span { cursor: pointer; color: var(--color-error); font-weight: bold; font-size: 16px; }
+
+  /* --- Actions & Errors --- */
+  .actions { display: flex; justify-content: flex-start; gap: var(--space-4); margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border); }
+  .btn-primary { background: var(--color-primary); color: white; padding: 12px 24px; border-radius: var(--radius-md); font-weight: bold; border: none; cursor: pointer; }
+  .btn-secondary { background: transparent; color: var(--color-text-secondary); border: 1px solid var(--color-border); padding: 12px 24px; border-radius: var(--radius-md); cursor: pointer; text-decoration: none; }
+  .error-message { color: var(--color-error); font-size: 12px; margin-top: 6px; display: block; }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="form-container">
+  <form method="post" id="planForm" novalidate>
+    {% csrf_token %}
+    
+    <div class="form-grid">
+      
+      <div class="form-group full-width">
+        <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }} <span style="color:var(--color-error)">*</span></label>
+        {{ form.name }}
+        {% if form.name.errors %}<span class="error-message">{{ form.name.errors.0 }}</span>{% endif %}
+      </div>
+
+      <div class="form-group full-width">
+        <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+        {{ form.description }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="{{ form.price.id_for_label }}">{{ form.price.label }} <span style="color:var(--color-error)">*</span></label>
+        <div class="input-group">
+            {{ form.price }}
+            <span class="currency-wrapper">
+                {% include "components/currency_icon.html" %}
+            </span>
+        </div>
+        {% if form.price.errors %}<span class="error-message">{{ form.price.errors.0 }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="{{ form.duration_days.id_for_label }}">{{ form.duration_days.label }} <span style="color:var(--color-error)">*</span></label>
+        {{ form.duration_days }}
+        {% if form.duration_days.errors %}<span class="error-message">{{ form.duration_days.errors.0 }}</span>{% endif %}
+      </div>
+
+      <div class="form-group full-width" style="margin-top: var(--space-4);" id="branchesGroup">
+        <label class="form-label">{{ form.branches.label }} <span style="color:var(--color-error)">*</span></label>
+        
+        <div class="custom-dropdown-header" id="dropdownHeader">
+            <span id="dropdownTitle">{% trans "Select Branches" %}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        
+        <div class="custom-dropdown-content" id="dropdownContent">
+            {% if form.branches.field.queryset.exists %}
+                <div class="dropdown-actions">
+                    <button type="button" class="btn-text" id="selectAllBranches">{% trans "Select All" %}</button>
+                </div>
+                {% for checkbox in form.branches %}
+                  <div class="branch-item" onclick="toggleCheckbox(this, event)">
+                    {{ checkbox.tag }}
+                    <label for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                  </div>
+                {% endfor %}
+            {% else %}
+                <div style="color: var(--color-error); font-size: 13px; padding: 12px; text-align: center;">
+                    {% trans "No branches found. Please add a branch first." %}
+                </div>
+            {% endif %}
+        </div>
+        {% if form.branches.errors %}<span class="error-message">{{ form.branches.errors.0 }}</span>{% endif %}
+      </div>
+
+      <div class="form-group full-width" style="margin-top: var(--space-4);">
+        <label class="form-label">{% trans "Features" %}</label>
+        <div class="features-input-group">
+          <input type="text" id="featureInput" class="form-control" placeholder="{% trans 'e.g., Personal Trainer Included' %}">
+          <button type="button" class="btn-add-tag" id="btnAddFeature">{% trans "Add" %}</button>
+        </div>
+        <div class="tags-container" id="featuresContainer"></div>
+        {{ form.custom_features }} 
+      </div>
+
+      <div class="form-group full-width" style="flex-direction: row; align-items: center; gap: 12px; margin-top: var(--space-4);">
+        {{ form.is_active }}
+        <label class="form-label" style="margin: 0; cursor: pointer;" for="{{ form.is_active.id_for_label }}">
+          {{ form.is_active.label }}
+        </label>
+      </div>
+
+    </div>
+
+    {% if form.non_field_errors %}
+      <div style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: var(--color-error); padding: var(--space-4); border-radius: var(--radius-md); margin-top: var(--space-4);">
+        {% for error in form.non_field_errors %}{{ error }}<br>{% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="actions">
+      <button type="submit" class="btn-primary">{% trans "Save Plan" %}</button>
+      <a href="{% url 'provider_portal:gym_plans' %}" class="btn-secondary">{% trans "Cancel" %}</a>
+    </div>
+  </form>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+  'use strict';
+
+  // Apply form-control globally
+  document.querySelectorAll('input:not([type="checkbox"]):not([type="hidden"]), select, textarea').forEach(el => {
+      el.classList.add('form-control');
+  });
+
+  // --- Custom Dropdown Logic ---
+  const dropdownHeader = document.getElementById('dropdownHeader');
+  const dropdownContent = document.getElementById('dropdownContent');
+  const dropdownTitle = document.getElementById('dropdownTitle');
+  const branchesGroup = document.getElementById('branchesGroup');
+  
+  if (dropdownHeader && dropdownContent) {
+      dropdownHeader.addEventListener('click', function(e) {
+          dropdownContent.classList.toggle('show');
+          e.stopPropagation();
+      });
+
+      document.addEventListener('click', function(e) {
+          if (!branchesGroup.contains(e.target)) {
+              dropdownContent.classList.remove('show');
+          }
+      });
+  }
+
+  // Handle row click to check box and update title
+  function toggleCheckbox(rowElement, event) {
+      if(event.target.tagName !== 'INPUT') {
+          const checkbox = rowElement.querySelector('input[type="checkbox"]');
+          checkbox.checked = !checkbox.checked;
+      }
+      updateDropdownTitle();
+  }
+
+  function updateDropdownTitle() {
+      const checkedBoxes = document.querySelectorAll('#dropdownContent input[type="checkbox"]:checked');
+      if (checkedBoxes.length === 0) {
+          dropdownTitle.textContent = '{% trans "Select Branches" %}';
+      } else if (checkedBoxes.length === 1) {
+          dropdownTitle.textContent = checkedBoxes[0].nextElementSibling.textContent;
+      } else {
+          dropdownTitle.textContent = checkedBoxes.length + ' {% trans "Branches Selected" %}';
+      }
+  }
+
+  // --- Select All Logic ---
+  const selectAllBtn = document.getElementById('selectAllBranches');
+  if (selectAllBtn) {
+      selectAllBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const checkboxes = dropdownContent.querySelectorAll('input[type="checkbox"]');
+          const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+          checkboxes.forEach(cb => cb.checked = !allChecked);
+          this.textContent = allChecked ? '{% trans "Select All" %}' : '{% trans "Deselect All" %}';
+          updateDropdownTitle();
+      });
+  }
+  
+  // Initial title update for Edit mode
+  updateDropdownTitle();
+
+
+  // --- Dynamic Features (Tags) Logic ---
+  let features = [];
+  const hiddenFeatureInput = document.getElementById('hidden_features');
+  const featuresContainer = document.getElementById('featuresContainer');
+  const featureInput = document.getElementById('featureInput');
+  const btnAddFeature = document.getElementById('btnAddFeature');
+
+  if (hiddenFeatureInput && hiddenFeatureInput.value) {
+      features = hiddenFeatureInput.value.split(',').map(f => f.trim()).filter(f => f);
+      renderFeatures();
+  }
+
+  function renderFeatures() {
+      featuresContainer.innerHTML = '';
+      features.forEach((f, index) => {
+          const el = document.createElement('div'); 
+          el.className = 'tag';
+          el.innerHTML = `${f} <span onclick="removeFeature(${index})">×</span>`;
+          featuresContainer.appendChild(el);
+      });
+      hiddenFeatureInput.value = features.join(',');
+  }
+
+  function addFeature() {
+      const val = featureInput.value.trim();
+      if (val && !features.includes(val)) { 
+          features.push(val); 
+          renderFeatures(); 
+          featureInput.value = ''; 
+      }
+  }
+
+  window.removeFeature = function(index) { 
+      features.splice(index, 1); 
+      renderFeatures(); 
+  };
+  
+  if(featureInput && btnAddFeature) {
+      btnAddFeature.addEventListener('click', addFeature);
+      featureInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') { 
+              e.preventDefault(); 
+              addFeature(); 
+          }
+      });
+  }
+
+  // --- Form Validation ---
+  const planForm = document.getElementById('planForm');
+  if(planForm) {
+      planForm.addEventListener('submit', function(e) {
+          let hasError = false;
+          
+          const inputs = this.querySelectorAll('input[required], textarea[required]');
+          inputs.forEach(el => {
+              if(!el.value.trim()) {
+                  el.style.borderColor = 'var(--color-error)';
+                  hasError = true;
+              } else {
+                  el.style.borderColor = 'var(--color-border)';
+              }
+          });
+
+          const branchCheckboxes = document.querySelectorAll('#dropdownContent input[type="checkbox"]');
+          if (branchCheckboxes.length > 0) {
+              const isChecked = Array.from(branchCheckboxes).some(cb => cb.checked);
+              if (!isChecked) {
+                  dropdownHeader.style.borderColor = 'var(--color-error)';
+                  hasError = true;
+              } else {
+                  dropdownHeader.style.borderColor = 'var(--color-border)';
+              }
+          }
+
+          if(hasError) {
+              e.preventDefault();
+              alert('{% trans "Please fill in all required fields and select at least one branch." %}');
+          }
+      });
+  }
+</script>
+{% endblock extra_js %}

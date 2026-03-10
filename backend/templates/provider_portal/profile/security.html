@@ -1,0 +1,55 @@
+{% extends "provider_portal/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Settings" %} - {% trans "Security" %}{% endblock %}
+{% block nav_profile %}active{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+  .content-header { padding: var(--space-6) var(--space-8); border-bottom: 1px solid var(--color-border); }
+  .content-header h2 { margin: 0; font-size: 20px; }
+  .content-body { padding: var(--space-8); }
+  .form-group { display: flex; flex-direction: column; margin-bottom: var(--space-6); }
+  .form-label { font-weight: bold; margin-bottom: 8px; color: var(--color-text-primary); font-size: 14px; }
+  .form-control { padding: 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 14px; background: var(--color-bg); direction: ltr; }
+  .form-control:focus { outline: none; border-color: var(--color-primary); }
+  .btn-save { background: var(--color-error); color: white; border: none; padding: 12px 32px; border-radius: var(--radius-md); font-weight: bold; cursor: pointer; float: left; }
+  .error-message { color: var(--color-error); font-size: 12px; margin-top: 6px; display: block; text-align: right; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-wrapper">
+  {% include "provider_portal/profile/sidebar.html" %}
+  <main class="settings-content">
+      <div class="content-header"><h2>{% trans "Change Password" %}</h2></div>
+      <div class="content-body">
+          <form method="post">
+              {% csrf_token %}
+              <div class="form-group">
+                  <label class="form-label" style="text-align:right;">{{ form.current_password.label }}</label>
+                  {{ form.current_password }}
+                  {% if form.current_password.errors %}<span class="error-message">{{ form.current_password.errors.0 }}</span>{% endif %}
+              </div>
+              <div class="form-group">
+                  <label class="form-label" style="text-align:right;">{{ form.new_password.label }}</label>
+                  {{ form.new_password }}
+                  {% if form.new_password.errors %}<span class="error-message">{{ form.new_password.errors.0 }}</span>{% endif %}
+              </div>
+              <div class="form-group">
+                  <label class="form-label" style="text-align:right;">{{ form.new_password_confirm.label }}</label>
+                  {{ form.new_password_confirm }}
+                  {% if form.new_password_confirm.errors %}<span class="error-message">{{ form.new_password_confirm.errors.0 }}</span>{% endif %}
+              </div>
+              <div style="overflow: hidden;"><button type="submit" class="btn-save">{% trans "Update Password" %}</button></div>
+          </form>
+      </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>document.querySelectorAll('input').forEach(el => el.classList.add('form-control'));</script>
+{% endblock %}

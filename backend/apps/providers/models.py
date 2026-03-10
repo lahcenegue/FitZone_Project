@@ -105,12 +105,6 @@ class Provider(models.Model):
         blank=True,
         default="",
     )
-    logo = models.ImageField(
-        _("Logo"),
-        upload_to="providers/logos/",
-        blank=True,
-        null=True,
-    )
 
     # --- Location ---
     city = models.CharField(
@@ -168,6 +162,32 @@ class Provider(models.Model):
         _("Verified at"),
         null=True,
         blank=True,
+    )
+
+    # --- UI & Branding ---
+    logo = models.ImageField(
+        upload_to="providers/logos/", 
+        null=True, 
+        blank=True,
+        verbose_name=_("Business Logo")
+    )
+
+    # --- Commission System (Admin Only) ---
+    COMMISSION_TYPE_CHOICES = [
+        ("percentage", _("Percentage")),
+        ("fixed", _("Fixed Amount")),
+    ]
+    commission_type = models.CharField(
+        max_length=20, 
+        choices=COMMISSION_TYPE_CHOICES, 
+        default="percentage",
+        verbose_name=_("Commission Type")
+    )
+    commission_value = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0.00,
+        verbose_name=_("Commission Value")
     )
 
     # --- Admin review ---
@@ -501,3 +521,35 @@ class EmailVerificationToken(models.Model):
             "Email verification token consumed | provider: %s",
             self.provider.business_name,
         )
+
+class ProviderDocument(models.Model):
+    """
+    Stores legal and verification documents uploaded by the provider.
+    These are reviewed by the administration before activating the account.
+    """
+    DOCUMENT_STATUS_CHOICES = [
+        ("pending", _("Pending Review")),
+        ("approved", _("Approved")),
+        ("rejected", _("Rejected")),
+    ]
+
+    provider = models.ForeignKey(
+        Provider, 
+        on_delete=models.CASCADE, 
+        related_name="documents"
+    )
+    title = models.CharField(
+        max_length=255, 
+        help_text=_("e.g., Commercial Register, Owner ID")
+    )
+    file = models.FileField(upload_to="providers/documents/")
+    status = models.CharField(
+        max_length=20, 
+        choices=DOCUMENT_STATUS_CHOICES, 
+        default="pending"
+    )
+    rejection_reason = models.TextField(blank=True, default="")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.provider.business_name}"

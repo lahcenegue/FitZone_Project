@@ -1,0 +1,215 @@
+{% extends "provider_portal/base.html" %}
+{% load i18n static %}
+
+{% block page_title %}{% trans "Dashboard" %}{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+  /* --- Welcome Section --- */
+  .dashboard-header {
+    margin-bottom: var(--space-8);
+  }
+  .welcome-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
+  }
+  .welcome-subtitle {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+  }
+
+  /* --- Premium Verification Banner --- */
+  .onboarding-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to right, var(--color-primary), #1e293b);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    margin-bottom: var(--space-8);
+    color: white;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Decorative circle effect */
+  .onboarding-banner::after {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  body[dir="rtl"] .onboarding-banner::after {
+    right: auto;
+    left: -50px;
+  }
+
+  .onboarding-content h2 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-2);
+    color: var(--color-surface);
+  }
+  .onboarding-content p {
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 600px;
+    line-height: var(--line-height-base);
+  }
+
+  .btn-upload {
+    background-color: var(--color-accent);
+    color: #fff;
+    padding: 0 var(--space-6);
+    height: 48px;
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-bold);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    transition: background-color var(--transition), transform var(--transition);
+    white-space: nowrap;
+    z-index: 1;
+    text-decoration: none;
+  }
+  .btn-upload:hover {
+    background-color: var(--color-accent-hover);
+    transform: translateY(-2px);
+  }
+
+  /* Pending Review Variant */
+  .onboarding-banner.pending {
+    background: linear-gradient(to right, var(--color-info), #2563eb);
+  }
+
+  /* --- Stat Cards Grid --- */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+  
+  .stat-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    transition: box-shadow var(--transition), transform var(--transition);
+  }
+  .stat-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: rgba(15, 23, 42, 0.05); /* Light primary */
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .stat-info {
+    flex: 1;
+  }
+  .stat-title {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--space-1);
+  }
+  .stat-value {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+  }
+
+  @media (max-width: 768px) {
+    .onboarding-banner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-4);
+    }
+  }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+  <div class="dashboard-header">
+    <h1 class="welcome-title">{% trans "Welcome back" %}, {{ provider.user.full_name }}! 👋</h1>
+    <p class="welcome-subtitle">{% trans "Here is what's happening with your business today." %}</p>
+  </div>
+
+  {% if provider.status == 'pending' %}
+    {% if not has_documents %}
+      <div class="onboarding-banner">
+        <div class="onboarding-content">
+          <h2>{% trans "Complete Your Profile" %}</h2>
+          <p>{% trans "Your account needs verification. Please upload your commercial register and ID to unlock all features and start receiving clients." %}</p>
+        </div>
+        <a href="{% url 'provider_portal:document_upload' %}" class="btn-upload">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          {% trans "Upload Documents" %}
+        </a>
+      </div>
+    {% else %}
+      <div class="onboarding-banner pending">
+        <div class="onboarding-content">
+          <h2>{% trans "Under Review" %} ⏳</h2>
+          <p>{% trans "Your documents have been received and are currently being reviewed by our team. We'll notify you once your account is fully activated." %}</p>
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <div class="stats-grid">
+    {% if is_gym %}
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-title">{% trans "Branches" %}</div>
+          <div class="stat-value">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-title">{% trans "Active Subscribers" %}</div>
+          <div class="stat-value">0</div>
+        </div>
+      </div>
+    {% endif %}
+    
+    <div class="stat-card">
+      <div class="stat-icon" style="color: var(--color-success); background: rgba(16,185,129,0.1);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-title">{% trans "Total Revenue" %}</div>
+        <div class="stat-value">SAR 0.00</div>
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}

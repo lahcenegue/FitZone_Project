@@ -6,151 +6,284 @@
 {% block extra_css %}
 <style>
     /* -----------------------------------------------------------------------
-       Portal layout — sidebar + topbar + content
+       Portal Layout — Sidebar + Topbar + Content 
+       Utilizes CSS Logical Properties for automatic LTR/RTL switching
     ----------------------------------------------------------------------- */
-    .portal-layout { display: flex; min-height: 100vh; }
+    .portal-layout { 
+        display: flex; 
+        min-height: 100vh; 
+    }
 
-    /* Sidebar */
+    /* --- Sidebar --- */
     .portal-sidebar {
-      width: 260px; min-height: 100vh;
-      background-color: var(--color-primary); /* هنا نستخدم Tokens بشكل صحيح! */
-      display: flex; flex-direction: column;
-      position: fixed; top: 0;
-      {% if LANGUAGE_BIDI %}right: 0;{% else %}left: 0;{% endif %}
-      z-index: 100; transition: transform var(--transition);
+        width: 260px; 
+        min-height: 100vh;
+        background-color: var(--color-primary);
+        display: flex; 
+        flex-direction: column;
+        position: fixed; 
+        top: 0;
+        inset-inline-start: 0; /* Logical property: dynamically adapts to left/right */
+        z-index: 100; 
+        transition: transform var(--transition);
     }
+
     .sidebar-logo {
-      padding: var(--space-6); border-bottom: 1px solid rgba(255,255,255,0.08);
-      display: flex; align-items: center; gap: var(--space-3);
+        padding: var(--space-6); 
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex; 
+        align-items: center; 
+        gap: var(--space-3);
     }
+
     .sidebar-logo-text {
-      color: var(--color-accent); font-size: var(--font-size-xl);
-      font-weight: var(--font-weight-bold); letter-spacing: -0.5px;
+        color: var(--color-accent); 
+        font-size: var(--font-size-xl);
+        font-weight: var(--font-weight-bold); 
+        letter-spacing: -0.5px;
     }
-    .sidebar-nav { flex: 1; padding: var(--space-4) 0; overflow-y: auto; }
+
+    .sidebar-nav { 
+        flex: 1; 
+        padding: var(--space-4) 0; 
+        overflow-y: auto; 
+    }
+
     .sidebar-section-label {
-      font-size: var(--font-size-sm); color: rgba(255,255,255,0.35);
-      font-weight: var(--font-weight-medium); text-transform: uppercase;
-      letter-spacing: 0.08em; padding: var(--space-4) var(--space-6) var(--space-2);
+        font-size: var(--font-size-sm); 
+        color: rgba(255, 255, 255, 0.35);
+        font-weight: var(--font-weight-medium); 
+        text-transform: uppercase;
+        letter-spacing: 0.08em; 
+        padding: var(--space-4) var(--space-6) var(--space-2);
     }
+
     .sidebar-link {
-      display: flex; align-items: center; gap: var(--space-3);
-      padding: var(--space-3) var(--space-6); color: rgba(255,255,255,0.65);
-      font-size: var(--font-size-base); font-weight: var(--font-weight-regular);
-      transition: color var(--transition), background-color var(--transition);
-      min-height: var(--touch-target); text-decoration: none;
+        display: flex; 
+        align-items: center; 
+        gap: var(--space-3);
+        padding: var(--space-3) var(--space-6); 
+        color: rgba(255, 255, 255, 0.65);
+        font-size: var(--font-size-base); 
+        font-weight: var(--font-weight-regular);
+        transition: color var(--transition), background-color var(--transition);
+        min-height: var(--touch-target); 
+        text-decoration: none;
     }
-    .sidebar-link:hover { color: #ffffff; background-color: rgba(255,255,255,0.06); }
+
+    .sidebar-link:hover { 
+        color: #ffffff; 
+        background-color: rgba(255, 255, 255, 0.06); 
+    }
+
     .sidebar-link.active {
-      color: var(--color-accent); background-color: rgba(245,158,11,0.10);
-      font-weight: var(--font-weight-medium);
+        color: var(--color-accent); 
+        background-color: rgba(245, 158, 11, 0.10);
+        font-weight: var(--font-weight-medium);
     }
-    .sidebar-link svg { flex-shrink: 0; opacity: 0.7; }
-    .sidebar-link.active svg { opacity: 1; }
+
+    .sidebar-link svg { 
+        flex-shrink: 0; 
+        opacity: 0.7; 
+    }
+
+    .sidebar-link.active svg { 
+        opacity: 1; 
+    }
+
     .sidebar-footer {
-      padding: var(--space-4) var(--space-6);
-      border-top: 1px solid rgba(255,255,255,0.08);
+        padding: var(--space-4) var(--space-6);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    /* Topbar */
+    /* --- Topbar --- */
     .portal-topbar {
-      position: fixed; top: 0;
-      {% if LANGUAGE_BIDI %}right: 260px; left: 0;{% else %}left: 260px; right: 0;{% endif %}
-      height: 64px; background-color: var(--color-surface);
-      border-bottom: 1px solid var(--color-border);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 var(--space-6); z-index: 99;
+        position: fixed; 
+        top: 0;
+        inset-inline-start: 260px; /* Offset by sidebar width */
+        inset-inline-end: 0;
+        height: 64px; 
+        background-color: var(--color-surface);
+        border-bottom: 1px solid var(--color-border);
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between;
+        padding: 0 var(--space-6); 
+        z-index: 99;
     }
+
     .topbar-title {
-      font-size: var(--font-size-lg); font-weight: var(--font-weight-medium);
-      color: var(--color-text-primary);
+        font-size: var(--font-size-lg); 
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary);
     }
-    .topbar-actions { display: flex; align-items: center; gap: var(--space-4); }
 
-    /* Notification bell */
+    .topbar-actions { 
+        display: flex; 
+        align-items: center; 
+        gap: var(--space-4); 
+    }
+
+    /* Notification Bell */
     .notif-btn {
-      position: relative; width: var(--touch-target); height: var(--touch-target);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--color-text-secondary); border-radius: var(--radius-md);
-      transition: background-color var(--transition), color var(--transition);
+        position: relative; 
+        width: var(--touch-target); 
+        height: var(--touch-target);
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        color: var(--color-text-secondary); 
+        border-radius: var(--radius-md);
+        transition: background-color var(--transition), color var(--transition);
     }
-    .notif-btn:hover { background-color: var(--color-bg); color: var(--color-text-primary); }
+
+    .notif-btn:hover { 
+        background-color: var(--color-bg); 
+        color: var(--color-text-primary); 
+    }
+
     .notif-badge {
-      position: absolute; top: 8px;
-      {% if LANGUAGE_BIDI %}left: 8px;{% else %}right: 8px;{% endif %}
-      width: 8px; height: 8px; background-color: var(--color-error);
-      border-radius: var(--radius-full); border: 2px solid var(--color-surface);
+        position: absolute; 
+        top: 8px;
+        inset-inline-end: 8px; /* Logical positioning for the badge */
+        width: 8px; 
+        height: 8px; 
+        background-color: var(--color-error);
+        border-radius: var(--radius-full); 
+        border: 2px solid var(--color-surface);
     }
 
-    /* Language switcher */
-    .lang-switcher-portal { position: relative; }
+    /* Language Switcher */
+    .lang-switcher-portal { 
+        position: relative; 
+    }
+
     .lang-switcher-btn {
-      display: flex; align-items: center; gap: var(--space-2);
-      padding: 0 var(--space-3); height: 36px;
-      border: 1px solid var(--color-border); border-radius: var(--radius-md);
-      background: var(--color-surface); color: var(--color-text-secondary);
-      font-size: var(--font-size-sm); font-weight: var(--font-weight-medium);
-      cursor: pointer; transition: border-color var(--transition), color var(--transition);
+        display: flex; 
+        align-items: center; 
+        gap: var(--space-2);
+        padding: 0 var(--space-3); 
+        height: 36px;
+        border: 1px solid var(--color-border); 
+        border-radius: var(--radius-md);
+        background: var(--color-surface); 
+        color: var(--color-text-secondary);
+        font-size: var(--font-size-sm); 
+        font-weight: var(--font-weight-medium);
+        cursor: pointer; 
+        transition: border-color var(--transition), color var(--transition);
     }
-    .lang-switcher-btn:hover { border-color: var(--color-accent); color: var(--color-text-primary); }
+
+    .lang-switcher-btn:hover { 
+        border-color: var(--color-accent); 
+        color: var(--color-text-primary); 
+    }
+
     .lang-dropdown {
-      position: absolute; top: calc(100% + var(--space-2));
-      {% if LANGUAGE_BIDI %}left: 0;{% else %}right: 0;{% endif %}
-      background: var(--color-surface); border: 1px solid var(--color-border);
-      border-radius: var(--radius-md); box-shadow: var(--shadow-md);
-      min-width: 140px; overflow: hidden; display: none; z-index: 200;
+        position: absolute; 
+        top: calc(100% + var(--space-2));
+        inset-inline-end: 0;
+        background: var(--color-surface); 
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md); 
+        box-shadow: var(--shadow-md);
+        min-width: 140px; 
+        overflow: hidden; 
+        display: none; 
+        z-index: 200;
     }
-    .lang-dropdown.open { display: block; }
-    .lang-dropdown form { display: contents; }
+
+    .lang-dropdown.open { 
+        display: block; 
+    }
+
+    .lang-dropdown form { 
+        display: block; 
+        margin: 0; 
+        padding: 0; 
+    }
+
     .lang-option {
-      display: block; width: 100%; padding: var(--space-3) var(--space-4);
-      font-size: var(--font-size-sm); color: var(--color-text-secondary);
-      background: none; border: none; font-family: inherit;
-      text-align: {% if LANGUAGE_BIDI %}right{% else %}left{% endif %};
-      cursor: pointer; transition: background-color var(--transition), color var(--transition);
+        display: block; 
+        width: 100%; 
+        padding: var(--space-3) var(--space-4);
+        font-size: var(--font-size-sm); 
+        color: var(--color-text-secondary);
+        background: none; 
+        border: none; 
+        font-family: inherit;
+        text-align: start; /* Logical text alignment */
+        cursor: pointer; 
+        transition: background-color var(--transition), color var(--transition);
     }
-    .lang-option:hover { background-color: var(--color-bg); color: var(--color-text-primary); }
-    .lang-option.current { color: var(--color-accent); font-weight: var(--font-weight-medium); }
 
-    /* Content area */
+    .lang-option:hover { 
+        background-color: var(--color-bg); 
+        color: var(--color-text-primary); 
+    }
+
+    .lang-option.current { 
+        color: var(--color-accent); 
+        font-weight: var(--font-weight-medium); 
+    }
+
+    /* --- Content Area --- */
     .portal-content {
-      flex: 1;
-      {% if LANGUAGE_BIDI %}margin-right: 260px;{% else %}margin-left: 260px;{% endif %}
-      margin-top: 64px; padding: var(--space-8) var(--space-6);
-      min-height: calc(100vh - 64px); background-color: var(--color-bg);
+        flex: 1;
+        margin-inline-start: 260px; /* Ensure content is pushed next to the sidebar */
+        margin-top: 64px; 
+        padding: var(--space-8) var(--space-6);
+        min-height: calc(100vh - 64px); 
+        background-color: var(--color-bg);
     }
 
-    /* Mobile toggle & Alert */
-    .sidebar-toggle {
-      display: none; width: var(--touch-target); height: var(--touch-target);
-      align-items: center; justify-content: center; color: var(--color-text-secondary); cursor: pointer;
-    }
+    /* Alerts */
     .alert {
-      display: flex; align-items: flex-start; gap: var(--space-3);
-      padding: var(--space-4); border-radius: var(--radius-md);
-      margin-bottom: var(--space-4); font-size: var(--font-size-base);
+        display: flex; 
+        align-items: flex-start; 
+        gap: var(--space-3);
+        padding: var(--space-4); 
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-4); 
+        font-size: var(--font-size-base);
     }
-    .alert--success { background-color: rgba(16,185,129,0.08); color: var(--color-success); border: 1px solid rgba(16,185,129,0.2); }
-    .alert--error { background-color: rgba(239,68,68,0.08); color: var(--color-error); border: 1px solid rgba(239,68,68,0.2); }
-    .alert--warning { background-color: rgba(245,158,11,0.08); color: var(--color-warning); border: 1px solid rgba(245,158,11,0.2); }
-    .alert--info { background-color: rgba(59,130,246,0.08); color: var(--color-info); border: 1px solid rgba(59,130,246,0.2); }
+    .alert--success { background-color: rgba(16, 185, 129, 0.08); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.2); }
+    .alert--error   { background-color: rgba(239, 68, 68, 0.08); color: var(--color-error); border: 1px solid rgba(239, 68, 68, 0.2); }
+    .alert--warning { background-color: rgba(245, 158, 11, 0.08); color: var(--color-warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+    .alert--info    { background-color: rgba(59, 130, 246, 0.08); color: var(--color-info); border: 1px solid rgba(59, 130, 246, 0.2); }
+
+    /* --- Responsive Mobile Layout --- */
+    .sidebar-toggle {
+        display: none; 
+        width: var(--touch-target); 
+        height: var(--touch-target);
+        align-items: center; 
+        justify-content: center; 
+        color: var(--color-text-secondary); 
+        cursor: pointer;
+    }
 
     @media (max-width: 768px) {
-      .portal-sidebar { transform: {% if LANGUAGE_BIDI %}translateX(100%){% else %}translateX(-100%){% endif %}; }
-      .portal-sidebar.open { transform: translateX(0); }
-      .portal-content { margin-left: 0; margin-right: 0; padding: var(--space-4); }
-      .portal-topbar { left: 0; right: 0; }
-      .sidebar-toggle { display: flex; }
+        [dir="ltr"] .portal-sidebar { transform: translateX(-100%); }
+        [dir="rtl"] .portal-sidebar { transform: translateX(100%); }
+        
+        .portal-sidebar.open { transform: translateX(0) !important; }
+        
+        .portal-content { margin-inline-start: 0; padding: var(--space-4); }
+        .portal-topbar { inset-inline-start: 0; }
+        .sidebar-toggle { display: flex; }
     }
 </style>
 {% endblock extra_css %}
 
 {% block body %}
 <div class="portal-layout">
+  
   <aside class="portal-sidebar" id="portalSidebar" role="navigation" aria-label="{% trans 'Main navigation' %}">
     <div class="sidebar-logo">
       <span class="sidebar-logo-text">FitZone</span>
     </div>
+    
     <nav class="sidebar-nav">
       {% block sidebar_nav %}
       
@@ -260,6 +393,7 @@
       <div class="lang-switcher-portal" id="langSwitcher">
         {% get_available_languages as LANGUAGES %}
         {% get_language_info_list for LANGUAGES as languages %}
+        
         {% for language in languages %}
           {% if language.code == LANGUAGE_CODE %}
           <button class="lang-switcher-btn" id="langBtn" aria-haspopup="true" aria-expanded="false" type="button">
@@ -272,9 +406,9 @@
 
         <div class="lang-dropdown" id="langDropdown" role="menu">
           {% for language in languages %}
-          <form action="{% url 'set_language' %}" method="post">
+          <form action="{% url 'set_language' %}" method="post" class="lang-switch-form" style="display: block; margin: 0; padding: 0;">
             {% csrf_token %}
-            <input name="next" type="hidden" value="{{ request.path }}" />
+            <input name="next" type="hidden" class="lang-next" value="" />
             <button type="submit" name="language" value="{{ language.code }}" class="lang-option {% if language.code == LANGUAGE_CODE %}current{% endif %}" role="menuitem">
               {{ language.name_local }}
             </button>
@@ -304,10 +438,17 @@
 {% block extra_js %}
 <script>
   'use strict';
+
+  // --- Mobile Sidebar Toggle Logic ---
   const sidebarToggle = document.getElementById('sidebarToggle');
   const portalSidebar = document.getElementById('portalSidebar');
+  
   if (sidebarToggle && portalSidebar) {
-    sidebarToggle.addEventListener('click', function () { portalSidebar.classList.toggle('open'); });
+    sidebarToggle.addEventListener('click', function () { 
+      portalSidebar.classList.toggle('open'); 
+    });
+    
+    // Close sidebar when clicking outside of it
     document.addEventListener('click', function (e) {
       if (!portalSidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
         portalSidebar.classList.remove('open');
@@ -315,18 +456,60 @@
     });
   }
 
-  const langBtn      = document.getElementById('langBtn');
+  // --- Language Switcher Dropdown Logic ---
+  const langBtn = document.getElementById('langBtn');
   const langDropdown = document.getElementById('langDropdown');
+  
   if (langBtn && langDropdown) {
+    // Toggle dropdown visibility
     langBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       const isOpen = langDropdown.classList.toggle('open');
       langBtn.setAttribute('aria-expanded', isOpen.toString());
     });
+
+    // Prevent closing when interacting inside the dropdown
+    langDropdown.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+
+    // Close dropdown when clicking outside
     document.addEventListener('click', function () {
       langDropdown.classList.remove('open');
       if (langBtn) langBtn.setAttribute('aria-expanded', 'false');
     });
   }
+
+  // --- Bulletproof fix for Django i18n URL routing ---
+  // Ensuring the redirection removes or injects language prefixes accurately based on user choice
+  document.querySelectorAll('.lang-switch-form').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+      const selectedLanguage = this.querySelector('button[name="language"]').value;
+      let currentPath = window.location.pathname;
+      const currentQuery = window.location.search;
+
+      if (selectedLanguage === 'ar') {
+        // If Arabic is selected, remove the /en/ prefix if it exists
+        if (currentPath.startsWith('/en/')) {
+          currentPath = currentPath.substring(3);
+        } else if (currentPath === '/en') {
+          currentPath = '/';
+        }
+      } else if (selectedLanguage === 'en') {
+        // If English is selected, ensure the /en/ prefix is added
+        if (!currentPath.startsWith('/en/')) {
+          currentPath = '/en' + (currentPath.startsWith('/') ? currentPath : '/' + currentPath);
+        }
+      }
+      
+      // Safety check to ensure the resulting path is always absolute
+      if (!currentPath.startsWith('/')) {
+        currentPath = '/' + currentPath;
+      }
+
+      // Inject the computed URL path + query string before the form submits
+      this.querySelector('.lang-next').value = currentPath + currentQuery;
+    });
+  });
 </script>
 {% endblock extra_js %}

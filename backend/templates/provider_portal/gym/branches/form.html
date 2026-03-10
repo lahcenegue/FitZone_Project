@@ -1,0 +1,360 @@
+{% extends "provider_portal/base.html" %}
+{% load i18n static %}
+
+{% block page_title %}
+  {% if is_edit %}
+    {% trans "Edit Branch" %}: {{ branch.name }}
+  {% else %}
+    {% trans "Add New Branch" %}
+  {% endif %}
+{% endblock %}
+
+{% block nav_branches %}active{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  .wizard-container { max-width: 800px; margin: 0 auto; }
+  
+  .wizard-header { display: flex; justify-content: space-between; margin-bottom: var(--space-8); position: relative; }
+  .wizard-header::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: var(--color-border); z-index: 1; transform: translateY(-50%); }
+  .step-indicator { background: var(--color-surface); border: 2px solid var(--color-border); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--color-text-muted); z-index: 2; position: relative; transition: all 0.3s; }
+  .step-indicator.active { border-color: var(--color-accent); color: var(--color-accent); background: #fff; }
+  .step-indicator.completed { border-color: var(--color-success); background: var(--color-success); color: #fff; }
+
+  .wizard-step { display: none; background: var(--color-surface); padding: var(--space-8); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--color-border); }
+  .wizard-step.active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .form-group { margin-bottom: var(--space-4); }
+  .form-label { display: block; font-weight: var(--font-weight-medium); margin-bottom: var(--space-2); color: var(--color-text-primary); }
+  .form-control { width: 100%; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; }
+  .form-control:focus { border-color: var(--color-accent); outline: none; }
+  
+  .logo-section { display: flex; align-items: center; gap: var(--space-6); margin-bottom: var(--space-6); padding-bottom: var(--space-6); border-bottom: 1px solid var(--color-border); }
+  .logo-preview { width: 100px; height: 100px; border-radius: var(--radius-lg); object-fit: cover; border: 1px dashed var(--color-border); }
+  .btn-upload-logo { background: var(--color-bg); border: 1px solid var(--color-border); padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
+  
+  #branch-map { height: 350px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--color-border); z-index: 1; margin-bottom: var(--space-2); }
+  
+  .amenities-input-group { display: flex; gap: var(--space-2); }
+  .btn-add-tag { background: var(--color-primary); color: white; border: none; padding: 0 var(--space-4); border-radius: var(--radius-md); cursor: pointer; }
+  .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: var(--space-3); }
+  .tag { background: var(--color-bg); border: 1px solid var(--color-border); padding: 4px 12px; border-radius: var(--radius-full); font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .tag span { cursor: pointer; color: var(--color-error); font-weight: bold; }
+
+  .actions { display: flex; justify-content: space-between; margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid var(--color-border); }
+  .btn-primary { background: var(--color-primary); color: white; padding: 12px 24px; border-radius: var(--radius-md); font-weight: bold; border: none; cursor: pointer; }
+  .btn-secondary { background: transparent; color: var(--color-text-secondary); border: 1px solid var(--color-border); padding: 12px 24px; border-radius: var(--radius-md); cursor: pointer; }
+  .error-message { color: var(--color-error); font-size: 13px; margin-top: 4px; }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="wizard-container">
+  <div class="wizard-header">
+    <div class="step-indicator active" id="ind-1">1</div>
+    <div class="step-indicator" id="ind-2">2</div>
+    <div class="step-indicator" id="ind-3">3</div>
+    <div class="step-indicator" id="ind-4">4</div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" id="branchForm" novalidate>
+    {% csrf_token %}
+    
+    <div class="wizard-step active" id="step-1">
+      <h3 style="margin-bottom: var(--space-6);">{% trans "Branch Identity" %}</h3>
+      
+      <div class="logo-section">
+        <img src="{% if branch.branch_logo %}{{ branch.branch_logo.url }}{% elif request.user.provider_profile.logo %}{{ request.user.provider_profile.logo.url }}{% else %}{% static 'global/img/placeholder.png' %}{% endif %}" id="logoPreview" class="logo-preview">
+        <div>
+          <h4 style="margin-bottom: 8px;">{% trans "Branch Logo" %}</h4>
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 12px;">{% trans "By default, the main provider logo is used." %}</p>
+          <label class="btn-upload-logo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            {% trans "Upload Custom Logo" %}
+            <input type="file" name="branch_logo" id="{{ form.branch_logo.id_for_label }}" accept="image/*" style="display: none;" onchange="previewLogo(event)">
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ form.name.label }} <span style="color:var(--color-error)">*</span></label>
+        {{ form.name }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ form.phone_number.label }}</label>
+        {{ form.phone_number }}
+      </div>
+
+      <div class="actions" style="justify-content: flex-end;">
+        <button type="button" class="btn-primary" onclick="nextStep(2)">{% trans "Next: Location" %}</button>
+      </div>
+    </div>
+
+    <div class="wizard-step" id="step-2">
+      <h3 style="margin-bottom: var(--space-6);">{% trans "Precise Location" %}</h3>
+      
+      <div class="form-group">
+        <label class="form-label">{{ form.city.label }} <span style="color:var(--color-error)">*</span></label>
+        {{ form.city }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{% trans "Pinpoint on Map" %}</label>
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px;">{% trans "Drag the pin to your branch." %}</p>
+        <div id="branch-map"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ form.address.label }} <span style="color:var(--color-error)">*</span></label>
+        {{ form.address }}
+      </div>
+
+      {{ form.latitude }}
+      {{ form.longitude }}
+
+      <div class="actions">
+        <button type="button" class="btn-secondary" onclick="prevStep(1)">{% trans "Back" %}</button>
+        <button type="button" class="btn-primary" onclick="nextStep(3)">{% trans "Next: Amenities" %}</button>
+      </div>
+    </div>
+
+    <div class="wizard-step" id="step-3">
+      <h3 style="margin-bottom: var(--space-6);">{% trans "Details & Amenities" %}</h3>
+      
+      <div class="form-group">
+        <label class="form-label">{{ form.description.label }}</label>
+        {{ form.description }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{% trans "Branch Amenities" %}</label>
+        <div class="amenities-input-group">
+          <input type="text" id="amenityInput" class="form-control" placeholder="{% trans 'e.g., Swimming Pool, Sauna...' %}">
+          <button type="button" class="btn-add-tag" onclick="addAmenity()">{% trans "Add" %}</button>
+        </div>
+        <div class="tags-container" id="tagsContainer"></div>
+        {{ form.custom_amenities }} 
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-secondary" onclick="prevStep(2)">{% trans "Back" %}</button>
+        <button type="button" class="btn-primary" onclick="nextStep(4)">{% trans "Next: Operating Hours" %}</button>
+      </div>
+    </div>
+
+    <div class="wizard-step" id="step-4">
+      <h3 style="margin-bottom: var(--space-6);">{% trans "Operating Hours" %}</h3>
+      
+      <div style="margin-bottom: var(--space-4); display: flex; justify-content: flex-end;">
+          <button type="button" class="btn-secondary" onclick="copySundayHours()" style="font-size: 13px; padding: 6px 12px; display: flex; align-items: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              {% trans "Apply Sunday's hours to all week" %}
+          </button>
+      </div>
+
+      <div style="margin-bottom: var(--space-6);">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+          <div style="width: 100px;"></div>
+          <div style="flex:1; font-weight:bold; font-size:12px;">{% trans "Opening Time" %}</div>
+          <div style="flex:1; font-weight:bold; font-size:12px;">{% trans "Closing Time" %}</div>
+        </div>
+        
+        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Sunday" %}</div><div style="flex:1">{{ form.sunday_open }}</div><div style="flex:1">{{ form.sunday_close }}</div></div>
+        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Monday" %}</div><div style="flex:1">{{ form.monday_open }}</div><div style="flex:1">{{ form.monday_close }}</div></div>
+        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Tuesday" %}</div><div style="flex:1">{{ form.tuesday_open }}</div><div style="flex:1">{{ form.tuesday_close }}</div></div>
+        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Wednesday" %}</div><div style="flex:1">{{ form.wednesday_open }}</div><div style="flex:1">{{ form.wednesday_close }}</div></div>
+        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Thursday" %}</div><div style="flex:1">{{ form.thursday_open }}</div><div style="flex:1">{{ form.thursday_close }}</div></div>
+        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Friday" %}</div><div style="flex:1">{{ form.friday_open }}</div><div style="flex:1">{{ form.friday_close }}</div></div>
+        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Saturday" %}</div><div style="flex:1">{{ form.saturday_open }}</div><div style="flex:1">{{ form.saturday_close }}</div></div>
+      </div>
+
+      <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
+        {{ form.is_active }} <label style="margin:0; font-weight: bold;">{% trans "Branch is Active" %}</label>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-secondary" onclick="prevStep(3)">{% trans "Back" %}</button>
+        <button type="submit" class="btn-primary" style="background: var(--color-success);">{% trans "Save Branch" %}</button>
+      </div>
+    </div>
+
+  </form>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // Add required attributes for JS validation
+  document.getElementById('{{ form.name.id_for_label }}').setAttribute('required', 'required');
+  document.getElementById('{{ form.city.id_for_label }}').setAttribute('required', 'required');
+  document.getElementById('{{ form.address.id_for_label }}').setAttribute('required', 'required');
+
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.type !== 'checkbox' && el.type !== 'hidden' && el.type !== 'file') el.classList.add('form-control');
+  });
+
+  // --- Wizard Logic ---
+  let currentStep = 1;
+  function showStep(step) {
+    document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.step-indicator').forEach(el => {
+      el.classList.remove('active');
+      if (parseInt(el.id.split('-')[1]) < step) el.classList.add('completed');
+      else el.classList.remove('completed');
+    });
+    const targetStep = document.getElementById('step-' + step);
+    if(targetStep) {
+        targetStep.classList.add('active');
+        document.getElementById('ind-' + step).classList.add('active');
+    }
+    if (step === 2 && typeof map !== 'undefined') { setTimeout(() => map.invalidateSize(), 100); }
+  }
+  function nextStep(step) { currentStep = step; showStep(currentStep); }
+  function prevStep(step) { currentStep = step; showStep(currentStep); }
+
+  function previewLogo(event) {
+    const reader = new FileReader();
+    reader.onload = function(){ document.getElementById('logoPreview').src = reader.result; };
+    if(event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
+  }
+
+  // --- Map Initialization ---
+  const cityCoords = {
+    "riyadh": [24.7136, 46.6753], "jeddah": [21.4858, 39.1925], "mecca": [21.3891, 39.8579], "makkah": [21.3891, 39.8579],
+    "medina": [24.5247, 39.5692], "madinah": [24.5247, 39.5692], "dammam": [26.4207, 50.0888], "khobar": [26.2172, 50.1971], 
+    "dhahran": [26.2695, 50.1089], "tabuk": [28.3835, 36.5662], "abha": [18.2164, 42.5053], "khamis mushait": [18.3000, 42.7333],
+    "hail": [27.5158, 41.6907], "najran": [17.5021, 44.1320], "jubail": [27.0146, 49.6416], "yanbu": [24.0891, 38.0637],
+    "taif": [21.2703, 40.4158], "buraidah": [26.3260, 43.9750], "qatif": [26.5615, 49.0060], "hofuf": [25.3800, 49.5888],
+    "jizan": [16.8892, 42.5511], "arar": [30.9753, 41.0381]
+  };
+  
+  const latInput = document.getElementById('{{ form.latitude.id_for_label }}');
+  const lngInput = document.getElementById('{{ form.longitude.id_for_label }}');
+  const addressInput = document.getElementById('{{ form.address.id_for_label }}');
+  const citySelect = document.getElementById('{{ form.city.id_for_label }}');
+
+  // --- BUG FIX: Force exact city selection on Edit Mode (Case Insensitive) ---
+  const savedCity = "{% if branch %}{{ branch.city|escapejs|lower }}{% else %}{% endif %}";
+  if (savedCity && citySelect) {
+      for (let i = 0; i < citySelect.options.length; i++) {
+          if (citySelect.options[i].value.toLowerCase() === savedCity) {
+              citySelect.selectedIndex = i;
+              break;
+          }
+      }
+  }
+  // --------------------------------------------------------------------------
+
+  let startLat = (latInput && latInput.value) ? parseFloat(latInput.value) : 24.7136;
+  let startLng = (lngInput && lngInput.value) ? parseFloat(lngInput.value) : 46.6753;
+
+  let map = L.map('branch-map').setView([startLat, startLng], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  let marker = L.marker([startLat, startLng], {draggable: true}).addTo(map);
+
+  function fetchAddress(lat, lng) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`)
+      .then(response => response.json())
+      .then(data => { if(data && data.display_name) addressInput.value = data.display_name; });
+  }
+
+  marker.on('dragend', function(event) {
+      const pos = marker.getLatLng();
+      latInput.value = pos.lat.toFixed(6); lngInput.value = pos.lng.toFixed(6);
+      fetchAddress(pos.lat, pos.lng);
+  });
+
+  if(citySelect) {
+      citySelect.addEventListener('change', function(e) {
+          const selectedCity = e.target.value.toLowerCase(); 
+          if(cityCoords[selectedCity]) {
+              const coords = cityCoords[selectedCity];
+              map.flyTo(coords, 12);
+              marker.setLatLng(coords);
+              latInput.value = coords[0]; lngInput.value = coords[1];
+              fetchAddress(coords[0], coords[1]);
+          }
+      });
+  }
+
+  // --- Amenities Logic ---
+  let amenities = [];
+  const hiddenInput = document.getElementById('hidden_amenities');
+  const tagsContainer = document.getElementById('tagsContainer');
+  const amenityInput = document.getElementById('amenityInput');
+
+  if (hiddenInput && hiddenInput.value) {
+    amenities = hiddenInput.value.split(',').map(tag => tag.trim()).filter(tag => tag);
+    renderTags();
+  }
+
+  function renderTags() {
+    tagsContainer.innerHTML = '';
+    amenities.forEach((tag, index) => {
+      const el = document.createElement('div'); el.className = 'tag';
+      el.innerHTML = `${tag} <span onclick="removeTag(${index})">×</span>`;
+      tagsContainer.appendChild(el);
+    });
+    hiddenInput.value = amenities.join(',');
+  }
+
+  function addAmenity() {
+    const val = amenityInput.value.trim();
+    if (val && !amenities.includes(val)) { amenities.push(val); renderTags(); amenityInput.value = ''; }
+  }
+
+  function removeTag(index) { amenities.splice(index, 1); renderTags(); }
+  if(amenityInput) {
+      amenityInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); addAmenity(); }
+      });
+  }
+
+  // --- UX: Copy Hours ---
+  function copySundayHours() {
+      const sunOpen = document.getElementById('{{ form.sunday_open.id_for_label }}').value;
+      const sunClose = document.getElementById('{{ form.sunday_close.id_for_label }}').value;
+      if (!sunOpen && !sunClose) { alert('{% trans "Please enter Sunday hours first." %}'); return; }
+      ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].forEach(day => {
+          const o = document.querySelector(`input[name="${day}_open"]`);
+          const c = document.querySelector(`input[name="${day}_close"]`);
+          if (o) o.value = sunOpen;
+          if (c) c.value = sunClose;
+      });
+  }
+
+  // --- Smart Error Catcher ---
+  const branchForm = document.getElementById('branchForm');
+  if (branchForm) {
+      branchForm.addEventListener('submit', function(e) {
+          // Check for empty required inputs
+          let hasError = false;
+          const inputs = this.querySelectorAll('input[required], select[required]');
+          
+          for (let i = 0; i < inputs.length; i++) {
+              if (!inputs[i].value.trim()) {
+                  e.preventDefault(); // Stop submission
+                  const stepDiv = inputs[i].closest('.wizard-step');
+                  if (stepDiv) {
+                      const stepNum = parseInt(stepDiv.id.split('-')[1]);
+                      showStep(stepNum); // Jump to the hidden step
+                      inputs[i].style.borderColor = 'red'; // Highlight error
+                      setTimeout(() => inputs[i].focus(), 100);
+                  }
+                  hasError = true;
+                  break; // Stop at first error
+              }
+          }
+          
+          if (!hasError) {
+             // If valid, submit normally
+          }
+      });
+  }
+</script>
+{% endblock extra_js %}
