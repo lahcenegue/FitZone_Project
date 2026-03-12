@@ -1,0 +1,358 @@
+{% load i18n static %}
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+  /* --- Clean & Minimal FAB --- */
+  .fab-scanner-wrapper { position: fixed; bottom: 40px; right: 40px; z-index: 999; }
+  [dir="rtl"] .fab-scanner-wrapper { right: auto; left: 40px; }
+  
+  .fab-scanner-btn {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-primary), #2563eb); color: white;
+      display: flex; align-items: center; justify-content: center;
+      border: none; cursor: pointer;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+  }
+  .fab-scanner-btn:hover {
+      transform: scale(1.1) translateY(-5px);
+      box-shadow: 0 15px 35px rgba(37, 99, 235, 0.6);
+  }
+  .fab-scanner-btn svg { width: 32px; height: 32px; }
+
+  /* --- FULLSCREEN KIOSK MODAL --- */
+  .scanner-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.98);
+      backdrop-filter: blur(15px); z-index: 1000; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.4s ease; padding: 2vh 2vw; /* Takes almost full screen */
+  }
+  .scanner-overlay.show { display: flex; opacity: 1; }
+
+  .scanner-dashboard {
+      background: var(--color-bg); 
+      width: 100%; height: 100%; /* Uses available padded space */
+      border-radius: var(--radius-xl); 
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8);
+      display: flex; flex-direction: column; overflow: hidden; 
+      transform: scale(0.98); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .scanner-overlay.show .scanner-dashboard { transform: scale(1); }
+
+  /* Header */
+  .dash-header {
+      padding: 24px 40px; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--color-border); background: var(--color-surface);
+  }
+  .dash-header h2 { margin: 0; font-size: 26px; font-weight: 900; display: flex; align-items: center; gap: 12px; color: var(--color-text-primary); letter-spacing: -0.5px; }
+  .btn-close-dash { background: var(--color-bg); border: 1px solid var(--color-border); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--color-text-secondary); transition: 0.2s; }
+  .btn-close-dash:hover { background: rgba(239, 68, 68, 0.1); color: var(--color-error); border-color: rgba(239, 68, 68, 0.3); transform: rotate(90deg); }
+
+  /* Split Body: 25% Camera (Left/Right depending on RTL), 75% Info */
+  .dash-body { display: flex; flex: 1; overflow: hidden; }
+  [dir="ltr"] .dash-body { flex-direction: row; }
+  [dir="rtl"] .dash-body { flex-direction: row-reverse; }
+
+  /* Camera Pane (Small & Compact) */
+  .cam-pane {
+      width: 30%; min-width: 350px; padding: 40px 30px; background: #0b1120;
+      display: flex; flex-direction: column; align-items: center; border-inline-end: 1px solid rgba(255,255,255,0.1);
+  }
+  .reader-container { width: 100%; border-radius: var(--radius-xl); overflow: hidden; border: 4px solid rgba(255,255,255,0.1); background: #000; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+  .cam-instruction { margin-top: 30px; color: rgba(255,255,255,0.7); font-size: 14px; font-weight: 500; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .pulse-dot { width: 12px; height: 12px; background: var(--color-success); border-radius: 50%; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); animation: pulseGreen 2s infinite; }
+  @keyframes pulseGreen { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+
+  /* Info Pane (Massive space for details) */
+  .info-pane { flex: 1; padding: 60px 80px; background: var(--color-bg); overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
+  
+  /* Placeholder State */
+  .waiting-state { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--color-text-muted); animation: pulseOpacity 3s infinite; height: 100%; }
+  @keyframes pulseOpacity { 0% { opacity: 0.4; } 50% { opacity: 0.8; } 100% { opacity: 0.4; } }
+  
+  /* Data State */
+  .data-state { display: none; animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); height: 100%; flex-direction: column; }
+  @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+  /* Status Banner */
+  .status-banner { padding: 30px 40px; border-radius: var(--radius-xl); margin-bottom: 40px; display: flex; align-items: center; gap: 24px; }
+  .status-banner.success { background: rgba(16, 185, 129, 0.1); border: 2px solid rgba(16, 185, 129, 0.3); color: var(--color-success); }
+  .status-banner.warning { background: rgba(245, 158, 11, 0.1); border: 2px solid rgba(245, 158, 11, 0.3); color: var(--color-warning); }
+  .status-banner.error { background: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); color: var(--color-error); }
+  .status-icon { padding: 16px; border-radius: 50%; background: white; box-shadow: var(--shadow-md); display: flex; }
+  .status-text h3 { margin: 0 0 8px 0; font-size: 32px; font-weight: 900; letter-spacing: -1px; }
+  .status-text p { margin: 0; font-size: 18px; font-weight: 600; color: var(--color-text-primary); }
+
+  /* Member Identity Card */
+  .member-id-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-xl); padding: 50px; box-shadow: var(--shadow-sm); flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  
+  .id-header { display: flex; gap: 40px; align-items: center; margin-bottom: 50px; padding-bottom: 40px; border-bottom: 1px solid var(--color-border); }
+  .id-avatar-placeholder { width: 120px; height: 120px; border-radius: 50%; background: rgba(59, 130, 246, 0.1); border: 4px solid var(--color-surface); box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center; color: var(--color-primary); }
+  .id-info h2 { margin: 0 0 12px 0; font-size: 42px; font-weight: 900; color: var(--color-text-primary); letter-spacing: -1px; }
+  .id-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: bold; background: var(--color-bg); padding: 8px 20px; border-radius: 30px; border: 1px solid var(--color-border); color: var(--color-text-secondary); letter-spacing: 2px; }
+
+  /* Stats Grid */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px; }
+  .stat-item { background: var(--color-bg); padding: 30px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); }
+  .stat-item span { display: block; font-size: 14px; color: var(--color-text-secondary); margin-bottom: 12px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
+  .stat-item strong { font-size: 28px; color: var(--color-text-primary); font-weight: 900; }
+
+  /* Progress Bar */
+  .progress-section { margin-bottom: 0; }
+  .progress-header { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-bottom: 16px; color: var(--color-text-primary); }
+  .progress-track { width: 100%; height: 16px; background: var(--color-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--color-border); }
+  .progress-fill { height: 100%; border-radius: 8px; transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
+
+  /* Live Gym Stats Footer */
+  .gym-live-stats { background: var(--color-surface); border-top: 1px solid var(--color-border); padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; }
+  .live-pulse-blue { width: 14px; height: 14px; background: var(--color-info); border-radius: 50%; display: inline-block; margin-inline-end: 12px; box-shadow: 0 0 0 0 rgba(59,130,246, 0.7); animation: pulseBlue 1.5s infinite; }
+  @keyframes pulseBlue { 0% { box-shadow: 0 0 0 0 rgba(59,130,246, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(59,130,246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59,130,246, 0); } }
+</style>
+
+<div class="fab-scanner-wrapper">
+  <button class="fab-scanner-btn" id="openScannerBtn" title="{% trans 'Open Live Check-in' %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1.5"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+  </button>
+</div>
+
+<div class="scanner-overlay" id="scannerOverlay">
+  <div class="scanner-dashboard">
+      
+      <div class="dash-header">
+          <h2>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>
+              {% trans "FitZone Live Check-in Desk" %}
+          </h2>
+          <button class="btn-close-dash" id="closeScannerBtn">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+      </div>
+
+      <div class="dash-body">
+          <div class="cam-pane">
+              <div class="reader-container" id="reader"></div>
+              <div class="cam-instruction">
+                  <span class="pulse-dot"></span>
+                  <span>{% trans "Scanner Active" %}</span>
+                  <span style="font-size: 12px; color: rgba(255,255,255,0.5); font-weight: normal;">{% trans "Ready for next member" %}</span>
+              </div>
+          </div>
+
+          <div class="info-pane">
+              
+              <div id="waitingState" class="waiting-state">
+                  <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom:24px; opacity:0.3;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  <h3 style="font-size: 28px; margin-bottom: 12px; font-weight: 800;">{% trans "Ready to Scan" %}</h3>
+                  <p style="font-size: 16px;">{% trans "Please present a valid FitZone QR code to the camera." %}</p>
+              </div>
+
+              <div id="dataState" class="data-state">
+                  
+                  <div id="statusBanner" class="status-banner success">
+                      <div class="status-icon" id="statusIconBox">
+                          <svg id="iconSuccess" style="display:none; color:var(--color-success);" width="40" height="40" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                          <svg id="iconWarning" style="display:none; color:var(--color-warning);" width="40" height="40" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                          <svg id="iconError" style="display:none; color:var(--color-error);" width="40" height="40" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </div>
+                      <div class="status-text">
+                          <h3 id="resTitle">Access Granted</h3>
+                          <p id="resMsg">Check-in successful.</p>
+                      </div>
+                  </div>
+
+                  <div class="member-id-card">
+                      <div class="id-header">
+                          <div class="id-avatar-placeholder">
+                              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                          </div>
+                          <div class="id-info">
+                              <h2 id="resName">John Doe</h2>
+                              <span class="id-badge">
+                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                  <span id="resMemberId">MEM-12345</span>
+                              </span>
+                          </div>
+                      </div>
+
+                      <div class="stats-grid">
+                          <div class="stat-item">
+                              <span>{% trans "Active Plan" %}</span>
+                              <strong id="resPlan">Premium VIP</strong>
+                          </div>
+                          <div class="stat-item">
+                              <span>{% trans "Monthly Visits" %}</span>
+                              <strong id="resVisits">12</strong>
+                          </div>
+                      </div>
+
+                      <div class="progress-section">
+                          <div class="progress-header">
+                              <span>{% trans "Subscription Progress" %}</span>
+                              <span id="resDaysText" style="color: var(--color-primary);">120 / 180 Days</span>
+                          </div>
+                          <div class="progress-track">
+                              <div id="resProgressBar" class="progress-fill" style="width: 0%; background: var(--color-primary);"></div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      
+      <div class="gym-live-stats" id="trackingBox" style="display: none;">
+          <div style="display: flex; align-items: center;">
+              <span class="live-pulse-blue"></span>
+              <strong id="resCapacity" style="font-size: 24px; font-weight: 900;">0</strong> 
+              <span style="font-size: 16px; color: var(--color-text-secondary); margin-inline-start:12px; font-weight:700;">{% trans "Members Currently in Gym" %}</span>
+          </div>
+          <div style="text-align: end;">
+              <span style="display:block; font-size:13px; color:var(--color-text-secondary); text-transform:uppercase; font-weight:800; margin-bottom:4px;">{% trans "Estimated Checkout" %}</span>
+              <strong id="resExit" style="font-size: 20px; color: var(--color-text-primary); font-weight: 900;">--:--</strong>
+          </div>
+      </div>
+
+  </div>
+</div>
+
+<script>
+  let scanner = null;
+  let isProcessing = false;
+
+  document.addEventListener("DOMContentLoaded", function() {
+      const overlay = document.getElementById('scannerOverlay');
+      const openBtn = document.getElementById('openScannerBtn');
+      const closeBtn = document.getElementById('closeScannerBtn');
+      
+      const waitingState = document.getElementById('waitingState');
+      const dataState = document.getElementById('dataState');
+      const trackingBox = document.getElementById('trackingBox');
+
+      function playNativeBeep(type) {
+          try {
+              const ctx = new (window.AudioContext || window.webkitAudioContext)();
+              const osc = ctx.createOscillator();
+              const gainNode = ctx.createGain();
+              osc.connect(gainNode);
+              gainNode.connect(ctx.destination);
+              
+              if (type === 'error') {
+                  osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, ctx.currentTime);
+                  gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+                  osc.start(); osc.stop(ctx.currentTime + 0.4);
+              } else {
+                  osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime);
+                  gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+                  osc.start(); osc.stop(ctx.currentTime + 0.15);
+              }
+          } catch(e) {}
+      }
+
+      function startScanner() {
+          waitingState.style.display = 'flex';
+          dataState.style.display = 'none';
+          trackingBox.style.display = 'none';
+          
+          if (!scanner) scanner = new Html5Qrcode("reader");
+
+          Html5Qrcode.getCameras().then(devices => {
+              if (devices && devices.length > 0) {
+                  let camId = devices[0].id;
+                  for (let d of devices) if (d.label.toLowerCase().includes('back')) camId = d.id;
+                  
+                  // Reduced qrbox size to make scanning feel faster
+                  scanner.start(
+                      camId, 
+                      { fps: 15, qrbox: { width: 250, height: 250 } },
+                      onScanSuccess, (err) => {}
+                  );
+              }
+          }).catch(err => { alert("{% trans 'Camera access required.' %}"); });
+      }
+
+      function onScanSuccess(decodedText) {
+          if (isProcessing) return; 
+          
+          // Only process codes starting with fz_usr_
+          if (!decodedText.startsWith("fz_usr_")) {
+              return; // Silently ignore wrong codes, keep scanning!
+          }
+
+          isProcessing = true;
+          
+          const readerBox = document.querySelector('.reader-container');
+          readerBox.style.borderColor = 'var(--color-success)';
+          setTimeout(() => readerBox.style.borderColor = 'rgba(255,255,255,0.1)', 300);
+
+          fetch("{% url 'provider_portal:api_scan_qr' %}", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+              },
+              body: JSON.stringify({ qr_code: decodedText })
+          })
+          .then(res => res.json())
+          .then(data => {
+              if(data.status === 'ignore') {
+                  isProcessing = false;
+                  return;
+              }
+              
+              playBeep(data.status_color === 'error' ? 'error' : 'success');
+              renderData(data);
+              // Cooldown: wait 2.5 seconds before accepting the next scan
+              setTimeout(() => { isProcessing = false; }, 2500); 
+          })
+          .catch(err => {
+              playBeep('error');
+              isProcessing = false;
+          });
+      }
+
+      function renderData(data) {
+          waitingState.style.display = 'none';
+          dataState.style.display = 'flex';
+
+          dataState.style.animation = 'none';
+          dataState.offsetHeight; 
+          dataState.style.animation = null; 
+
+          document.getElementById('resName').textContent = data.member_name || "{% trans 'Unknown' %}";
+          document.getElementById('resMemberId').textContent = data.member_id || "-";
+          document.getElementById('resPlan').textContent = data.plan_name || "-";
+          document.getElementById('resVisits').textContent = data.visits_this_month || "0";
+          
+          const banner = document.getElementById('statusBanner');
+          banner.className = `status-banner ${data.status_color}`;
+          document.getElementById('resTitle').textContent = data.title;
+          document.getElementById('resMsg').textContent = data.message;
+
+          document.getElementById('iconSuccess').style.display = data.status_color === 'success' ? 'block' : 'none';
+          document.getElementById('iconWarning').style.display = data.status_color === 'warning' ? 'block' : 'none';
+          document.getElementById('iconError').style.display = data.status_color === 'error' ? 'block' : 'none';
+
+          const left = data.days_left || 0;
+          const total = data.total_days || 1;
+          const pct = Math.max(0, Math.min(100, (left / total) * 100));
+          document.getElementById('resDaysText').textContent = `${left} / ${total} {% trans "Days" %}`;
+          
+          const bar = document.getElementById('resProgressBar');
+          bar.style.width = `${pct}%`;
+          bar.style.background = `var(--color-${data.status_color === 'error' ? 'error' : data.status_color === 'warning' ? 'warning' : 'primary'})`;
+
+          if(data.status === 'success' && data.status_color !== 'error') {
+              trackingBox.style.display = 'flex';
+              document.getElementById('resCapacity').textContent = data.current_capacity || "1";
+              document.getElementById('resExit').textContent = data.estimated_exit || "-";
+          } else {
+              trackingBox.style.display = 'none';
+          }
+      }
+
+      openBtn.addEventListener('click', () => { overlay.classList.add('show'); startScanner(); });
+      closeBtn.addEventListener('click', () => { 
+          overlay.classList.remove('show'); 
+          if(scanner && scanner.isScanning) scanner.stop(); 
+      });
+  });
+</script>

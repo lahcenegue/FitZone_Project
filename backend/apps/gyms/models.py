@@ -211,3 +211,30 @@ class BranchImage(models.Model):
     def __str__(self):
         return f"Image for {self.branch.name}"
     
+class GymAttendance(models.Model):
+    """
+    Tracks daily check-ins for gym members.
+    Used to calculate current gym capacity and estimated checkout times.
+    """
+    provider = models.ForeignKey(
+        'providers.Provider', 
+        on_delete=models.CASCADE, 
+        related_name="attendances"
+    )
+    # Temporary char field until the mobile app User model is fully linked
+    member_reference = models.CharField(max_length=100) 
+    
+    check_in_time = models.DateTimeField(auto_now_add=True)
+    estimated_checkout_time = models.DateTimeField()
+    is_currently_inside = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        if not self.estimated_checkout_time:
+            # Default estimated workout duration is 2 hours
+            from datetime import timedelta
+            from django.utils import timezone
+            self.estimated_checkout_time = timezone.now() + timedelta(hours=2)
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-check_in_time']

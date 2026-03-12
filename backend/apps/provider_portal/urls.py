@@ -95,4 +95,6 @@ urlpatterns = [
     # Earnings
     path("earnings/", earnings_views.EarningsView.as_view(), name="earnings"),
     path("earnings/withdraw/", earnings_views.WithdrawView.as_view(), name="withdraw"),
+
+    path('api/scan-qr/', gym_views.QRCodeScannerAPIView.as_view(), name='api_scan_qr'),
 ]

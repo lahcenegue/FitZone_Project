@@ -87,6 +87,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
+LOGIN_URL = 'provider_portal:login'
 
 # ---------------------------------------------------------------------------
 # Frontend base URL — used in outgoing email links
