@@ -5,6 +5,9 @@ Must be set as AUTH_USER_MODEL before the first migration.
 """
 
 import logging
+import uuid
+from datetime import timedelta
+from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.gis.db import models as gis_models
 from django.db import models
@@ -130,6 +133,22 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=20,
         choices=UserGender.choices,
         default=UserGender.UNSPECIFIED,
+    )
+
+    # --- Verification (Step 2) ---
+    real_face_image = models.ImageField(
+        _("Real Face Image"),
+        upload_to="users/verification/faces/",
+        blank=True,
+        null=True,
+        help_text=_("Required for gym subscription check-ins.")
+    )
+    id_card_image = models.ImageField(
+        _("ID Card Image"),
+        upload_to="users/verification/id_cards/",
+        blank=True,
+        null=True,
+        help_text=_("Required for identity verification.")
     )
 
     # --- Location ---
@@ -330,3 +349,26 @@ class User(AbstractBaseUser, PermissionsMixin):
             "Location updated | user: %s | lng: %f | lat: %f",
             self.email, longitude, latitude,
         )
+
+class UserVerificationToken(models.Model):
+    """
+    Token for customer email verification.
+    """
+    user = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='verification_tokens'
+    )
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = _("User Verification Token")
+        verbose_name_plural = _("User Verification Tokens")
+
+    def is_valid(self):
+        """Token is valid for 24 hours."""
+        return self.created_at >= timezone.now() - timedelta(days=1)
+
+    def __str__(self):
+        return f"Token for {self.user.email}"

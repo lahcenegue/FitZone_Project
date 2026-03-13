@@ -20,8 +20,9 @@ from config.api_router import api_router
 urlpatterns = [
     path("api/v1/", include(api_router.urls)),
     path("i18n/", include("django.conf.urls.i18n")),
-    path("api/v1/providers/", include("apps.providers.urls")),
-    path("api/v1/gyms/", include("apps.gyms.urls")),
+    path("api/v1/providers/", include("apps.providers.api.urls")),
+    path("api/v1/gyms/", include("apps.gyms.api.urls")),
+    path("api/v1/users/", include("apps.users.api.urls")),
 ]
 
 # ---------------------------------------------------------------------------

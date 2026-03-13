@@ -12,19 +12,24 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 
 from apps.users.models import UserRole
-
-from .constants import ProviderStatus
-from .emails import (
+from apps.providers.constants import ProviderStatus
+from apps.providers.emails import (
     send_approval_email,
     send_rejection_email,
     send_verification_email,
 )
-from .models import EmailVerificationToken, Provider
+from apps.providers.models import EmailVerificationToken, Provider
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
+
+# 1. Custom Exception for Unverified Emails
+class EmailNotVerifiedError(Exception):
+    """Raised when credentials are correct but email is not verified."""
+    pass
 
 
 def _frontend_base_url() -> str:
@@ -240,26 +245,32 @@ class ProviderRegistrationService:
         return True
     
     @staticmethod
-    def authenticate_provider(email: str, password: str) -> Provider:
-        """Authenticate a provider by email and password."""
-        from django.contrib.auth import authenticate
-        
-        user = authenticate(username=email, password=password)
-        
-        if user is None:
-            raise ValueError("Invalid email or password.")
-            
-        if getattr(user, "role", None) != UserRole.PROVIDER:
-            raise ValueError("This account is not a provider account.")
-            
-        if not hasattr(user, "provider_profile"):
-            raise ValueError("Provider profile not found.")
-            
-        provider = user.provider_profile
-        
-        if provider.status == ProviderStatus.SUSPENDED:
-            raise ValueError("This account has been suspended by the administration.")
-            
+    def authenticate_provider(email, password):
+        """
+        Custom authentication to differentiate between wrong credentials 
+        and unverified emails.
+        """
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise ValueError(_("Invalid email or password."))
+
+        # Check password manually
+        if not user.check_password(password):
+            raise ValueError(_("Invalid email or password."))
+
+        provider = getattr(user, 'provider_profile', None)
+        if not provider:
+            raise ValueError(_("No provider profile found for this account."))
+
+        # 2. THE MAGIC FIX: Check if email is verified
+        if not provider.email_verified:
+            raise EmailNotVerifiedError(_("Email is not verified."))
+
+        # Optional: Check if user was banned by admin
+        if not user.is_active and provider.email_verified:
+             raise ValueError(_("This account has been disabled by the administrator."))
+
         return provider
 
 

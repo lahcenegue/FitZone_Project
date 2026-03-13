@@ -63,15 +63,6 @@ class GymBranch(models.Model):
         return f"{self.name} ({self.provider.business_name})"
 
 
-class BranchImage(models.Model):
-    """Multiple images for a single gym branch."""
-    branch = models.ForeignKey(GymBranch, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to="gyms/branches/images/")
-    is_primary = models.BooleanField(default=False, help_text=_("Will be used as the cover image on the app."))
-
-    def __str__(self):
-        return f"Image for {self.branch.name}"
-
 
 class SubscriptionPlan(models.Model):
     """
@@ -200,6 +191,10 @@ class BranchImage(models.Model):
     image = models.ImageField(
         upload_to="gyms/branches/gallery/",
         verbose_name=_("Image")
+    )
+    is_primary = models.BooleanField(
+        default=False, 
+        help_text=_("Will be used as the cover image on the app.")
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
