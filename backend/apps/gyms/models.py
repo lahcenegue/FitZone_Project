@@ -8,6 +8,7 @@ import uuid
 from django.contrib.gis.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from apps.providers.models import Provider
 
@@ -18,7 +19,6 @@ class GymAmenity(models.Model):
     Can be seeded by admins and selected by providers for their branches.
     """
     name = models.CharField(max_length=100, unique=True, verbose_name=_("Amenity Name"))
-    # The icon string can be used by the Flutter app to load the correct icon (e.g., 'pool', 'dumbbell')
     icon_name = models.CharField(max_length=50, blank=True, verbose_name=_("Icon Name for Mobile App"))
 
     def __str__(self):
@@ -28,7 +28,7 @@ class GymAmenity(models.Model):
 class GymBranch(models.Model):
     """
     Represents a physical branch of a gym provider.
-    Includes geographical data for map integration.
+    Includes geographical data for map integration and dynamic crowd thresholds.
     """
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, related_name="gym_branches")
     name = models.CharField(max_length=255, verbose_name=_("Branch Name"))
@@ -55,13 +55,118 @@ class GymBranch(models.Model):
     # Relationships
     amenities = models.ManyToManyField(GymAmenity, blank=True, related_name="branches")
     
+    # Live Crowd Management Settings
+    max_capacity = models.PositiveIntegerField(default=100, verbose_name=_("Maximum Capacity"))
+    crowd_level_low = models.PositiveIntegerField(default=30, help_text=_("Percentage threshold for Low crowd (e.g., 30)"))
+    crowd_level_medium = models.PositiveIntegerField(default=70, help_text=_("Percentage threshold for Medium crowd (e.g., 70)"))
+    crowd_level_high = models.PositiveIntegerField(default=95, help_text=_("Percentage threshold for High crowd (e.g., 95)"))
+
     # Status
     is_active = models.BooleanField(default=True, verbose_name=_("Is Active"))
+    is_temporarily_closed = models.BooleanField(
+        default=False, 
+        verbose_name=_("Temporarily Closed"),
+        help_text=_("Check this to override the schedule and show the gym as closed immediately.")
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.name} ({self.provider.business_name})"
 
+
+class BranchImage(models.Model):
+    """
+    Model to store multiple images for a single gym branch gallery.
+    """
+    branch = models.ForeignKey(
+        'GymBranch', 
+        on_delete=models.CASCADE, 
+        related_name='images',
+        verbose_name=_("Branch")
+    )
+    image = models.ImageField(
+        upload_to="gyms/branches/gallery/",
+        verbose_name=_("Image")
+    )
+    is_primary = models.BooleanField(
+        default=False, 
+        help_text=_("Will be used as the cover image on the app.")
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Branch Image")
+        verbose_name_plural = _("Branch Images")
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Image for {self.branch.name}"
+
+
+class GymBranchSchedule(models.Model):
+    """
+    Model to store specific working hours for each day of the week.
+    """
+    class Days(models.IntegerChoices):
+        MONDAY = 0, _("Monday")
+        TUESDAY = 1, _("Tuesday")
+        WEDNESDAY = 2, _("Wednesday")
+        THURSDAY = 3, _("Thursday")
+        FRIDAY = 4, _("Friday")
+        SATURDAY = 5, _("Saturday")
+        SUNDAY = 6, _("Sunday")
+
+    branch = models.ForeignKey(
+        'GymBranch', 
+        on_delete=models.CASCADE, 
+        related_name='schedules',
+        verbose_name=_("Branch")
+    )
+    day = models.IntegerField(choices=Days.choices, verbose_name=_("Day of Week"))
+    opening_time = models.TimeField(null=True, blank=True, verbose_name=_("Opening Time"))
+    closing_time = models.TimeField(null=True, blank=True, verbose_name=_("Closing Time"))
+    is_closed = models.BooleanField(default=False, verbose_name=_("Is Closed?"))
+
+    class Meta:
+        verbose_name = _("Branch Schedule")
+        verbose_name_plural = _("Branch Schedules")
+        unique_together = ('branch', 'day')
+        ordering = ['day']
+
+    def __str__(self):
+        return f"{self.branch.name} - {self.get_day_display()}"
+
+
+class GymReview(models.Model):
+    """
+    Model to store customer reviews and ratings for a branch.
+    """
+    branch = models.ForeignKey(
+        'GymBranch', 
+        on_delete=models.CASCADE, 
+        related_name='reviews',
+        verbose_name=_("Branch")
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='gym_reviews',
+        verbose_name=_("Customer")
+    )
+    rating = models.FloatField(
+        validators=[MinValueValidator(1.0), MaxValueValidator(5.0)],
+        verbose_name=_("Rating")
+    )
+    comment = models.TextField(verbose_name=_("Comment"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+
+    class Meta:
+        verbose_name = _("Gym Review")
+        verbose_name_plural = _("Gym Reviews")
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Review by {self.user.email} for {self.branch.name}"
 
 
 class SubscriptionPlan(models.Model):
@@ -102,7 +207,7 @@ class GymSubscription(models.Model):
         ("active", _("Active")),
         ("expired", _("Expired")),
         ("cancelled", _("Cancelled")),
-        ("transferred", _("Transferred/Resold")), # حالة جديدة عند بيع الاشتراك
+        ("transferred", _("Transferred/Resold")),
     ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="gym_subscriptions")
@@ -138,7 +243,7 @@ class GymVisit(models.Model):
     Used for live crowd management and occupancy tracking.
     """
     subscription = models.ForeignKey(GymSubscription, on_delete=models.CASCADE, related_name="visits")
-    branch = models.ForeignKey('GymBranch', on_delete=models.CASCADE, related_name="visits")
+    branch = models.ForeignKey(GymBranch, on_delete=models.CASCADE, related_name="visits")
     
     check_in_time = models.DateTimeField(auto_now_add=True, verbose_name=_("Check-in Time"))
     check_out_time = models.DateTimeField(null=True, blank=True, verbose_name=_("Check-out Time"))
@@ -149,6 +254,7 @@ class GymVisit(models.Model):
     def __str__(self):
         return f"Visit by {self.subscription.user.email} at {self.branch.name}"
     
+
 class GymGlobalSetting(models.Model):
     """
     Singleton model for global gym settings controlled by Super Admin.
@@ -160,52 +266,31 @@ class GymGlobalSetting(models.Model):
         help_text=_("How many hours before a visitor is automatically checked out.")
     )
 
+    points_conversion_rate = models.DecimalField(
+        max_digits=6, 
+        decimal_places=2, 
+        default=10.00,
+        verbose_name=_("Points Conversion Rate (SAR)"),
+        help_text=_("How many Riyals equal 1 reward point for Gyms. (e.g., 10 means 1 point for every 10 SAR).")
+    )
+
     class Meta:
         verbose_name = _("Gym Global Setting")
         verbose_name_plural = _("Gym Global Settings")
 
     def save(self, *args, **kwargs):
-        # Ensure only one instance exists (Singleton pattern)
         self.pk = 1
         super().save(*args, **kwargs)
 
     @classmethod
     def load(cls):
-        """Load the setting object or create it if it doesn't exist."""
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
 
     def __str__(self):
         return str(_("Gym Global Settings"))
     
-class BranchImage(models.Model):
-    """
-    Model to store multiple images for a single gym branch gallery.
-    """
-    branch = models.ForeignKey(
-        'GymBranch', 
-        on_delete=models.CASCADE, 
-        related_name='images',
-        verbose_name=_("Branch")
-    )
-    image = models.ImageField(
-        upload_to="gyms/branches/gallery/",
-        verbose_name=_("Image")
-    )
-    is_primary = models.BooleanField(
-        default=False, 
-        help_text=_("Will be used as the cover image on the app.")
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        verbose_name = _("Branch Image")
-        verbose_name_plural = _("Branch Images")
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f"Image for {self.branch.name}"
-    
 class GymAttendance(models.Model):
     """
     Tracks daily check-ins for gym members.
@@ -216,7 +301,6 @@ class GymAttendance(models.Model):
         on_delete=models.CASCADE, 
         related_name="attendances"
     )
-    # Temporary char field until the mobile app User model is fully linked
     member_reference = models.CharField(max_length=100) 
     
     check_in_time = models.DateTimeField(auto_now_add=True)
@@ -225,7 +309,6 @@ class GymAttendance(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.estimated_checkout_time:
-            # Default estimated workout duration is 2 hours
             from datetime import timedelta
             from django.utils import timezone
             self.estimated_checkout_time = timezone.now() + timedelta(hours=2)

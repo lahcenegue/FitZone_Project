@@ -16,8 +16,9 @@ class GymBranchAdmin(admin.GISModelAdmin):
     استخدام GISModelAdmin يظهر خريطة تفاعلية (OpenStreetMap) 
     في لوحة التحكم لتحديد موقع الصالة بسهولة.
     """
-    list_display = ('name', 'provider', 'city', 'is_active', 'created_at')
-    list_filter = ('is_active', 'city', 'provider')
+    list_display = ('name', 'provider', 'city', 'is_active', 'is_temporarily_closed', 'created_at')
+    list_editable = ('is_active', 'is_temporarily_closed')
+    list_filter = ('is_active', 'is_temporarily_closed', 'city', 'provider')
     search_fields = ('name', 'provider__business_name', 'city')
     inlines = [BranchImageInline]
     
