@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.db.models import Avg
 
 from apps.gyms.models import (
-    GymBranch, BranchImage, GymAmenity, SubscriptionPlan, 
+    GymBranch, BranchImage, GymAmenity, GymSport, SubscriptionPlan, 
     PlanFeature, GymBranchSchedule, GymReview
 )
 
@@ -17,6 +17,11 @@ class GymAmenitySerializer(serializers.ModelSerializer):
     class Meta:
         model = GymAmenity
         fields = ['id', 'name', 'icon_name']
+
+class GymSportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GymSport
+        fields = ['id', 'name']
 
 
 class PlanFeatureSerializer(serializers.ModelSerializer):
@@ -56,6 +61,7 @@ class GymReviewSerializer(serializers.ModelSerializer):
 class GymBranchDetailSerializer(serializers.ModelSerializer):
     provider_name = serializers.CharField(source='provider.business_name', read_only=True)
     amenities = GymAmenitySerializer(many=True, read_only=True)
+    sports = GymSportSerializer(many=True, read_only=True)
     plans = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
     lat = serializers.FloatField(source='location.y', read_only=True)
@@ -74,7 +80,8 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'provider_name', 'name', 'description', 'phone_number',
             'opening_time', 'closing_time', 'city', 'address', 'lat', 'lng',
-            'branch_logo', 'images', 'amenities',
+            'branch_logo', 'images', 'amenities', 'sports',
+            'is_temporarily_closed',
             'rating', 'total_reviews', 'is_open_now', 'crowd_level', 'weekly_hours', 'reviews',
             'plans'
         ]

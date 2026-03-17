@@ -44,7 +44,8 @@ class MapDiscoveryService:
                 # Calculate average rating directly in the database
                 avg_rating=Avg('reviews__rating')
             ).prefetch_related(
-                active_visits_prefetch
+                active_visits_prefetch,
+                'sports'
             )
 
             for gym in gyms:
@@ -80,6 +81,10 @@ class MapDiscoveryService:
                     crowd_level = "full"
 
                 # --- 4. Append to Results (Without Description) ---
+                branch_sports = []
+                for sport in gym.sports.all():
+                    branch_sports.append(sport.name)
+
                 results.append({
                     "id": gym.id,
                     "provider_id": gym.provider.id,
@@ -89,9 +94,11 @@ class MapDiscoveryService:
                     "lng": gym.location.x,
                     "image_url": logo_url,
                     "is_active": gym.is_active,
+                    "is_temporarily_closed": gym.is_temporarily_closed,
                     "rating": rating,
                     "is_open_now": is_open_now,
-                    "crowd_level": crowd_level
+                    "crowd_level": crowd_level,
+                    "sports": branch_sports
                 })
 
             # -------------------------------------------------------------

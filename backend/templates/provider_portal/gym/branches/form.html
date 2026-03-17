@@ -15,39 +15,71 @@
 {{ block.super }}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-  .wizard-container { max-width: 800px; margin: 0 auto; }
+  /* --- Wizard & Layout --- */
+  .wizard-container { max-width: 850px; margin: 0 auto; }
   
   .wizard-header { display: flex; justify-content: space-between; margin-bottom: var(--space-8); position: relative; }
   .wizard-header::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: var(--color-border); z-index: 1; transform: translateY(-50%); }
-  .step-indicator { background: var(--color-surface); border: 2px solid var(--color-border); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--color-text-muted); z-index: 2; position: relative; transition: all 0.3s; }
-  .step-indicator.active { border-color: var(--color-accent); color: var(--color-accent); background: #fff; }
-  .step-indicator.completed { border-color: var(--color-success); background: var(--color-success); color: #fff; }
+  .step-indicator { background: var(--color-surface); border: 2px solid var(--color-border); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: var(--font-weight-bold); color: var(--color-text-muted); z-index: 2; position: relative; transition: all var(--transition); }
+  .step-indicator.active { border-color: var(--color-accent); color: var(--color-accent); background: var(--color-surface); }
+  .step-indicator.completed { border-color: var(--color-success); background: var(--color-success); color: var(--color-surface); }
 
   .wizard-step { display: none; background: var(--color-surface); padding: var(--space-8); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--color-border); }
   .wizard-step.active { display: block; animation: fadeIn 0.4s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  .form-group { margin-bottom: var(--space-4); }
-  .form-label { display: block; font-weight: var(--font-weight-medium); margin-bottom: var(--space-2); color: var(--color-text-primary); }
-  .form-control { width: 100%; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; }
-  .form-control:focus { border-color: var(--color-accent); outline: none; }
+  /* --- Form Elements --- */
+  .form-group { margin-bottom: var(--space-6); }
+  .form-label { display: block; font-weight: var(--font-weight-bold); margin-bottom: var(--space-2); color: var(--color-text-primary); font-size: var(--font-size-base); }
+  .form-control { width: 100%; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; transition: border-color var(--transition), box-shadow var(--transition); background: var(--color-bg); }
+  .form-control:focus { border-color: var(--color-accent); outline: none; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1); background: var(--color-surface); }
   
+  /* --- Logo Upload --- */
   .logo-section { display: flex; align-items: center; gap: var(--space-6); margin-bottom: var(--space-6); padding-bottom: var(--space-6); border-bottom: 1px solid var(--color-border); }
-  .logo-preview { width: 100px; height: 100px; border-radius: var(--radius-lg); object-fit: cover; border: 1px dashed var(--color-border); }
-  .btn-upload-logo { background: var(--color-bg); border: 1px solid var(--color-border); padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
+  .logo-preview { width: 100px; height: 100px; border-radius: var(--radius-lg); object-fit: cover; border: 1px dashed var(--color-border); background: var(--color-bg); }
+  .btn-upload-logo { background: var(--color-surface); border: 1px solid var(--color-border); padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer; font-size: var(--font-size-sm); display: inline-flex; align-items: center; gap: 8px; transition: all var(--transition); color: var(--color-text-primary); font-weight: var(--font-weight-medium); }
+  .btn-upload-logo:hover { border-color: var(--color-primary); background: var(--color-bg); }
   
+  /* --- Map --- */
   #branch-map { height: 350px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--color-border); z-index: 1; margin-bottom: var(--space-2); }
   
-  .amenities-input-group { display: flex; gap: var(--space-2); }
-  .btn-add-tag { background: var(--color-primary); color: white; border: none; padding: 0 var(--space-4); border-radius: var(--radius-md); cursor: pointer; }
-  .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: var(--space-3); }
-  .tag { background: var(--color-bg); border: 1px solid var(--color-border); padding: 4px 12px; border-radius: var(--radius-full); font-size: 13px; display: flex; align-items: center; gap: 6px; }
-  .tag span { cursor: pointer; color: var(--color-error); font-weight: bold; }
+  /* --- Interactive Pills (For Sports & Amenities) --- */
+  .pill-group ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .pill-group li { display: inline-block; margin: 0; }
+  .pill-group label {
+    display: inline-flex; align-items: center; padding: 10px 20px;
+    border: 1px solid var(--color-border); border-radius: var(--radius-full);
+    background-color: var(--color-surface); color: var(--color-text-secondary);
+    font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); cursor: pointer;
+    transition: all var(--transition); user-select: none;
+  }
+  .pill-group input[type="checkbox"] { display: none; }
+  .pill-group label:has(input[type="checkbox"]:checked) {
+    background-color: var(--color-primary); color: white; border-color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
+  }
 
-  .actions { display: flex; justify-content: space-between; margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid var(--color-border); }
-  .btn-primary { background: var(--color-primary); color: white; padding: 12px 24px; border-radius: var(--radius-md); font-weight: bold; border: none; cursor: pointer; }
-  .btn-secondary { background: transparent; color: var(--color-text-secondary); border: 1px solid var(--color-border); padding: 12px 24px; border-radius: var(--radius-md); cursor: pointer; }
-  .error-message { color: var(--color-error); font-size: 13px; margin-top: 4px; }
+  /* --- iOS-Style Toggle Switch --- */
+  .ui-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+  .ui-switch input { opacity: 0; width: 0; height: 0; }
+  .ui-slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--color-border); border-radius: var(--radius-full); transition: var(--transition); }
+  .ui-slider::before { content: ""; position: absolute; height: 18px; width: 18px; inset-inline-start: 3px; bottom: 3px; background-color: var(--color-surface); border-radius: 50%; transition: transform var(--transition); box-shadow: var(--shadow-sm); }
+  input:checked + .ui-slider { background-color: var(--color-success); }
+  input.switch-danger:checked + .ui-slider { background-color: var(--color-error); }
+  [dir="ltr"] input:checked + .ui-slider::before { transform: translateX(20px); }
+  [dir="rtl"] input:checked + .ui-slider::before { transform: translateX(-20px); }
+
+  /* --- Schedule Grid --- */
+  .schedule-grid { display: grid; grid-template-columns: 100px 1fr 1fr; gap: var(--space-4); align-items: center; padding: var(--space-3) 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+  .schedule-grid:last-child { border-bottom: none; }
+  .schedule-day-label { font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); color: var(--color-text-primary); }
+
+  /* --- Buttons & Actions --- */
+  .actions { display: flex; justify-content: space-between; margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border); flex-direction: row-reverse; }
+  .btn-primary { background: var(--color-primary); color: white; padding: 12px 32px; border-radius: var(--radius-md); font-weight: var(--font-weight-bold); border: none; cursor: pointer; transition: background var(--transition), transform var(--transition); display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary:hover { background: var(--color-accent); transform: translateY(-2px); }
+  .btn-secondary { background: var(--color-surface); color: var(--color-text-secondary); border: 1px solid var(--color-border); padding: 12px 24px; border-radius: var(--radius-md); font-weight: var(--font-weight-medium); cursor: pointer; transition: all var(--transition); }
+  .btn-secondary:hover { background: var(--color-bg); color: var(--color-text-primary); }
 </style>
 {% endblock extra_css %}
 
@@ -64,13 +96,13 @@
     {% csrf_token %}
     
     <div class="wizard-step active" id="step-1">
-      <h3 style="margin-bottom: var(--space-6);">{% trans "Branch Identity" %}</h3>
+      <h3 style="margin-bottom: var(--space-6); font-size: var(--font-size-xl);">{% trans "Branch Identity" %}</h3>
       
       <div class="logo-section">
-        <img src="{% if branch.branch_logo %}{{ branch.branch_logo.url }}{% elif request.user.provider_profile.logo %}{{ request.user.provider_profile.logo.url }}{% else %}{% static 'global/img/placeholder.png' %}{% endif %}" id="logoPreview" class="logo-preview">
+        <img src="{% if branch.branch_logo %}{{ branch.branch_logo.url }}{% elif request.user.provider_profile.logo %}{{ request.user.provider_profile.logo.url }}{% else %}{% static 'global/img/placeholder.png' %}{% endif %}" id="logoPreview" class="logo-preview" alt="Logo">
         <div>
-          <h4 style="margin-bottom: 8px;">{% trans "Branch Logo" %}</h4>
-          <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 12px;">{% trans "By default, the main provider logo is used." %}</p>
+          <h4 style="margin-bottom: 8px; font-size: var(--font-size-base);">{% trans "Branch Logo" %}</h4>
+          <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: 12px;">{% trans "By default, the main provider logo is used." %}</p>
           <label class="btn-upload-logo">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             {% trans "Upload Custom Logo" %}
@@ -83,18 +115,30 @@
         <label class="form-label">{{ form.name.label }} <span style="color:var(--color-error)">*</span></label>
         {{ form.name }}
       </div>
+      
       <div class="form-group">
         <label class="form-label">{{ form.phone_number.label }}</label>
         {{ form.phone_number }}
       </div>
 
-      <div class="actions" style="justify-content: flex-end;">
-        <button type="button" class="btn-primary" onclick="nextStep(2)">{% trans "Next: Location" %}</button>
+      <div class="form-group" style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px dashed var(--color-border);">
+        <label class="form-label" style="font-size: var(--font-size-lg);">{{ form.sports.label }}</label>
+        <p dir="auto" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">{% trans "Select all sports categories available at this branch. This helps users find you in search filters." %}</p>
+        <div class="pill-group">
+          {{ form.sports }}
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-primary" onclick="nextStep(2)">
+          {% trans "Next: Location" %}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
       </div>
     </div>
 
     <div class="wizard-step" id="step-2">
-      <h3 style="margin-bottom: var(--space-6);">{% trans "Precise Location" %}</h3>
+      <h3 style="margin-bottom: var(--space-6); font-size: var(--font-size-xl);">{% trans "Precise Location" %}</h3>
       
       <div class="form-group">
         <label class="form-label">{{ form.city.label }} <span style="color:var(--color-error)">*</span></label>
@@ -103,7 +147,7 @@
 
       <div class="form-group">
         <label class="form-label">{% trans "Pinpoint on Map" %}</label>
-        <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px;">{% trans "Drag the pin to your branch." %}</p>
+        <p dir="auto" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: 8px;">{% trans "Drag the pin to your exact branch location." %}</p>
         <div id="branch-map"></div>
       </div>
 
@@ -116,68 +160,120 @@
       {{ form.longitude }}
 
       <div class="actions">
+        <button type="button" class="btn-primary" onclick="nextStep(3)">
+          {% trans "Next: Amenities" %}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
         <button type="button" class="btn-secondary" onclick="prevStep(1)">{% trans "Back" %}</button>
-        <button type="button" class="btn-primary" onclick="nextStep(3)">{% trans "Next: Amenities" %}</button>
       </div>
     </div>
 
     <div class="wizard-step" id="step-3">
-      <h3 style="margin-bottom: var(--space-6);">{% trans "Details & Amenities" %}</h3>
+      <h3 style="margin-bottom: var(--space-6); font-size: var(--font-size-xl);">{% trans "Details & Amenities" %}</h3>
       
       <div class="form-group">
         <label class="form-label">{{ form.description.label }}</label>
         {{ form.description }}
       </div>
 
-      <div class="form-group">
-        <label class="form-label">{% trans "Branch Amenities" %}</label>
-        <div class="amenities-input-group">
-          <input type="text" id="amenityInput" class="form-control" placeholder="{% trans 'e.g., Swimming Pool, Sauna...' %}">
-          <button type="button" class="btn-add-tag" onclick="addAmenity()">{% trans "Add" %}</button>
+      <div class="form-group" style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px dashed var(--color-border);">
+        <label class="form-label" style="font-size: var(--font-size-lg);">{{ form.amenities.label }}</label>
+        <p dir="auto" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">{% trans "Select the facilities available to your members." %}</p>
+        <div class="pill-group">
+          {{ form.amenities }} 
         </div>
-        <div class="tags-container" id="tagsContainer"></div>
-        {{ form.custom_amenities }} 
       </div>
 
       <div class="actions">
+        <button type="button" class="btn-primary" onclick="nextStep(4)">
+          {% trans "Next: Operations" %}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
         <button type="button" class="btn-secondary" onclick="prevStep(2)">{% trans "Back" %}</button>
-        <button type="button" class="btn-primary" onclick="nextStep(4)">{% trans "Next: Operating Hours" %}</button>
       </div>
     </div>
 
     <div class="wizard-step" id="step-4">
-      <h3 style="margin-bottom: var(--space-6);">{% trans "Operating Hours" %}</h3>
-      
-      <div style="margin-bottom: var(--space-4); display: flex; justify-content: flex-end;">
-          <button type="button" class="btn-secondary" onclick="copySundayHours()" style="font-size: 13px; padding: 6px 12px; display: flex; align-items: center; gap: 6px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              {% trans "Apply Sunday's hours to all week" %}
-          </button>
+      <h3 style="margin-bottom: var(--space-6); font-size: var(--font-size-xl);">{% trans "Operations & Schedule" %}</h3>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-8);">
+        
+        <div style="background: var(--color-bg); padding: var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+          <label class="form-label" style="display:flex; align-items:center; gap:8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {% trans "Average Stay Duration" %}
+          </label>
+          <p dir="auto" style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 12px;">{% trans "How long does a member usually stay? Used to calculate live crowd levels." %}</p>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width: 120px;">
+              {{ form.estimated_stay_duration }}
+            </div>
+            <span style="font-weight:bold; color:var(--color-text-secondary); font-size: 14px;">{% trans "Minutes" %}</span>
+          </div>
+        </div>
+
+        <div style="background: var(--color-bg); padding: var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border); display: flex; flex-direction: column; justify-content: center;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <label class="form-label" style="margin-bottom: 2px; color: var(--color-success);">{% trans "Branch Visibility" %}</label>
+              <p dir="auto" style="font-size: 12px; color: var(--color-text-secondary); margin: 0;">{% trans "Show this branch on the app." %}</p>
+            </div>
+            <label class="ui-switch">
+              {{ form.is_active }}
+              <span class="ui-slider"></span>
+            </label>
+          </div>
+        </div>
+
       </div>
 
-      <div style="margin-bottom: var(--space-6);">
-        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-          <div style="width: 100px;"></div>
-          <div style="flex:1; font-weight:bold; font-size:12px;">{% trans "Opening Time" %}</div>
-          <div style="flex:1; font-weight:bold; font-size:12px;">{% trans "Closing Time" %}</div>
+      <div style="padding: var(--space-4); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-md); background: rgba(239, 68, 68, 0.03); margin-bottom: var(--space-8); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <label style="font-weight: bold; color: var(--color-error); font-size: 15px; display: block; margin-bottom: 4px;">{% trans "Emergency / Temporary Close" %}</label>
+          <p dir="auto" style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">{% trans "Check this to override the schedule and show the gym as closed immediately." %}</p>
+        </div>
+        <label class="ui-switch">
+          {{ form.is_temporarily_closed }}
+          <span class="ui-slider"></span>
+        </label>
+      </div>
+      
+      <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--color-bg); padding: 16px 20px; border-bottom: 1px solid var(--color-border);">
+          <h4 style="margin: 0; font-size: 15px; display: flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            {% trans "Weekly Schedule" %}
+          </h4>
+          <button type="button" class="btn-secondary" onclick="copySundayHours()" style="font-size: 12px; padding: 6px 12px; background: var(--color-surface);">
+            {% trans "Copy Sunday to all" %}
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 100px 1fr 1fr; gap: var(--space-4); padding: 12px 20px; border-bottom: 1px solid var(--color-border); background: rgba(0,0,0,0.02);">
+          <div style="font-weight:bold; font-size:13px; color: var(--color-text-secondary);">{% trans "Day" %}</div>
+          <div style="font-weight:bold; font-size:13px; color: var(--color-text-secondary);">{% trans "Opening Time" %}</div>
+          <div style="font-weight:bold; font-size:13px; color: var(--color-text-secondary);">{% trans "Closing Time" %}</div>
         </div>
         
-        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Sunday" %}</div><div style="flex:1">{{ form.sunday_open }}</div><div style="flex:1">{{ form.sunday_close }}</div></div>
-        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Monday" %}</div><div style="flex:1">{{ form.monday_open }}</div><div style="flex:1">{{ form.monday_close }}</div></div>
-        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Tuesday" %}</div><div style="flex:1">{{ form.tuesday_open }}</div><div style="flex:1">{{ form.tuesday_close }}</div></div>
-        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Wednesday" %}</div><div style="flex:1">{{ form.wednesday_open }}</div><div style="flex:1">{{ form.wednesday_close }}</div></div>
-        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Thursday" %}</div><div style="flex:1">{{ form.thursday_open }}</div><div style="flex:1">{{ form.thursday_close }}</div></div>
-        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Friday" %}</div><div style="flex:1">{{ form.friday_open }}</div><div style="flex:1">{{ form.friday_close }}</div></div>
-        <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;"><div style="width:100px; font-size:14px;">{% trans "Saturday" %}</div><div style="flex:1">{{ form.saturday_open }}</div><div style="flex:1">{{ form.saturday_close }}</div></div>
-      </div>
+        <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: var(--space-2);">
+          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Sunday" %}</div><div>{{ form.sunday_open }}</div><div>{{ form.sunday_close }}</div></div>
+          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Monday" %}</div><div>{{ form.monday_open }}</div><div>{{ form.monday_close }}</div></div>
+          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Tuesday" %}</div><div>{{ form.tuesday_open }}</div><div>{{ form.tuesday_close }}</div></div>
+          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Wednesday" %}</div><div>{{ form.wednesday_open }}</div><div>{{ form.wednesday_close }}</div></div>
+          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Thursday" %}</div><div>{{ form.thursday_open }}</div><div>{{ form.thursday_close }}</div></div>
+          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Friday" %}</div><div>{{ form.friday_open }}</div><div>{{ form.friday_close }}</div></div>
+          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Saturday" %}</div><div>{{ form.saturday_open }}</div><div>{{ form.saturday_close }}</div></div>
+        </div>
 
-      <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
-        {{ form.is_active }} <label style="margin:0; font-weight: bold;">{% trans "Branch is Active" %}</label>
       </div>
 
       <div class="actions">
+        <button type="submit" class="btn-primary" style="background: var(--color-success);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          {% trans "Save Branch" %}
+        </button>
         <button type="button" class="btn-secondary" onclick="prevStep(3)">{% trans "Back" %}</button>
-        <button type="submit" class="btn-primary" style="background: var(--color-success);">{% trans "Save Branch" %}</button>
       </div>
     </div>
 
@@ -194,9 +290,14 @@
   document.getElementById('{{ form.city.id_for_label }}').setAttribute('required', 'required');
   document.getElementById('{{ form.address.id_for_label }}').setAttribute('required', 'required');
 
+  // Apply form-control to standard inputs, excluding checkboxes and files
   document.querySelectorAll('input, select, textarea').forEach(el => {
     if (el.type !== 'checkbox' && el.type !== 'hidden' && el.type !== 'file') el.classList.add('form-control');
   });
+  
+  // Explicitly set the danger class to the emergency checkbox for CSS
+  const emergencyClose = document.getElementById('{{ form.is_temporarily_closed.id_for_label }}');
+  if(emergencyClose) emergencyClose.classList.add('switch-danger');
 
   // --- Wizard Logic ---
   let currentStep = 1;
@@ -213,6 +314,7 @@
         document.getElementById('ind-' + step).classList.add('active');
     }
     if (step === 2 && typeof map !== 'undefined') { setTimeout(() => map.invalidateSize(), 100); }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function nextStep(step) { currentStep = step; showStep(currentStep); }
   function prevStep(step) { currentStep = step; showStep(currentStep); }
@@ -238,7 +340,7 @@
   const addressInput = document.getElementById('{{ form.address.id_for_label }}');
   const citySelect = document.getElementById('{{ form.city.id_for_label }}');
 
-  // --- BUG FIX: Force exact city selection on Edit Mode (Case Insensitive) ---
+  // Sync saved city on edit
   const savedCity = "{% if branch %}{{ branch.city|escapejs|lower }}{% else %}{% endif %}";
   if (savedCity && citySelect) {
       for (let i = 0; i < citySelect.options.length; i++) {
@@ -248,7 +350,6 @@
           }
       }
   }
-  // --------------------------------------------------------------------------
 
   let startLat = (latInput && latInput.value) ? parseFloat(latInput.value) : 24.7136;
   let startLng = (lngInput && lngInput.value) ? parseFloat(lngInput.value) : 46.6753;
@@ -282,39 +383,6 @@
       });
   }
 
-  // --- Amenities Logic ---
-  let amenities = [];
-  const hiddenInput = document.getElementById('hidden_amenities');
-  const tagsContainer = document.getElementById('tagsContainer');
-  const amenityInput = document.getElementById('amenityInput');
-
-  if (hiddenInput && hiddenInput.value) {
-    amenities = hiddenInput.value.split(',').map(tag => tag.trim()).filter(tag => tag);
-    renderTags();
-  }
-
-  function renderTags() {
-    tagsContainer.innerHTML = '';
-    amenities.forEach((tag, index) => {
-      const el = document.createElement('div'); el.className = 'tag';
-      el.innerHTML = `${tag} <span onclick="removeTag(${index})">×</span>`;
-      tagsContainer.appendChild(el);
-    });
-    hiddenInput.value = amenities.join(',');
-  }
-
-  function addAmenity() {
-    const val = amenityInput.value.trim();
-    if (val && !amenities.includes(val)) { amenities.push(val); renderTags(); amenityInput.value = ''; }
-  }
-
-  function removeTag(index) { amenities.splice(index, 1); renderTags(); }
-  if(amenityInput) {
-      amenityInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') { e.preventDefault(); addAmenity(); }
-      });
-  }
-
   // --- UX: Copy Hours ---
   function copySundayHours() {
       const sunOpen = document.getElementById('{{ form.sunday_open.id_for_label }}').value;
@@ -332,27 +400,22 @@
   const branchForm = document.getElementById('branchForm');
   if (branchForm) {
       branchForm.addEventListener('submit', function(e) {
-          // Check for empty required inputs
           let hasError = false;
           const inputs = this.querySelectorAll('input[required], select[required]');
           
           for (let i = 0; i < inputs.length; i++) {
               if (!inputs[i].value.trim()) {
-                  e.preventDefault(); // Stop submission
+                  e.preventDefault(); 
                   const stepDiv = inputs[i].closest('.wizard-step');
                   if (stepDiv) {
                       const stepNum = parseInt(stepDiv.id.split('-')[1]);
-                      showStep(stepNum); // Jump to the hidden step
-                      inputs[i].style.borderColor = 'red'; // Highlight error
+                      showStep(stepNum);
+                      inputs[i].style.boxShadow = '0 0 0 2px var(--color-error)';
                       setTimeout(() => inputs[i].focus(), 100);
                   }
                   hasError = true;
-                  break; // Stop at first error
+                  break;
               }
-          }
-          
-          if (!hasError) {
-             // If valid, submit normally
           }
       });
   }

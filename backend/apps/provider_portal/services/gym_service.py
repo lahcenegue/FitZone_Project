@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 from apps.providers.models import Provider
 from apps.gyms.models import Branch, SubscriptionPlan
-from ..constants import PAGE_SIZE_DEFAULT
+from apps.core.constants import PAGE_SIZE_DEFAULT
 
 logger = logging.getLogger(__name__)
 
@@ -195,7 +195,7 @@ def _extract_opening_hours(form_data: dict) -> dict:
     Returns:
         Dict mapping day names to {open, close} time strings.
     """
-    from ..constants import WEEK_DAYS
+    from apps.core.constants import WEEK_DAYS
     hours = {}
     for day_key, _ in WEEK_DAYS:
         open_time  = form_data.get(f"{day_key}_open")

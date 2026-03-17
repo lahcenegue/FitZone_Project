@@ -8,7 +8,8 @@ from django.core.paginator import Paginator
 from django.utils.translation import gettext_lazy as _
 from apps.providers.models import Provider
 from apps.trainers.models import TrainerProfile, TrainerAvailability, Booking
-from ..constants import PAGE_SIZE_BOOKINGS, WEEK_DAYS
+from ..constants import PAGE_SIZE_BOOKINGS
+from apps.core.constants import WEEK_DAYS
 
 logger = logging.getLogger(__name__)
 

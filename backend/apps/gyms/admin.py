@@ -2,7 +2,7 @@ from django.contrib.gis import admin
 from django.utils.translation import gettext_lazy as _
 from .models import (
     GymAmenity, GymBranch, BranchImage, SubscriptionPlan, 
-    PlanFeature, GymSubscription, GymVisit, GymGlobalSetting, GymAttendance
+    PlanFeature, GymSubscription, GymVisit, GymGlobalSetting, GymAttendance, GymSport
 )
 
 # 1. إعداد الخرائط والصور الفرعية للصالات
@@ -50,9 +50,9 @@ class GymSubscriptionAdmin(admin.ModelAdmin):
 # 4. إعدادات الزيارات والحضور (لتتبع الكثافة)
 @admin.register(GymAttendance)
 class GymAttendanceAdmin(admin.ModelAdmin):
-    list_display = ('member_reference', 'provider', 'check_in_time', 'is_currently_inside')
-    list_filter = ('is_currently_inside', 'provider')
-    search_fields = ('member_reference',)
+    list_display = ('member_reference', 'branch', 'check_in_time', 'estimated_checkout_time', 'is_currently_inside')
+    list_filter = ('is_currently_inside', 'branch', 'check_in_time')
+    search_fields = ('member_reference', 'branch__name')
 
 @admin.register(GymVisit)
 class GymVisitAdmin(admin.ModelAdmin):
@@ -68,3 +68,9 @@ class GymAmenityAdmin(admin.ModelAdmin):
 @admin.register(GymGlobalSetting)
 class GymGlobalSettingAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'auto_checkout_hours')
+
+@admin.register(GymSport)
+class GymSportAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+    search_fields = ('name',)
+    ordering = ('name',)

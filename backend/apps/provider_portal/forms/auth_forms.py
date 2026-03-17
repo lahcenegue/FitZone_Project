@@ -14,11 +14,8 @@ from ..constants import (
     PASSWORD_MIN_LENGTH,
     PHONE_PREFIX,
     PHONE_MAX_LENGTH,
-    SAUDI_CITIES,
-    REGISTRATION_STEP_ACCOUNT,
-    REGISTRATION_STEP_TYPE,
-    REGISTRATION_STEP_BUSINESS,
 )
+from apps.core.constants import SAUDI_CITIES
 
 logger = logging.getLogger(__name__)
 User = get_user_model()

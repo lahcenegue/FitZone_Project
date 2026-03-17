@@ -31,6 +31,7 @@ class GymBranchDetailView(APIView):
             GymBranch.objects.prefetch_related(
                 'images',
                 'amenities',
+                'sports',
                 'schedules',
                 'reviews__user',
                 'visits',  # FIXED: using correct related_name

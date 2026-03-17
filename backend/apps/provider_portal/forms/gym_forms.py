@@ -6,24 +6,25 @@ Branch management, subscription plans.
 import logging
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from ..constants import SAUDI_CITIES, WEEK_DAYS
-from apps.gyms.models import GymBranch
+from apps.gyms.models import GymBranch, GymAmenity, GymSport
 
 logger = logging.getLogger(__name__)
 
 
+from django import forms
+from django.utils.translation import gettext_lazy as _
+from apps.gyms.models import GymAmenity, GymSport
+from apps.core.constants import WEEK_DAYS, SAUDI_CITIES
+
 class BranchForm(forms.Form):
     """
     Add or edit a gym branch.
-    Captures location, address, and operating hours.
+    Captures location, address, amenities, sports, and operating hours.
     """
-
     name = forms.CharField(
         label=_("Branch name"),
         max_length=255,
-        widget=forms.TextInput(attrs={
-            "placeholder": _("e.g. Main Branch - Riyadh"),
-        }),
+        widget=forms.TextInput(attrs={"placeholder": _("e.g. Main Branch - Riyadh")}),
     )
     city = forms.ChoiceField(
         label=_("City"),
@@ -38,32 +39,18 @@ class BranchForm(forms.Form):
             "style": "background-color: var(--color-bg); cursor: not-allowed;"
         }),
     )
-    latitude = forms.DecimalField(
-        label=_("Latitude"),
-        max_digits=9,
-        decimal_places=6,
-        required=False,
-        widget=forms.HiddenInput(),
-    )
-    longitude = forms.DecimalField(
-        label=_("Longitude"),
-        max_digits=9,
-        decimal_places=6,
-        required=False,
-        widget=forms.HiddenInput(),
-    )
+    latitude = forms.DecimalField(max_digits=9, decimal_places=6, required=False, widget=forms.HiddenInput())
+    longitude = forms.DecimalField(max_digits=9, decimal_places=6, required=False, widget=forms.HiddenInput())
+    
     phone_number = forms.CharField(
         label=_("Branch phone number"),
         max_length=20,
         required=False,
         widget=forms.TextInput(attrs={"placeholder": _("05XXXXXXXX")}),
     )
-    is_active = forms.BooleanField(
-        label=_("Active"),
-        required=False,
-        initial=True,
-    )
-
+    is_active = forms.BooleanField(label=_("Active"), required=False, initial=True)
+    is_temporarily_closed = forms.BooleanField(label=_("Emergency Close"), required=False, initial=False)
+    
     description = forms.CharField(
         label=_("Branch Description"),
         required=False,
@@ -71,18 +58,29 @@ class BranchForm(forms.Form):
             "rows": 3,
             "placeholder": _("Describe this branch, its atmosphere, and rules..."),
         }),
-    )    
-    custom_amenities = forms.CharField(
-        required=False,
-        widget=forms.HiddenInput(attrs={"id": "hidden_amenities"})
     )
-    branch_logo = forms.ImageField(
-        label=_("Branch Logo (Optional)"),
-        required=False,
+    
+    estimated_stay_duration = forms.IntegerField(
+        label=_("Estimated Stay Duration"), required=False, initial=120
     )
+    
+    sports = forms.ModelMultipleChoiceField(
+        queryset=GymSport.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label=_("Types of Sports Offered")
+    )
+    
+    amenities = forms.ModelMultipleChoiceField(
+        queryset=GymAmenity.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label=_("Branch Amenities")
+    )
+    
+    branch_logo = forms.ImageField(label=_("Branch Logo (Optional)"), required=False)
 
-
-    # Opening hours — one open/close pair per day
+    # Opening hours
     sunday_open    = forms.TimeField(label=_("Sunday open"),    required=False, widget=forms.TimeInput(attrs={"type": "time"}))
     sunday_close   = forms.TimeField(label=_("Sunday close"),   required=False, widget=forms.TimeInput(attrs={"type": "time"}))
     monday_open    = forms.TimeField(label=_("Monday open"),    required=False, widget=forms.TimeInput(attrs={"type": "time"}))
@@ -99,14 +97,12 @@ class BranchForm(forms.Form):
     saturday_close = forms.TimeField(label=_("Saturday close"), required=False, widget=forms.TimeInput(attrs={"type": "time"}))
 
     def clean_city(self):
-        """Validate a city was selected."""
         city = self.cleaned_data["city"]
         if not city:
             raise forms.ValidationError(_("Please select a city."))
         return city
 
     def clean(self):
-        """Validate open time is before close time for each day."""
         cleaned = super().clean()
         for day, _ in WEEK_DAYS:
             open_time  = cleaned.get(f"{day}_open")

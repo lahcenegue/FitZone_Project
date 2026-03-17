@@ -64,6 +64,7 @@ urlpatterns = [
     path("gym/branches/<int:branch_id>/edit/", gym_views.BranchEditView.as_view(), name="gym_branch_edit"),
     path("gym/branches/<int:branch_id>/delete/", gym_views.BranchDeleteView.as_view(), name="gym_branch_delete"),
     path("gym/branches/<int:branch_id>/photos/", gym_views.BranchPhotosView.as_view(), name="gym_branch_photos"),
+    path('gym/branches/<int:branch_id>/quick-toggle/', gym_views.BranchQuickToggleView.as_view(), name='gym_branch_quick_toggle'),
     path("gym/plans/", gym_views.PlanListView.as_view(), name="gym_plans"),
     path("gym/plans/<int:plan_id>/", gym_views.PlanDetailView.as_view(), name="gym_plan_detail"),
     path("gym/plans/add/", gym_views.PlanAddView.as_view(), name="gym_plan_add"),

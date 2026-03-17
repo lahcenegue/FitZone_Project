@@ -7,7 +7,8 @@ import logging
 import re
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from ..constants import SAUDI_CITIES, PHONE_PREFIX, PHONE_MAX_LENGTH
+from ..constants import  PHONE_PREFIX, PHONE_MAX_LENGTH
+from apps.core.constants import SAUDI_CITIES
 
 logger = logging.getLogger(__name__)
 

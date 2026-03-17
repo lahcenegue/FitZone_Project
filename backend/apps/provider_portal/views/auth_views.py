@@ -26,12 +26,9 @@ from apps.provider_portal.services.auth_service import (
 from apps.provider_portal.decorators import anonymous_required, portal_login_required
 from apps.provider_portal.constants import (
     SESSION_REGISTRATION_DATA,
-    REGISTRATION_STEP_ACCOUNT,
-    REGISTRATION_STEP_TYPE,
-    REGISTRATION_STEP_BUSINESS,
     REGISTRATION_TOTAL_STEPS,
-    SAUDI_CITIES,
 )
+from apps.core.constants import SAUDI_CITIES
 from apps.providers.models import ProviderType
 from django.contrib.auth.hashers import make_password
 

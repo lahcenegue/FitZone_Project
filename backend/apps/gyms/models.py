@@ -20,6 +20,21 @@ class GymAmenity(models.Model):
     """
     name = models.CharField(max_length=100, unique=True, verbose_name=_("Amenity Name"))
     icon_name = models.CharField(max_length=50, blank=True, verbose_name=_("Icon Name for Mobile App"))
+    icon_image = models.ImageField(
+        upload_to="gyms/amenities/icons/", 
+        null=True, 
+        blank=True, 
+        verbose_name=_("Amenity Icon Image")
+    )
+
+    def __str__(self):
+        return self.name
+
+class GymSport(models.Model):
+    """
+    Lookup table for types of sports offered (e.g., Bodybuilding, CrossFit, Boxing).
+    """
+    name = models.CharField(max_length=100, unique=True, verbose_name=_("Sport Name"))
 
     def __str__(self):
         return self.name
@@ -54,9 +69,15 @@ class GymBranch(models.Model):
     
     # Relationships
     amenities = models.ManyToManyField(GymAmenity, blank=True, related_name="branches")
+    sports = models.ManyToManyField(GymSport, blank=True, related_name="branches")
     
     # Live Crowd Management Settings
     max_capacity = models.PositiveIntegerField(default=100, verbose_name=_("Maximum Capacity"))
+    estimated_stay_duration = models.PositiveIntegerField(
+        default=120, 
+        verbose_name=_("Estimated Stay Duration (Minutes)"),
+        help_text=_("Average time a member spends in this branch.")
+    )
     crowd_level_low = models.PositiveIntegerField(default=30, help_text=_("Percentage threshold for Low crowd (e.g., 30)"))
     crowd_level_medium = models.PositiveIntegerField(default=70, help_text=_("Percentage threshold for Medium crowd (e.g., 70)"))
     crowd_level_high = models.PositiveIntegerField(default=95, help_text=_("Percentage threshold for High crowd (e.g., 95)"))
@@ -296,8 +317,8 @@ class GymAttendance(models.Model):
     Tracks daily check-ins for gym members.
     Used to calculate current gym capacity and estimated checkout times.
     """
-    provider = models.ForeignKey(
-        'providers.Provider', 
+    branch = models.ForeignKey(
+        'GymBranch', 
         on_delete=models.CASCADE, 
         related_name="attendances"
     )

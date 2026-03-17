@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.gis.geos import Point
 
-from apps.gyms.models import GymBranch, BranchImage, GymAmenity, SubscriptionPlan, PlanFeature, GymAttendance
+from apps.gyms.models import GymBranch, BranchImage, GymAmenity, SubscriptionPlan, PlanFeature, GymAttendance, GymSport
 from apps.provider_portal.forms.gym_forms import BranchForm, SubscriptionPlanForm
 
 logger = logging.getLogger(__name__)
@@ -80,6 +80,8 @@ class BranchAddView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
             phone_number=data['phone_number'],
             location=location,
             is_active=is_active,
+            is_temporarily_closed=data.get('is_temporarily_closed', False),
+            estimated_stay_duration=data.get('estimated_stay_duration', 120),
             opening_time=opening_time,
             closing_time=closing_time
         )
@@ -87,16 +89,13 @@ class BranchAddView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
         if data.get('branch_logo'):
             branch.branch_logo = data['branch_logo']
             branch.save()
+        
+        # Clean ManyToMany association
+        if data.get('amenities'):
+            branch.amenities.set(data['amenities'])
 
-        amenities_str = data.get('custom_amenities', '')
-        if amenities_str:
-            amenity_objs = []
-            for tag in amenities_str.split(','):
-                tag = tag.strip()
-                if tag:
-                    obj, _created = GymAmenity.objects.get_or_create(name=tag)
-                    amenity_objs.append(obj)
-            branch.amenities.set(amenity_objs)
+        if data.get('sports'):
+            branch.sports.set(data['sports'])
 
         if provider.status == 'pending':
             messages.warning(self.request, _("Branch added successfully, but remains inactive until verification."))
@@ -131,6 +130,8 @@ class BranchEditView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
             'address': branch.address,
             'description': branch.description,
             'is_active': branch.is_active,
+            'is_temporarily_closed': branch.is_temporarily_closed,
+            'estimated_stay_duration': branch.estimated_stay_duration,
             'sunday_open': branch.opening_time, 'sunday_close': branch.closing_time,
             'monday_open': branch.opening_time, 'monday_close': branch.closing_time,
             'tuesday_open': branch.opening_time, 'tuesday_close': branch.closing_time,
@@ -138,18 +139,14 @@ class BranchEditView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
             'thursday_open': branch.opening_time, 'thursday_close': branch.closing_time,
             'friday_open': branch.opening_time, 'friday_close': branch.closing_time,
             'saturday_open': branch.opening_time, 'saturday_close': branch.closing_time,
+            # Pass QuerySets directly to the form for pre-selection
+            'amenities': branch.amenities.all(),
+            'sports': branch.sports.all(),
         }
         
         if branch.location:
             initial['latitude'] = branch.location.y
             initial['longitude'] = branch.location.x
-            
-        try:
-            amenities_list = list(branch.amenities.values_list('name', flat=True))
-            if amenities_list:
-                initial['custom_amenities'] = ",".join(amenities_list)
-        except Exception:
-            initial['custom_amenities'] = ""
             
         return initial
 
@@ -173,6 +170,8 @@ class BranchEditView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
         branch.address = data['address']
         branch.phone_number = data['phone_number']
         branch.description = data.get('description', '')
+        branch.is_temporarily_closed = data.get('is_temporarily_closed', False)
+        branch.estimated_stay_duration = data.get('estimated_stay_duration', 120)
         
         if self.request.user.provider_profile.status == 'pending':
             branch.is_active = False
@@ -184,17 +183,9 @@ class BranchEditView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
 
         branch.save()
 
-        amenities_str = data.get('custom_amenities', '')
-        if amenities_str:
-            amenity_objs = []
-            for tag in amenities_str.split(','):
-                tag = tag.strip()
-                if tag:
-                    obj, _created = GymAmenity.objects.get_or_create(name=tag)
-                    amenity_objs.append(obj)
-            branch.amenities.set(amenity_objs)
-        else:
-            branch.amenities.clear()
+        # Clean ManyToMany update
+        branch.amenities.set(data.get('amenities', []))
+        branch.sports.set(data.get('sports', []))
 
         messages.success(self.request, _("Branch updated successfully."))
         return super().form_valid(form)
@@ -250,7 +241,36 @@ class BranchPhotosView(LoginRequiredMixin, GymProviderRequiredMixin, View):
 
         return redirect("provider_portal:gym_branch_photos", branch_id=branch.id)
 
-
+class BranchQuickToggleView(LoginRequiredMixin, GymProviderRequiredMixin, View):
+    """
+    POST /portal/gym/branches/<id>/quick-toggle/
+    AJAX endpoint to quickly toggle branch status or emergency close directly from the list.
+    """
+    def post(self, request, branch_id):
+        branch = get_object_or_404(GymBranch, id=branch_id, provider=request.user.provider_profile)
+        
+        try:
+            data = json.loads(request.body)
+            toggle_field = data.get('field') # 'is_active' or 'is_temporarily_closed'
+            
+            if toggle_field == 'is_active':
+                branch.is_active = not branch.is_active
+                msg = _("Branch activated successfully.") if branch.is_active else _("Branch hidden from users.")
+            elif toggle_field == 'is_temporarily_closed':
+                branch.is_temporarily_closed = not branch.is_temporarily_closed
+                msg = _("Branch is marked as EMERGENCY CLOSED.") if branch.is_temporarily_closed else _("Branch is now OPEN normally.")
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Invalid field'}, status=400)
+                
+            branch.save()
+            return JsonResponse({
+                'status': 'success', 
+                'new_value': getattr(branch, toggle_field),
+                'message': str(msg)
+            })
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+        
 # ==========================================
 # PLAN VIEWS
 # ==========================================
