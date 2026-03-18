@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from apps.providers.models import Provider
+from apps.core.constants import BRANCH_GENDER_CHOICES
 
 
 class GymAmenity(models.Model):
@@ -75,6 +76,13 @@ class GymBranch(models.Model):
     # Relationships
     amenities = models.ManyToManyField(GymAmenity, blank=True, related_name="branches")
     sports = models.ManyToManyField(GymSport, blank=True, related_name="branches")
+
+    gender = models.CharField(
+        max_length=10,
+        choices=BRANCH_GENDER_CHOICES,
+        default="mixed",
+        verbose_name=_("Target Gender")
+    )
     
     # Live Crowd Management Settings
     max_capacity = models.PositiveIntegerField(default=100, verbose_name=_("Maximum Capacity"))

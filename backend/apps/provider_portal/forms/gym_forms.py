@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from apps.gyms.models import GymAmenity, GymSport
-from apps.core.constants import WEEK_DAYS, SAUDI_CITIES
+from apps.core.constants import WEEK_DAYS, SAUDI_CITIES, BRANCH_GENDER_CHOICES
 
 class BranchForm(forms.Form):
     """
@@ -58,6 +58,13 @@ class BranchForm(forms.Form):
             "rows": 3,
             "placeholder": _("Describe this branch, its atmosphere, and rules..."),
         }),
+    )
+
+    gender = forms.ChoiceField(
+        label=_("Target Gender"),
+        choices=BRANCH_GENDER_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'gender-radio'}),
+        initial="mixed"
     )
     
     estimated_stay_duration = forms.IntegerField(

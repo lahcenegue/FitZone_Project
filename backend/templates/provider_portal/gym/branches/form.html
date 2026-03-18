@@ -85,6 +85,15 @@
   }
   .select2-search__field { font-family: inherit !important; }
 
+  .pill-group input[type="checkbox"],
+  .pill-group input[type="radio"] { display: none; }
+  
+  .pill-group label:has(input[type="checkbox"]:checked),
+  .pill-group label:has(input[type="radio"]:checked) {
+    background-color: var(--color-primary); color: white; border-color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
   /* --- iOS-Style Toggle Switch --- */
   .ui-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
   .ui-switch input { opacity: 0; width: 0; height: 0; }
@@ -164,6 +173,14 @@
       <div class="form-group">
         <label class="form-label">{{ form.phone_number.label }}</label>
         {{ form.phone_number }}
+      </div>
+
+      <div class="form-group" style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px dashed var(--color-border);">
+        <label class="form-label" style="font-size: var(--font-size-lg);">{{ form.gender.label }} <span style="color:var(--color-error)">*</span></label>
+        <p dir="auto" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">{% trans "Select the target audience for this branch." %}</p>
+        <div class="pill-group">
+          {{ form.gender }}
+        </div>
       </div>
 
       <div class="form-group" style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px dashed var(--color-border);">

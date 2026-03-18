@@ -8,6 +8,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from apps.gyms.models import GymBranch
 
 from ..constants import ProviderType
 from ..models import Provider
@@ -59,3 +60,48 @@ class ProviderLoginSerializer(serializers.Serializer):
 
 class ProviderLogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
+
+class GymBranchSearchSerializer(serializers.ModelSerializer):
+    """
+    Lightweight serializer specifically optimized for search and discovery lists.
+    Returns minimal payload with distance calculations and simple array formats.
+    """
+    provider_name = serializers.CharField(source='provider.business_name', read_only=True)
+    branch_logo = serializers.SerializerMethodField()
+    distance_km = serializers.SerializerMethodField()
+    min_price = serializers.FloatField(source='min_plan_price', read_only=True, default=None)
+    sports = serializers.SerializerMethodField()
+    amenities = serializers.SerializerMethodField()
+    lat = serializers.SerializerMethodField()
+    lng = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GymBranch
+        fields = [
+            'id', 'provider_name', 'name', 'city', 'address', 'gender',
+            'lat', 'lng', 'branch_logo', 'is_active',
+            'distance_km', 'min_price', 'sports', 'amenities'
+        ]
+
+    def get_branch_logo(self, obj):
+        request = self.context.get('request')
+        if obj.branch_logo and request:
+            return request.build_absolute_uri(obj.branch_logo.url)
+        return None
+
+    def get_distance_km(self, obj):
+        if hasattr(obj, 'distance') and obj.distance is not None:
+            return round(obj.distance.km, 2)
+        return None
+
+    def get_sports(self, obj):
+        return [sport.name for sport in obj.sports.all()]
+
+    def get_amenities(self, obj):
+        return [amenity.name for amenity in obj.amenities.all()]
+
+    def get_lat(self, obj):
+        return obj.location.y if obj.location else None
+
+    def get_lng(self, obj):
+        return obj.location.x if obj.location else None

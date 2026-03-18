@@ -34,3 +34,9 @@ SAUDI_CITIES = (
     ("jizan", _("Jizan")),
     ("arar", _("Arar")),
 )
+
+BRANCH_GENDER_CHOICES = (
+    ("men", _("Men Only")),
+    ("women", _("Women Only")),
+    ("mixed", _("Mixed / Both")),
+)

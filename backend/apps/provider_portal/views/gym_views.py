@@ -71,6 +71,7 @@ class BranchAddView(GymProviderRequiredMixin, FormView):
             address=data['address'],
             phone_number=data['phone_number'],
             location=location,
+            gender=data.get('gender', 'mixed'),
             is_active=is_active,
             is_temporarily_closed=data.get('is_temporarily_closed', False),
             estimated_stay_duration=data.get('estimated_stay_duration', 120),
@@ -121,6 +122,7 @@ class BranchEditView(GymProviderRequiredMixin, FormView):
             'phone_number': branch.phone_number,
             'address': branch.address,
             'description': branch.description,
+            'gender': branch.gender,
             'is_active': branch.is_active,
             'is_temporarily_closed': branch.is_temporarily_closed,
             'estimated_stay_duration': branch.estimated_stay_duration,
@@ -160,6 +162,7 @@ class BranchEditView(GymProviderRequiredMixin, FormView):
         branch.name = data['name']
         branch.city = data['city']
         branch.address = data['address']
+        branch.gender = data.get('gender', 'mixed')
         branch.phone_number = data['phone_number']
         branch.description = data.get('description', '')
         branch.is_temporarily_closed = data.get('is_temporarily_closed', False)

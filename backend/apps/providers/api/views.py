@@ -20,8 +20,6 @@ from .serializers import (
 )
 
 from ..services.provider_service import ProviderRegistrationService, EmailNotVerifiedError
-# Import Map Service
-from ..services.map_service import MapDiscoveryService
 
 logger = logging.getLogger(__name__)
 
@@ -139,41 +137,3 @@ class ProviderLogoutView(APIView):
             return Response({"message": "Successfully logged out."}, status=status.HTTP_205_RESET_CONTENT)
         except TokenError:
             return Response({"detail": "Token is invalid or already blacklisted."}, status=status.HTTP_400_BAD_REQUEST)
-
-# ==========================================
-# MAP DISCOVERY API
-# ==========================================
-
-class UnifiedMapDiscoveryView(APIView):
-    """
-    GET /api/v1/providers/map/discover/
-    Retrieves all active providers within the user's current map viewport.
-    """
-    permission_classes = [AllowAny] 
-
-    def get(self, request, *args, **kwargs):
-        try:
-            min_lat = float(request.query_params.get('min_lat'))
-            min_lng = float(request.query_params.get('min_lng'))
-            max_lat = float(request.query_params.get('max_lat'))
-            max_lng = float(request.query_params.get('max_lng'))
-        except (TypeError, ValueError):
-            return Response(
-                {"detail": _("Invalid or missing bounding box parameters. Require: min_lat, min_lng, max_lat, max_lng.")},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        if min_lat > max_lat or min_lng > max_lng:
-            return Response(
-                {"detail": _("Invalid coordinate bounds. min values cannot be greater than max values.")},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        points = MapDiscoveryService.get_points_in_bounds(
-            min_lat=min_lat, min_lng=min_lng, max_lat=max_lat, max_lng=max_lng, request=request
-        )
-
-        return Response({
-            "count": len(points),
-            "results": points
-        }, status=status.HTTP_200_OK)

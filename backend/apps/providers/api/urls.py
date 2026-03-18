@@ -1,8 +1,9 @@
 from django.urls import path
 from .views import (
     ProviderRegisterView, ProviderRegistrationStatusView, ResendVerificationView,
-    VerifyEmailView, ProviderLoginView, ProviderLogoutView, UnifiedMapDiscoveryView
+    VerifyEmailView, ProviderLoginView, ProviderLogoutView
 )
+from .search_views import UnifiedSearchAPIView
 
 app_name = "providers_api"
 
@@ -14,6 +15,6 @@ urlpatterns = [
     path("logout/", ProviderLogoutView.as_view(), name="logout"),
     path("registration-status/", ProviderRegistrationStatusView.as_view(), name="registration-status"),
     
-    # Map Endpoint
-    path("map/discover/", UnifiedMapDiscoveryView.as_view(), name="map-discover"),
+    # The Ultimate Single Endpoint for Map, List, Search, and Filters
+    path("discover/", UnifiedSearchAPIView.as_view(), name="discover"),
 ]

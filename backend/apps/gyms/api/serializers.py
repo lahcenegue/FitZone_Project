@@ -210,3 +210,82 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
         """Fetch the top 5 most recent reviews for preview."""
         latest_reviews = obj.reviews.all()[:5]
         return GymReviewSerializer(latest_reviews, many=True).data
+    
+
+class GymBranchSearchSerializer(serializers.ModelSerializer):
+    """
+    Lightweight serializer specifically optimized for search and discovery lists.
+    Includes all necessary UI fields (rating, open status, crowd level, etc.).
+    """
+    provider_id = serializers.IntegerField(source='provider.id', read_only=True)
+    provider_name = serializers.CharField(source='provider.business_name', read_only=True)
+    branch_logo = serializers.SerializerMethodField()
+    distance_km = serializers.SerializerMethodField()
+    min_price = serializers.FloatField(source='min_plan_price', read_only=True, default=None)
+    sports = serializers.SerializerMethodField()
+    amenities = serializers.SerializerMethodField()
+    lat = serializers.SerializerMethodField()
+    lng = serializers.SerializerMethodField()
+    
+    # UI Required Fields
+    type = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
+    is_open_now = serializers.SerializerMethodField()
+    crowd_level = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GymBranch
+        fields = [
+            'id', 'provider_id', 'provider_name', 'name', 'city', 'address', 'gender',
+            'lat', 'lng', 'branch_logo', 'is_active', 'is_temporarily_closed',
+            'distance_km', 'min_price', 'sports', 'amenities',
+            'type', 'rating', 'is_open_now', 'crowd_level'
+        ]
+
+    def get_type(self, obj):
+        return "gym"
+
+    def get_rating(self, obj):
+        # Placeholder (e.g., 4.5) until the actual Rating system is fully implemented
+        return 4.5
+
+    def get_crowd_level(self, obj):
+        # Placeholder ('low', 'medium', 'high') until real-time attendance is linked
+        return "low"
+
+    def get_is_open_now(self, obj):
+        if obj.is_temporarily_closed:
+            return False
+            
+        if obj.opening_time and obj.closing_time:
+            now_time = timezone.localtime().time()
+            # Standard hours (e.g., 08:00 to 22:00)
+            if obj.opening_time < obj.closing_time:
+                return obj.opening_time <= now_time <= obj.closing_time
+            # Overnight hours (e.g., 20:00 to 08:00)
+            else:
+                return now_time >= obj.opening_time or now_time <= obj.closing_time
+        return True # Default to True if no hours are set
+
+    def get_branch_logo(self, obj):
+        request = self.context.get('request')
+        if obj.branch_logo and request:
+            return request.build_absolute_uri(obj.branch_logo.url)
+        return None
+
+    def get_distance_km(self, obj):
+        if hasattr(obj, 'distance') and obj.distance is not None:
+            return round(obj.distance.km, 2)
+        return None
+
+    def get_sports(self, obj):
+        return [sport.name for sport in obj.sports.all()]
+
+    def get_amenities(self, obj):
+        return [amenity.name for amenity in obj.amenities.all()]
+
+    def get_lat(self, obj):
+        return obj.location.y if obj.location else None
+
+    def get_lng(self, obj):
+        return obj.location.x if obj.location else None

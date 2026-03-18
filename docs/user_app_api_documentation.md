@@ -67,6 +67,7 @@ Returns a unified list of markers to be drawn on the map.
       "lat": 24.7136,
       "lng": 46.6753,
       "image_url": "http://localhost:8000/media/gyms/branches/logos/logo.png",
+      "sports": ["Boxing", "CrossFit", "Bodybuilding"],
       "is_active": true
     },
     {
@@ -78,6 +79,7 @@ Returns a unified list of markers to be drawn on the map.
       "lat": 24.7180,
       "lng": 46.6800,
       "image_url": null,
+      "sports": ["Weightlifting", "Yoga"],
       "is_active": true
     }
   ]
@@ -131,9 +133,29 @@ GET /api/v1/gyms/branches/6/
   "images": [
     "http://localhost:8000/media/gyms/branches/gallery/img1.png"
   ],
+  "sports": [
+    { 
+      "id": 1, 
+      "name": "Boxing", 
+      "image": "http://localhost:8000/media/gyms/sports/images/boxing.png" 
+    },
+    { 
+      "id": 2, 
+      "name": "Football", 
+      "image": "http://localhost:8000/media/gyms/sports/images/football.png" 
+    }
+  ],
   "amenities": [
-    { "id": 1, "name": "ساونا", "icon_name": "sauna_icon" },
-    { "id": 2, "name": "مسبح", "icon_name": "pool_icon" }
+    { 
+      "id": 1, 
+      "name": "ساونا", 
+      "icon_image": "http://localhost:8000/media/gyms/amenities/icons/sauna.png" 
+    },
+    { 
+      "id": 2, 
+      "name": "مسبح", 
+      "icon_image": "http://localhost:8000/media/gyms/amenities/icons/pool.png" 
+    }
   ],
   "plans": [
     {
