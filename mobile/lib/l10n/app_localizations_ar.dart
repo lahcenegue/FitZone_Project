@@ -109,4 +109,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get buyNow => 'ادفع الآن';
+
+  @override
+  String get sports => 'الرياضات';
+
+  @override
+  String get temporarilyClosed => 'مغلق مؤقتاً';
 }

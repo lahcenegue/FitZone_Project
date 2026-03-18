@@ -8,26 +8,45 @@ enum CrowdLevel { low, medium, high }
 class GymAmenity {
   final int id;
   final String name;
-  final String iconName;
+  final String iconImage;
 
   const GymAmenity({
     required this.id,
     required this.name,
-    required this.iconName,
+    required this.iconImage,
   });
 
   factory GymAmenity.fromJson(Map<String, dynamic> json) {
     return GymAmenity(
       id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       name: json['name']?.toString() ?? '',
-      iconName: json['icon_name']?.toString() ?? '',
+      iconImage: json['icon_image']?.toString() ?? '',
+    );
+  }
+}
+
+class GymSport {
+  final int id;
+  final String name;
+  final String imageUrl;
+
+  const GymSport({
+    required this.id,
+    required this.name,
+    required this.imageUrl,
+  });
+
+  factory GymSport.fromJson(Map<String, dynamic> json) {
+    return GymSport(
+      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      name: json['name']?.toString() ?? '',
+      imageUrl: json['image']?.toString() ?? '',
     );
   }
 }
 
 class GymPlanFeature {
   final String name;
-
   const GymPlanFeature({required this.name});
 
   factory GymPlanFeature.fromJson(Map<String, dynamic> json) {
@@ -113,10 +132,12 @@ class GymDetailsModel {
   final String branchLogo;
   final List<String> images;
   final List<GymAmenity> amenities;
+  final List<GymSport> sports;
   final List<GymPlan> plans;
   final double rating;
   final int totalReviews;
   final bool isOpenNow;
+  final bool isTemporarilyClosed;
   final CrowdLevel currentCrowdLevel;
   final Map<String, String> weeklyHours;
   final List<GymReview> reviews;
@@ -137,10 +158,12 @@ class GymDetailsModel {
     required this.branchLogo,
     required this.images,
     required this.amenities,
+    required this.sports,
     required this.plans,
     required this.rating,
     required this.totalReviews,
     required this.isOpenNow,
+    required this.isTemporarilyClosed,
     required this.currentCrowdLevel,
     required this.weeklyHours,
     required this.reviews,
@@ -148,16 +171,9 @@ class GymDetailsModel {
 
   factory GymDetailsModel.fromJson(Map<String, dynamic> json) {
     try {
-      String safeImageUrl(String? url) {
-        if (url == null || url.isEmpty) return '';
-        // Automatically formats localhost URLs for Android Emulator
-        return url.contains('localhost')
-            ? url.replaceAll('localhost', '10.0.2.2')
-            : url;
-      }
-
       final List<dynamic> imagesList = json['images'] as List? ?? [];
       final List<dynamic> amenitiesList = json['amenities'] as List? ?? [];
+      final List<dynamic> sportsList = json['sports'] as List? ?? [];
       final List<dynamic> plansList = json['plans'] as List? ?? [];
       final List<dynamic> reviewsList = json['reviews'] as List? ?? [];
 
@@ -181,10 +197,13 @@ class GymDetailsModel {
           double.tryParse(json['lat']?.toString() ?? '0.0') ?? 0.0,
           double.tryParse(json['lng']?.toString() ?? '0.0') ?? 0.0,
         ),
-        branchLogo: safeImageUrl(json['branch_logo'] as String?),
-        images: imagesList.map((img) => safeImageUrl(img as String?)).toList(),
+        branchLogo: json['branch_logo']?.toString() ?? '',
+        images: imagesList.map((img) => img.toString()).toList(),
         amenities: amenitiesList
             .map((a) => GymAmenity.fromJson(a as Map<String, dynamic>))
+            .toList(),
+        sports: sportsList
+            .map((s) => GymSport.fromJson(s as Map<String, dynamic>))
             .toList(),
         plans: plansList
             .map((p) => GymPlan.fromJson(p as Map<String, dynamic>))
@@ -193,6 +212,7 @@ class GymDetailsModel {
         totalReviews:
             int.tryParse(json['total_reviews']?.toString() ?? '0') ?? 0,
         isOpenNow: json['is_open_now'] as bool? ?? false,
+        isTemporarilyClosed: json['is_temporarily_closed'] as bool? ?? false,
         currentCrowdLevel: parsedCrowdLevel,
         weeklyHours: json['weekly_hours'] != null
             ? Map<String, String>.from(json['weekly_hours'])

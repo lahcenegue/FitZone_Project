@@ -301,6 +301,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Buy Now'**
   String get buyNow;
+
+  /// No description provided for @sports.
+  ///
+  /// In en, this message translates to:
+  /// **'Sports'**
+  String get sports;
+
+  /// No description provided for @temporarilyClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporarily Closed'**
+  String get temporarilyClosed;
 }
 
 class _AppLocalizationsDelegate

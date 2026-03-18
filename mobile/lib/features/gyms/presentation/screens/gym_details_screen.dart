@@ -11,6 +11,7 @@ import '../widgets/gym_image_gallery.dart';
 import '../widgets/gym_smart_header.dart';
 import '../widgets/gym_live_status.dart';
 import '../widgets/gym_amenities_section.dart';
+import '../widgets/gym_sports_section.dart';
 import '../widgets/gym_plans_section.dart';
 import '../widgets/gym_reviews_section.dart';
 
@@ -56,10 +57,10 @@ class GymDetailsScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       GymSmartHeader(gym: gym, colors: colors),
-                      SizedBox(height: Dimensions.spacingMedium),
+                      SizedBox(height: Dimensions.spacingLarge),
 
                       GymLiveStatus(gym: gym, colors: colors),
-                      SizedBox(height: Dimensions.spacingLarge),
+                      SizedBox(height: Dimensions.spacingExtraLarge),
 
                       if (gym.description.isNotEmpty) ...[
                         Text(
@@ -79,7 +80,12 @@ class GymDetailsScreen extends ConsumerWidget {
                             height: 1.6,
                           ),
                         ),
-                        SizedBox(height: Dimensions.spacingLarge),
+                        SizedBox(height: Dimensions.spacingExtraLarge),
+                      ],
+
+                      if (gym.sports.isNotEmpty) ...[
+                        GymSportsSection(sports: gym.sports, colors: colors),
+                        SizedBox(height: Dimensions.spacingExtraLarge),
                       ],
 
                       if (gym.amenities.isNotEmpty) ...[
@@ -87,12 +93,12 @@ class GymDetailsScreen extends ConsumerWidget {
                           amenities: gym.amenities,
                           colors: colors,
                         ),
-                        SizedBox(height: Dimensions.spacingLarge),
+                        SizedBox(height: Dimensions.spacingExtraLarge),
                       ],
 
                       if (gym.plans.isNotEmpty) ...[
                         GymPlansSection(plans: gym.plans, colors: colors),
-                        SizedBox(height: Dimensions.spacingLarge),
+                        SizedBox(height: Dimensions.spacingExtraLarge),
                       ],
 
                       if (gym.reviews.isNotEmpty) ...[
@@ -102,7 +108,7 @@ class GymDetailsScreen extends ConsumerWidget {
                           totalReviews: gym.totalReviews,
                           colors: colors,
                         ),
-                        SizedBox(height: Dimensions.spacingLarge),
+                        SizedBox(height: Dimensions.spacingExtraLarge),
                       ],
 
                       SizedBox(height: Dimensions.spacingExtraLarge * 2),

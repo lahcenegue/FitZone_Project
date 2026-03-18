@@ -13,6 +13,9 @@ abstract class AppColors {
   Color get markerGym;
   Color get markerRestaurant;
   Color get markerTrainer;
+  Color get success;
+  Color get warning;
+  Color get star;
 }
 
 /// Light theme color palette.
@@ -39,6 +42,12 @@ class LightColors implements AppColors {
   Color get markerRestaurant => const Color(0xFFF59E0B); // Amber for Restaurants
   @override
   Color get markerTrainer => const Color(0xFF10B981); // Emerald Green for Trainers
+  @override
+  Color get success => const Color(0xFF10B981); // Emerald Green
+  @override
+  Color get warning => const Color(0xFFF59E0B); // Amber
+  @override
+  Color get star => const Color(0xFFFBBF24); // Star Yellow
 }
 
 /// Dark theme color palette.
@@ -65,4 +74,10 @@ class DarkColors implements AppColors {
   Color get markerRestaurant => const Color(0xFFF59E0B); // Amber for Restaurants
   @override
   Color get markerTrainer => const Color(0xFF10B981); // Emerald Green for Trainers
+  @override
+  Color get success => const Color(0xFF34D399);
+  @override
+  Color get warning => const Color(0xFFFBBF24);
+  @override
+  Color get star => const Color(0xFFFCD34D);
 }

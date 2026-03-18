@@ -17,6 +17,8 @@ class GymAmenitiesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (amenities.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -37,39 +39,40 @@ class GymAmenitiesSection extends StatelessWidget {
   }
 
   Widget _buildPremiumAmenityItem(GymAmenity amenity) {
-    // Dynamic icon resolution based on your backend string
-    IconData iconData = Icons.done_all_rounded;
-    if (amenity.iconName.contains('pool')) iconData = Icons.pool_rounded;
-    if (amenity.iconName.contains('sauna')) iconData = Icons.hot_tub_rounded;
-    if (amenity.iconName.contains('wifi')) iconData = Icons.wifi_rounded;
-
     return Container(
-      width: Dimensions.widthPercent(
-        40.0,
-        max: 180.0,
-      ), // Responsive width for 2 columns
-      padding: EdgeInsets.symmetric(
-        horizontal: Dimensions.spacingSmall,
-        vertical: Dimensions.spacingSmall,
-      ),
+      width: Dimensions.widthPercent(40.0, max: 180.0),
+      padding: EdgeInsets.all(Dimensions.spacingSmall),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
         border: Border.all(color: colors.iconGrey.withOpacity(0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: colors.shadow.withOpacity(0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(Dimensions.spacingTiny),
+            width: Dimensions.iconMedium,
+            height: Dimensions.iconMedium,
             decoration: BoxDecoration(
-              color: colors.primary.withOpacity(0.1),
+              color: colors.primary.withOpacity(0.05),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              iconData,
-              size: Dimensions.iconSmall,
-              color: colors.primary,
-            ),
+            child: amenity.iconImage.isNotEmpty
+                ? ClipOval(
+                    child: Image.network(
+                      amenity.iconImage,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          _buildFallbackIcon(),
+                    ),
+                  )
+                : _buildFallbackIcon(),
           ),
           SizedBox(width: Dimensions.spacingSmall),
           Expanded(
@@ -85,6 +88,16 @@ class GymAmenitiesSection extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFallbackIcon() {
+    return Center(
+      child: Icon(
+        Icons.check_circle_rounded,
+        size: Dimensions.iconSmall,
+        color: colors.primary,
       ),
     );
   }

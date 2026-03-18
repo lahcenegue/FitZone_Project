@@ -40,7 +40,6 @@ class GymSmartHeader extends ConsumerWidget {
         ? '${addressParts[0].trim()} - ${gym.city}'
         : gym.city;
 
-    // Calculate real dynamic distance
     final String dynamicDistance = userLocation != null
         ? LocationService.formatDistance(
             LocationService.calculateDistanceInMeters(
@@ -53,70 +52,68 @@ class GymSmartHeader extends ConsumerWidget {
         : '-- ${l10n.km}';
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Text(
-                      gym.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: Dimensions.fontHeading1,
-                        fontWeight: FontWeight.w900,
-                        color: colors.textPrimary,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: Dimensions.spacingSmall,
-                      vertical: Dimensions.spacingTiny,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(
-                        Dimensions.radiusPill,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.star_rounded,
-                          color: Colors.amber,
-                          size: Dimensions.iconSmall,
-                        ),
-                        SizedBox(width: Dimensions.spacingTiny),
-                        Text(
-                          gym.rating.toStringAsFixed(1),
-                          style: TextStyle(
-                            color: Colors.amber.shade700,
-                            fontWeight: FontWeight.bold,
-                            fontSize: Dimensions.fontBodyMedium,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              Text(
+                gym.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: Dimensions.fontHeading1,
+                  fontWeight: FontWeight.w900,
+                  color: colors.textPrimary,
+                  height: 1.2,
+                ),
               ),
               SizedBox(height: Dimensions.spacingSmall),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  if (gym.rating > 0) ...[
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Dimensions.spacingSmall,
+                        vertical: Dimensions.spacingTiny,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.star.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.radiusPill,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.star_rounded,
+                            color: colors.star,
+                            size: Dimensions.iconSmall,
+                          ),
+                          SizedBox(width: Dimensions.spacingTiny),
+                          Text(
+                            gym.rating.toStringAsFixed(1),
+                            style: TextStyle(
+                              color: colors.textPrimary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: Dimensions.fontBodySmall,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: Dimensions.spacingMedium),
+                  ],
                   Icon(
-                    Icons.location_on,
+                    Icons.location_on_rounded,
                     size: Dimensions.iconSmall,
                     color: colors.textSecondary,
                   ),
                   SizedBox(width: Dimensions.spacingTiny),
-                  Expanded(
+                  Flexible(
                     child: Text(
                       shortAddress,
                       maxLines: 1,
@@ -144,7 +141,7 @@ class GymSmartHeader extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: Dimensions.fontBodyMedium,
                       color: colors.primary,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ],
@@ -157,8 +154,8 @@ class GymSmartHeader extends ConsumerWidget {
           onTap: () =>
               _openGoogleMaps(gym.location.latitude, gym.location.longitude),
           child: Container(
-            width: Dimensions.fabSize * 0.9,
-            height: Dimensions.fabSize * 0.9,
+            width: Dimensions.fabSize * 0.85,
+            height: Dimensions.fabSize * 0.85,
             decoration: BoxDecoration(
               color: colors.primary.withOpacity(0.1),
               shape: BoxShape.circle,

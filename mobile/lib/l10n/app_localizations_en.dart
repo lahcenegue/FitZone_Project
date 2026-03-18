@@ -109,4 +109,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get buyNow => 'Buy Now';
+
+  @override
+  String get sports => 'Sports';
+
+  @override
+  String get temporarilyClosed => 'Temporarily Closed';
 }

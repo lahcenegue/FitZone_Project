@@ -25,11 +25,15 @@ class PlaceInfoCard extends ConsumerWidget {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final userLocation = ref.watch(userLocationProvider);
 
-    String categoryText = l10n.fitnessCenter;
+    String subtitleText = l10n.fitnessCenter;
     if (place.category == PlaceCategory.restaurant)
-      categoryText = l10n.healthyFood;
+      subtitleText = l10n.healthyFood;
     if (place.category == PlaceCategory.trainer)
-      categoryText = l10n.personalTrainer;
+      subtitleText = l10n.personalTrainer;
+
+    if (place.sports.isNotEmpty) {
+      subtitleText = place.sports.join(' • ');
+    }
 
     final String dynamicDistance = userLocation != null
         ? LocationService.formatDistance(
@@ -42,10 +46,15 @@ class PlaceInfoCard extends ConsumerWidget {
           )
         : '-- ${l10n.km}';
 
+    final bool isClosed = place.isTemporarilyClosed || !place.isOpenNow;
+    final String closedText = place.isTemporarilyClosed
+        ? l10n.temporarilyClosed
+        : l10n.closed;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: Dimensions.widthPercent(45.0, max: 200.0),
+        width: Dimensions.widthPercent(65.0, max: 280.0),
         margin: EdgeInsets.only(
           left: Dimensions.spacingMedium,
           bottom: Dimensions.spacingMedium,
@@ -56,9 +65,9 @@ class PlaceInfoCard extends ConsumerWidget {
           borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           boxShadow: [
             BoxShadow(
-              color: colors.shadow,
-              blurRadius: Dimensions.shadowBlurRadius,
-              offset: Offset(0, Dimensions.shadowOffsetY / 2),
+              color: colors.shadow.withOpacity(0.08),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -66,29 +75,69 @@ class PlaceInfoCard extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 4,
-              child: ClipRRect(
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(Dimensions.borderRadiusLarge),
-                ),
-                child: place.imageUrl.isNotEmpty
-                    ? Image.network(
-                        place.imageUrl,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            _buildPlaceholder(),
-                      )
-                    : _buildPlaceholder(),
+              flex: 5,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(Dimensions.borderRadiusLarge),
+                    ),
+                    child: place.imageUrl.isNotEmpty
+                        ? Image.network(
+                            place.imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildPremiumPlaceholder(),
+                          )
+                        : _buildPremiumPlaceholder(),
+                  ),
+                  if (isClosed)
+                    Positioned(
+                      top: Dimensions.spacingSmall,
+                      left: Dimensions.spacingSmall,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Dimensions.spacingMedium,
+                          vertical: Dimensions.spacingTiny,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colors.error.withOpacity(0.95),
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.radiusPill,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.lock_rounded,
+                              color: colors.surface,
+                              size: Dimensions.iconSmall,
+                            ),
+                            SizedBox(width: Dimensions.spacingTiny),
+                            Text(
+                              closedText,
+                              style: TextStyle(
+                                color: colors.surface,
+                                fontSize: Dimensions.fontBodySmall,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             Expanded(
-              flex: 6,
+              flex: 5,
               child: Padding(
                 padding: EdgeInsets.all(Dimensions.spacingMedium),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       place.name,
@@ -97,47 +146,64 @@ class PlaceInfoCard extends ConsumerWidget {
                       style: TextStyle(
                         color: colors.textPrimary,
                         fontSize: Dimensions.fontTitleMedium,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
+                    SizedBox(height: Dimensions.spacingTiny),
                     Text(
-                      categoryText,
+                      subtitleText,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: colors.textSecondary.withOpacity(0.8),
-                        fontSize: Dimensions.fontBodyMedium,
+                        color: colors.textSecondary,
+                        fontSize: Dimensions.fontBodySmall,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
+                    const Spacer(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        if (place.rating > 0)
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.star_rounded,
+                                color: colors.star,
+                                size: Dimensions.iconSmall * 1.2,
+                              ),
+                              SizedBox(width: Dimensions.spacingTiny),
+                              Text(
+                                place.rating.toStringAsFixed(1),
+                                style: TextStyle(
+                                  color: colors.textPrimary,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: Dimensions.fontBodyMedium,
+                                ),
+                              ),
+                            ],
+                          )
+                        else
+                          const SizedBox.shrink(),
+
                         Row(
                           children: [
                             Icon(
-                              Icons.star_rounded,
-                              color: Colors.amber,
+                              Icons.location_on_rounded,
+                              color: colors.primary,
                               size: Dimensions.iconSmall,
                             ),
-                            SizedBox(width: Dimensions.spacingTiny / 2),
+                            SizedBox(width: Dimensions.spacingTiny),
                             Text(
-                              place.rating.toStringAsFixed(1),
+                              dynamicDistance,
                               style: TextStyle(
-                                color: colors.textPrimary,
+                                color: colors.primary,
+                                fontSize: Dimensions.fontBodySmall,
                                 fontWeight: FontWeight.bold,
-                                fontSize: Dimensions.fontBodyMedium,
                               ),
                             ),
                           ],
-                        ),
-                        Text(
-                          dynamicDistance,
-                          style: TextStyle(
-                            color: colors.textSecondary,
-                            fontSize: Dimensions.fontBodySmall,
-                            fontWeight: FontWeight.w500,
-                          ),
                         ),
                       ],
                     ),
@@ -151,11 +217,17 @@ class PlaceInfoCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildPlaceholder() {
+  Widget _buildPremiumPlaceholder() {
     return Container(
       width: double.infinity,
-      color: colors.background,
-      child: Icon(Icons.image_not_supported, color: colors.iconGrey),
+      color: colors.primary.withOpacity(0.05),
+      child: Center(
+        child: Icon(
+          Icons.fitness_center_rounded,
+          color: colors.primary.withOpacity(0.3),
+          size: Dimensions.iconLarge,
+        ),
+      ),
     );
   }
 }

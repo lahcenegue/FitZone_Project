@@ -298,6 +298,8 @@ class GymPlansSection extends StatelessWidget {
       symbol: '',
     );
 
+    if (plans.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -305,9 +307,7 @@ class GymPlansSection extends StatelessWidget {
         SizedBox(height: Dimensions.spacingMedium),
 
         SizedBox(
-          height: Dimensions.heightPercent(
-            28.0,
-          ).clamp(230.0, 260.0), // زيادة الارتفاع قليلاً للزر الصلب
+          height: Dimensions.heightPercent(25.0).clamp(220.0, 260.0),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
@@ -316,143 +316,130 @@ class GymPlansSection extends StatelessWidget {
                 SizedBox(width: Dimensions.spacingMedium),
             itemBuilder: (context, index) {
               final plan = plans[index];
-              return GestureDetector(
-                onTap: () =>
-                    _showPlanDetails(context, plan, currencyFormat, l10n),
-                child: Container(
-                  width: Dimensions.widthPercent(65.0).clamp(260.0, 300.0),
-                  padding: EdgeInsets.all(Dimensions.spacingMedium),
-                  decoration: BoxDecoration(
-                    color: colors.surface,
-                    borderRadius: BorderRadius.circular(
-                      Dimensions.borderRadiusLarge,
-                    ),
-                    border: Border.all(
-                      color: colors.iconGrey.withOpacity(0.08),
-                      width: 1,
-                    ), // إطار أنعم
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.shadow.withOpacity(0.06), // ظل أعمق وأخف
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
+              return Container(
+                width: Dimensions.widthPercent(70.0).clamp(260.0, 320.0),
+                padding: EdgeInsets.all(Dimensions.spacingMedium),
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(
+                    Dimensions.borderRadiusLarge,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              plan.name.toUpperCase(),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: Dimensions.fontHeading2,
-                                fontWeight: FontWeight.w900,
-                                color: colors.textPrimary,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: Dimensions.spacingSmall,
-                              vertical: Dimensions.spacingTiny,
-                            ),
-                            decoration: BoxDecoration(
-                              color: colors.background, // لون خلفية هادئ للبادج
-                              borderRadius: BorderRadius.circular(
-                                Dimensions.radiusPill,
-                              ),
-                            ),
-                            child: Text(
-                              '${plan.durationDays} ${l10n.days}',
-                              style: TextStyle(
-                                color: colors.textSecondary,
-                                fontWeight: FontWeight.bold,
-                                fontSize: Dimensions.fontBodySmall,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: Dimensions.spacingSmall),
-                      Text(
-                        plan.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: Dimensions.fontBodyMedium,
-                          color: colors.textSecondary,
-                          height: 1.3,
-                        ),
-                      ),
-
-                      const Spacer(),
-
-                      // تصميم السعر الاحترافي (لون داكن بدل الأزرق الفاقع)
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            currencyFormat.format(plan.price),
+                  border: Border.all(color: colors.iconGrey.withOpacity(0.1)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colors.shadow.withOpacity(0.05),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            plan.name.toUpperCase(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: Dimensions.fontHeading1,
+                              fontSize: Dimensions.fontHeading2,
                               fontWeight: FontWeight.w900,
                               color: colors.textPrimary,
                             ),
                           ),
-                          SizedBox(width: Dimensions.spacingTiny),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 4.0),
-                            child: Text(
-                              l10n.sar,
-                              style: TextStyle(
-                                fontSize: Dimensions.fontBodySmall,
-                                fontWeight: FontWeight.bold,
-                                color: colors.textSecondary,
-                              ),
-                            ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: Dimensions.spacingSmall,
+                            vertical: Dimensions.spacingTiny,
                           ),
-                        ],
-                      ),
-                      SizedBox(height: Dimensions.spacingMedium),
-
-                      // الزر الصلب الاحترافي (Call to Action)
-                      SizedBox(
-                        width: double.infinity,
-                        height: Dimensions.buttonHeight * 0.9,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.primary,
-                            foregroundColor: colors.surface,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                Dimensions.radiusPill,
-                              ),
+                          decoration: BoxDecoration(
+                            color: colors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(
+                              Dimensions.radiusPill,
                             ),
-                          ),
-                          onPressed: () => _showPlanDetails(
-                            context,
-                            plan,
-                            currencyFormat,
-                            l10n,
                           ),
                           child: Text(
-                            l10n.subscribeNow,
+                            '${plan.durationDays} ${l10n.days}',
                             style: TextStyle(
+                              color: colors.primary,
                               fontWeight: FontWeight.bold,
-                              fontSize: Dimensions.fontBodyMedium,
+                              fontSize: Dimensions.fontBodySmall,
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                    SizedBox(height: Dimensions.spacingTiny),
+                    Text(
+                      plan.description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: Dimensions.fontBodyMedium,
+                        color: colors.textSecondary,
+                        height: 1.3,
                       ),
-                    ],
-                  ),
+                    ),
+                    const Spacer(),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          currencyFormat.format(plan.price),
+                          style: TextStyle(
+                            fontSize: Dimensions.fontHeading1 * 1.1,
+                            fontWeight: FontWeight.w900,
+                            color: colors.textPrimary,
+                          ),
+                        ),
+                        SizedBox(width: Dimensions.spacingTiny),
+                        Text(
+                          l10n.sar,
+                          style: TextStyle(
+                            fontSize: Dimensions.fontBodyMedium,
+                            fontWeight: FontWeight.bold,
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: Dimensions.spacingMedium),
+                    SizedBox(
+                      width: double.infinity,
+                      height: Dimensions.buttonHeight,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.primary,
+                          foregroundColor: colors.surface,
+                          elevation: 4,
+                          shadowColor: colors.primary.withOpacity(0.4),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              Dimensions.borderRadius,
+                            ),
+                          ),
+                        ),
+                        onPressed: () => _showPlanDetails(
+                          context,
+                          plan,
+                          currencyFormat,
+                          l10n,
+                        ),
+                        child: Text(
+                          l10n.subscribeNow,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: Dimensions.fontBodyMedium,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               );
             },

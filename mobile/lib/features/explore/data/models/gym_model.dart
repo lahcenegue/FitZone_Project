@@ -12,9 +12,11 @@ class GymModel {
   final LatLng location;
   final String imageUrl;
   final bool isActive;
+  final bool isTemporarilyClosed;
   final double rating;
   final bool isOpenNow;
   final CrowdLevel crowdLevel;
+  final List<String> sports;
 
   const GymModel({
     required this.id,
@@ -24,9 +26,11 @@ class GymModel {
     required this.location,
     required this.imageUrl,
     required this.isActive,
+    required this.isTemporarilyClosed,
     required this.rating,
     required this.isOpenNow,
     required this.crowdLevel,
+    required this.sports,
   });
 
   factory GymModel.fromJson(Map<String, dynamic> json) {
@@ -42,12 +46,7 @@ class GymModel {
     if (crowdString == 'medium') parsedCrowd = CrowdLevel.medium;
     if (crowdString == 'high') parsedCrowd = CrowdLevel.high;
 
-    String safeImageUrl(String? url) {
-      if (url == null || url.isEmpty) return '';
-      return url.contains('localhost')
-          ? url.replaceAll('localhost', '10.0.2.2')
-          : url;
-    }
+    final List<dynamic> sportsList = json['sports'] as List? ?? [];
 
     return GymModel(
       id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
@@ -58,11 +57,13 @@ class GymModel {
         double.tryParse(json['lat']?.toString() ?? '0.0') ?? 0.0,
         double.tryParse(json['lng']?.toString() ?? '0.0') ?? 0.0,
       ),
-      imageUrl: safeImageUrl(json['image_url']?.toString()),
+      imageUrl: json['image_url']?.toString() ?? '',
       isActive: json['is_active'] as bool? ?? true,
+      isTemporarilyClosed: json['is_temporarily_closed'] as bool? ?? false,
       rating: double.tryParse(json['rating']?.toString() ?? '0.0') ?? 0.0,
       isOpenNow: json['is_open_now'] as bool? ?? false,
       crowdLevel: parsedCrowd,
+      sports: sportsList.map((e) => e.toString()).toList(),
     );
   }
 }

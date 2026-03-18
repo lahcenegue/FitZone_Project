@@ -14,17 +14,23 @@ class GymLiveStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
+    final bool isClosed = gym.isTemporarilyClosed || !gym.isOpenNow;
+    final String statusText = gym.isTemporarilyClosed
+        ? l10n.temporarilyClosed
+        : (gym.isOpenNow ? l10n.openNow : l10n.closed);
+    final Color statusColor = isClosed ? colors.error : colors.success;
+
     String crowdText;
     Color crowdColor;
 
     switch (gym.currentCrowdLevel) {
       case CrowdLevel.low:
         crowdText = l10n.crowdLow;
-        crowdColor = Colors.green;
+        crowdColor = colors.success;
         break;
       case CrowdLevel.medium:
         crowdText = l10n.crowdMedium;
-        crowdColor = Colors.orange;
+        crowdColor = colors.warning;
         break;
       case CrowdLevel.high:
         crowdText = l10n.crowdHigh;
@@ -32,16 +38,26 @@ class GymLiveStatus extends StatelessWidget {
         break;
     }
 
+    final bool isLow = gym.currentCrowdLevel == CrowdLevel.low;
+    final bool isMed = gym.currentCrowdLevel == CrowdLevel.medium;
+    final bool isHigh = gym.currentCrowdLevel == CrowdLevel.high;
+
     return Container(
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        border: Border.all(color: colors.iconGrey.withOpacity(0.2)),
+        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+        border: Border.all(color: colors.iconGrey.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: colors.shadow.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Expandable Weekly Hours Section
           Theme(
             data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
             child: ExpansionTile(
@@ -56,24 +72,24 @@ class GymLiveStatus extends StatelessWidget {
               title: Row(
                 children: [
                   Icon(
-                    gym.isOpenNow
-                        ? Icons.lock_open_rounded
-                        : Icons.lock_outline_rounded,
-                    color: gym.isOpenNow ? Colors.green : colors.error,
+                    isClosed
+                        ? Icons.lock_outline_rounded
+                        : Icons.lock_open_rounded,
+                    color: statusColor,
                     size: Dimensions.iconMedium,
                   ),
                   SizedBox(width: Dimensions.spacingSmall),
                   Text(
-                    gym.isOpenNow ? l10n.openNow : l10n.closed,
+                    statusText,
                     style: TextStyle(
                       fontSize: Dimensions.fontBodyMedium,
                       fontWeight: FontWeight.bold,
-                      color: gym.isOpenNow ? Colors.green : colors.error,
+                      color: statusColor,
                     ),
                   ),
                   const Spacer(),
                   Text(
-                    '${gym.openingTime} - ${gym.closingTime}',
+                    '${gym.openingTime.substring(0, 5)} - ${gym.closingTime.substring(0, 5)}',
                     style: TextStyle(
                       fontSize: Dimensions.fontBodySmall,
                       color: colors.textSecondary,
@@ -111,10 +127,7 @@ class GymLiveStatus extends StatelessWidget {
               }).toList(),
             ),
           ),
-
           Divider(color: colors.iconGrey.withOpacity(0.1), height: 1),
-
-          // Crowdedness Section
           Padding(
             padding: EdgeInsets.all(Dimensions.spacingMedium),
             child: Column(
@@ -125,28 +138,17 @@ class GymLiveStatus extends StatelessWidget {
                   style: TextStyle(
                     fontSize: Dimensions.fontBodyMedium,
                     color: crowdColor,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                 SizedBox(height: Dimensions.spacingSmall),
                 Row(
                   children: [
-                    _buildCrowdSegment(
-                      Colors.green,
-                      isActive: gym.currentCrowdLevel != CrowdLevel.low,
-                    ),
+                    _buildCrowdSegment(crowdColor, isActive: true),
                     SizedBox(width: Dimensions.spacingTiny),
-                    _buildCrowdSegment(
-                      Colors.orange,
-                      isActive:
-                          gym.currentCrowdLevel == CrowdLevel.medium ||
-                          gym.currentCrowdLevel == CrowdLevel.high,
-                    ),
+                    _buildCrowdSegment(crowdColor, isActive: isMed || isHigh),
                     SizedBox(width: Dimensions.spacingTiny),
-                    _buildCrowdSegment(
-                      colors.error,
-                      isActive: gym.currentCrowdLevel == CrowdLevel.high,
-                    ),
+                    _buildCrowdSegment(crowdColor, isActive: isHigh),
                   ],
                 ),
               ],
@@ -160,7 +162,7 @@ class GymLiveStatus extends StatelessWidget {
   Widget _buildCrowdSegment(Color color, {required bool isActive}) {
     return Expanded(
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 300),
         height: 6.0,
         decoration: BoxDecoration(
           color: isActive ? color : colors.iconGrey.withOpacity(0.15),
