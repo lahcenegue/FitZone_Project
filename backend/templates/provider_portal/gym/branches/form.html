@@ -121,6 +121,25 @@
   <form method="post" enctype="multipart/form-data" id="branchForm" novalidate>
     {% csrf_token %}
     
+    {% if form.errors %}
+      <div class="alert alert--error" style="margin-bottom: var(--space-6); display: block;">
+        <strong>{% trans "Please correct the following errors to save the branch:" %}</strong>
+        <ul style="margin-top: 8px; margin-inline-start: 20px; font-size: 14px;">
+          {% for field in form %}
+            {% for error in field.errors %}
+              <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+          {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+  <form method="post" enctype="multipart/form-data" id="branchForm" novalidate>
+    {% csrf_token %}
+    
     <div class="wizard-step active" id="step-1">
       <h3 style="margin-bottom: var(--space-6); font-size: var(--font-size-xl);">{% trans "Branch Identity" %}</h3>
       
