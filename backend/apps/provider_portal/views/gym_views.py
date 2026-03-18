@@ -9,7 +9,8 @@ import random
 from datetime import timedelta, timezone
 from django.http import JsonResponse
 from django.views.generic import ListView, FormView, View, DetailView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
+from apps.provider_portal.mixins import GymProviderRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
@@ -22,20 +23,11 @@ from apps.provider_portal.forms.gym_forms import BranchForm, SubscriptionPlanFor
 logger = logging.getLogger(__name__)
 
 
-class GymProviderRequiredMixin(UserPassesTestMixin):
-    """Ensure the logged-in user is a Gym Provider."""
-    def test_func(self):
-        user = self.request.user
-        if not hasattr(user, 'provider_profile'):
-            return False
-        return user.provider_profile.provider_type == 'gym'
-
-
 # ==========================================
 # BRANCH VIEWS
 # ==========================================
 
-class BranchListView(LoginRequiredMixin, GymProviderRequiredMixin, ListView):
+class BranchListView(GymProviderRequiredMixin, ListView):
     model = GymBranch
     template_name = "provider_portal/gym/branches/list.html"
     context_object_name = "branches"
@@ -46,7 +38,7 @@ class BranchListView(LoginRequiredMixin, GymProviderRequiredMixin, ListView):
         ).order_by('-created_at')
 
 
-class BranchAddView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
+class BranchAddView(GymProviderRequiredMixin, FormView):
     form_class = BranchForm
     template_name = "provider_portal/gym/branches/form.html"
     success_url = reverse_lazy("provider_portal:gym_branches")
@@ -105,7 +97,7 @@ class BranchAddView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class BranchEditView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
+class BranchEditView(GymProviderRequiredMixin, FormView):
     form_class = BranchForm
     template_name = "provider_portal/gym/branches/form.html"
     success_url = reverse_lazy("provider_portal:gym_branches")
@@ -191,7 +183,7 @@ class BranchEditView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class BranchDeleteView(LoginRequiredMixin, GymProviderRequiredMixin, View):
+class BranchDeleteView(GymProviderRequiredMixin, View):
     def post(self, request, branch_id):
         branch = get_object_or_404(GymBranch, id=branch_id, provider=request.user.provider_profile)
         branch.delete()
@@ -199,7 +191,7 @@ class BranchDeleteView(LoginRequiredMixin, GymProviderRequiredMixin, View):
         return redirect("provider_portal:gym_branches")
     
 
-class BranchDetailView(LoginRequiredMixin, GymProviderRequiredMixin, DetailView):
+class BranchDetailView(GymProviderRequiredMixin, DetailView):
     model = GymBranch
     template_name = "provider_portal/gym/branches/detail.html"
     context_object_name = "branch"
@@ -215,7 +207,7 @@ class BranchDetailView(LoginRequiredMixin, GymProviderRequiredMixin, DetailView)
         return context
 
 
-class BranchPhotosView(LoginRequiredMixin, GymProviderRequiredMixin, View):
+class BranchPhotosView(GymProviderRequiredMixin, View):
     template_name = "provider_portal/gym/branches/photos.html"
 
     def get(self, request, branch_id):
@@ -241,7 +233,7 @@ class BranchPhotosView(LoginRequiredMixin, GymProviderRequiredMixin, View):
 
         return redirect("provider_portal:gym_branch_photos", branch_id=branch.id)
 
-class BranchQuickToggleView(LoginRequiredMixin, GymProviderRequiredMixin, View):
+class BranchQuickToggleView(GymProviderRequiredMixin, View):
     """
     POST /portal/gym/branches/<id>/quick-toggle/
     AJAX endpoint to quickly toggle branch status or emergency close directly from the list.
@@ -275,7 +267,7 @@ class BranchQuickToggleView(LoginRequiredMixin, GymProviderRequiredMixin, View):
 # PLAN VIEWS
 # ==========================================
 
-class PlanListView(LoginRequiredMixin, GymProviderRequiredMixin, ListView):
+class PlanListView(GymProviderRequiredMixin, ListView):
     model = SubscriptionPlan
     template_name = "provider_portal/gym/plans/list.html"
     context_object_name = "plans"
@@ -286,7 +278,7 @@ class PlanListView(LoginRequiredMixin, GymProviderRequiredMixin, ListView):
         ).order_by('price')
     
 
-class PlanDetailView(LoginRequiredMixin, GymProviderRequiredMixin, DetailView):
+class PlanDetailView(GymProviderRequiredMixin, DetailView):
     model = SubscriptionPlan
     template_name = "provider_portal/gym/plans/detail.html"
     context_object_name = "plan"
@@ -296,7 +288,7 @@ class PlanDetailView(LoginRequiredMixin, GymProviderRequiredMixin, DetailView):
         return SubscriptionPlan.objects.filter(provider=self.request.user.provider_profile)
 
 
-class PlanAddView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
+class PlanAddView(GymProviderRequiredMixin, FormView):
     form_class = SubscriptionPlanForm
     template_name = "provider_portal/gym/plans/form.html"
     success_url = reverse_lazy("provider_portal:gym_plans")
@@ -331,7 +323,7 @@ class PlanAddView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class PlanEditView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
+class PlanEditView(GymProviderRequiredMixin, FormView):
     form_class = SubscriptionPlanForm
     template_name = "provider_portal/gym/plans/form.html"
     success_url = reverse_lazy("provider_portal:gym_plans")
@@ -396,7 +388,7 @@ class PlanEditView(LoginRequiredMixin, GymProviderRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class PlanToggleView(LoginRequiredMixin, GymProviderRequiredMixin, View):
+class PlanToggleView(GymProviderRequiredMixin, View):
     def post(self, request, plan_id):
         plan = get_object_or_404(
             SubscriptionPlan, 
@@ -415,7 +407,7 @@ class PlanToggleView(LoginRequiredMixin, GymProviderRequiredMixin, View):
 # QR SCANNER API VIEW
 # ==========================================
 
-class QRCodeScannerAPIView(LoginRequiredMixin, GymProviderRequiredMixin, View):
+class QRCodeScannerAPIView(GymProviderRequiredMixin, View):
     """
     POST /portal/api/scan-qr/
     Validates FitZone QR code, generates rich member data, and tracks attendance.
@@ -518,5 +510,5 @@ class QRCodeScannerAPIView(LoginRequiredMixin, GymProviderRequiredMixin, View):
             logger.error(f"QR Scan Error: {str(e)}")
             return JsonResponse({'status': 'ignore'}, status=200)
 
-class SubscriberListView(LoginRequiredMixin, View): 
+class SubscriberListView(GymProviderRequiredMixin, View): 
     pass
