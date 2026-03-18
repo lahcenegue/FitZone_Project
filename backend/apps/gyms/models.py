@@ -19,7 +19,6 @@ class GymAmenity(models.Model):
     Can be seeded by admins and selected by providers for their branches.
     """
     name = models.CharField(max_length=100, unique=True, verbose_name=_("Amenity Name"))
-    icon_name = models.CharField(max_length=50, blank=True, verbose_name=_("Icon Name for Mobile App"))
     icon_image = models.ImageField(
         upload_to="gyms/amenities/icons/", 
         null=True, 
@@ -35,6 +34,12 @@ class GymSport(models.Model):
     Lookup table for types of sports offered (e.g., Bodybuilding, CrossFit, Boxing).
     """
     name = models.CharField(max_length=100, unique=True, verbose_name=_("Sport Name"))
+    image = models.ImageField(
+        upload_to="gyms/sports/images/", 
+        null=True, 
+        blank=True, 
+        verbose_name=_("Sport Image")
+    )
 
     def __str__(self):
         return self.name

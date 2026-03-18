@@ -62,7 +62,7 @@ class GymVisitAdmin(admin.ModelAdmin):
 # 5. الجداول البسيطة
 @admin.register(GymAmenity)
 class GymAmenityAdmin(admin.ModelAdmin):
-    list_display = ('name', 'icon_name')
+    list_display = ('name', 'icon_image')
     search_fields = ('name',)
 
 @admin.register(GymGlobalSetting)

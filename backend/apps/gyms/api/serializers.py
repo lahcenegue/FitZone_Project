@@ -14,14 +14,29 @@ from apps.gyms.models import (
 
 
 class GymAmenitySerializer(serializers.ModelSerializer):
+    icon_image = serializers.SerializerMethodField()
     class Meta:
         model = GymAmenity
-        fields = ['id', 'name', 'icon_name']
+        fields = ['id', 'name', 'icon_image']
+
+    def get_icon_image(self, obj):
+        request = self.context.get('request')
+        if obj.icon_image and request:
+            return request.build_absolute_uri(obj.icon_image.url)
+        return None
 
 class GymSportSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = GymSport
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'image']
+    
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if obj.image and request:
+            return request.build_absolute_uri(obj.image.url)
+        return None
 
 
 class PlanFeatureSerializer(serializers.ModelSerializer):
