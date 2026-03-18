@@ -66,14 +66,20 @@ class BranchForm(forms.Form):
     
     sports = forms.ModelMultipleChoiceField(
         queryset=GymSport.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
+        widget=forms.SelectMultiple(attrs={
+            'class': 'select2-multi form-control', 
+            'data-placeholder': _('Select sports...')
+        }),
         required=False,
         label=_("Types of Sports Offered")
     )
     
     amenities = forms.ModelMultipleChoiceField(
         queryset=GymAmenity.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
+        widget=forms.SelectMultiple(attrs={
+            'class': 'select2-multi form-control', 
+            'data-placeholder': _('Select amenities...')
+        }),
         required=False,
         label=_("Branch Amenities")
     )

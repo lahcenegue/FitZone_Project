@@ -13,6 +13,7 @@
 
 {% block extra_css %}
 {{ block.super }}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
   /* --- Wizard & Layout --- */
@@ -43,21 +44,46 @@
   /* --- Map --- */
   #branch-map { height: 350px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--color-border); z-index: 1; margin-bottom: var(--space-2); }
   
-  /* --- Interactive Pills (For Sports & Amenities) --- */
-  .pill-group ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 10px; }
-  .pill-group li { display: inline-block; margin: 0; }
-  .pill-group label {
-    display: inline-flex; align-items: center; padding: 10px 20px;
-    border: 1px solid var(--color-border); border-radius: var(--radius-full);
-    background-color: var(--color-surface); color: var(--color-text-secondary);
-    font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); cursor: pointer;
-    transition: all var(--transition); user-select: none;
+  /* --- Custom Select2 Styling for Sports & Amenities --- */
+  .select2-container { width: 100% !important; }
+  .select2-container--default .select2-selection--multiple {
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    min-height: 48px;
+    padding: 4px 8px;
+    transition: all var(--transition);
   }
-  .pill-group input[type="checkbox"] { display: none; }
-  .pill-group label:has(input[type="checkbox"]:checked) {
-    background-color: var(--color-primary); color: white; border-color: var(--color-primary);
-    box-shadow: var(--shadow-sm);
+  .select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
   }
+  .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    margin-top: 6px;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+  }
+  .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: rgba(255,255,255,0.7);
+    margin-inline-end: 6px;
+    border: none;
+    font-weight: bold;
+  }
+  .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: var(--color-error);
+    background: transparent;
+  }
+  .select2-dropdown {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+  }
+  .select2-search__field { font-family: inherit !important; }
 
   /* --- iOS-Style Toggle Switch --- */
   .ui-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
@@ -124,9 +150,7 @@
       <div class="form-group" style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px dashed var(--color-border);">
         <label class="form-label" style="font-size: var(--font-size-lg);">{{ form.sports.label }}</label>
         <p dir="auto" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">{% trans "Select all sports categories available at this branch. This helps users find you in search filters." %}</p>
-        <div class="pill-group">
           {{ form.sports }}
-        </div>
       </div>
 
       <div class="actions">
@@ -179,9 +203,7 @@
       <div class="form-group" style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px dashed var(--color-border);">
         <label class="form-label" style="font-size: var(--font-size-lg);">{{ form.amenities.label }}</label>
         <p dir="auto" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">{% trans "Select the facilities available to your members." %}</p>
-        <div class="pill-group">
           {{ form.amenities }} 
-        </div>
       </div>
 
       <div class="actions">
@@ -283,6 +305,8 @@
 
 {% block extra_js %}
 {{ block.super }}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   // Add required attributes for JS validation
@@ -419,5 +443,14 @@
           }
       });
   }
+
+  // Initialize Select2
+  $(document).ready(function() {
+      const isRtl = document.documentElement.dir === 'rtl';
+      $('.select2-multi').select2({
+          dir: isRtl ? "rtl" : "ltr",
+          width: '100%'
+      });
+  });
 </script>
 {% endblock extra_js %}
