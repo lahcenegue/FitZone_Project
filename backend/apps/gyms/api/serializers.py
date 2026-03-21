@@ -13,11 +13,29 @@ from apps.gyms.models import (
 )
 
 
+def get_localized_name(obj, request):
+    """
+    Helper function to extract the correctly translated name from a JSONField
+    based on the Accept-Language HTTP header.
+    """
+    lang = request.META.get('HTTP_ACCEPT_LANGUAGE', 'en').lower() if request else 'en'
+    primary_lang = 'ar' if 'ar' in lang else 'en'
+    
+    # Return translated name if exists, otherwise fallback to default name
+    if obj.translations and isinstance(obj.translations, dict):
+        return obj.translations.get(primary_lang, obj.name)
+    return obj.name
+
 class GymAmenitySerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
     icon_image = serializers.SerializerMethodField()
+    
     class Meta:
         model = GymAmenity
         fields = ['id', 'name', 'icon_image']
+
+    def get_name(self, obj):
+        return get_localized_name(obj, self.context.get('request'))
 
     def get_icon_image(self, obj):
         request = self.context.get('request')
@@ -26,12 +44,16 @@ class GymAmenitySerializer(serializers.ModelSerializer):
         return None
 
 class GymSportSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
-
+    
     class Meta:
         model = GymSport
         fields = ['id', 'name', 'image']
-    
+
+    def get_name(self, obj):
+        return get_localized_name(obj, self.context.get('request'))
+
     def get_image(self, obj):
         request = self.context.get('request')
         if obj.image and request:

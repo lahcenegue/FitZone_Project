@@ -7,90 +7,99 @@
 
 ## Table of Contents
 
-- [1. Discovery & Map](#1-discovery--map)
-  - [1.1 Get Providers on Map](#11-get-providers-on-map-unified-map-discovery)
+- [1. Discovery & Search](#1-discovery--search)
+  - [1.1 Unified Discovery & Search (Map & List)](#11-unified-discovery--search-map--list)
   - [1.2 Get Gym Branch Details](#12-get-gym-branch-details)
 - [2. Customer Authentication & Profile](#2-customer-authentication--profile)
   - [2.1 Quick Register (Step 1)](#21-quick-register-step-1)
   - [2.2 Verify Email](#22-verify-email)
   - [2.3 Resend Verification Email](#23-resend-verification-email)
   - [2.4 Login](#24-login)
-  - [2.5 Complete Profile (Step 2)](#25-complete-profile-step-2---before-subscription)
+  - [2.5 Complete Profile (Step 2)](#25-complete-profile-step-2--before-subscription)
+- [3. App Initialization & Static Data](#3-app-initialization--static-data-bootstrapping)
+  - [3.1 App Initialization (Check Versions)](#31-app-initialization-check-versions)
+  - [3.2 Get Cities List](#32-get-cities-list)
+  - [3.3 Get Sports List](#33-get-sports-list)
+  - [3.4 Get Amenities List](#34-get-amenities-list)
 
 ---
 
-## 1. Discovery & Map
+## 1. Discovery & Search
 
-### 1.1 Get Providers on Map (Unified Map Discovery)
+### 1.1 Unified Discovery & Search (Map & List)
 
-Retrieves all active providers (Gyms, and later Trainers, Restaurants, Stores) within the user's current map viewport (Bounding Box). This endpoint is lightweight and uses PostGIS for fast spatial queries.
+The ultimate endpoint that powers both the **Map View** and the **List View**. It supports text search, geo-spatial filtering (bounding box for maps, radius for lists), dynamic filtering (price, gender, sports, amenities), and pagination.
 
 | Property | Value |
 | :--- | :--- |
-| **Endpoint** | `/providers/map/discover/` |
+| **Endpoint** | `/providers/discover/` |
 | **Method** | `GET` |
-| **Auth Required** | No — Public endpoint for guests and users |
+| **Auth Required** | No — Public endpoint |
 
 #### Query Parameters
 
-> All four parameters are **required**. The app must send the bounding box coordinates of the visible map screen.
+> All parameters are **optional**.
 
-| Parameter | Type | Description | Example |
+| Parameter | Type | Example | Description |
 | :--- | :--- | :--- | :--- |
-| `min_lat` | Float | Bottom edge latitude of the screen | `24.7110` |
-| `min_lng` | Float | Left edge longitude of the screen | `46.6710` |
-| `max_lat` | Float | Top edge latitude of the screen | `24.7210` |
-| `max_lng` | Float | Right edge longitude of the screen | `46.6810` |
+| `type` | String | `gym` | Service type (`gym`, `trainer`). Defaults to `gym`. |
+| `q` | String | `power` | Text search across name, address, and description. |
+| `gender` | String | `men` | Filter by target audience (`men`, `women`, `mixed`). |
+| `city` | String | `riyadh` | Exact match for city code. |
+| `sports` | String | `1,4` | Comma-separated list of Sport IDs. |
+| `amenities` | String | `2,3` | Comma-separated list of Amenity IDs. |
+| `min_price` | Float | `150.0` | Minimum subscription plan price. |
+| `max_price` | Float | `500.0` | Maximum subscription plan price. |
+| `is_open` | Boolean | `true` | If `true`, returns only branches currently open (handles overnight shifts). |
+| `min_lat`, `min_lng`, `max_lat`, `max_lng` | Float | `24.7110` | Bounding Box coordinates — required for **Map View** discovery. |
+| `lat`, `lng` | Float | `24.7136` | User's current coordinates — required for distance calculation and sorting. |
+| `radius_km` | Float | `10.5` | Search radius in kilometers. Requires `lat` and `lng`. |
+| `sort_by` | String | `distance` | Sorting method (`distance`, `created_at`). Defaults to `created_at`. |
+| `page` | Integer | `1` | Page number for pagination. Defaults to `1`. |
 
 #### Example Request
 
 ```http
-GET /api/v1/providers/map/discover/?min_lat=24.7110&min_lng=46.6710&max_lat=24.7210&max_lng=46.6810
+GET /api/v1/providers/discover/?type=gym&gender=men&max_price=500&lat=24.7136&lng=46.6753&sort_by=distance&page=1
 ```
 
 #### Responses
 
 **`200 OK` — Success**
 
-Returns a unified list of markers to be drawn on the map.
-
 ```json
 {
-  "count": 2,
   "results": [
     {
-      "id": 1,
-      "provider_id": 5,
-      "type": "gym",
-      "name": "FitZone Main Branch",
-      "description": "Best equipment in town",
-      "lat": 24.7136,
-      "lng": 46.6753,
-      "image_url": "http://localhost:8000/media/gyms/branches/logos/logo.png",
-      "sports": ["Boxing", "CrossFit", "Bodybuilding"],
-      "is_active": true
-    },
-    {
-      "id": 2,
-      "provider_id": 8,
-      "type": "gym",
-      "name": "PowerHouse Gym",
-      "description": "CrossFit and Weightlifting",
+      "id": 8,
+      "provider_id": 12,
+      "provider_name": "PowerHouse Gym",
+      "name": "PowerHouse Riyadh Branch",
+      "city": "riyadh",
+      "address": "King Fahd Road, Riyadh",
+      "gender": "men",
       "lat": 24.7180,
       "lng": 46.6800,
-      "image_url": null,
-      "sports": ["Weightlifting", "Yoga"],
-      "is_active": true
+      "branch_logo": "http://localhost:8000/media/gyms/logos/powerhouse.png",
+      "is_active": true,
+      "is_temporarily_closed": false,
+      "distance_km": 3.24,
+      "min_price": 299.99,
+      "sports": ["CrossFit", "Weightlifting"],
+      "amenities": ["Sauna", "Showers"],
+      "type": "gym",
+      "rating": 4.5,
+      "is_open_now": true,
+      "crowd_level": "low"
     }
-  ]
-}
-```
-
-**`400 Bad Request` — Missing or invalid coordinates**
-
-```json
-{
-  "detail": "Invalid or missing bounding box parameters. Require: min_lat, min_lng, max_lat, max_lng."
+  ],
+  "meta": {
+    "total_items": 45,
+    "total_pages": 5,
+    "current_page": 1,
+    "has_next": true,
+    "has_previous": false
+  }
 }
 ```
 
@@ -134,27 +143,17 @@ GET /api/v1/gyms/branches/6/
     "http://localhost:8000/media/gyms/branches/gallery/img1.png"
   ],
   "sports": [
-    { 
-      "id": 1, 
-      "name": "Boxing", 
-      "image": "http://localhost:8000/media/gyms/sports/images/boxing.png" 
-    },
-    { 
-      "id": 2, 
-      "name": "Football", 
-      "image": "http://localhost:8000/media/gyms/sports/images/football.png" 
+    {
+      "id": 1,
+      "name": "Boxing",
+      "image": "http://localhost:8000/media/gyms/sports/images/boxing.png"
     }
   ],
   "amenities": [
-    { 
-      "id": 1, 
-      "name": "ساونا", 
-      "icon_image": "http://localhost:8000/media/gyms/amenities/icons/sauna.png" 
-    },
-    { 
-      "id": 2, 
-      "name": "مسبح", 
-      "icon_image": "http://localhost:8000/media/gyms/amenities/icons/pool.png" 
+    {
+      "id": 1,
+      "name": "ساونا",
+      "icon_image": "http://localhost:8000/media/gyms/amenities/icons/sauna.png"
     }
   ],
   "plans": [
@@ -331,3 +330,116 @@ Updates the user profile with sensitive information required for gym subscriptio
 **`200 OK` — Success**
 
 Returns the updated user object where `profile_is_complete` is now `true`.
+
+---
+
+## 3. App Initialization & Static Data (Bootstrapping)
+
+These endpoints provide static data necessary for the app to function. To optimize performance, the mobile app must call `/init/` on startup. If data versions have changed, the app should fetch and cache the updated lists (Cities, Sports, Amenities).
+
+> **Important — Localization:** All static data endpoints (`/cities/`, `/sports/`, `/amenities/`) support dynamic translation. The app **MUST** send the `Accept-Language` header with every request to receive names in the user's current device language.
+>
+> Examples: `Accept-Language: ar` or `Accept-Language: en`
+
+---
+
+### 3.1 App Initialization (Check Versions)
+
+Retrieves the current static data versions and app update requirements.
+
+| Property | Value |
+| :--- | :--- |
+| **Endpoint** | `/init/` |
+| **Method** | `GET` |
+| **Auth Required** | No |
+
+#### Responses
+
+**`200 OK` — Success**
+
+```json
+{
+  "sports_version": 1.1,
+  "amenities_version": 1.0,
+  "cities_version": 1.0,
+  "android_version": "1.0.0",
+  "ios_version": "1.0.0",
+  "force_update": false,
+  "update_message": ""
+}
+```
+
+---
+
+### 3.2 Get Cities List
+
+Retrieves the list of active cities. Automatically translated based on `Accept-Language`.
+
+| Property | Value |
+| :--- | :--- |
+| **Endpoint** | `/cities/` |
+| **Method** | `GET` |
+| **Header** | `Accept-Language: ar` (or `en`) |
+
+#### Responses
+
+**`200 OK` — Success**
+
+```json
+[
+  { "id": "riyadh", "name": "الرياض" },
+  { "id": "jeddah", "name": "جدة" }
+]
+```
+
+---
+
+### 3.3 Get Sports List
+
+Retrieves the full list of available sports and their images for caching.
+
+| Property | Value |
+| :--- | :--- |
+| **Endpoint** | `/gyms/sports/` |
+| **Method** | `GET` |
+| **Header** | `Accept-Language: ar` (or `en`) |
+
+#### Responses
+
+**`200 OK` — Success**
+
+```json
+[
+  {
+    "id": 1,
+    "name": "ملاكمة",
+    "image": "http://localhost:8000/media/gyms/sports/images/boxing.png"
+  }
+]
+```
+
+---
+
+### 3.4 Get Amenities List
+
+Retrieves the full list of available amenities and their icons for caching.
+
+| Property | Value |
+| :--- | :--- |
+| **Endpoint** | `/gyms/amenities/` |
+| **Method** | `GET` |
+| **Header** | `Accept-Language: ar` (or `en`) |
+
+#### Responses
+
+**`200 OK` — Success**
+
+```json
+[
+  {
+    "id": 1,
+    "name": "مسبح",
+    "icon_image": "http://localhost:8000/media/gyms/amenities/icons/pool.png"
+  }
+]
+```

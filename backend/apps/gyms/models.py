@@ -16,31 +16,30 @@ from apps.core.constants import BRANCH_GENDER_CHOICES
 
 class GymAmenity(models.Model):
     """
-    Lookup table for gym amenities (e.g., Swimming Pool, Sauna, CrossFit Area).
-    Can be seeded by admins and selected by providers for their branches.
+    Lookup table for gym amenities (e.g., Swimming Pool, Sauna).
     """
-    name = models.CharField(max_length=100, unique=True, verbose_name=_("Amenity Name"))
-    icon_image = models.ImageField(
-        upload_to="gyms/amenities/icons/", 
-        null=True, 
+    name = models.CharField(max_length=100, unique=True, verbose_name=_("Default Name"))
+    translations = models.JSONField(
+        default=dict, 
         blank=True, 
-        verbose_name=_("Amenity Icon Image")
+        help_text='Format: {"ar": "مسبح", "en": "Swimming Pool"}'
     )
+    icon_image = models.ImageField(upload_to="gyms/amenities/icons/", null=True, blank=True)
 
     def __str__(self):
         return self.name
 
 class GymSport(models.Model):
     """
-    Lookup table for types of sports offered (e.g., Bodybuilding, CrossFit, Boxing).
+    Lookup table for types of sports offered.
     """
-    name = models.CharField(max_length=100, unique=True, verbose_name=_("Sport Name"))
-    image = models.ImageField(
-        upload_to="gyms/sports/images/", 
-        null=True, 
+    name = models.CharField(max_length=100, unique=True, verbose_name=_("Default Name"))
+    translations = models.JSONField(
+        default=dict, 
         blank=True, 
-        verbose_name=_("Sport Image")
+        help_text='Format: {"ar": "ملاكمة", "en": "Boxing"}'
     )
+    image = models.ImageField(upload_to="gyms/sports/images/", null=True, blank=True)
 
     def __str__(self):
         return self.name

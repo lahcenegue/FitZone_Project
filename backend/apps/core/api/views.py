@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from apps.core.models import AppConfiguration
+from apps.core.models import AppConfiguration, City
 from apps.core.api.serializers import AppInitSerializer
 from apps.core.constants import SAUDI_CITIES
 
@@ -33,17 +33,29 @@ class InitAPIView(APIView):
 class CityListAPIView(APIView):
     """
     GET /api/v1/cities/
-    Returns a list of supported cities. 
-    Translates automatically based on 'Accept-Language' header.
+    Returns a list of supported cities dynamically translated via JSONField.
     """
     authentication_classes = []
     permission_classes = []
 
     def get(self, request, *args, **kwargs):
-        # SAUDI_CITIES is imported from constants (e.g., (("riyadh", _("Riyadh")), ...))
-        # The str() cast combined with Django's LocaleMiddleware handles the translation automatically.
-        cities_data = [
-            {"id": city_key, "name": str(city_name)} 
-            for city_key, city_name in SAUDI_CITIES
-        ]
+        cities = City.objects.filter(is_active=True)
+        
+        # Detect language from header
+        lang = request.META.get('HTTP_ACCEPT_LANGUAGE', 'en').lower()
+        primary_lang = 'ar' if 'ar' in lang else 'en'
+
+        cities_data = []
+        for city in cities:
+            # Extract translation or fallback to default
+            if city.translations and isinstance(city.translations, dict):
+                translated_name = city.translations.get(primary_lang, city.name)
+            else:
+                translated_name = city.name
+                
+            cities_data.append({
+                "id": city.code, 
+                "name": translated_name
+            })
+
         return Response(cities_data, status=status.HTTP_200_OK)
