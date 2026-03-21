@@ -1,86 +1,170 @@
+import 'package:fitzone/features/explore/presentation/providers/explore_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitzone/l10n/app_localizations.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/dimensions.dart';
+import 'explore_filters_bottom_sheet.dart';
 
-class ExploreSearchBar extends StatelessWidget {
+class ExploreSearchBar extends ConsumerStatefulWidget {
   final AppColors colors;
-  final VoidCallback onSearchTap;
-  final VoidCallback onFilterTap;
 
-  const ExploreSearchBar({
-    super.key,
-    required this.colors,
-    required this.onSearchTap,
-    required this.onFilterTap,
-  });
+  const ExploreSearchBar({super.key, required this.colors});
+
+  @override
+  ConsumerState<ExploreSearchBar> createState() => _ExploreSearchBarState();
+}
+
+class _ExploreSearchBarState extends ConsumerState<ExploreSearchBar> {
+  late TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    final initialQuery = ref.read(exploreFilterProvider).query ?? '';
+    _searchController = TextEditingController(text: initialQuery);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchSubmitted(String query) {
+    final currentState = ref.read(exploreFilterProvider);
+    ref.read(exploreFilterProvider.notifier).state = currentState.copyWith(
+      query: query,
+    );
+    FocusScope.of(context).unfocus();
+  }
+
+  void _openFilters() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          builder: (_, controller) {
+            return ExploreFiltersBottomSheet(colors: widget.colors);
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final AppLocalizations l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context)!;
+    final currentFilters = ref.watch(exploreFilterProvider);
+
+    // Determine if any deep filter is active to show a visual indicator
+    final bool hasActiveFilters =
+        currentFilters.gender != null ||
+        currentFilters.isOpen ||
+        currentFilters.sortBy != null;
 
     return Container(
       height: Dimensions.searchBarHeight,
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: widget.colors.surface,
         borderRadius: BorderRadius.circular(Dimensions.radiusPill),
         boxShadow: [
           BoxShadow(
-            color: colors.shadow,
+            color: widget.colors.shadow.withOpacity(0.1),
             blurRadius: Dimensions.shadowBlurRadius,
-            spreadRadius: Dimensions.shadowSpreadRadius,
             offset: Offset(0, Dimensions.shadowOffsetY),
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(Dimensions.radiusPill),
-          onTap: onSearchTap,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: Dimensions.spacingMedium),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.location_on_outlined,
-                  color: colors.iconGrey,
-                  size: Dimensions.iconMedium,
+      child: Row(
+        children: [
+          SizedBox(width: Dimensions.spacingMedium),
+          Icon(
+            Icons.search_rounded,
+            color: widget.colors.textSecondary,
+            size: Dimensions.iconMedium,
+          ),
+          SizedBox(width: Dimensions.spacingSmall),
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              onSubmitted: _onSearchSubmitted,
+              textInputAction: TextInputAction.search,
+              style: TextStyle(
+                color: widget.colors.textPrimary,
+                fontSize: Dimensions.fontBodyLarge,
+                fontWeight: FontWeight.w500,
+              ),
+              decoration: InputDecoration(
+                hintText: l10n.searchPlaces,
+                hintStyle: TextStyle(
+                  color: widget.colors.iconGrey,
+                  fontSize: Dimensions.fontBodyLarge,
                 ),
-                SizedBox(width: Dimensions.spacingSmall),
-                Expanded(
-                  child: Text(
-                    l10n.search,
-                    style: TextStyle(
-                      color: colors.textSecondary,
-                      fontSize: Dimensions.fontBodyLarge,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                Container(
-                  height: Dimensions.spacingLarge,
-                  width: Dimensions.dividerHeight,
-                  color: colors.background,
-                  margin: EdgeInsets.symmetric(
-                    horizontal: Dimensions.spacingSmall,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: onFilterTap,
-                  child: Container(
-                    padding: EdgeInsets.all(Dimensions.spacingTiny),
-                    child: Icon(
-                      Icons.tune,
-                      color: colors.textPrimary,
-                      size: Dimensions.iconMedium,
-                    ),
-                  ),
-                ),
-              ],
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+              ),
             ),
           ),
-        ),
+          if (_searchController.text.isNotEmpty)
+            IconButton(
+              icon: Icon(
+                Icons.close_rounded,
+                color: widget.colors.iconGrey,
+                size: Dimensions.iconSmall,
+              ),
+              onPressed: () {
+                _searchController.clear();
+                _onSearchSubmitted('');
+              },
+            ),
+          Container(
+            width: 1,
+            height: Dimensions.iconMedium,
+            color: widget.colors.iconGrey.withOpacity(0.3),
+            margin: EdgeInsets.symmetric(horizontal: Dimensions.spacingTiny),
+          ),
+          Stack(
+            alignment: Alignment.topRight,
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.tune_rounded,
+                  color: hasActiveFilters
+                      ? widget.colors.primary
+                      : widget.colors.textSecondary,
+                ),
+                onPressed: _openFilters,
+              ),
+              if (hasActiveFilters)
+                Positioned(
+                  top: 10,
+                  right: 12,
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: widget.colors.error,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: widget.colors.surface,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(width: Dimensions.spacingTiny),
+        ],
       ),
     );
   }

@@ -34,5 +34,18 @@
   "points": "نقطة",
   "buyNow": "ادفع الآن",
   "sports": "الرياضات",
-  "temporarilyClosed": "مغلق مؤقتاً"
+  "temporarilyClosed": "مغلق مؤقتاً",
+  "searchPlaces": "ابحث عن صالات، مدربين...",
+  "gender": "القسم",
+  "male": "رجالي",
+  "female": "نسائي",
+  "mixed": "مختلط",
+  "sortBy": "ترتيب حسب",
+  "distance": "الأقرب إليك",
+  "highestRating": "الأعلى تقييماً",
+  "applyFilters": "تطبيق الفلاتر",
+  "reset": "إعادة ضبط",
+  "category": "النوع",
+  "gym": "صالة رياضية",
+  "trainer": "مدرب شخصي"
 }

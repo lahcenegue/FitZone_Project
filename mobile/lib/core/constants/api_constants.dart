@@ -6,7 +6,7 @@ class ApiConstants {
   static const String baseUrl = 'http://10.0.2.2:8000/api/v1';
 
   // Map Discovery
-  static const String mapDiscover = '/providers/map/discover/';
+  static const String mapDiscover = '/providers/discover/';
 
   // Branch Details
   static const String gymBranchDetails = '/gyms/branches/';

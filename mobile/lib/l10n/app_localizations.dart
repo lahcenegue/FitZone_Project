@@ -313,6 +313,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Temporarily Closed'**
   String get temporarilyClosed;
+
+  /// No description provided for @searchPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Search gyms, trainers...'**
+  String get searchPlaces;
+
+  /// No description provided for @gender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get gender;
+
+  /// No description provided for @male.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get male;
+
+  /// No description provided for @female.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get female;
+
+  /// No description provided for @mixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed'**
+  String get mixed;
+
+  /// No description provided for @sortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort By'**
+  String get sortBy;
+
+  /// No description provided for @distance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get distance;
+
+  /// No description provided for @highestRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest Rating'**
+  String get highestRating;
+
+  /// No description provided for @applyFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Filters'**
+  String get applyFilters;
+
+  /// No description provided for @reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get reset;
+
+  /// No description provided for @category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get category;
+
+  /// No description provided for @gym.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym'**
+  String get gym;
+
+  /// No description provided for @trainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainer'**
+  String get trainer;
 }
 
 class _AppLocalizationsDelegate

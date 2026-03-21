@@ -115,4 +115,43 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get temporarilyClosed => 'مغلق مؤقتاً';
+
+  @override
+  String get searchPlaces => 'ابحث عن صالات، مدربين...';
+
+  @override
+  String get gender => 'القسم';
+
+  @override
+  String get male => 'رجالي';
+
+  @override
+  String get female => 'نسائي';
+
+  @override
+  String get mixed => 'مختلط';
+
+  @override
+  String get sortBy => 'ترتيب حسب';
+
+  @override
+  String get distance => 'الأقرب إليك';
+
+  @override
+  String get highestRating => 'الأعلى تقييماً';
+
+  @override
+  String get applyFilters => 'تطبيق الفلاتر';
+
+  @override
+  String get reset => 'إعادة ضبط';
+
+  @override
+  String get category => 'النوع';
+
+  @override
+  String get gym => 'صالة رياضية';
+
+  @override
+  String get trainer => 'مدرب شخصي';
 }

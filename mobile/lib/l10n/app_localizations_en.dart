@@ -115,4 +115,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get temporarilyClosed => 'Temporarily Closed';
+
+  @override
+  String get searchPlaces => 'Search gyms, trainers...';
+
+  @override
+  String get gender => 'Gender';
+
+  @override
+  String get male => 'Male';
+
+  @override
+  String get female => 'Female';
+
+  @override
+  String get mixed => 'Mixed';
+
+  @override
+  String get sortBy => 'Sort By';
+
+  @override
+  String get distance => 'Distance';
+
+  @override
+  String get highestRating => 'Highest Rating';
+
+  @override
+  String get applyFilters => 'Apply Filters';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String get category => 'Category';
+
+  @override
+  String get gym => 'Gym';
+
+  @override
+  String get trainer => 'Trainer';
 }

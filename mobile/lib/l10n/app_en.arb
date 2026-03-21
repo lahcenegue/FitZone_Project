@@ -34,5 +34,18 @@
   "points": "Points",
   "buyNow": "Buy Now",
   "sports": "Sports",
-  "temporarilyClosed": "Temporarily Closed"
+  "temporarilyClosed": "Temporarily Closed",
+  "searchPlaces": "Search gyms, trainers...",
+  "gender": "Gender",
+  "male": "Male",
+  "female": "Female",
+  "mixed": "Mixed",
+  "sortBy": "Sort By",
+  "distance": "Distance",
+  "highestRating": "Highest Rating",
+  "applyFilters": "Apply Filters",
+  "reset": "Reset",
+  "category": "Category",
+  "gym": "Gym",
+  "trainer": "Trainer"
 }

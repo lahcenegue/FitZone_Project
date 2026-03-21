@@ -22,6 +22,8 @@ import '../../data/models/gym_model.dart';
 import '../providers/explore_provider.dart';
 import 'package:fitzone/features/explore/presentation/utils/map_marker_generator.dart';
 
+import '../providers/explore_provider.dart';
+
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
 
@@ -134,7 +136,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
       if (visibleRegion.southwest.latitude == 0.0) return;
 
-      ref.read(mapBoundsProvider.notifier).updateBounds(visibleRegion);
+      final currentState = ref.read(exploreFilterProvider);
+      ref.read(exploreFilterProvider.notifier).state = currentState.copyWith(
+        bounds: visibleRegion,
+      );
     } catch (e) {
       _logger.severe('Failed to get visible region.', e);
     }
@@ -287,11 +292,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             top: safeArea.top + Dimensions.searchBarTopOffset,
             left: Dimensions.spacingMedium,
             right: Dimensions.spacingMedium,
-            child: ExploreSearchBar(
-              colors: colors,
-              onSearchTap: _handleSearchTap,
-              onFilterTap: _handleFiltersTap,
-            ),
+            child: ExploreSearchBar(colors: colors),
           ),
 
           AnimatedPositioned(
