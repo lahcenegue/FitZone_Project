@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
-import '../../../../core/constants/api_constants.dart';
+import '../../../../core/config/api_constants.dart';
 import '../models/gym_details_model.dart';
 
 class GymsApiService {

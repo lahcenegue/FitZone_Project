@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fitzone/core/theme/app_colors.dart';
 
-class MainShellScreen extends StatelessWidget {
+import '../theme/app_colors.dart';
+import '../theme/app_theme_provider.dart';
+
+class MainShellScreen extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
 
   const MainShellScreen({super.key, required this.navigationShell});
@@ -15,9 +18,9 @@ class MainShellScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final AppColors colors = isDarkMode ? DarkColors() : LightColors();
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Read the live colors directly from our new Theme Provider
+    final AppColors colors = ref.watch(appThemeProvider);
 
     return Scaffold(
       body: navigationShell,

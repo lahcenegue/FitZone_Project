@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'theme_provider.dart';
+part of 'app_theme_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -8,35 +8,31 @@ part of 'theme_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider to manage application theme.
-/// Listens to system theme changes automatically using WidgetsBindingObserver.
+/// Manages the application theme state.
 
-@ProviderFor(ThemeNotifier)
-final themeProvider = ThemeNotifierProvider._();
+@ProviderFor(AppTheme)
+final appThemeProvider = AppThemeProvider._();
 
-/// Provider to manage application theme.
-/// Listens to system theme changes automatically using WidgetsBindingObserver.
-final class ThemeNotifierProvider
-    extends $NotifierProvider<ThemeNotifier, AppColors> {
-  /// Provider to manage application theme.
-  /// Listens to system theme changes automatically using WidgetsBindingObserver.
-  ThemeNotifierProvider._()
+/// Manages the application theme state.
+final class AppThemeProvider extends $NotifierProvider<AppTheme, AppColors> {
+  /// Manages the application theme state.
+  AppThemeProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'themeProvider',
+        name: r'appThemeProvider',
         isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$themeNotifierHash();
+  String debugGetCreateSourceHash() => _$appThemeHash();
 
   @$internal
   @override
-  ThemeNotifier create() => ThemeNotifier();
+  AppTheme create() => AppTheme();
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(AppColors value) {
@@ -47,12 +43,11 @@ final class ThemeNotifierProvider
   }
 }
 
-String _$themeNotifierHash() => r'28478976c44a249100673c8b09cf5798c7954608';
+String _$appThemeHash() => r'73c0e7dc596901cf52032687753619cb239eac20';
 
-/// Provider to manage application theme.
-/// Listens to system theme changes automatically using WidgetsBindingObserver.
+/// Manages the application theme state.
 
-abstract class _$ThemeNotifier extends $Notifier<AppColors> {
+abstract class _$AppTheme extends $Notifier<AppColors> {
   AppColors build();
   @$mustCallSuper
   @override

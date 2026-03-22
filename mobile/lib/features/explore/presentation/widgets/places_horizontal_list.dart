@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/dimensions.dart';
+import '../../../../core/theme/app_dimensions.dart';
 import '../../data/models/gym_model.dart';
 import 'place_info_card.dart';
 

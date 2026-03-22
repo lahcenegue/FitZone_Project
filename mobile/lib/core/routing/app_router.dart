@@ -4,14 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 
 // Shell & Layout
-import 'package:fitzone/core/presentation/layouts/main_shell_screen.dart';
+import 'package:fitzone/core/routing/main_shell_screen.dart';
 
 // Features
 import 'package:fitzone/features/explore/presentation/screens/explore_screen.dart';
 import 'package:fitzone/features/gyms/presentation/screens/gym_details_screen.dart';
 
 // Localization
-import '../localization/localization_extension.dart';
+import 'package:fitzone/core/l10n/l10n_extension.dart';
 
 /// Defines all strongly-typed route paths used in the application.
 class RoutePaths {

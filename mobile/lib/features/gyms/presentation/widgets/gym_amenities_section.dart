@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fitzone/l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/dimensions.dart';
+import '../../../../core/theme/app_dimensions.dart';
 import '../../data/models/gym_details_model.dart';
 import 'gym_section_title.dart';
 

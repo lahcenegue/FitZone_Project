@@ -1,3 +1,5 @@
+import 'package:fitzone/core/location/location_provider.dart';
+import 'package:fitzone/core/location/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -5,9 +7,8 @@ import 'package:logging/logging.dart';
 import 'package:fitzone/l10n/app_localizations.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/dimensions.dart';
-import '../../../../core/providers/location_provider.dart';
-import '../../../../core/services/location_service.dart';
+import '../../../../core/theme/app_dimensions.dart';
+
 import '../../data/models/gym_details_model.dart';
 
 class GymSmartHeader extends ConsumerWidget {
@@ -35,19 +36,23 @@ class GymSmartHeader extends ConsumerWidget {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final userLocation = ref.watch(userLocationProvider);
 
+    // 1. Get the LocationService instance from Riverpod
+    final LocationService locationService = ref.read(locationServiceProvider);
+
     final List<String> addressParts = gym.address.split(',');
     final String shortAddress = addressParts.isNotEmpty
         ? '${addressParts[0].trim()} - ${gym.city}'
         : gym.city;
 
+    // 2. Use the instance methods and named parameters
     final String dynamicDistance = userLocation != null
-        ? LocationService.formatDistance(
-            LocationService.calculateDistanceInMeters(
+        ? locationService.formatDistance(
+            locationService.calculateDistanceInMeters(
               userLocation,
               gym.location,
             ),
-            l10n.km,
-            'm',
+            kmLabel: l10n.km,
+            mLabel: 'm',
           )
         : '-- ${l10n.km}';
 

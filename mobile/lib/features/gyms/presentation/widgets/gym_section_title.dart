@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/dimensions.dart';
+import '../../../../core/theme/app_dimensions.dart';
 
 class GymSectionTitle extends StatelessWidget {
   final String title;

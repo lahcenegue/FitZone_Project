@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'locale_provider.dart';
+part of 'app_locale_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -8,35 +8,31 @@ part of 'locale_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider to manage application language.
-/// Listens to system language changes automatically using WidgetsBindingObserver.
+/// Manages the application locale state.
 
-@ProviderFor(LocaleNotifier)
-final localeProvider = LocaleNotifierProvider._();
+@ProviderFor(AppLocale)
+final appLocaleProvider = AppLocaleProvider._();
 
-/// Provider to manage application language.
-/// Listens to system language changes automatically using WidgetsBindingObserver.
-final class LocaleNotifierProvider
-    extends $NotifierProvider<LocaleNotifier, Locale> {
-  /// Provider to manage application language.
-  /// Listens to system language changes automatically using WidgetsBindingObserver.
-  LocaleNotifierProvider._()
+/// Manages the application locale state.
+final class AppLocaleProvider extends $NotifierProvider<AppLocale, Locale> {
+  /// Manages the application locale state.
+  AppLocaleProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'localeProvider',
+        name: r'appLocaleProvider',
         isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$localeNotifierHash();
+  String debugGetCreateSourceHash() => _$appLocaleHash();
 
   @$internal
   @override
-  LocaleNotifier create() => LocaleNotifier();
+  AppLocale create() => AppLocale();
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(Locale value) {
@@ -47,12 +43,11 @@ final class LocaleNotifierProvider
   }
 }
 
-String _$localeNotifierHash() => r'460e58f59e4f6c54d20f9bf1e5fa4cb6a9be98c9';
+String _$appLocaleHash() => r'2fae6fac42729d018b80a2430d4155dd4ec7d54e';
 
-/// Provider to manage application language.
-/// Listens to system language changes automatically using WidgetsBindingObserver.
+/// Manages the application locale state.
 
-abstract class _$LocaleNotifier extends $Notifier<Locale> {
+abstract class _$AppLocale extends $Notifier<Locale> {
   Locale build();
   @$mustCallSuper
   @override

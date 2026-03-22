@@ -3,7 +3,7 @@ import 'package:fitzone/features/explore/presentation/providers/explore_filter_s
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logging/logging.dart';
 
-import '../../../../core/constants/api_constants.dart';
+import '../../../../core/config/api_constants.dart';
 import '../models/gym_model.dart';
 
 class ExploreApiService {

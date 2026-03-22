@@ -2,17 +2,17 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logging/logging.dart';
 
-/// Core service handling GPS location permissions and real-time positioning.
+/// Core service for handling device location and permissions.
 class LocationService {
-  LocationService._();
   static final Logger _logger = Logger('LocationService');
 
-  /// Requests permissions and retrieves the user's current location.
-  static Future<LatLng?> getCurrentLocation() async {
+  /// Requests location permissions and retrieves the user's current GPS position.
+  /// Returns [LatLng] if successful, or null if permissions are denied or services disabled.
+  Future<LatLng?> getCurrentLocation() async {
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        _logger.warning('Location services are disabled by the device.');
+        _logger.warning('Location services are disabled by the user.');
         return null;
       }
 
@@ -20,7 +20,7 @@ class LocationService {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          _logger.warning('Location permissions are denied by the user.');
+          _logger.warning('Location permissions denied by the user.');
           return null;
         }
       }
@@ -30,10 +30,13 @@ class LocationService {
         return null;
       }
 
-      Position position = await Geolocator.getCurrentPosition(
+      final Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
 
+      _logger.info(
+        'Location fetched successfully: ${position.latitude}, ${position.longitude}',
+      );
       return LatLng(position.latitude, position.longitude);
     } catch (e, stackTrace) {
       _logger.severe('Failed to get current location', e, stackTrace);
@@ -41,8 +44,8 @@ class LocationService {
     }
   }
 
-  /// Calculates the straight-line distance (in meters) between two coordinates.
-  static double calculateDistanceInMeters(LatLng start, LatLng end) {
+  /// Calculates the straight-line distance in meters between two geographical points.
+  double calculateDistanceInMeters(LatLng start, LatLng end) {
     return Geolocator.distanceBetween(
       start.latitude,
       start.longitude,
@@ -51,12 +54,18 @@ class LocationService {
     );
   }
 
-  /// Formats the distance into a readable string (e.g., "450 m" or "2.5 km").
-  static String formatDistance(double meters, String kmLabel, String mLabel) {
-    if (meters < 1000) {
+  /// Formats the distance into a human-readable string (meters or kilometers).
+  String formatDistance(
+    double meters, {
+    required String kmLabel,
+    required String mLabel,
+  }) {
+    const double oneKilometer = 1000.0;
+
+    if (meters < oneKilometer) {
       return '${meters.toInt()} $mLabel';
     } else {
-      return '${(meters / 1000).toStringAsFixed(1)} $kmLabel';
+      return '${(meters / oneKilometer).toStringAsFixed(1)} $kmLabel';
     }
   }
 }

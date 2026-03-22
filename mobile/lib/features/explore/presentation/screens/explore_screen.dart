@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fitzone/core/location/location_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -7,11 +8,10 @@ import 'package:logging/logging.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitzone/l10n/app_localizations.dart';
 
-import '../../../../core/constants/app_constants.dart';
+import '../../../../core/config/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/dimensions.dart';
+import '../../../../core/theme/app_dimensions.dart';
 import 'package:fitzone/core/routing/app_router.dart';
-import '../../../../core/providers/location_provider.dart';
 
 import '../widgets/explore_search_bar.dart';
 import '../widgets/map_zoom_controls.dart';

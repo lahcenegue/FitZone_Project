@@ -4,7 +4,7 @@ import 'package:logging/logging.dart';
 import 'package:fitzone/l10n/app_localizations.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/dimensions.dart';
+import '../../../../core/theme/app_dimensions.dart';
 import '../providers/gym_details_provider.dart';
 
 import '../widgets/gym_image_gallery.dart';
