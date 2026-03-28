@@ -10,6 +10,6 @@ class AppInitSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppConfiguration
         fields = [
-            'sports_version', 'amenities_version', 'cities_version',
+            'sports_version', 'amenities_version', 'cities_version', 'service_types_version',
             'android_version', 'ios_version', 'force_update', 'update_message'
         ]

@@ -10,6 +10,9 @@ class AppConfiguration(models.Model):
     sports_version = models.FloatField(default=1.0, verbose_name=_("Sports Data Version"))
     amenities_version = models.FloatField(default=1.0, verbose_name=_("Amenities Data Version"))
     cities_version = models.FloatField(default=1.0, verbose_name=_("Cities Data Version"))
+
+    # NEW: Version tracking for service types
+    service_types_version = models.FloatField(default=1.0, verbose_name=_("Service Types Version"))
     
     # App Update Management
     android_version = models.CharField(max_length=20, default="1.0.0", verbose_name=_("Android App Version"))

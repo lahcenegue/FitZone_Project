@@ -10,4 +10,10 @@ class ApiConstants {
 
   // Branch Details
   static const String gymBranchDetails = '/gyms/branches/';
+
+  // Bootstrapping Endpoints
+  static const String initConfig = '/init/';
+  static const String cities = '/cities/';
+  static const String sports = '/gyms/sports/';
+  static const String amenities = '/gyms/amenities/';
 }

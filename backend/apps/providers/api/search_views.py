@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 
 class UnifiedSearchAPIView(APIView):
     """
-    GET /api/v1/search/
-    Unified endpoint to search and filter providers (Gyms, Trainers, Stores, Restaurants).
+    GET /api/v1/providers/discover/
+    Unified endpoint to search and filter providers explicitly governed by 'type'.
     """
     authentication_classes = [] 
     permission_classes = []
@@ -24,17 +24,22 @@ class UnifiedSearchAPIView(APIView):
             service_type = params.get('type', 'gym').lower()
             page_number = params.get('page', 1)
 
+            # 1. Fetch data through the service layer routing
+            try:
+                queryset = UnifiedSearchService.search_providers(params)
+            except ValueError as ve:
+                return Response({"error": str(ve)}, status=status.HTTP_400_BAD_REQUEST)
+
+            # 2. Assign the correct Serializer based on service type
             if service_type == 'gym':
-                queryset = UnifiedSearchService.search_gyms(params)
                 serializer_class = GymBranchSearchSerializer
-            elif service_type == 'trainer':
-                return Response({"detail": "Trainer search coming soon."}, status=status.HTTP_501_NOT_IMPLEMENTED)
             else:
                 return Response(
-                    {"error": f"Unsupported service type: {service_type}"}, 
-                    status=status.HTTP_400_BAD_REQUEST
+                    {"error": f"Serializer for type '{service_type}' is not implemented yet."}, 
+                    status=status.HTTP_501_NOT_IMPLEMENTED
                 )
 
+            # 3. Handle Pagination
             paginator = Paginator(queryset, PAGE_SIZE_DEFAULT)
             try:
                 page_obj = paginator.page(page_number)
@@ -48,6 +53,7 @@ class UnifiedSearchAPIView(APIView):
                     }
                 }, status=status.HTTP_200_OK)
 
+            # 4. Serialize Data
             serializer = serializer_class(page_obj.object_list, many=True, context={'request': request})
 
             return Response({

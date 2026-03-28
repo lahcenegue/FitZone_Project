@@ -18,9 +18,10 @@
   - [2.5 Complete Profile (Step 2)](#25-complete-profile-step-2--before-subscription)
 - [3. App Initialization & Static Data](#3-app-initialization--static-data-bootstrapping)
   - [3.1 App Initialization (Check Versions)](#31-app-initialization-check-versions)
-  - [3.2 Get Cities List](#32-get-cities-list)
-  - [3.3 Get Sports List](#33-get-sports-list)
-  - [3.4 Get Amenities List](#34-get-amenities-list)
+  - [3.2 Get Service Types List](#32-get-service-types-list)
+  - [3.3 Get Cities List](#33-get-cities-list)
+  - [3.4 Get Sports List](#34-get-sports-list)
+  - [3.5 Get Amenities List](#35-get-amenities-list)
 
 ---
 
@@ -42,12 +43,12 @@ The ultimate endpoint that powers both the **Map View** and the **List View**. I
 
 | Parameter | Type | Example | Description |
 | :--- | :--- | :--- | :--- |
-| `type` | String | `gym` | Service type (`gym`, `trainer`). Defaults to `gym`. |
+| `type` | String | `gym` | Service type (`gym`, `trainer`, `restaurant`, `equipment`). Defaults to `gym`. |
 | `q` | String | `power` | Text search across name, address, and description. |
-| `gender` | String | `men` | Filter by target audience (`men`, `women`, `mixed`). |
-| `city` | String | `riyadh` | Exact match for city code. |
-| `sports` | String | `1,4` | Comma-separated list of Sport IDs. |
-| `amenities` | String | `2,3` | Comma-separated list of Amenity IDs. |
+| `gender` | String | `men` | Filter by target audience (`men`, `women`, `mixed`). (Gym specific) |
+| `city_id` | String | `riyadh` | Exact match for city code (alias for `city`). |
+| `sports` | String | `1,4` | Comma-separated list of Sport IDs. (Gym specific) |
+| `amenities` | String | `2,3` | Comma-separated list of Amenity IDs. (Gym specific) |
 | `min_price` | Float | `150.0` | Minimum subscription plan price. |
 | `max_price` | Float | `500.0` | Maximum subscription plan price. |
 | `is_open` | Boolean | `true` | If `true`, returns only branches currently open (handles overnight shifts). |
@@ -60,7 +61,7 @@ The ultimate endpoint that powers both the **Map View** and the **List View**. I
 #### Example Request
 
 ```http
-GET /api/v1/providers/discover/?type=gym&gender=men&max_price=500&lat=24.7136&lng=46.6753&sort_by=distance&page=1
+GET /api/v1/providers/discover/?type=gym&city_id=riyadh&gender=mixed&lat=24.7136&lng=46.6753&sort_by=distance&page=1
 ```
 
 #### Responses
@@ -71,22 +72,22 @@ GET /api/v1/providers/discover/?type=gym&gender=men&max_price=500&lat=24.7136&ln
 {
   "results": [
     {
-      "id": 8,
-      "provider_id": 12,
-      "provider_name": "PowerHouse Gym",
-      "name": "PowerHouse Riyadh Branch",
+      "id": 7,
+      "provider_id": 7,
+      "provider_name": "Al-Rashid Fitness Center",
+      "name": "ابو فهد جيم",
       "city": "riyadh",
-      "address": "King Fahd Road, Riyadh",
-      "gender": "men",
-      "lat": 24.7180,
-      "lng": 46.6800,
-      "branch_logo": "http://localhost:8000/media/gyms/logos/powerhouse.png",
+      "address": "الكهف, الملك فهد, محافظة الرياض, منطقة الرياض",
+      "gender": "mixed",
+      "lat": 24.740771,
+      "lng": 46.671236,
+      "branch_logo": "http://localhost:8000/media/gyms/branches/logos/img.jpg",
       "is_active": true,
       "is_temporarily_closed": false,
-      "distance_km": 3.24,
-      "min_price": 299.99,
-      "sports": ["CrossFit", "Weightlifting"],
-      "amenities": ["Sauna", "Showers"],
+      "distance_km": 5.2,
+      "min_price": 200.00,
+      "sports": ["Boxing", "football"],
+      "amenities": ["ساونا"],
       "type": "gym",
       "rating": 4.5,
       "is_open_now": true,
@@ -94,10 +95,10 @@ GET /api/v1/providers/discover/?type=gym&gender=men&max_price=500&lat=24.7136&ln
     }
   ],
   "meta": {
-    "total_items": 45,
-    "total_pages": 5,
+    "total_items": 1,
+    "total_pages": 1,
     "current_page": 1,
-    "has_next": true,
+    "has_next": false,
     "has_previous": false
   }
 }
@@ -335,9 +336,9 @@ Returns the updated user object where `profile_is_complete` is now `true`.
 
 ## 3. App Initialization & Static Data (Bootstrapping)
 
-These endpoints provide static data necessary for the app to function. To optimize performance, the mobile app must call `/init/` on startup. If data versions have changed, the app should fetch and cache the updated lists (Cities, Sports, Amenities).
+These endpoints provide static data necessary for the app to function. To optimize performance, the mobile app must call `/init/` on startup. If data versions have changed, the app should fetch and cache the updated lists (Cities, Sports, Amenities, Service Types).
 
-> **Important — Localization:** All static data endpoints (`/cities/`, `/sports/`, `/amenities/`) support dynamic translation. The app **MUST** send the `Accept-Language` header with every request to receive names in the user's current device language.
+> **Important — Localization:** All static data endpoints support dynamic JSON translation. The app `MUST` send the `Accept-Language` header with every request to receive names in the user's current device language.
 >
 > Examples: `Accept-Language: ar` or `Accept-Language: en`
 
@@ -359,9 +360,10 @@ Retrieves the current static data versions and app update requirements.
 
 ```json
 {
-  "sports_version": 1.1,
+  "sports_version": 1.0,
   "amenities_version": 1.0,
   "cities_version": 1.0,
+  "service_types_version": 1.0,
   "android_version": "1.0.0",
   "ios_version": "1.0.0",
   "force_update": false,
@@ -370,8 +372,31 @@ Retrieves the current static data versions and app update requirements.
 ```
 
 ---
-
 ### 3.2 Get Cities List
+Get Service Types List
+
+Retrieves the main categories of service providers available in the app. Automatically translated based on `Accept-Language`.
+
+| Property | Value |
+| :--- | :--- |
+| **Endpoint** | `/service-types/` |
+| **Method** | `GET` |
+| **Header** | `Accept-Language: ar` (or `en`) |
+
+#### Responses
+
+**`200 OK` — Success**
+
+```json
+[
+  { "id": "gym", "name": "صالة رياضية" },
+  { "id": "trainer", "name": "مدرب شخصي" }
+]
+```
+
+---
+
+### 3.3 Get Cities List
 
 Retrieves the list of active cities. Automatically translated based on `Accept-Language`.
 
@@ -394,7 +419,7 @@ Retrieves the list of active cities. Automatically translated based on `Accept-L
 
 ---
 
-### 3.3 Get Sports List
+### 3.4 Get Sports List
 
 Retrieves the full list of available sports and their images for caching.
 
@@ -420,7 +445,7 @@ Retrieves the full list of available sports and their images for caching.
 
 ---
 
-### 3.4 Get Amenities List
+### 3.5 Get Amenities List
 
 Retrieves the full list of available amenities and their icons for caching.
 

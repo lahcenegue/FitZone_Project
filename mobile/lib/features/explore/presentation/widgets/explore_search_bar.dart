@@ -1,8 +1,8 @@
+import 'package:fitzone/features/explore/presentation/providers/explore_filter_state.dart';
 import 'package:fitzone/features/explore/presentation/providers/explore_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fitzone/l10n/app_localizations.dart';
-
+import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import 'explore_filters_bottom_sheet.dart';
@@ -22,7 +22,7 @@ class _ExploreSearchBarState extends ConsumerState<ExploreSearchBar> {
   @override
   void initState() {
     super.initState();
-    final initialQuery = ref.read(exploreFilterProvider).query ?? '';
+    final String initialQuery = ref.read(exploreFilterProvider).query ?? '';
     _searchController = TextEditingController(text: initialQuery);
   }
 
@@ -33,10 +33,10 @@ class _ExploreSearchBarState extends ConsumerState<ExploreSearchBar> {
   }
 
   void _onSearchSubmitted(String query) {
-    final currentState = ref.read(exploreFilterProvider);
-    ref.read(exploreFilterProvider.notifier).state = currentState.copyWith(
-      query: query,
-    );
+    final ExploreFilterState currentState = ref.read(exploreFilterProvider);
+    ref
+        .read(exploreFilterProvider.notifier)
+        .updateFilters(currentState.copyWith(query: query));
     FocusScope.of(context).unfocus();
   }
 
@@ -60,14 +60,17 @@ class _ExploreSearchBarState extends ConsumerState<ExploreSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final currentFilters = ref.watch(exploreFilterProvider);
+    final AppLocalizations l10n = AppLocalizations.of(context)!;
+    final ExploreFilterState currentFilters = ref.watch(exploreFilterProvider);
 
-    // Determine if any deep filter is active to show a visual indicator
+    // Dynamic indicator logic based on comprehensive state
     final bool hasActiveFilters =
         currentFilters.gender != null ||
         currentFilters.isOpen ||
-        currentFilters.sortBy != null;
+        currentFilters.sortBy != null ||
+        currentFilters.selectedSports.isNotEmpty ||
+        currentFilters.selectedAmenities.isNotEmpty ||
+        currentFilters.maxPrice != null;
 
     return Container(
       height: Dimensions.searchBarHeight,

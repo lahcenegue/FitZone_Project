@@ -4,26 +4,15 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logging/logging.dart';
 
 import '../../../../core/config/api_constants.dart';
+
 import '../models/gym_model.dart';
 
 class ExploreApiService {
   final Dio _dio;
   final Logger _logger = Logger('ExploreApiService');
 
-  ExploreApiService({Dio? dio})
-    : _dio =
-          dio ??
-          Dio(
-            BaseOptions(
-              baseUrl: ApiConstants.baseUrl,
-              connectTimeout: const Duration(seconds: 15),
-              receiveTimeout: const Duration(seconds: 15),
-              responseType: ResponseType.json,
-            ),
-          );
+  ExploreApiService({required Dio dio}) : _dio = dio;
 
-  /// Unified discovery method that handles bounds, search queries, and filters.
-  /// This replaces the old fetchPlacesInBounds method.
   Future<List<GymModel>> discoverPlaces({
     required ExploreFilterState filters,
     LatLng? userLocation,
@@ -31,17 +20,20 @@ class ExploreApiService {
     try {
       final Map<String, dynamic> queryParams = {};
 
-      // 1. Basic Type Filter
-      if (filters.type.isNotEmpty) {
-        queryParams['type'] = filters.type;
-      }
+      // 1. Dynamic Type Category (Enum to String)
+      queryParams['type'] = filters.category.name;
 
       // 2. Text Search Query
       if (filters.query != null && filters.query!.isNotEmpty) {
         queryParams['q'] = filters.query;
       }
 
-      // 3. Status and Gender Filters
+      // 3. City Filter
+      if (filters.cityId != null && filters.cityId!.isNotEmpty) {
+        queryParams['city'] = filters.cityId;
+      }
+
+      // 4. Status and Gender
       if (filters.gender != null && filters.gender!.isNotEmpty) {
         queryParams['gender'] = filters.gender;
       }
@@ -52,12 +44,28 @@ class ExploreApiService {
         queryParams['max_price'] = filters.maxPrice;
       }
 
-      // 4. Sorting Logic
+      // 5. Dynamic Arrays (Sent as comma-separated IDs)
+      if (filters.selectedSports.isNotEmpty) {
+        queryParams['sports'] = filters.selectedSports.join(',');
+      }
+      if (filters.selectedAmenities.isNotEmpty) {
+        queryParams['amenities'] = filters.selectedAmenities.join(',');
+      }
+      if (filters.selectedDietary.isNotEmpty) {
+        queryParams['dietary_options'] = filters.selectedDietary.join(',');
+      }
+      if (filters.selectedEquipmentCategories.isNotEmpty) {
+        queryParams['equipment_categories'] = filters
+            .selectedEquipmentCategories
+            .join(',');
+      }
+
+      // 6. Sorting
       if (filters.sortBy != null && filters.sortBy!.isNotEmpty) {
         queryParams['sort_by'] = filters.sortBy;
       }
 
-      // 5. Geographic Map Bounds
+      // 7. Geographic Bounds & Radius
       if (filters.bounds != null) {
         queryParams['min_lat'] = filters.bounds!.southwest.latitude
             .toStringAsFixed(6);
@@ -69,19 +77,16 @@ class ExploreApiService {
             .toStringAsFixed(6);
       }
 
-      // 6. User Geo-coordinates (Required for distance-based sorting)
-      if (userLocation != null && filters.sortBy == 'distance') {
+      if (userLocation != null) {
         queryParams['lat'] = userLocation.latitude.toStringAsFixed(6);
         queryParams['lng'] = userLocation.longitude.toStringAsFixed(6);
+        queryParams['radius_km'] = filters.radiusKm;
       }
 
-      _logger.info(
-        'Calling Unified Discovery API: ${ApiConstants.mapDiscover} with params: $queryParams',
-      );
+      _logger.info('Calling Unified Discovery API with params: $queryParams');
 
-      final response = await _dio.get(
-        ApiConstants
-            .mapDiscover, // Ensure this points to '/providers/discover/'
+      final Response response = await _dio.get(
+        ApiConstants.mapDiscover,
         queryParameters: queryParams,
       );
 
@@ -90,7 +95,6 @@ class ExploreApiService {
             response.data as Map<String, dynamic>;
         final List<dynamic> results =
             responseData['results'] as List<dynamic>? ?? [];
-
         return results
             .map((json) => GymModel.fromJson(json as Map<String, dynamic>))
             .toList();
@@ -102,9 +106,6 @@ class ExploreApiService {
         'Network Error: [${e.response?.statusCode}] ${e.response?.data}',
       );
       throw Exception('Network error: ${e.message}');
-    } catch (e, stackTrace) {
-      _logger.severe('Data processing error in discoverPlaces.', e, stackTrace);
-      throw Exception('Data parsing error');
     }
   }
 }

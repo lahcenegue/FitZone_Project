@@ -40,3 +40,10 @@ BRANCH_GENDER_CHOICES = (
     ("women", _("Women Only")),
     ("mixed", _("Mixed / Both")),
 )
+
+PROVIDER_TYPES = (
+    ("gym", _("Gym")),
+    # ("trainer", _("Trainer")),
+    # ("restaurant", _("Healthy Restaurant")),
+    # ("equipment", _("Sports Equipment")),
+)

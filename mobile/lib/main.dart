@@ -10,18 +10,26 @@ import 'l10n/app_localizations.dart';
 import 'core/storage/storage_provider.dart';
 import 'core/theme/app_theme_provider.dart';
 import 'core/l10n/app_locale_provider.dart';
+import 'core/init/app_init_provider.dart'; // Added Import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   _setupLogging();
 
+  // 1. Initialize SharedPreferences synchronously
   final SharedPreferences prefs = await SharedPreferences.getInstance();
 
+  // 2. Create a ProviderContainer to read providers before runApp
+  final ProviderContainer container = ProviderContainer(
+    overrides: [sharedPrefsProvider.overrideWithValue(prefs)],
+  );
+
+  // 3. Trigger App Bootstrapping (Sync static data silently in the background)
+  // This will NOT block the UI from rendering.
+  container.read(appInitServiceProvider).initializeApp();
+
   runApp(
-    ProviderScope(
-      overrides: [sharedPrefsProvider.overrideWithValue(prefs)],
-      child: const FitZoneApp(),
-    ),
+    UncontrolledProviderScope(container: container, child: const FitZoneApp()),
   );
 }
 
@@ -30,8 +38,9 @@ void _setupLogging() {
   Logger.root.onRecord.listen((LogRecord record) {
     debugPrint('${record.level.name}: ${record.time}: ${record.message}');
     if (record.error != null) debugPrint('Error: ${record.error}');
-    if (record.stackTrace != null)
+    if (record.stackTrace != null) {
       debugPrint('Stack Trace: ${record.stackTrace}');
+    }
   });
 }
 

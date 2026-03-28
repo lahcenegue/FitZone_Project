@@ -6,7 +6,7 @@ from rest_framework import status
 
 from apps.core.models import AppConfiguration, City
 from apps.core.api.serializers import AppInitSerializer
-from apps.core.constants import SAUDI_CITIES
+from apps.core.constants import PROVIDER_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -59,3 +59,31 @@ class CityListAPIView(APIView):
             })
 
         return Response(cities_data, status=status.HTTP_200_OK)
+    
+class ServiceTypeListAPIView(APIView):
+    """
+    GET /api/v1/service-types/
+    Returns a list of supported service provider types.
+    Translates automatically based on 'Accept-Language' header.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, *args, **kwargs):
+        lang = request.META.get('HTTP_ACCEPT_LANGUAGE', 'en').lower()
+        is_arabic = 'ar' in lang
+
+        # Hardcoded dictionary since these are static core architecture types
+        types_ar = {
+            "gym": "صالة رياضية",
+            "trainer": "مدرب شخصي",
+            "restaurant": "مطعم صحي",
+            "equipment": "معدات رياضية"
+        }
+
+        types_data = []
+        for type_key, type_en_name in PROVIDER_TYPES:
+            name = types_ar.get(type_key, str(type_en_name)) if is_arabic else str(type_en_name)
+            types_data.append({"id": type_key, "name": name})
+
+        return Response(types_data, status=status.HTTP_200_OK)

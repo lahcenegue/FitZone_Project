@@ -1,53 +1,74 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+/// Defines the four core service types available in the application.
+enum ServiceCategory { gym, trainer, restaurant, equipment }
+
+/// Holds the comprehensive state of all explore filters across all service categories.
 class ExploreFilterState {
   final String? query;
-  final String type;
-  final String? gender;
-  final bool isOpen;
-  final double? maxPrice;
-  final double radiusKm; // حقل مخصص للمسافة
-  final List<String> selectedSports;
-  final List<String> selectedAmenities;
+  final ServiceCategory category;
+  final String? cityId;
+  final double radiusKm;
   final String? sortBy;
   final LatLngBounds? bounds;
 
+  // --- Shared Filters ---
+  final bool isOpen;
+  final String? gender; // 'male', 'female', 'mixed'
+  final double? maxPrice;
+
+  // --- Type-Specific Array Filters (IDs) ---
+  final List<int> selectedSports;
+  final List<int> selectedAmenities;
+  final List<int> selectedDietary;
+  final List<int> selectedEquipmentCategories;
+
   const ExploreFilterState({
     this.query,
-    this.type = 'gym',
-    this.gender,
-    this.isOpen = false,
-    this.maxPrice,
-    this.radiusKm = 50.0, // القيمة الافتراضية للمسافة
-    this.selectedSports = const [],
-    this.selectedAmenities = const [],
+    this.category = ServiceCategory.gym,
+    this.cityId,
+    this.radiusKm = 50.0,
     this.sortBy,
     this.bounds,
+    this.isOpen = false,
+    this.gender,
+    this.maxPrice,
+    this.selectedSports = const [],
+    this.selectedAmenities = const [],
+    this.selectedDietary = const [],
+    this.selectedEquipmentCategories = const [],
   });
 
   ExploreFilterState copyWith({
     String? query,
-    String? type,
-    String? gender,
-    bool? isOpen,
-    double? maxPrice,
+    ServiceCategory? category,
+    String? cityId,
     double? radiusKm,
-    List<String>? selectedSports,
-    List<String>? selectedAmenities,
     String? sortBy,
     LatLngBounds? bounds,
+    bool? isOpen,
+    String? gender,
+    double? maxPrice,
+    List<int>? selectedSports,
+    List<int>? selectedAmenities,
+    List<int>? selectedDietary,
+    List<int>? selectedEquipmentCategories,
   }) {
     return ExploreFilterState(
       query: query ?? this.query,
-      type: type ?? this.type,
-      gender: gender ?? this.gender,
-      isOpen: isOpen ?? this.isOpen,
-      maxPrice: maxPrice ?? this.maxPrice,
+      category: category ?? this.category,
+      cityId: cityId ?? this.cityId,
       radiusKm: radiusKm ?? this.radiusKm,
-      selectedSports: selectedSports ?? this.selectedSports,
-      selectedAmenities: selectedAmenities ?? this.selectedAmenities,
       sortBy: sortBy ?? this.sortBy,
       bounds: bounds ?? this.bounds,
+      isOpen: isOpen ?? this.isOpen,
+      gender: gender ?? this.gender,
+      maxPrice: maxPrice ?? this.maxPrice,
+      selectedSports: selectedSports ?? this.selectedSports,
+      selectedAmenities: selectedAmenities ?? this.selectedAmenities,
+      selectedDietary: selectedDietary ?? this.selectedDietary,
+      selectedEquipmentCategories:
+          selectedEquipmentCategories ?? this.selectedEquipmentCategories,
     );
   }
 }

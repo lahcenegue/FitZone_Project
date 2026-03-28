@@ -1,21 +1,24 @@
-import 'package:fitzone/core/location/location_provider.dart';
 import 'package:fitzone/features/explore/data/models/gym_model.dart';
 import 'package:fitzone/features/explore/data/services/explore_api_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logging/logging.dart';
 
+import '../../../../core/location/location_provider.dart';
+import '../../../../core/network/api_provider.dart';
+
 import 'explore_filter_state.dart';
 
 final Logger _logger = Logger('ExploreProvider');
 
 /// 1. API Service Provider
+/// Now injects the globally configured Dio client from api_provider.dart
 final exploreApiServiceProvider = Provider<ExploreApiService>((ref) {
-  return ExploreApiService();
+  final dio = ref.watch(dioClientProvider);
+  return ExploreApiService(dio: dio);
 });
 
 /// 2. Filter State Notifier (The Brain of Search & Filters)
-/// Manages all filter parameters including bounds, query, and category.
 class ExploreFilterNotifier extends Notifier<ExploreFilterState> {
   @override
   ExploreFilterState build() => const ExploreFilterState();
@@ -44,7 +47,6 @@ final exploreFilterProvider =
     );
 
 /// 3. Selected Place Notifier
-/// Tracks which gym/place is currently selected on the map or list.
 class SelectedPlaceNotifier extends Notifier<GymModel?> {
   @override
   GymModel? build() => null;
@@ -60,13 +62,13 @@ final selectedPlaceProvider =
     );
 
 /// 4. Unified Nearby Places Provider
-/// This provider reactively fetches data whenever filters, bounds, or search query change.
 final nearbyPlacesProvider = FutureProvider<List<GymModel>>((ref) async {
   final filters = ref.watch(exploreFilterProvider);
   final apiService = ref.watch(exploreApiServiceProvider);
   final userLocation = ref.watch(userLocationProvider);
 
   // Optimization: Don't fetch if map bounds are not yet initialized
+  // unless there is a specific text query.
   if (filters.bounds == null &&
       (filters.query == null || filters.query!.isEmpty)) {
     return [];

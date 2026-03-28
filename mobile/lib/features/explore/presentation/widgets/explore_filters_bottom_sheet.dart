@@ -2,8 +2,9 @@ import 'package:fitzone/features/explore/presentation/providers/explore_filter_s
 import 'package:fitzone/features/explore/presentation/providers/explore_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fitzone/l10n/app_localizations.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/storage/storage_provider.dart';
 
 class ExploreFiltersBottomSheet extends ConsumerStatefulWidget {
   final AppColors colors;
@@ -18,21 +19,6 @@ class ExploreFiltersBottomSheet extends ConsumerStatefulWidget {
 class _ExploreFiltersBottomSheetState
     extends ConsumerState<ExploreFiltersBottomSheet> {
   late ExploreFilterState _localState;
-  // قيم تجريبية للرياضات والخدمات حتى يتم ربطها بالباك اند
-  final List<String> _allSports = [
-    'football',
-    'Boxing',
-    'Swimming',
-    'Tennis',
-    'Gymnastics',
-  ];
-  final List<String> _allAmenities = [
-    'ساونا',
-    'مسبح',
-    'WiFi',
-    'Parking',
-    'Steam Room',
-  ];
 
   @override
   void initState() {
@@ -42,58 +28,354 @@ class _ExploreFiltersBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final AppLocalizations l10n = AppLocalizations.of(context)!;
 
     return Container(
+      height: MediaQuery.of(context).size.height * 0.9,
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       decoration: BoxDecoration(
         color: widget.colors.background,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
           _buildHeader(l10n),
-          Flexible(
+          _buildServiceCategorySelector(),
+          const SizedBox(height: 16),
+          Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionTitle(l10n.category),
-                  _buildCategorySelector(),
-                  const SizedBox(height: 24),
-
-                  _buildSectionTitle("Search Radius (km)"), // مساحة البحث
-                  _buildRadiusSlider(),
-                  const SizedBox(height: 24),
-
-                  _buildSectionTitle(l10n.gender),
-                  _buildGenderSelector(),
-                  const SizedBox(height: 24),
-
-                  _buildSectionTitle("Sports"), // اختيار الرياضة
-                  _buildMultiSelectChips(_allSports, "sports"),
-                  const SizedBox(height: 24),
-
-                  _buildSectionTitle("Amenities"), // اختيار الخدمات
-                  _buildMultiSelectChips(_allAmenities, "amenities"),
-                  const SizedBox(height: 24),
-
-                  _buildOpenNowToggle(l10n),
-                  const SizedBox(height: 24),
-
-                  _buildSectionTitle(l10n.sortBy),
-                  _buildSortSelector(l10n),
-                  const SizedBox(height: 100), // مساحة للزر الثابت
-                ],
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0.0, 0.05),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: _buildDynamicFiltersForm(l10n),
               ),
             ),
           ),
           _buildApplyButton(l10n),
         ],
       ),
+    );
+  }
+
+  /// The master form builder that switches context based on Category
+  Widget _buildDynamicFiltersForm(AppLocalizations l10n) {
+    // Unique key forces AnimatedSwitcher to trigger animation on category change
+    return Column(
+      key: ValueKey<ServiceCategory>(_localState.category),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle("City / Region"),
+        _buildCitySelector(),
+        const SizedBox(height: 24),
+
+        _buildSectionTitle("Search Radius (km)"),
+        _buildRadiusSlider(),
+        const SizedBox(height: 24),
+
+        // Dynamic Injection based on Type
+        if (_localState.category == ServiceCategory.gym)
+          ..._buildGymFilters(l10n),
+        if (_localState.category == ServiceCategory.trainer)
+          ..._buildTrainerFilters(l10n),
+        if (_localState.category == ServiceCategory.restaurant)
+          ..._buildRestaurantFilters(l10n),
+        if (_localState.category == ServiceCategory.equipment)
+          ..._buildEquipmentFilters(l10n),
+
+        _buildOpenNowToggle(l10n),
+        const SizedBox(height: 24),
+
+        _buildSectionTitle(l10n.sortBy),
+        _buildSortSelector(l10n),
+        const SizedBox(height: 40),
+      ],
+    );
+  }
+
+  // --- Specific Filter Sets ---
+
+  List<Widget> _buildGymFilters(AppLocalizations l10n) {
+    final storage = ref.read(storageServiceProvider);
+    return [
+      _buildSectionTitle(l10n.gender),
+      _buildGenderSelector(),
+      const SizedBox(height: 24),
+      if (storage.sportsData.isNotEmpty) ...[
+        _buildSectionTitle("Sports"),
+        _buildDynamicMultiSelectChips(
+          items: storage.sportsData,
+          selectedIds: _localState.selectedSports,
+          onChanged: (val) => setState(
+            () => _localState = _localState.copyWith(selectedSports: val),
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
+      if (storage.amenitiesData.isNotEmpty) ...[
+        _buildSectionTitle("Amenities"),
+        _buildDynamicMultiSelectChips(
+          items: storage.amenitiesData,
+          selectedIds: _localState.selectedAmenities,
+          onChanged: (val) => setState(
+            () => _localState = _localState.copyWith(selectedAmenities: val),
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
+    ];
+  }
+
+  List<Widget> _buildTrainerFilters(AppLocalizations l10n) {
+    final storage = ref.read(storageServiceProvider);
+    return [
+      _buildSectionTitle(l10n.gender),
+      _buildGenderSelector(),
+      const SizedBox(height: 24),
+      if (storage.sportsData.isNotEmpty) ...[
+        _buildSectionTitle("Specialties"),
+        _buildDynamicMultiSelectChips(
+          items: storage.sportsData, // Trainers reuse sports as specialties
+          selectedIds: _localState.selectedSports,
+          onChanged: (val) => setState(
+            () => _localState = _localState.copyWith(selectedSports: val),
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
+    ];
+  }
+
+  List<Widget> _buildRestaurantFilters(AppLocalizations l10n) {
+    // Note: Dummy data until SQLite migration and Backend update is ready
+    final List<Map<String, dynamic>> dummyDietary = [
+      {'id': 1, 'name': 'Keto'},
+      {'id': 2, 'name': 'Vegan'},
+      {'id': 3, 'name': 'High Protein'},
+    ];
+    return [
+      _buildSectionTitle("Dietary Options"),
+      _buildDynamicMultiSelectChips(
+        items: dummyDietary,
+        selectedIds: _localState.selectedDietary,
+        onChanged: (val) => setState(
+          () => _localState = _localState.copyWith(selectedDietary: val),
+        ),
+      ),
+      const SizedBox(height: 24),
+    ];
+  }
+
+  List<Widget> _buildEquipmentFilters(AppLocalizations l10n) {
+    final List<Map<String, dynamic>> dummyEq = [
+      {'id': 1, 'name': 'Supplements'},
+      {'id': 2, 'name': 'Machines'},
+      {'id': 3, 'name': 'Apparel'},
+    ];
+    return [
+      _buildSectionTitle("Categories"),
+      _buildDynamicMultiSelectChips(
+        items: dummyEq,
+        selectedIds: _localState.selectedEquipmentCategories,
+        onChanged: (val) => setState(
+          () => _localState = _localState.copyWith(
+            selectedEquipmentCategories: val,
+          ),
+        ),
+      ),
+      const SizedBox(height: 24),
+    ];
+  }
+
+  // --- Premium UI Components ---
+
+  Widget _buildServiceCategorySelector() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          _buildCategoryCard("Gyms", Icons.fitness_center, ServiceCategory.gym),
+          const SizedBox(width: 12),
+          _buildCategoryCard(
+            "Trainers",
+            Icons.sports_martial_arts,
+            ServiceCategory.trainer,
+          ),
+          const SizedBox(width: 12),
+          _buildCategoryCard(
+            "Food",
+            Icons.restaurant_menu,
+            ServiceCategory.restaurant,
+          ),
+          const SizedBox(width: 12),
+          _buildCategoryCard(
+            "Stores",
+            Icons.storefront,
+            ServiceCategory.equipment,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryCard(
+    String label,
+    IconData icon,
+    ServiceCategory category,
+  ) {
+    final bool isSelected = _localState.category == category;
+    return GestureDetector(
+      onTap: () {
+        // Reset state entirely when switching main categories to avoid conflicting filters
+        setState(() => _localState = ExploreFilterState(category: category));
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? widget.colors.primary : widget.colors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? widget.colors.primary
+                : widget.colors.iconGrey.withOpacity(0.2),
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: widget.colors.primary.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [],
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isSelected ? Colors.white : widget.colors.iconGrey,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : widget.colors.textSecondary,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCitySelector() {
+    final storage = ref.read(storageServiceProvider);
+    final cities = storage.citiesData;
+
+    if (cities.isEmpty) return const SizedBox.shrink();
+
+    return DropdownButtonFormField<String>(
+      value: _localState.cityId,
+      isExpanded: true,
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      hint: const Text("Select Region/City"),
+      items: [
+        const DropdownMenuItem(value: null, child: Text("All Regions")),
+        ...cities.map((city) {
+          return DropdownMenuItem<String>(
+            value: city['id'].toString(),
+            child: Text(city['name'].toString()),
+          );
+        }),
+      ],
+      onChanged: (val) =>
+          setState(() => _localState = _localState.copyWith(cityId: val)),
+    );
+  }
+
+  Widget _buildDynamicMultiSelectChips({
+    required List<dynamic> items,
+    required List<int> selectedIds,
+    required Function(List<int>) onChanged,
+  }) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: items.map((item) {
+        final int id = item['id'] as int;
+        final String name = item['name'] as String;
+        final bool isSelected = selectedIds.contains(id);
+
+        return FilterChip(
+          label: Text(name),
+          selected: isSelected,
+          onSelected: (val) {
+            final List<int> currentList = List<int>.from(selectedIds);
+            if (val) {
+              currentList.add(id);
+            } else {
+              currentList.remove(id);
+            }
+            onChanged(currentList);
+          },
+          backgroundColor: widget.colors.surface,
+          selectedColor: widget.colors.primary.withOpacity(0.15),
+          checkmarkColor: widget.colors.primary,
+          labelStyle: TextStyle(
+            color: isSelected
+                ? widget.colors.primary
+                : widget.colors.textSecondary,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: isSelected
+                  ? widget.colors.primary.withOpacity(0.5)
+                  : widget.colors.iconGrey.withOpacity(0.2),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildRadiusSlider() {
+    return Column(
+      children: [
+        Slider.adaptive(
+          value: _localState.radiusKm,
+          min: 1.0,
+          max: 200.0,
+          divisions: 20,
+          activeColor: widget.colors.primary,
+          label: "${_localState.radiusKm.round()} km",
+          onChanged: (val) =>
+              setState(() => _localState = _localState.copyWith(radiusKm: val)),
+        ),
+      ],
     );
   }
 
@@ -140,108 +422,6 @@ class _ExploreFiltersBottomSheetState
     );
   }
 
-  Widget _buildRadiusSlider() {
-    return Column(
-      children: [
-        Slider.adaptive(
-          value: _localState.radiusKm,
-          min: 1.0,
-          max: 200.0,
-          divisions: 20,
-          activeColor: widget.colors.primary,
-          label: "${_localState.radiusKm.round()} km",
-          onChanged: (val) =>
-              setState(() => _localState = _localState.copyWith(radiusKm: val)),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "1km",
-                style: TextStyle(
-                  color: widget.colors.textSecondary,
-                  fontSize: 12,
-                ),
-              ),
-              Text(
-                "100km",
-                style: TextStyle(
-                  color: widget.colors.textSecondary,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMultiSelectChips(List<String> items, String type) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: items.map((item) {
-        // منطق الاختيار المتعدد (يحتاج إضافة حقول للمصفوفات في ExploreFilterState)
-        bool isSelected = false;
-        return FilterChip(
-          label: Text(item),
-          selected: isSelected,
-          onSelected: (val) {},
-          backgroundColor: widget.colors.surface,
-          selectedColor: widget.colors.primary.withOpacity(0.2),
-          checkmarkColor: widget.colors.primary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: widget.colors.iconGrey.withOpacity(0.2)),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  // ... أكواد selector المختصرة (Category, Gender, Sort) تعتمد على _buildChip الموحد
-
-  Widget _buildApplyButton(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: widget.colors.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: widget.colors.primary,
-          minimumSize: const Size(double.infinity, 56),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          elevation: 0,
-        ),
-        onPressed: () {
-          ref.read(exploreFilterProvider.notifier).updateFilters(_localState);
-          Navigator.pop(context);
-        },
-        child: Text(
-          l10n.applyFilters,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 4),
@@ -253,54 +433,6 @@ class _ExploreFiltersBottomSheetState
           color: widget.colors.textPrimary,
         ),
       ),
-    );
-  }
-
-  // دالة بناء الـ Open Now بشكل احترافي
-  Widget _buildOpenNowToggle(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: widget.colors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: widget.colors.iconGrey.withOpacity(0.1)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            l10n.openNow,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Switch.adaptive(
-            value: _localState.isOpen,
-            activeColor: widget.colors.primary,
-            onChanged: (val) =>
-                setState(() => _localState = _localState.copyWith(isOpen: val)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // دوال الاختيار الموحدة (Category, Gender, Sort)
-  Widget _buildCategorySelector() {
-    return Row(
-      children: [
-        _buildSelectableButton(
-          "Gym",
-          _localState.type == 'gym',
-          () => setState(() => _localState = _localState.copyWith(type: 'gym')),
-        ),
-        const SizedBox(width: 12),
-        _buildSelectableButton(
-          "Trainer",
-          _localState.type == 'trainer',
-          () => setState(
-            () => _localState = _localState.copyWith(type: 'trainer'),
-          ),
-        ),
-      ],
     );
   }
 
@@ -356,6 +488,32 @@ class _ExploreFiltersBottomSheetState
     );
   }
 
+  Widget _buildOpenNowToggle(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: widget.colors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: widget.colors.iconGrey.withOpacity(0.1)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            l10n.openNow,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Switch.adaptive(
+            value: _localState.isOpen,
+            activeColor: widget.colors.primary,
+            onChanged: (val) =>
+                setState(() => _localState = _localState.copyWith(isOpen: val)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSelectableButton(
     String label,
     bool isSelected,
@@ -384,6 +542,44 @@ class _ExploreFiltersBottomSheetState
               color: isSelected ? Colors.white : widget.colors.textSecondary,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildApplyButton(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: widget.colors.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: widget.colors.primary,
+          minimumSize: const Size(double.infinity, 56),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 0,
+        ),
+        onPressed: () {
+          ref.read(exploreFilterProvider.notifier).updateFilters(_localState);
+          Navigator.pop(context);
+        },
+        child: Text(
+          l10n.applyFilters,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
       ),

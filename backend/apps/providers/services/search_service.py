@@ -11,11 +11,29 @@ logger = logging.getLogger(__name__)
 class UnifiedSearchService:
     """
     Service layer for handling complex search, filtering, bounding-box map discovery, 
-    and geo-spatial sorting in a single unified query.
+    and geo-spatial sorting. Isolated by provider type.
     """
 
     @staticmethod
-    def search_gyms(params: dict):
+    def search_providers(params: dict):
+        """
+        Master method to route search based on provider type.
+        """
+        service_type = params.get('type', 'gym').lower()
+        
+        if service_type == 'gym':
+            return UnifiedSearchService._search_gyms(params)
+        # Placeholder for future service types
+        # elif service_type == 'trainer':
+        #     return UnifiedSearchService._search_trainers(params)
+        else:
+            raise ValueError(f"Unsupported service type: {service_type}")
+
+    @staticmethod
+    def _search_gyms(params: dict):
+        """
+        Search logic specifically tailored and isolated for Gyms.
+        """
         queryset = GymBranch.objects.filter(is_active=True).select_related('provider')
 
         # 1. Text Search
@@ -28,17 +46,17 @@ class UnifiedSearchService:
                 Q(provider__business_name__icontains=q)
             )
 
-        # 2. Gender Filter
+        # 2. Gender Filter (Gym Specific)
         gender = params.get('gender')
         if gender in ['men', 'women', 'mixed']:
             queryset = queryset.filter(gender=gender)
 
-        # 3. City Filter
-        city = params.get('city')
-        if city:
-            queryset = queryset.filter(city__iexact=city)
+        # 3. City Filter (Supports 'city_id' or legacy 'city')
+        city_id = params.get('city_id') or params.get('city')
+        if city_id:
+            queryset = queryset.filter(city__iexact=city_id)
 
-        # 4. Amenities & Sports Filters
+        # 4. Amenities & Sports Filters (Gym Specific)
         sports = params.get('sports')
         if sports:
             sport_ids = [int(s) for s in sports.split(',') if s.isdigit()]
@@ -69,7 +87,7 @@ class UnifiedSearchService:
             overnight_hours = Q(opening_time__gt=F('closing_time')) & (Q(opening_time__lte=now_time) | Q(closing_time__gte=now_time))
             queryset = queryset.filter(is_temporarily_closed=False).filter(standard_hours | overnight_hours)
 
-        # 7. Map Bounding Box Filtering (Crucial for Map View in Flutter)
+        # 7. Map Bounding Box Filtering
         min_lat = params.get('min_lat')
         min_lng = params.get('min_lng')
         max_lat = params.get('max_lat')
@@ -77,7 +95,6 @@ class UnifiedSearchService:
 
         if min_lat and min_lng and max_lat and max_lng:
             try:
-                # Create a polygon representing the phone screen's map area
                 geom = Polygon.from_bbox((
                     float(min_lng), float(min_lat),
                     float(max_lng), float(max_lat)
@@ -86,7 +103,7 @@ class UnifiedSearchService:
             except (ValueError, TypeError):
                 logger.error("Invalid bounding box coordinates provided.")
 
-        # 8. Exact Distance Calculation & Radius (If user center location is provided)
+        # 8. Exact Distance Calculation & Radius (If center coords provided)
         lat = params.get('lat')
         lng = params.get('lng')
         radius_km = params.get('radius_km')
