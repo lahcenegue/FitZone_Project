@@ -55,7 +55,9 @@ class CityListAPIView(APIView):
                 
             cities_data.append({
                 "id": city.code, 
-                "name": translated_name
+                "name": translated_name,
+                "lat": city.lat,
+                "lng": city.lng
             })
 
         return Response(cities_data, status=status.HTTP_200_OK)

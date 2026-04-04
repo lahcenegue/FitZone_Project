@@ -51,6 +51,9 @@ class City(models.Model):
         blank=True, 
         help_text='Format: {"ar": "الرياض", "en": "Riyadh", "fr": "Riyad"}'
     )
+    lat = models.FloatField(null=True, blank=True, verbose_name="Latitude")
+    lng = models.FloatField(null=True, blank=True, verbose_name="Longitude")
+    
     is_active = models.BooleanField(default=True)
     sort_order = models.IntegerField(default=0)
 
