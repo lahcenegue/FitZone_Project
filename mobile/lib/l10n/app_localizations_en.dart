@@ -194,4 +194,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stores => 'Stores';
+
+  @override
+  String filtersCount(Object count) {
+    return '$count Filters';
+  }
+
+  @override
+  String get anyDistance => 'Any Distance';
+
+  @override
+  String get anyPrice => 'Any Price';
+
+  @override
+  String showAll(Object count) {
+    return 'Show All (+$count)';
+  }
+
+  @override
+  String get showLess => 'Show Less';
+
+  @override
+  String get maxPriceLimit => 'Max Price';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get minPrice => 'Min Price';
+
+  @override
+  String get maxPrice => 'Max Price';
+
+  @override
+  String get any => 'Any';
 }

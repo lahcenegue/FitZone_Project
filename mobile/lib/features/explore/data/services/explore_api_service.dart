@@ -39,6 +39,10 @@ class ExploreApiService {
       if (filters.isOpen) {
         queryParams['is_open'] = true;
       }
+
+      if (filters.minPrice != null) {
+        queryParams['min_price'] = filters.minPrice;
+      }
       if (filters.maxPrice != null) {
         queryParams['max_price'] = filters.maxPrice;
       }

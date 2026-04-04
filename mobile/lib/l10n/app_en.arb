@@ -60,5 +60,15 @@
   "gyms": "Gyms",
   "trainers": "Trainers",
   "food": "Food",
-  "stores": "Stores"
+  "stores": "Stores",
+  "filtersCount": "{count} Filters",
+  "anyDistance": "Any Distance",
+  "anyPrice": "Any Price",
+  "showAll": "Show All (+{count})",
+  "showLess": "Show Less",
+  "maxPriceLimit": "Max Price",
+  "status": "Status",
+  "minPrice": "Min Price",
+  "maxPrice": "Max Price",
+  "any": "Any"
 }

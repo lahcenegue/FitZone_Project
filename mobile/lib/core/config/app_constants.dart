@@ -39,4 +39,6 @@ class AppConstants {
     {"featureType": "water","elementType": "geometry","stylers": [{"color": "#0f172a"}]},
     {"featureType": "water","elementType": "labels.text.fill","stylers": [{"color": "#3b82f6"}]}
   ]''';
+
+  static const double maxdistamceKm = 200;
 }

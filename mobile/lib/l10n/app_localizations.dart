@@ -469,6 +469,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stores'**
   String get stores;
+
+  /// No description provided for @filtersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Filters'**
+  String filtersCount(Object count);
+
+  /// No description provided for @anyDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Any Distance'**
+  String get anyDistance;
+
+  /// No description provided for @anyPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Any Price'**
+  String get anyPrice;
+
+  /// No description provided for @showAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show All (+{count})'**
+  String showAll(Object count);
+
+  /// No description provided for @showLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Less'**
+  String get showLess;
+
+  /// No description provided for @maxPriceLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Price'**
+  String get maxPriceLimit;
+
+  /// No description provided for @status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get status;
+
+  /// No description provided for @minPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Min Price'**
+  String get minPrice;
+
+  /// No description provided for @maxPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Price'**
+  String get maxPrice;
+
+  /// No description provided for @any.
+  ///
+  /// In en, this message translates to:
+  /// **'Any'**
+  String get any;
 }
 
 class _AppLocalizationsDelegate

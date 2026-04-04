@@ -1,3 +1,4 @@
+import 'package:fitzone/features/explore/presentation/screens/explore_filters_screen.dart';
 import 'package:fitzone/features/splash/presentation/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +20,8 @@ class RoutePaths {
   RoutePaths._();
 
   static const String splash = '/splash';
+
+  static const String filters = '/filters';
 
   // Bottom Navigation Routes
   static const String explore = '/';
@@ -94,6 +97,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final int gymId = int.tryParse(idString ?? '0') ?? 0;
           return GymDetailsScreen(gymId: gymId);
         },
+      ),
+
+      GoRoute(
+        path: RoutePaths.filters,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ExploreFiltersScreen(),
       ),
     ],
     errorBuilder: (context, state) {

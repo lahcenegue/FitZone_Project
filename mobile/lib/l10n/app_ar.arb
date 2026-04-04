@@ -60,5 +60,15 @@
   "gyms": "صالات",
   "trainers": "مدربين",
   "food": "مطاعم",
-  "stores": "متاجر"
+  "stores": "متاجر",
+  "filtersCount": "{count} فلاتر",
+  "anyDistance": "بدون حد",
+  "anyPrice": "أي سعر",
+  "showAll": "عرض الكل (+{count})",
+  "showLess": "إخفاء",
+  "maxPriceLimit": "الحد الأقصى للسعر",
+  "status": "حالة العمل",
+  "minPrice": "السعر الأدنى",
+  "maxPrice": "السعر الأعلى",
+  "any": "بدون حد"
 }

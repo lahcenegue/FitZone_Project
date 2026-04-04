@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logging/logging.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fitzone/l10n/app_localizations.dart';
 
 import '../../../../core/config/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -13,15 +12,17 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/location/location_provider.dart';
 import '../../../../core/storage/storage_provider.dart';
+import '../../../../core/database/database_service.dart';
+import '../../../../l10n/app_localizations.dart';
 
 import '../widgets/explore_search_bar.dart';
 import '../widgets/map_zoom_controls.dart';
 import '../widgets/map_location_button.dart';
 import '../widgets/places_horizontal_list.dart';
+import '../utils/map_marker_generator.dart';
 
 import '../../data/models/gym_model.dart';
 import '../providers/explore_provider.dart';
-import 'package:fitzone/features/explore/presentation/utils/map_marker_generator.dart';
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
@@ -41,7 +42,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch fresh location in the background
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(userLocationProvider.notifier).fetchLocation();
     });
@@ -62,7 +62,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           CameraUpdate.newLatLngZoom(locationState.location!, 14.5),
         );
       } catch (e, stackTrace) {
-        _logger.severe(
+        _logger.warning(
           'Failed to focus camera on user location.',
           e,
           stackTrace,
@@ -76,7 +76,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       final GoogleMapController controller =
           await _mapControllerCompleter.future;
       await controller.animateCamera(CameraUpdate.zoomIn());
-    } catch (e) {}
+    } catch (e, stackTrace) {
+      _logger.warning('Failed to zoom in map', e, stackTrace);
+    }
   }
 
   Future<void> _zoomOut() async {
@@ -84,7 +86,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       final GoogleMapController controller =
           await _mapControllerCompleter.future;
       await controller.animateCamera(CameraUpdate.zoomOut());
-    } catch (e) {}
+    } catch (e, stackTrace) {
+      _logger.warning('Failed to zoom out map', e, stackTrace);
+    }
   }
 
   Future<void> _applyMapStyle(bool isDarkMode) async {
@@ -96,7 +100,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             ? AppConstants.darkMapStyle
             : AppConstants.lightMapStyle;
         await controller.setMapStyle(style);
-      } catch (e) {}
+      } catch (e, stackTrace) {
+        _logger.warning('Failed to apply map style', e, stackTrace);
+      }
     }
   }
 
@@ -120,7 +126,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       ref
           .read(exploreFilterProvider.notifier)
           .updateFilters(currentState.copyWith(bounds: visibleRegion));
-    } catch (e) {}
+    } catch (e, stackTrace) {
+      _logger.warning('Failed to process camera idle bounds', e, stackTrace);
+    }
   }
 
   Future<void> _generateMapItems(
@@ -131,7 +139,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final Set<Circle> newCircles = {};
 
     for (final place in places) {
-      final baseColor = colors.markerGym; // Dynamic based on type if needed
+      final baseColor = colors.markerGym;
       final BitmapDescriptor customIcon =
           await MapMarkerGenerator.createCustomMarker(
             markerColor: baseColor,
@@ -188,7 +196,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       await controller.animateCamera(
         CameraUpdate.newLatLngZoom(place.location, 16.0),
       );
-    } catch (e) {}
+    } catch (e, stackTrace) {
+      _logger.warning('Failed to focus on place marker', e, stackTrace);
+    }
   }
 
   @override
@@ -204,7 +214,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final selectedPlace = ref.watch(selectedPlaceProvider);
     final locationState = ref.watch(userLocationProvider);
 
-    // Initial map position: Cached location -> Default (Riyadh) -> GPS (once loaded)
+    // Initial map position
     final LatLng initialPos =
         locationState.location ??
         ref.read(storageServiceProvider).getLastLocation() ??
@@ -222,6 +232,56 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       next.whenData((places) => _generateMapItems(places, colors));
     });
 
+    // Handle Delayed GPS Auto Panning
+    ref.listen<LocationState>(userLocationProvider, (previous, next) async {
+      if (previous?.location == null && next.location != null) {
+        try {
+          final GoogleMapController controller =
+              await _mapControllerCompleter.future;
+          await controller.animateCamera(
+            CameraUpdate.newLatLngZoom(next.location!, 14.5),
+          );
+        } catch (e, stackTrace) {
+          _logger.warning(
+            'Failed to pan to delayed GPS location',
+            e,
+            stackTrace,
+          );
+        }
+      }
+    });
+
+    // Handle Auto Panning on City Filter Change
+    ref.listen<String?>(exploreFilterProvider.select((s) => s.cityId), (
+      prev,
+      currentCityId,
+    ) async {
+      if (currentCityId != null && currentCityId != prev) {
+        final dbService = ref.read(databaseServiceProvider);
+        final cities = await dbService.getCities();
+        final selectedCity = cities.firstWhere(
+          (c) => c['id'].toString() == currentCityId,
+          orElse: () => <String, dynamic>{},
+        );
+
+        if (selectedCity.isNotEmpty &&
+            selectedCity['lat'] != null &&
+            selectedCity['lng'] != null) {
+          final double lat = selectedCity['lat'] as double;
+          final double lng = selectedCity['lng'] as double;
+          try {
+            final GoogleMapController controller =
+                await _mapControllerCompleter.future;
+            await controller.animateCamera(
+              CameraUpdate.newLatLngZoom(LatLng(lat, lng), 12.0),
+            );
+          } catch (e, stackTrace) {
+            _logger.warning('Failed to pan map to city', e, stackTrace);
+          }
+        }
+      }
+    });
+
     final double controlsBottomOffset = displayPlaces.isNotEmpty
         ? Dimensions.heightPercent(32.0).clamp(220.0, 280.0) +
               Dimensions.spacingMedium
@@ -237,7 +297,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           GoogleMap(
             onMapCreated: _onMapCreated,
             onCameraIdle: _onCameraIdle,
-            onTap: (LatLng _) =>
+            onTap: (_) =>
                 ref.read(selectedPlaceProvider.notifier).selectPlace(null),
             initialCameraPosition: CameraPosition(
               target: initialPos,
@@ -258,7 +318,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             circles: _circles,
           ),
 
-          // Safe Area Top Elements (Search Bar & Warning Banner)
           Positioned(
             top: safeArea.top + Dimensions.spacingSmall,
             left: Dimensions.spacingMedium,
@@ -266,8 +325,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             child: Column(
               children: [
                 ExploreSearchBar(colors: colors),
-
-                // Non-intrusive Premium Location Warning Banner
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeInOut,
@@ -293,7 +350,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           SizedBox(width: Dimensions.spacingSmall),
                           Expanded(
                             child: Text(
-                              l10n.locationWarningText, // <--- Using Localization
+                              l10n.locationWarningText,
                               style: TextStyle(
                                 color: colors.textPrimary,
                                 fontSize: Dimensions.fontBodySmall,
@@ -303,14 +360,11 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           ),
                           TextButton(
                             onPressed: () {
-                              // If GPS hardware is off -> Open Settings
                               if (!locationState.isServiceEnabled) {
                                 ref
                                     .read(userLocationProvider.notifier)
                                     .openSettings();
-                              }
-                              // If app lacks permission -> Request Permission
-                              else if (!locationState.isPermissionGranted) {
+                              } else if (!locationState.isPermissionGranted) {
                                 ref
                                     .read(userLocationProvider.notifier)
                                     .fetchLocation();
@@ -322,7 +376,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                             child: Text(
-                              l10n.enable, // <--- Using Localization
+                              l10n.enable,
                               style: TextStyle(
                                 color: colors.primary,
                                 fontWeight: FontWeight.bold,
@@ -367,13 +421,11 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             right: 0,
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return SizeTransition(
-                  sizeFactor: animation,
-                  axisAlignment: -1.0,
-                  child: child,
-                );
-              },
+              transitionBuilder: (child, animation) => SizeTransition(
+                sizeFactor: animation,
+                axisAlignment: -1.0,
+                child: child,
+              ),
               child: displayPlaces.isNotEmpty
                   ? PlacesHorizontalList(
                       key: ValueKey(displayPlaces.length),

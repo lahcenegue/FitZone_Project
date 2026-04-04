@@ -1,7 +1,5 @@
+import 'package:fitzone/core/config/app_constants.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-/// Defines the four core service types available in the application.
-enum ServiceCategory { gym, trainer, restaurant, equipment }
 
 /// Holds the comprehensive state of all explore filters across all service categories.
 class ExploreFilterState {
@@ -14,7 +12,8 @@ class ExploreFilterState {
 
   // --- Shared Filters ---
   final bool isOpen;
-  final String? gender; // 'male', 'female', 'mixed'
+  final String? gender; // 'male', 'female'
+  final double? minPrice;
   final double? maxPrice;
 
   // --- Type-Specific Array Filters (IDs) ---
@@ -27,17 +26,37 @@ class ExploreFilterState {
     this.query,
     this.category = 'gym',
     this.cityId,
-    this.radiusKm = 50.0,
+    this.radiusKm = AppConstants.maxdistamceKm,
     this.sortBy,
     this.bounds,
     this.isOpen = false,
     this.gender,
+    this.minPrice,
     this.maxPrice,
     this.selectedSports = const [],
     this.selectedAmenities = const [],
     this.selectedDietary = const [],
     this.selectedEquipmentCategories = const [],
   });
+
+  /// Returns the number of currently active filters
+  int get activeFilterCount {
+    int count = 0;
+    if (cityId != null) count++;
+    if (radiusKm < AppConstants.maxdistamceKm) {
+      count++;
+    }
+    if (gender != null) count++;
+    if (minPrice != null) count++;
+    if (maxPrice != null) count++;
+    if (isOpen) count++;
+    if (selectedSports.isNotEmpty) count++;
+    if (selectedAmenities.isNotEmpty) count++;
+    if (selectedDietary.isNotEmpty) count++;
+    if (selectedEquipmentCategories.isNotEmpty) count++;
+    if (sortBy != null) count++;
+    return count;
+  }
 
   ExploreFilterState copyWith({
     String? query,
@@ -48,7 +67,10 @@ class ExploreFilterState {
     LatLngBounds? bounds,
     bool? isOpen,
     String? gender,
+    double? minPrice,
+    bool clearMinPrice = false,
     double? maxPrice,
+    bool clearMaxPrice = false,
     List<int>? selectedSports,
     List<int>? selectedAmenities,
     List<int>? selectedDietary,
@@ -63,7 +85,8 @@ class ExploreFilterState {
       bounds: bounds ?? this.bounds,
       isOpen: isOpen ?? this.isOpen,
       gender: gender ?? this.gender,
-      maxPrice: maxPrice ?? this.maxPrice,
+      minPrice: clearMinPrice ? null : (minPrice ?? this.minPrice),
+      maxPrice: clearMaxPrice ? null : (maxPrice ?? this.maxPrice),
       selectedSports: selectedSports ?? this.selectedSports,
       selectedAmenities: selectedAmenities ?? this.selectedAmenities,
       selectedDietary: selectedDietary ?? this.selectedDietary,

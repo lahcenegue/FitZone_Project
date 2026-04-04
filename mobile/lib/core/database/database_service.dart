@@ -45,7 +45,9 @@ class DatabaseService {
     await db.execute('''
       CREATE TABLE cities (
         id TEXT PRIMARY KEY,
-        name TEXT
+        name TEXT,
+        lat REAL,
+        lng REAL
       )
     ''');
 

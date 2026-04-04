@@ -1,11 +1,12 @@
+import 'package:fitzone/core/routing/app_router.dart';
 import 'package:fitzone/features/explore/presentation/providers/explore_filter_state.dart';
 import 'package:fitzone/features/explore/presentation/providers/explore_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
-import 'explore_filters_bottom_sheet.dart';
 
 class ExploreSearchBar extends ConsumerStatefulWidget {
   final AppColors colors;
@@ -41,21 +42,7 @@ class _ExploreSearchBarState extends ConsumerState<ExploreSearchBar> {
   }
 
   void _openFilters() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.75,
-          minChildSize: 0.5,
-          maxChildSize: 0.95,
-          builder: (_, controller) {
-            return ExploreFiltersBottomSheet(colors: widget.colors);
-          },
-        );
-      },
-    );
+    context.push(RoutePaths.filters);
   }
 
   @override
@@ -137,29 +124,37 @@ class _ExploreSearchBarState extends ConsumerState<ExploreSearchBar> {
           ),
           Stack(
             alignment: Alignment.topRight,
+            clipBehavior: Clip.none,
             children: [
               IconButton(
                 icon: Icon(
                   Icons.tune_rounded,
-                  color: hasActiveFilters
+                  color: currentFilters.activeFilterCount > 0
                       ? widget.colors.primary
                       : widget.colors.textSecondary,
                 ),
                 onPressed: _openFilters,
               ),
-              if (hasActiveFilters)
+              if (currentFilters.activeFilterCount > 0)
                 Positioned(
-                  top: 10,
-                  right: 12,
+                  top: 4,
+                  right: 4,
                   child: Container(
-                    width: 8,
-                    height: 8,
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: widget.colors.error,
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: widget.colors.surface,
-                        width: 1.5,
+                        width: 2,
+                      ),
+                    ),
+                    child: Text(
+                      currentFilters.activeFilterCount.toString(),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: Dimensions.fontBodySmall * 0.8,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

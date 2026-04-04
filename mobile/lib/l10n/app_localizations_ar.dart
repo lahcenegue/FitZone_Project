@@ -193,4 +193,38 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get stores => 'متاجر';
+
+  @override
+  String filtersCount(Object count) {
+    return '$count فلاتر';
+  }
+
+  @override
+  String get anyDistance => 'بدون حد';
+
+  @override
+  String get anyPrice => 'أي سعر';
+
+  @override
+  String showAll(Object count) {
+    return 'عرض الكل (+$count)';
+  }
+
+  @override
+  String get showLess => 'إخفاء';
+
+  @override
+  String get maxPriceLimit => 'الحد الأقصى للسعر';
+
+  @override
+  String get status => 'حالة العمل';
+
+  @override
+  String get minPrice => 'السعر الأدنى';
+
+  @override
+  String get maxPrice => 'السعر الأعلى';
+
+  @override
+  String get any => 'بدون حد';
 }
