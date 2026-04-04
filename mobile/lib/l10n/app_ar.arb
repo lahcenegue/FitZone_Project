@@ -47,5 +47,18 @@
   "reset": "إعادة ضبط",
   "category": "النوع",
   "gym": "صالة رياضية",
-  "trainer": "مدرب شخصي"
+  "trainer": "مدرب شخصي",
+  "cityOrRegion": "المدينة / المنطقة",
+  "searchRadiusKm": "نطاق البحث (كيلومتر)",
+  "specialties": "التخصصات",
+  "dietaryOptions": "الخيارات الغذائية",
+  "equipmentCategories": "التصنيفات",
+  "selectRegion": "اختر المنطقة",
+  "allRegions": "جميع المناطق",
+  "locationWarningText": "يرجى تفعيل الموقع الجغرافي لنتائج أدق",
+  "enable": "تفعيل",
+  "gyms": "صالات",
+  "trainers": "مدربين",
+  "food": "مطاعم",
+  "stores": "متاجر"
 }

@@ -84,7 +84,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get getDirections => 'Get Directions';
 
   @override
-  String get crowdLow => 'Not Crowded';
+  String get crowdLow => 'Quiet';
 
   @override
   String get crowdMedium => 'A bit Crowded';
@@ -154,4 +154,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trainer => 'Trainer';
+
+  @override
+  String get cityOrRegion => 'City / Region';
+
+  @override
+  String get searchRadiusKm => 'Search Radius (km)';
+
+  @override
+  String get specialties => 'Specialties';
+
+  @override
+  String get dietaryOptions => 'Dietary Options';
+
+  @override
+  String get equipmentCategories => 'Categories';
+
+  @override
+  String get selectRegion => 'Select Region';
+
+  @override
+  String get allRegions => 'All Regions';
+
+  @override
+  String get locationWarningText =>
+      'Please enable location services for better results';
+
+  @override
+  String get enable => 'Enable';
+
+  @override
+  String get gyms => 'Gyms';
+
+  @override
+  String get trainers => 'Trainers';
+
+  @override
+  String get food => 'Food';
+
+  @override
+  String get stores => 'Stores';
 }

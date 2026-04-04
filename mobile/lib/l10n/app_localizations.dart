@@ -251,7 +251,7 @@ abstract class AppLocalizations {
   /// No description provided for @crowdLow.
   ///
   /// In en, this message translates to:
-  /// **'Not Crowded'**
+  /// **'Quiet'**
   String get crowdLow;
 
   /// No description provided for @crowdMedium.
@@ -391,6 +391,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trainer'**
   String get trainer;
+
+  /// No description provided for @cityOrRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'City / Region'**
+  String get cityOrRegion;
+
+  /// No description provided for @searchRadiusKm.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Radius (km)'**
+  String get searchRadiusKm;
+
+  /// No description provided for @specialties.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialties'**
+  String get specialties;
+
+  /// No description provided for @dietaryOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Dietary Options'**
+  String get dietaryOptions;
+
+  /// No description provided for @equipmentCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get equipmentCategories;
+
+  /// No description provided for @selectRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Region'**
+  String get selectRegion;
+
+  /// No description provided for @allRegions.
+  ///
+  /// In en, this message translates to:
+  /// **'All Regions'**
+  String get allRegions;
+
+  /// No description provided for @locationWarningText.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enable location services for better results'**
+  String get locationWarningText;
+
+  /// No description provided for @enable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable'**
+  String get enable;
+
+  /// No description provided for @gyms.
+  ///
+  /// In en, this message translates to:
+  /// **'Gyms'**
+  String get gyms;
+
+  /// No description provided for @trainers.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainers'**
+  String get trainers;
+
+  /// No description provided for @food.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get food;
+
+  /// No description provided for @stores.
+  ///
+  /// In en, this message translates to:
+  /// **'Stores'**
+  String get stores;
 }
 
 class _AppLocalizationsDelegate

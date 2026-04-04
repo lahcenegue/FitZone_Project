@@ -2,9 +2,12 @@ import 'package:fitzone/features/explore/presentation/providers/explore_filter_s
 import 'package:fitzone/features/explore/presentation/providers/explore_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../l10n/app_localizations.dart';
+import 'package:logging/logging.dart';
+
+import '../../../../core/database/database_service.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/storage/storage_provider.dart';
+import '../../../../core/theme/app_dimensions.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class ExploreFiltersBottomSheet extends ConsumerStatefulWidget {
   final AppColors colors;
@@ -18,12 +21,53 @@ class ExploreFiltersBottomSheet extends ConsumerStatefulWidget {
 
 class _ExploreFiltersBottomSheetState
     extends ConsumerState<ExploreFiltersBottomSheet> {
+  static final Logger _logger = Logger('ExploreFilters');
   late ExploreFilterState _localState;
+
+  // SQLite Data
+  List<Map<String, dynamic>> _serviceTypes = [];
+  List<Map<String, dynamic>> _cities = [];
+  List<Map<String, dynamic>> _sports = [];
+  List<Map<String, dynamic>> _amenities = [];
+  bool _isLoadingData = true;
 
   @override
   void initState() {
     super.initState();
     _localState = ref.read(exploreFilterProvider);
+    _loadStaticData();
+  }
+
+  Future<void> _loadStaticData() async {
+    final dbService = ref.read(databaseServiceProvider);
+
+    final types = await dbService.getServiceTypes();
+    final cities = await dbService.getCities();
+    final sports = await dbService.getSports();
+    final amenities = await dbService.getAmenities();
+
+    _logger.info(
+      'Loaded from DB -> Types: ${types.length}, Cities: ${cities.length}, Sports: ${sports.length}, Amenities: ${amenities.length}',
+    );
+
+    if (mounted) {
+      setState(() {
+        _serviceTypes = types;
+        _cities = cities;
+        _sports = sports;
+        _amenities = amenities;
+
+        // Fallback safety for category if not found in DB
+        if (_serviceTypes.isNotEmpty &&
+            !_serviceTypes.any((t) => t['id'] == _localState.category)) {
+          _localState = _localState.copyWith(
+            category: _serviceTypes.first['id'].toString(),
+          );
+        }
+
+        _isLoadingData = false;
+      });
+    }
   }
 
   @override
@@ -31,38 +75,37 @@ class _ExploreFiltersBottomSheetState
     final AppLocalizations l10n = AppLocalizations.of(context)!;
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.9,
+      height: Dimensions.heightPercent(92.0),
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       decoration: BoxDecoration(
         color: widget.colors.background,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(Dimensions.borderRadiusLarge * 1.5),
+        ),
       ),
       child: Column(
         children: [
           _buildHeader(l10n),
-          _buildServiceCategorySelector(),
-          const SizedBox(height: 16),
+          if (!_isLoadingData) _buildServiceCategorySelector(),
+          SizedBox(height: Dimensions.spacingMedium),
+
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              physics: const BouncingScrollPhysics(),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0.0, 0.05),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: child,
+            child: _isLoadingData
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: widget.colors.primary,
                     ),
-                  );
-                },
-                child: _buildDynamicFiltersForm(l10n),
-              ),
-            ),
+                  )
+                : SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Dimensions.spacingLarge,
+                    ),
+                    physics: const BouncingScrollPhysics(),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: _buildDynamicFiltersForm(l10n),
+                    ),
+                  ),
           ),
           _buildApplyButton(l10n),
         ],
@@ -70,194 +113,157 @@ class _ExploreFiltersBottomSheetState
     );
   }
 
-  /// The master form builder that switches context based on Category
+  /// The core builder that switches sections based on the selected category
   Widget _buildDynamicFiltersForm(AppLocalizations l10n) {
-    // Unique key forces AnimatedSwitcher to trigger animation on category change
     return Column(
-      key: ValueKey<ServiceCategory>(_localState.category),
+      key: ValueKey<String>(_localState.category),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle("City / Region"),
-        _buildCitySelector(),
-        const SizedBox(height: 24),
+        // 1. Location & Distance
+        _buildSectionTitle(l10n.cityOrRegion),
+        _buildCitySelector(l10n),
+        SizedBox(height: Dimensions.spacingLarge),
 
-        _buildSectionTitle("Search Radius (km)"),
-        _buildRadiusSlider(),
-        const SizedBox(height: 24),
+        _buildSectionTitle(l10n.searchRadiusKm),
+        _buildRadiusSlider(l10n),
+        SizedBox(height: Dimensions.spacingLarge),
 
-        // Dynamic Injection based on Type
-        if (_localState.category == ServiceCategory.gym)
-          ..._buildGymFilters(l10n),
-        if (_localState.category == ServiceCategory.trainer)
-          ..._buildTrainerFilters(l10n),
-        if (_localState.category == ServiceCategory.restaurant)
-          ..._buildRestaurantFilters(l10n),
-        if (_localState.category == ServiceCategory.equipment)
-          ..._buildEquipmentFilters(l10n),
+        // 2. Category Specific Filters
+        if (_localState.category == 'gym') ..._buildGymFilters(l10n),
+        if (_localState.category == 'trainer') ..._buildTrainerFilters(l10n),
+        // Future extensions for Food & Equipment can go here...
 
+        // 3. Price Filter (Shared)
+        _buildSectionTitle("الحد الأقصى للسعر"), // TODO: Use l10n.maxPrice
+        _buildPriceSlider(l10n),
+        SizedBox(height: Dimensions.spacingLarge),
+
+        // 4. Status (Shared)
         _buildOpenNowToggle(l10n),
-        const SizedBox(height: 24),
+        SizedBox(height: Dimensions.spacingLarge),
 
+        // 5. Sorting (Shared)
         _buildSectionTitle(l10n.sortBy),
         _buildSortSelector(l10n),
-        const SizedBox(height: 40),
+        SizedBox(height: Dimensions.spacingExtraLarge),
       ],
     );
   }
 
-  // --- Specific Filter Sets ---
+  // ---------------------------------------------------------
+  // SECTION: SPECIFIC FILTERS
+  // ---------------------------------------------------------
 
   List<Widget> _buildGymFilters(AppLocalizations l10n) {
-    final storage = ref.read(storageServiceProvider);
     return [
       _buildSectionTitle(l10n.gender),
-      _buildGenderSelector(),
-      const SizedBox(height: 24),
-      if (storage.sportsData.isNotEmpty) ...[
-        _buildSectionTitle("Sports"),
+      _buildGenderSelector(l10n),
+      SizedBox(height: Dimensions.spacingLarge),
+
+      if (_sports.isNotEmpty) ...[
+        _buildSectionTitle(l10n.sports),
         _buildDynamicMultiSelectChips(
-          items: storage.sportsData,
+          items: _sports,
           selectedIds: _localState.selectedSports,
           onChanged: (val) => setState(
             () => _localState = _localState.copyWith(selectedSports: val),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: Dimensions.spacingLarge),
       ],
-      if (storage.amenitiesData.isNotEmpty) ...[
-        _buildSectionTitle("Amenities"),
+
+      if (_amenities.isNotEmpty) ...[
+        _buildSectionTitle(l10n.amenities),
         _buildDynamicMultiSelectChips(
-          items: storage.amenitiesData,
+          items: _amenities,
           selectedIds: _localState.selectedAmenities,
           onChanged: (val) => setState(
             () => _localState = _localState.copyWith(selectedAmenities: val),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: Dimensions.spacingLarge),
       ],
     ];
   }
 
   List<Widget> _buildTrainerFilters(AppLocalizations l10n) {
-    final storage = ref.read(storageServiceProvider);
     return [
       _buildSectionTitle(l10n.gender),
-      _buildGenderSelector(),
-      const SizedBox(height: 24),
-      if (storage.sportsData.isNotEmpty) ...[
-        _buildSectionTitle("Specialties"),
+      _buildGenderSelector(l10n),
+      SizedBox(height: Dimensions.spacingLarge),
+
+      if (_sports.isNotEmpty) ...[
+        _buildSectionTitle(
+          l10n.specialties,
+        ), // Uses sports data for trainer specialties
         _buildDynamicMultiSelectChips(
-          items: storage.sportsData, // Trainers reuse sports as specialties
+          items: _sports,
           selectedIds: _localState.selectedSports,
           onChanged: (val) => setState(
             () => _localState = _localState.copyWith(selectedSports: val),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: Dimensions.spacingLarge),
       ],
     ];
   }
 
-  List<Widget> _buildRestaurantFilters(AppLocalizations l10n) {
-    // Note: Dummy data until SQLite migration and Backend update is ready
-    final List<Map<String, dynamic>> dummyDietary = [
-      {'id': 1, 'name': 'Keto'},
-      {'id': 2, 'name': 'Vegan'},
-      {'id': 3, 'name': 'High Protein'},
-    ];
-    return [
-      _buildSectionTitle("Dietary Options"),
-      _buildDynamicMultiSelectChips(
-        items: dummyDietary,
-        selectedIds: _localState.selectedDietary,
-        onChanged: (val) => setState(
-          () => _localState = _localState.copyWith(selectedDietary: val),
-        ),
-      ),
-      const SizedBox(height: 24),
-    ];
-  }
-
-  List<Widget> _buildEquipmentFilters(AppLocalizations l10n) {
-    final List<Map<String, dynamic>> dummyEq = [
-      {'id': 1, 'name': 'Supplements'},
-      {'id': 2, 'name': 'Machines'},
-      {'id': 3, 'name': 'Apparel'},
-    ];
-    return [
-      _buildSectionTitle("Categories"),
-      _buildDynamicMultiSelectChips(
-        items: dummyEq,
-        selectedIds: _localState.selectedEquipmentCategories,
-        onChanged: (val) => setState(
-          () => _localState = _localState.copyWith(
-            selectedEquipmentCategories: val,
-          ),
-        ),
-      ),
-      const SizedBox(height: 24),
-    ];
-  }
-
-  // --- Premium UI Components ---
+  // ---------------------------------------------------------
+  // SECTION: PREMIUM UI COMPONENTS
+  // ---------------------------------------------------------
 
   Widget _buildServiceCategorySelector() {
+    if (_serviceTypes.isEmpty) return const SizedBox.shrink();
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: Dimensions.spacingLarge),
+      physics: const BouncingScrollPhysics(),
       child: Row(
-        children: [
-          _buildCategoryCard("Gyms", Icons.fitness_center, ServiceCategory.gym),
-          const SizedBox(width: 12),
-          _buildCategoryCard(
-            "Trainers",
-            Icons.sports_martial_arts,
-            ServiceCategory.trainer,
-          ),
-          const SizedBox(width: 12),
-          _buildCategoryCard(
-            "Food",
-            Icons.restaurant_menu,
-            ServiceCategory.restaurant,
-          ),
-          const SizedBox(width: 12),
-          _buildCategoryCard(
-            "Stores",
-            Icons.storefront,
-            ServiceCategory.equipment,
-          ),
-        ],
+        children: _serviceTypes.map((type) {
+          final String id = type['id'].toString();
+          final String name = type['name'].toString();
+
+          IconData icon = Icons.fitness_center;
+          if (id == 'trainer') icon = Icons.sports_martial_arts;
+          if (id == 'restaurant') icon = Icons.restaurant_menu;
+          if (id == 'equipment') icon = Icons.storefront;
+
+          return Padding(
+            padding: EdgeInsets.only(right: Dimensions.spacingMedium),
+            child: _buildCategoryCard(name, icon, id),
+          );
+        }).toList(),
       ),
     );
   }
 
-  Widget _buildCategoryCard(
-    String label,
-    IconData icon,
-    ServiceCategory category,
-  ) {
-    final bool isSelected = _localState.category == category;
+  Widget _buildCategoryCard(String label, IconData icon, String categoryId) {
+    final bool isSelected = _localState.category == categoryId;
     return GestureDetector(
       onTap: () {
-        // Reset state entirely when switching main categories to avoid conflicting filters
-        setState(() => _localState = ExploreFilterState(category: category));
+        setState(() => _localState = ExploreFilterState(category: categoryId));
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        duration: const Duration(milliseconds: 250),
+        padding: EdgeInsets.symmetric(
+          horizontal: Dimensions.spacingLarge,
+          vertical: Dimensions.spacingMedium,
+        ),
         decoration: BoxDecoration(
           color: isSelected ? widget.colors.primary : widget.colors.surface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           border: Border.all(
             color: isSelected
                 ? widget.colors.primary
-                : widget.colors.iconGrey.withOpacity(0.2),
+                : widget.colors.iconGrey.withOpacity(0.15),
+            width: 1.5,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: widget.colors.primary.withOpacity(0.3),
-                    blurRadius: 8,
+                    color: widget.colors.primary.withOpacity(0.25),
+                    blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
                 ]
@@ -267,15 +273,16 @@ class _ExploreFiltersBottomSheetState
           children: [
             Icon(
               icon,
-              size: 20,
+              size: Dimensions.iconMedium,
               color: isSelected ? Colors.white : widget.colors.iconGrey,
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: Dimensions.spacingSmall),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : widget.colors.textSecondary,
+                color: isSelected ? Colors.white : widget.colors.textPrimary,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                fontSize: Dimensions.fontBodyLarge,
               ),
             ),
           ],
@@ -284,34 +291,210 @@ class _ExploreFiltersBottomSheetState
     );
   }
 
-  Widget _buildCitySelector() {
-    final storage = ref.read(storageServiceProvider);
-    final cities = storage.citiesData;
-
-    if (cities.isEmpty) return const SizedBox.shrink();
+  Widget _buildCitySelector(AppLocalizations l10n) {
+    if (_cities.isEmpty) return const SizedBox.shrink();
 
     return DropdownButtonFormField<String>(
       value: _localState.cityId,
       isExpanded: true,
-      decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      dropdownColor: widget.colors.surface,
+      icon: Icon(
+        Icons.keyboard_arrow_down_rounded,
+        color: widget.colors.primary,
       ),
-      hint: const Text("Select Region/City"),
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: widget.colors.surface,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: Dimensions.spacingLarge,
+          vertical: Dimensions.spacingMedium,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+          borderSide: BorderSide(
+            color: widget.colors.iconGrey.withOpacity(0.2),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+          borderSide: BorderSide(
+            color: widget.colors.iconGrey.withOpacity(0.2),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+          borderSide: BorderSide(color: widget.colors.primary, width: 2),
+        ),
+      ),
+      hint: Text(
+        l10n.selectRegion,
+        style: TextStyle(color: widget.colors.iconGrey),
+      ),
       items: [
-        const DropdownMenuItem(value: null, child: Text("All Regions")),
-        ...cities.map((city) {
+        DropdownMenuItem(
+          value: null,
+          child: Text(
+            l10n.allRegions,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        ..._cities.map((city) {
           return DropdownMenuItem<String>(
             value: city['id'].toString(),
-            child: Text(city['name'].toString()),
+            child: Text(
+              city['name'].toString(),
+              style: TextStyle(color: widget.colors.textPrimary),
+            ),
           );
         }),
       ],
       onChanged: (val) =>
           setState(() => _localState = _localState.copyWith(cityId: val)),
+    );
+  }
+
+  Widget _buildRadiusSlider(AppLocalizations l10n) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        Dimensions.spacingLarge,
+        Dimensions.spacingLarge,
+        Dimensions.spacingLarge,
+        Dimensions.spacingMedium,
+      ),
+      decoration: BoxDecoration(
+        color: widget.colors.surface,
+        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+        border: Border.all(color: widget.colors.iconGrey.withOpacity(0.15)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.radar_rounded,
+                    color: widget.colors.primary,
+                    size: Dimensions.iconMedium,
+                  ),
+                  SizedBox(width: Dimensions.spacingSmall),
+                  Text(
+                    "المسافة", // TODO: Use l10n
+                    style: TextStyle(
+                      color: widget.colors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                "${_localState.radiusKm.round()} ${l10n.km}",
+                style: TextStyle(
+                  color: widget.colors.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: Dimensions.fontTitleMedium,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Dimensions.spacingSmall),
+          SliderTheme(
+            data: SliderThemeData(
+              trackHeight: 6,
+              activeTrackColor: widget.colors.primary,
+              inactiveTrackColor: widget.colors.primary.withOpacity(0.1),
+              thumbColor: widget.colors.primary,
+              overlayColor: widget.colors.primary.withOpacity(0.2),
+            ),
+            child: Slider(
+              value: _localState.radiusKm,
+              min: 1.0,
+              max: 200.0,
+              divisions: 199,
+              onChanged: (val) => setState(
+                () => _localState = _localState.copyWith(radiusKm: val),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPriceSlider(AppLocalizations l10n) {
+    final double currentPrice = _localState.maxPrice ?? 1500.0;
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        Dimensions.spacingLarge,
+        Dimensions.spacingLarge,
+        Dimensions.spacingLarge,
+        Dimensions.spacingMedium,
+      ),
+      decoration: BoxDecoration(
+        color: widget.colors.surface,
+        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+        border: Border.all(color: widget.colors.iconGrey.withOpacity(0.15)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.payments_rounded,
+                    color: widget.colors.primary,
+                    size: Dimensions.iconMedium,
+                  ),
+                  SizedBox(width: Dimensions.spacingSmall),
+                  Text(
+                    "السعر", // TODO: Use l10n
+                    style: TextStyle(
+                      color: widget.colors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                _localState.maxPrice == null
+                    ? "أي سعر"
+                    : "${currentPrice.round()} ${l10n.sar}",
+                style: TextStyle(
+                  color: widget.colors.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: Dimensions.fontTitleMedium,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Dimensions.spacingSmall),
+          SliderTheme(
+            data: SliderThemeData(
+              trackHeight: 6,
+              activeTrackColor: widget.colors.primary,
+              inactiveTrackColor: widget.colors.primary.withOpacity(0.1),
+              thumbColor: widget.colors.primary,
+            ),
+            child: Slider(
+              value: currentPrice,
+              min: 50.0,
+              max: 1500.0,
+              divisions: 29,
+              onChanged: (val) {
+                setState(() {
+                  _localState = _localState.copyWith(
+                    maxPrice: val >= 1500.0 ? null : val,
+                  );
+                });
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -321,8 +504,8 @@ class _ExploreFiltersBottomSheetState
     required Function(List<int>) onChanged,
   }) {
     return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+      spacing: Dimensions.spacingMedium,
+      runSpacing: Dimensions.spacingMedium,
       children: items.map((item) {
         final int id = item['id'] as int;
         final String name = item['name'] as String;
@@ -340,20 +523,23 @@ class _ExploreFiltersBottomSheetState
             }
             onChanged(currentList);
           },
+          showCheckmark: false,
           backgroundColor: widget.colors.surface,
-          selectedColor: widget.colors.primary.withOpacity(0.15),
-          checkmarkColor: widget.colors.primary,
+          selectedColor: widget.colors.primary,
           labelStyle: TextStyle(
-            color: isSelected
-                ? widget.colors.primary
-                : widget.colors.textSecondary,
+            color: isSelected ? Colors.white : widget.colors.textSecondary,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            fontSize: Dimensions.fontBodyMedium,
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: Dimensions.spacingMedium,
+            vertical: Dimensions.spacingSmall,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(Dimensions.borderRadius),
             side: BorderSide(
               color: isSelected
-                  ? widget.colors.primary.withOpacity(0.5)
+                  ? widget.colors.primary
                   : widget.colors.iconGrey.withOpacity(0.2),
             ),
           ),
@@ -362,101 +548,27 @@ class _ExploreFiltersBottomSheetState
     );
   }
 
-  Widget _buildRadiusSlider() {
-    return Column(
-      children: [
-        Slider.adaptive(
-          value: _localState.radiusKm,
-          min: 1.0,
-          max: 200.0,
-          divisions: 20,
-          activeColor: widget.colors.primary,
-          label: "${_localState.radiusKm.round()} km",
-          onChanged: (val) =>
-              setState(() => _localState = _localState.copyWith(radiusKm: val)),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeader(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: widget.colors.iconGrey.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.filters,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: widget.colors.textPrimary,
-                ),
-              ),
-              TextButton(
-                onPressed: () =>
-                    setState(() => _localState = const ExploreFilterState()),
-                child: Text(
-                  l10n.reset,
-                  style: TextStyle(
-                    color: widget.colors.error,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12, left: 4),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: widget.colors.textPrimary,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGenderSelector() {
+  Widget _buildGenderSelector(AppLocalizations l10n) {
     return Row(
       children: [
         _buildSelectableButton(
-          "Male",
+          l10n.male,
           _localState.gender == 'male',
           () => setState(
             () => _localState = _localState.copyWith(gender: 'male'),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: Dimensions.spacingMedium),
         _buildSelectableButton(
-          "Female",
+          l10n.female,
           _localState.gender == 'female',
           () => setState(
             () => _localState = _localState.copyWith(gender: 'female'),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: Dimensions.spacingMedium),
         _buildSelectableButton(
-          "Mixed",
+          l10n.mixed,
           _localState.gender == 'mixed',
           () => setState(
             () => _localState = _localState.copyWith(gender: 'mixed'),
@@ -476,7 +588,7 @@ class _ExploreFiltersBottomSheetState
             () => _localState = _localState.copyWith(sortBy: 'distance'),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: Dimensions.spacingMedium),
         _buildSelectableButton(
           l10n.highestRating,
           _localState.sortBy == '-rating',
@@ -488,20 +600,76 @@ class _ExploreFiltersBottomSheetState
     );
   }
 
+  Widget _buildSelectableButton(
+    String label,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: EdgeInsets.symmetric(vertical: Dimensions.spacingMedium),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? widget.colors.primary.withOpacity(0.1)
+                : widget.colors.surface,
+            borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+            border: Border.all(
+              color: isSelected
+                  ? widget.colors.primary
+                  : widget.colors.iconGrey.withOpacity(0.2),
+              width: isSelected ? 1.5 : 1.0,
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected
+                  ? widget.colors.primary
+                  : widget.colors.textSecondary,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildOpenNowToggle(AppLocalizations l10n) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: Dimensions.spacingLarge,
+        vertical: Dimensions.spacingMedium,
+      ),
       decoration: BoxDecoration(
         color: widget.colors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: widget.colors.iconGrey.withOpacity(0.1)),
+        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+        border: Border.all(color: widget.colors.iconGrey.withOpacity(0.15)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            l10n.openNow,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+          Row(
+            children: [
+              Icon(
+                Icons.access_time_rounded,
+                color: widget.colors.primary,
+                size: Dimensions.iconLarge,
+              ),
+              SizedBox(width: Dimensions.spacingMedium),
+              Text(
+                l10n.openNow,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: Dimensions.fontTitleMedium,
+                  color: widget.colors.textPrimary,
+                ),
+              ),
+            ],
           ),
           Switch.adaptive(
             value: _localState.isOpen,
@@ -514,35 +682,80 @@ class _ExploreFiltersBottomSheetState
     );
   }
 
-  Widget _buildSelectableButton(
-    String label,
-    bool isSelected,
-    VoidCallback onTap,
-  ) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isSelected ? widget.colors.primary : widget.colors.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected
-                  ? widget.colors.primary
-                  : widget.colors.iconGrey.withOpacity(0.2),
+  Widget _buildHeader(AppLocalizations l10n) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        Dimensions.spacingExtraLarge,
+        Dimensions.spacingMedium,
+        Dimensions.spacingExtraLarge,
+        Dimensions.spacingLarge,
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 50,
+            height: 5,
+            decoration: BoxDecoration(
+              color: widget.colors.iconGrey.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? Colors.white : widget.colors.textSecondary,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            ),
+          SizedBox(height: Dimensions.spacingLarge),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                l10n.filters,
+                style: TextStyle(
+                  fontSize: Dimensions.fontHeading2,
+                  fontWeight: FontWeight.w900,
+                  color: widget.colors.textPrimary,
+                ),
+              ),
+              InkWell(
+                onTap: () => setState(
+                  () => _localState = ExploreFilterState(
+                    category: _localState.category,
+                  ),
+                ),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Dimensions.spacingMedium,
+                    vertical: Dimensions.spacingSmall,
+                  ),
+                  decoration: BoxDecoration(
+                    color: widget.colors.error.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    l10n.reset,
+                    style: TextStyle(
+                      color: widget.colors.error,
+                      fontWeight: FontWeight.bold,
+                      fontSize: Dimensions.fontBodyMedium,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: Dimensions.spacingMedium,
+        top: Dimensions.spacingMedium,
+      ),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: Dimensions.fontTitleMedium,
+          fontWeight: FontWeight.w800,
+          color: widget.colors.textPrimary,
         ),
       ),
     );
@@ -550,23 +763,28 @@ class _ExploreFiltersBottomSheetState
 
   Widget _buildApplyButton(AppLocalizations l10n) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.fromLTRB(
+        Dimensions.spacingExtraLarge,
+        Dimensions.spacingMedium,
+        Dimensions.spacingExtraLarge,
+        Dimensions.spacingExtraLarge,
+      ),
       decoration: BoxDecoration(
         color: widget.colors.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, -10),
           ),
         ],
       ),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: widget.colors.primary,
-          minimumSize: const Size(double.infinity, 56),
+          minimumSize: Size(double.infinity, Dimensions.buttonHeight),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           ),
           elevation: 0,
         ),
@@ -576,10 +794,11 @@ class _ExploreFiltersBottomSheetState
         },
         child: Text(
           l10n.applyFilters,
-          style: const TextStyle(
-            fontSize: 16,
+          style: TextStyle(
+            fontSize: Dimensions.fontButton,
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            letterSpacing: 0.5,
           ),
         ),
       ),

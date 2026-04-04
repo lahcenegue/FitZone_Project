@@ -6,8 +6,16 @@ import 'package:logging/logging.dart';
 class LocationService {
   static final Logger _logger = Logger('LocationService');
 
+  /// A stream that emits real-time updates when the hardware GPS is toggled on/off.
+  Stream<ServiceStatus> get serviceStatusStream =>
+      Geolocator.getServiceStatusStream();
+
+  /// Opens the device's location settings so the user can enable GPS.
+  Future<bool> openLocationSettings() async {
+    return await Geolocator.openLocationSettings();
+  }
+
   /// Requests location permissions and retrieves the user's current GPS position.
-  /// Returns [LatLng] if successful, or null if permissions are denied or services disabled.
   Future<LatLng?> getCurrentLocation() async {
     try {
       final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();

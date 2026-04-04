@@ -154,4 +154,43 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get trainer => 'مدرب شخصي';
+
+  @override
+  String get cityOrRegion => 'المدينة / المنطقة';
+
+  @override
+  String get searchRadiusKm => 'نطاق البحث (كيلومتر)';
+
+  @override
+  String get specialties => 'التخصصات';
+
+  @override
+  String get dietaryOptions => 'الخيارات الغذائية';
+
+  @override
+  String get equipmentCategories => 'التصنيفات';
+
+  @override
+  String get selectRegion => 'اختر المنطقة';
+
+  @override
+  String get allRegions => 'جميع المناطق';
+
+  @override
+  String get locationWarningText => 'يرجى تفعيل الموقع الجغرافي لنتائج أدق';
+
+  @override
+  String get enable => 'تفعيل';
+
+  @override
+  String get gyms => 'صالات';
+
+  @override
+  String get trainers => 'مدربين';
+
+  @override
+  String get food => 'مطاعم';
+
+  @override
+  String get stores => 'متاجر';
 }

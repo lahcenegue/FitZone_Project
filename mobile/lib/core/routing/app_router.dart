@@ -1,3 +1,4 @@
+import 'package:fitzone/features/splash/presentation/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +17,8 @@ import 'package:fitzone/core/l10n/l10n_extension.dart';
 /// Defines all strongly-typed route paths used in the application.
 class RoutePaths {
   RoutePaths._();
+
+  static const String splash = '/splash';
 
   // Bottom Navigation Routes
   static const String explore = '/';
@@ -39,9 +42,17 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: RoutePaths.explore,
+    initialLocation: RoutePaths.splash,
     debugLogDiagnostics: true,
     routes: [
+      // Splash Screen Route (Full Screen)
+      GoRoute(
+        path: RoutePaths.splash,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SplashScreen(),
+      ),
+
+      // Bottom Navigation Shell
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return MainShellScreen(navigationShell: navigationShell);

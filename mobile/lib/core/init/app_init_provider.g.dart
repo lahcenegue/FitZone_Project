@@ -8,17 +8,13 @@ part of 'app_init_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provides the AppInitService instance.
 
 @ProviderFor(appInitService)
 final appInitServiceProvider = AppInitServiceProvider._();
 
-/// Provides the AppInitService instance.
-
 final class AppInitServiceProvider
     extends $FunctionalProvider<AppInitService, AppInitService, AppInitService>
     with $Provider<AppInitService> {
-  /// Provides the AppInitService instance.
   AppInitServiceProvider._()
     : super(
         from: null,
@@ -52,4 +48,42 @@ final class AppInitServiceProvider
   }
 }
 
-String _$appInitServiceHash() => r'9edb9842ee7305d7ed2310d441dcff0192a7ef8a';
+String _$appInitServiceHash() => r'b1f167f4a7d7f92bc73221be8f39055bfc972b0c';
+
+/// The master provider that Bootstraps the entire app
+
+@ProviderFor(appStartup)
+final appStartupProvider = AppStartupProvider._();
+
+/// The master provider that Bootstraps the entire app
+
+final class AppStartupProvider
+    extends $FunctionalProvider<AsyncValue<void>, void, FutureOr<void>>
+    with $FutureModifier<void>, $FutureProvider<void> {
+  /// The master provider that Bootstraps the entire app
+  AppStartupProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appStartupProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$appStartupHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<void> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<void> create(Ref ref) {
+    return appStartup(ref);
+  }
+}
+
+String _$appStartupHash() => r'bd6912f6dc0324ae05b4357d310c094a91a645d2';

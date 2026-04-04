@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:fitzone/core/location/location_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -11,7 +10,9 @@ import 'package:fitzone/l10n/app_localizations.dart';
 import '../../../../core/config/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
-import 'package:fitzone/core/routing/app_router.dart';
+import '../../../../core/routing/app_router.dart';
+import '../../../../core/location/location_provider.dart';
+import '../../../../core/storage/storage_provider.dart';
 
 import '../widgets/explore_search_bar.dart';
 import '../widgets/map_zoom_controls.dart';
@@ -21,8 +22,6 @@ import '../widgets/places_horizontal_list.dart';
 import '../../data/models/gym_model.dart';
 import '../providers/explore_provider.dart';
 import 'package:fitzone/features/explore/presentation/utils/map_marker_generator.dart';
-
-import '../providers/explore_provider.dart';
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
@@ -42,23 +41,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeLocation();
-  }
-
-  Future<void> _initializeLocation() async {
-    // Request permission and fetch initial location on startup
-    await ref.read(userLocationProvider.notifier).fetchLocation();
-    _focusOnUserLocation();
-  }
-
-  void _handleSearchTap() {
-    // TODO: Transition to Search/Filters logic
-    _logger.info('Search bar tapped.');
-  }
-
-  void _handleFiltersTap() {
-    // TODO: Transition to Search/Filters logic
-    _logger.info('Filters icon tapped.');
+    // Fetch fresh location in the background
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(userLocationProvider.notifier).fetchLocation();
+    });
   }
 
   Future<void> _handleLocationTap() async {
@@ -67,13 +53,13 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   }
 
   Future<void> _focusOnUserLocation() async {
-    final userLocation = ref.read(userLocationProvider);
-    if (userLocation != null) {
+    final locationState = ref.read(userLocationProvider);
+    if (locationState.location != null) {
       try {
         final GoogleMapController controller =
             await _mapControllerCompleter.future;
         await controller.animateCamera(
-          CameraUpdate.newLatLngZoom(userLocation, 14.5),
+          CameraUpdate.newLatLngZoom(locationState.location!, 14.5),
         );
       } catch (e, stackTrace) {
         _logger.severe(
@@ -90,9 +76,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       final GoogleMapController controller =
           await _mapControllerCompleter.future;
       await controller.animateCamera(CameraUpdate.zoomIn());
-    } catch (e) {
-      _logger.severe('Failed to zoom in.', e);
-    }
+    } catch (e) {}
   }
 
   Future<void> _zoomOut() async {
@@ -100,9 +84,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       final GoogleMapController controller =
           await _mapControllerCompleter.future;
       await controller.animateCamera(CameraUpdate.zoomOut());
-    } catch (e) {
-      _logger.severe('Failed to zoom out.', e);
-    }
+    } catch (e) {}
   }
 
   Future<void> _applyMapStyle(bool isDarkMode) async {
@@ -114,9 +96,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             ? AppConstants.darkMapStyle
             : AppConstants.lightMapStyle;
         await controller.setMapStyle(style);
-      } catch (e) {
-        _logger.severe('Failed to update map style.', e);
-      }
+      } catch (e) {}
     }
   }
 
@@ -137,24 +117,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       if (visibleRegion.southwest.latitude == 0.0) return;
 
       final currentState = ref.read(exploreFilterProvider);
-      ref.read(exploreFilterProvider.notifier).state = currentState.copyWith(
-        bounds: visibleRegion,
-      );
-    } catch (e) {
-      _logger.severe('Failed to get visible region.', e);
-    }
-  }
-
-  Future<void> _focusOnPlace(GymModel place) async {
-    try {
-      final GoogleMapController controller =
-          await _mapControllerCompleter.future;
-      await controller.animateCamera(
-        CameraUpdate.newLatLngZoom(place.location, 16.0),
-      );
-    } catch (e) {
-      _logger.severe('Failed to focus on place.', e);
-    }
+      ref
+          .read(exploreFilterProvider.notifier)
+          .updateFilters(currentState.copyWith(bounds: visibleRegion));
+    } catch (e) {}
   }
 
   Future<void> _generateMapItems(
@@ -165,21 +131,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final Set<Circle> newCircles = {};
 
     for (final place in places) {
-      Color baseColor;
-      switch (place.category) {
-        case PlaceCategory.gym:
-          baseColor = colors.markerGym;
-          break;
-        case PlaceCategory.restaurant:
-          baseColor = colors.markerRestaurant;
-          break;
-        case PlaceCategory.trainer:
-          baseColor = colors.markerTrainer;
-          break;
-        default:
-          baseColor = colors.markerGym;
-      }
-
+      final baseColor = colors.markerGym; // Dynamic based on type if needed
       final BitmapDescriptor customIcon =
           await MapMarkerGenerator.createCustomMarker(
             markerColor: baseColor,
@@ -229,6 +181,16 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     }
   }
 
+  Future<void> _focusOnPlace(GymModel place) async {
+    try {
+      final GoogleMapController controller =
+          await _mapControllerCompleter.future;
+      await controller.animateCamera(
+        CameraUpdate.newLatLngZoom(place.location, 16.0),
+      );
+    } catch (e) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
@@ -240,7 +202,13 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
     final asyncPlaces = ref.watch(nearbyPlacesProvider);
     final selectedPlace = ref.watch(selectedPlaceProvider);
-    final userLocation = ref.watch(userLocationProvider);
+    final locationState = ref.watch(userLocationProvider);
+
+    // Initial map position: Cached location -> Default (Riyadh) -> GPS (once loaded)
+    final LatLng initialPos =
+        locationState.location ??
+        ref.read(storageServiceProvider).getLastLocation() ??
+        AppConstants.defaultMapCenter;
 
     final List<GymModel> allPlaces = asyncPlaces.value ?? [];
     final List<GymModel> displayPlaces = selectedPlace != null
@@ -259,6 +227,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               Dimensions.spacingMedium
         : Dimensions.mapFabBottomOffset;
 
+    final bool showLocationWarning =
+        !locationState.isServiceEnabled || !locationState.isPermissionGranted;
+
     return Scaffold(
       backgroundColor: colors.background,
       body: Stack(
@@ -268,8 +239,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             onCameraIdle: _onCameraIdle,
             onTap: (LatLng _) =>
                 ref.read(selectedPlaceProvider.notifier).selectPlace(null),
-            initialCameraPosition: const CameraPosition(
-              target: AppConstants.defaultMapCenter,
+            initialCameraPosition: CameraPosition(
+              target: initialPos,
               zoom: AppConstants.defaultMapZoom,
             ),
             minMaxZoomPreference: const MinMaxZoomPreference(
@@ -278,8 +249,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             ),
             zoomControlsEnabled: false,
             myLocationButtonEnabled: false,
-            myLocationEnabled:
-                userLocation != null, // Displays the native blue dot securely
+            myLocationEnabled: locationState.location != null,
             compassEnabled: false,
             mapToolbarEnabled: false,
             buildingsEnabled: false,
@@ -288,11 +258,85 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             circles: _circles,
           ),
 
+          // Safe Area Top Elements (Search Bar & Warning Banner)
           Positioned(
-            top: safeArea.top + Dimensions.searchBarTopOffset,
+            top: safeArea.top + Dimensions.spacingSmall,
             left: Dimensions.spacingMedium,
             right: Dimensions.spacingMedium,
-            child: ExploreSearchBar(colors: colors),
+            child: Column(
+              children: [
+                ExploreSearchBar(colors: colors),
+
+                // Non-intrusive Premium Location Warning Banner
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeInOut,
+                  margin: EdgeInsets.only(
+                    top: showLocationWarning ? Dimensions.spacingMedium : 0,
+                  ),
+                  height: showLocationWarning ? null : 0,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(Dimensions.radiusPill),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Dimensions.spacingMedium,
+                        vertical: Dimensions.spacingSmall,
+                      ),
+                      color: colors.surface.withOpacity(0.95),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.location_disabled_rounded,
+                            color: colors.error,
+                            size: Dimensions.iconSmall,
+                          ),
+                          SizedBox(width: Dimensions.spacingSmall),
+                          Expanded(
+                            child: Text(
+                              l10n.locationWarningText, // <--- Using Localization
+                              style: TextStyle(
+                                color: colors.textPrimary,
+                                fontSize: Dimensions.fontBodySmall,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              // If GPS hardware is off -> Open Settings
+                              if (!locationState.isServiceEnabled) {
+                                ref
+                                    .read(userLocationProvider.notifier)
+                                    .openSettings();
+                              }
+                              // If app lacks permission -> Request Permission
+                              else if (!locationState.isPermissionGranted) {
+                                ref
+                                    .read(userLocationProvider.notifier)
+                                    .fetchLocation();
+                              }
+                            },
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: const Size(0, 0),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: Text(
+                              l10n.enable, // <--- Using Localization
+                              style: TextStyle(
+                                color: colors.primary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: Dimensions.fontBodySmall,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
 
           AnimatedPositioned(
@@ -317,56 +361,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             ),
           ),
 
-          if (asyncPlaces.isLoading)
-            Positioned(
-              top:
-                  safeArea.top +
-                  Dimensions.searchBarTopOffset +
-                  Dimensions.searchBarHeight +
-                  Dimensions.spacingMedium,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Dimensions.spacingMedium,
-                    vertical: Dimensions.spacingSmall,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.surface,
-                    borderRadius: BorderRadius.circular(Dimensions.radiusPill),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.shadow,
-                        blurRadius: Dimensions.shadowBlurRadius,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: Dimensions.iconSmall,
-                        height: Dimensions.iconSmall,
-                        child: CircularProgressIndicator(
-                          color: colors.primary,
-                          strokeWidth: 2,
-                        ),
-                      ),
-                      SizedBox(width: Dimensions.spacingSmall),
-                      Text(
-                        l10n.searchingArea,
-                        style: TextStyle(
-                          color: colors.textSecondary,
-                          fontSize: Dimensions.fontBodyMedium,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
           Positioned(
             bottom: 0,
             left: 0,
@@ -385,9 +379,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       key: ValueKey(displayPlaces.length),
                       places: displayPlaces,
                       colors: colors,
-                      onPlaceTap: (place) {
-                        context.push(RoutePaths.gymDetailsPath(place.id));
-                      },
+                      onPlaceTap: (place) =>
+                          context.push(RoutePaths.gymDetailsPath(place.id)),
                     )
                   : const SizedBox.shrink(key: ValueKey('empty')),
             ),

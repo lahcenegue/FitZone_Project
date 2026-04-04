@@ -4,7 +4,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logging/logging.dart';
 
 import '../../../../core/config/api_constants.dart';
-
 import '../models/gym_model.dart';
 
 class ExploreApiService {
@@ -20,8 +19,8 @@ class ExploreApiService {
     try {
       final Map<String, dynamic> queryParams = {};
 
-      // 1. Dynamic Type Category (Enum to String)
-      queryParams['type'] = filters.category.name;
+      // 1. Dynamic Type Category (String)
+      queryParams['type'] = filters.category;
 
       // 2. Text Search Query
       if (filters.query != null && filters.query!.isNotEmpty) {

@@ -24,7 +24,7 @@
   "sar": "SAR",
   "subscribeNow": "Subscribe Now",
   "getDirections": "Get Directions",
-  "crowdLow": "Not Crowded",
+  "crowdLow": "Quiet",
   "crowdMedium": "A bit Crowded",
   "crowdHigh": "Very Crowded",
   "liveStatus": "Live Status",
@@ -47,5 +47,18 @@
   "reset": "Reset",
   "category": "Category",
   "gym": "Gym",
-  "trainer": "Trainer"
+  "trainer": "Trainer",
+  "cityOrRegion": "City / Region",
+  "searchRadiusKm": "Search Radius (km)",
+  "specialties": "Specialties",
+  "dietaryOptions": "Dietary Options",
+  "equipmentCategories": "Categories",
+  "selectRegion": "Select Region",
+  "allRegions": "All Regions",
+  "locationWarningText": "Please enable location services for better results",
+  "enable": "Enable",
+  "gyms": "Gyms",
+  "trainers": "Trainers",
+  "food": "Food",
+  "stores": "Stores"
 }

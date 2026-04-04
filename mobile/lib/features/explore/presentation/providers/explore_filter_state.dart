@@ -6,7 +6,7 @@ enum ServiceCategory { gym, trainer, restaurant, equipment }
 /// Holds the comprehensive state of all explore filters across all service categories.
 class ExploreFilterState {
   final String? query;
-  final ServiceCategory category;
+  final String category;
   final String? cityId;
   final double radiusKm;
   final String? sortBy;
@@ -25,7 +25,7 @@ class ExploreFilterState {
 
   const ExploreFilterState({
     this.query,
-    this.category = ServiceCategory.gym,
+    this.category = 'gym',
     this.cityId,
     this.radiusKm = 50.0,
     this.sortBy,
@@ -41,7 +41,7 @@ class ExploreFilterState {
 
   ExploreFilterState copyWith({
     String? query,
-    ServiceCategory? category,
+    String? category,
     String? cityId,
     double? radiusKm,
     String? sortBy,

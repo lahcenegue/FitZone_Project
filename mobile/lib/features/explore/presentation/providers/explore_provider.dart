@@ -11,14 +11,11 @@ import 'explore_filter_state.dart';
 
 final Logger _logger = Logger('ExploreProvider');
 
-/// 1. API Service Provider
-/// Now injects the globally configured Dio client from api_provider.dart
 final exploreApiServiceProvider = Provider<ExploreApiService>((ref) {
   final dio = ref.watch(dioClientProvider);
   return ExploreApiService(dio: dio);
 });
 
-/// 2. Filter State Notifier (The Brain of Search & Filters)
 class ExploreFilterNotifier extends Notifier<ExploreFilterState> {
   @override
   ExploreFilterState build() => const ExploreFilterState();
@@ -36,7 +33,6 @@ class ExploreFilterNotifier extends Notifier<ExploreFilterState> {
   }
 
   void resetFilters() {
-    // Keeps current bounds but resets everything else to default
     state = ExploreFilterState(bounds: state.bounds);
   }
 }
@@ -46,7 +42,6 @@ final exploreFilterProvider =
       () => ExploreFilterNotifier(),
     );
 
-/// 3. Selected Place Notifier
 class SelectedPlaceNotifier extends Notifier<GymModel?> {
   @override
   GymModel? build() => null;
@@ -61,14 +56,14 @@ final selectedPlaceProvider =
       () => SelectedPlaceNotifier(),
     );
 
-/// 4. Unified Nearby Places Provider
 final nearbyPlacesProvider = FutureProvider<List<GymModel>>((ref) async {
   final filters = ref.watch(exploreFilterProvider);
   final apiService = ref.watch(exploreApiServiceProvider);
-  final userLocation = ref.watch(userLocationProvider);
 
-  // Optimization: Don't fetch if map bounds are not yet initialized
-  // unless there is a specific text query.
+  // Extract the actual LatLng from the LocationState
+  final locationState = ref.watch(userLocationProvider);
+  final userLocation = locationState.location;
+
   if (filters.bounds == null &&
       (filters.query == null || filters.query!.isEmpty)) {
     return [];
@@ -78,8 +73,6 @@ final nearbyPlacesProvider = FutureProvider<List<GymModel>>((ref) async {
 
   return await apiService.discoverPlaces(
     filters: filters,
-    userLocation: userLocation != null
-        ? LatLng(userLocation.latitude, userLocation.longitude)
-        : null,
+    userLocation: userLocation,
   );
 });

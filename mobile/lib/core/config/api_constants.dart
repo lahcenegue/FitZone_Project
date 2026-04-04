@@ -13,7 +13,10 @@ class ApiConstants {
 
   // Bootstrapping Endpoints
   static const String initConfig = '/init/';
+  static const String serviceTypes = '/service-types/';
   static const String cities = '/cities/';
+
+  // Filtres For Gym
   static const String sports = '/gyms/sports/';
   static const String amenities = '/gyms/amenities/';
 }

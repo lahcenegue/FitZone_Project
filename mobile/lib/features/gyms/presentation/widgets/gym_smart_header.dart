@@ -34,9 +34,10 @@ class GymSmartHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
-    final userLocation = ref.watch(userLocationProvider);
 
-    // 1. Get the LocationService instance from Riverpod
+    // Extract LatLng from LocationState
+    final locationState = ref.watch(userLocationProvider);
+    final userLocation = locationState.location;
     final LocationService locationService = ref.read(locationServiceProvider);
 
     final List<String> addressParts = gym.address.split(',');
@@ -44,7 +45,6 @@ class GymSmartHeader extends ConsumerWidget {
         ? '${addressParts[0].trim()} - ${gym.city}'
         : gym.city;
 
-    // 2. Use the instance methods and named parameters
     final String dynamicDistance = userLocation != null
         ? locationService.formatDistance(
             locationService.calculateDistanceInMeters(

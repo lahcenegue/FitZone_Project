@@ -1,91 +1,124 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:logging/logging.dart';
 
 import '../config/api_constants.dart';
 import '../network/api_provider.dart';
-import '../storage/storage_provider.dart';
-import '../storage/storage_service.dart';
+import '../database/database_service.dart';
+import '../location/location_provider.dart';
 
 part 'app_init_provider.g.dart';
 
-/// Service responsible for bootstrapping the app and synchronizing static data.
 class AppInitService {
   final Dio _dio;
-  final StorageService _storage;
+  final DatabaseService _dbService;
   final Logger _logger = Logger('AppInitService');
 
-  AppInitService(this._dio, this._storage);
+  AppInitService({required Dio dio, required DatabaseService dbService})
+    : _dio = dio,
+      _dbService = dbService;
 
-  /// Checks for metadata updates and fetches new data if versions differ.
   Future<void> initializeApp() async {
     try {
-      _logger.info('Starting app initialization sequence...');
+      _logger.info('Starting app initialization (SQLite Sync)...');
 
       final Response initResponse = await _dio.get(ApiConstants.initConfig);
       final Map<String, dynamic> initData =
           initResponse.data as Map<String, dynamic>;
 
-      final double remoteSportsVersion =
-          (initData['sports_version'] as num?)?.toDouble() ?? 0.0;
-      final double remoteAmenitiesVersion =
-          (initData['amenities_version'] as num?)?.toDouble() ?? 0.0;
-      final double remoteCitiesVersion =
-          (initData['cities_version'] as num?)?.toDouble() ?? 0.0;
+      await _syncTable(
+        versionKey: 'service_types_version',
+        remoteVersion:
+            (initData['service_types_version'] as num?)?.toDouble() ?? 0.0,
+        endpoint: ApiConstants.serviceTypes,
+        insertOperation: _dbService.insertServiceTypes,
+      );
 
-      // 1. Sync Sports
-      if (remoteSportsVersion > _storage.sportsVersion) {
-        _logger.info('Updating sports data from API...');
-        await _fetchAndCache(ApiConstants.sports, (data) async {
-          await _storage.setSportsData(data);
-          await _storage.setSportsVersion(remoteSportsVersion);
-        });
-      }
+      await _syncTable(
+        versionKey: 'cities_version',
+        remoteVersion: (initData['cities_version'] as num?)?.toDouble() ?? 0.0,
+        endpoint: ApiConstants.cities,
+        insertOperation: _dbService.insertCities,
+      );
 
-      // 2. Sync Amenities
-      if (remoteAmenitiesVersion > _storage.amenitiesVersion) {
-        _logger.info('Updating amenities data from API...');
-        await _fetchAndCache(ApiConstants.amenities, (data) async {
-          await _storage.setAmenitiesData(data);
-          await _storage.setAmenitiesVersion(remoteAmenitiesVersion);
-        });
-      }
+      await _syncTable(
+        versionKey: 'sports_version',
+        remoteVersion: (initData['sports_version'] as num?)?.toDouble() ?? 0.0,
+        endpoint: ApiConstants.sports,
+        insertOperation: _dbService.insertSports,
+      );
 
-      // 3. Sync Cities
-      if (remoteCitiesVersion > _storage.citiesVersion) {
-        _logger.info('Updating cities data from API...');
-        await _fetchAndCache(ApiConstants.cities, (data) async {
-          await _storage.setCitiesData(data);
-          await _storage.setCitiesVersion(remoteCitiesVersion);
-        });
-      }
+      await _syncTable(
+        versionKey: 'amenities_version',
+        remoteVersion:
+            (initData['amenities_version'] as num?)?.toDouble() ?? 0.0,
+        endpoint: ApiConstants.amenities,
+        insertOperation: _dbService.insertAmenities,
+      );
 
-      _logger.info('App initialization complete. All data is up to date.');
+      _logger.info(
+        'App initialization complete. SQLite database is up to date.',
+      );
     } catch (e, stackTrace) {
       _logger.severe(
-        'Failed to initialize app data. Relying on cache.',
+        'Initialization failed. Relying on cached SQLite data.',
         e,
         stackTrace,
       );
-      // We do not throw the error to allow the app to start offline using cached data.
     }
   }
 
-  /// Helper method to fetch data and pass it to the appropriate save callback.
-  Future<void> _fetchAndCache(
-    String endpoint,
-    Future<void> Function(List<dynamic>) onSave,
-  ) async {
-    final Response response = await _dio.get(endpoint);
-    final List<dynamic> data = response.data as List<dynamic>;
-    await onSave(data);
+  Future<void> _syncTable({
+    required String versionKey,
+    required double remoteVersion,
+    required String endpoint,
+    required Future<void> Function(List<dynamic>) insertOperation,
+  }) async {
+    final double localVersion = await _dbService.getVersion(versionKey);
+
+    if (remoteVersion > localVersion) {
+      _logger.info(
+        'Updating $versionKey from $localVersion to $remoteVersion...',
+      );
+      final Response response = await _dio.get(endpoint);
+      final List<dynamic> data = response.data as List<dynamic>;
+
+      await insertOperation(data);
+      await _dbService.setVersion(versionKey, remoteVersion);
+    } else {
+      _logger.info('$versionKey is up to date ($localVersion).');
+    }
   }
 }
 
-/// Provides the AppInitService instance.
 @Riverpod(keepAlive: true)
 AppInitService appInitService(Ref ref) {
   final Dio dio = ref.watch(dioClientProvider);
-  final StorageService storage = ref.watch(storageServiceProvider);
-  return AppInitService(dio, storage);
+  final DatabaseService dbService = ref.watch(databaseServiceProvider);
+  return AppInitService(dio: dio, dbService: dbService);
+}
+
+/// The master provider that Bootstraps the entire app
+@Riverpod(keepAlive: true)
+Future<void> appStartup(Ref ref) async {
+  final Logger logger = Logger('AppStartup');
+
+  logger.info('Phase 1: Fetching User Location securely...');
+  try {
+    // 5 seconds timeout to prevent Splash Screen from freezing if GPS is weak
+    await ref
+        .read(userLocationProvider.notifier)
+        .fetchLocation()
+        .timeout(const Duration(seconds: 5));
+    logger.info('User location cached successfully.');
+  } catch (e) {
+    logger.warning(
+      'Location fetch timed out or failed. Proceeding to Phase 2...',
+    );
+  }
+
+  logger.info('Phase 2: Synchronizing Database...');
+  final AppInitService initService = ref.read(appInitServiceProvider);
+  await initService.initializeApp();
 }

@@ -8,18 +8,14 @@ part of 'location_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provides a globally accessible instance of LocationService.
 
 @ProviderFor(locationService)
 final locationServiceProvider = LocationServiceProvider._();
-
-/// Provides a globally accessible instance of LocationService.
 
 final class LocationServiceProvider
     extends
         $FunctionalProvider<LocationService, LocationService, LocationService>
     with $Provider<LocationService> {
-  /// Provides a globally accessible instance of LocationService.
   LocationServiceProvider._()
     : super(
         from: null,
@@ -55,15 +51,11 @@ final class LocationServiceProvider
 
 String _$locationServiceHash() => r'347d171ff0e8ffe39618ec7b7608be7bd7c86f0a';
 
-/// Manages the user's current GPS location state globally.
-
 @ProviderFor(UserLocation)
 final userLocationProvider = UserLocationProvider._();
 
-/// Manages the user's current GPS location state globally.
 final class UserLocationProvider
-    extends $NotifierProvider<UserLocation, LatLng?> {
-  /// Manages the user's current GPS location state globally.
+    extends $NotifierProvider<UserLocation, LocationState> {
   UserLocationProvider._()
     : super(
         from: null,
@@ -83,29 +75,27 @@ final class UserLocationProvider
   UserLocation create() => UserLocation();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(LatLng? value) {
+  Override overrideWithValue(LocationState value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<LatLng?>(value),
+      providerOverride: $SyncValueProvider<LocationState>(value),
     );
   }
 }
 
-String _$userLocationHash() => r'd5e2756f71cbcb04d1b370490072d08979fb84ab';
+String _$userLocationHash() => r'6ecafab591f66935b94a4a15521ad748386cd6db';
 
-/// Manages the user's current GPS location state globally.
-
-abstract class _$UserLocation extends $Notifier<LatLng?> {
-  LatLng? build();
+abstract class _$UserLocation extends $Notifier<LocationState> {
+  LocationState build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<LatLng?, LatLng?>;
+    final ref = this.ref as $Ref<LocationState, LocationState>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<LatLng?, LatLng?>,
-              LatLng?,
+              AnyNotifier<LocationState, LocationState>,
+              LocationState,
               Object?,
               Object?
             >;

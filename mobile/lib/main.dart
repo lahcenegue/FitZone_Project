@@ -1,35 +1,27 @@
-import 'package:fitzone/core/routing/app_router.dart';
-import 'package:fitzone/core/theme/app_dimensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/routing/app_router.dart';
+import 'core/theme/app_dimensions.dart';
 import 'l10n/app_localizations.dart';
 import 'core/storage/storage_provider.dart';
 import 'core/theme/app_theme_provider.dart';
 import 'core/l10n/app_locale_provider.dart';
-import 'core/init/app_init_provider.dart'; // Added Import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   _setupLogging();
 
-  // 1. Initialize SharedPreferences synchronously
   final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  // 2. Create a ProviderContainer to read providers before runApp
-  final ProviderContainer container = ProviderContainer(
-    overrides: [sharedPrefsProvider.overrideWithValue(prefs)],
-  );
-
-  // 3. Trigger App Bootstrapping (Sync static data silently in the background)
-  // This will NOT block the UI from rendering.
-  container.read(appInitServiceProvider).initializeApp();
-
   runApp(
-    UncontrolledProviderScope(container: container, child: const FitZoneApp()),
+    ProviderScope(
+      overrides: [sharedPrefsProvider.overrideWithValue(prefs)],
+      child: const FitZoneApp(),
+    ),
   );
 }
 

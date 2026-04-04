@@ -3,11 +3,10 @@ import 'package:fitzone/core/location/location_service.dart';
 import 'package:fitzone/core/theme/app_colors.dart';
 import 'package:fitzone/core/theme/app_dimensions.dart';
 import 'package:fitzone/features/explore/data/models/gym_model.dart';
-import 'package:fitzone/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fitzone/l10n/app_localizations.dart';
 
-/// A card widget displaying summarized information about a place (Gym/Trainer).
 class PlaceInfoCard extends ConsumerWidget {
   final GymModel place;
   final AppColors colors;
@@ -24,25 +23,21 @@ class PlaceInfoCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
 
-    // Watch user location state
-    final userLocation = ref.watch(userLocationProvider);
-
-    // Read the LocationService instance
+    // Extract LatLng from LocationState
+    final locationState = ref.watch(userLocationProvider);
+    final userLocation = locationState.location;
     final LocationService locationService = ref.read(locationServiceProvider);
 
-    // Determine subtitle based on category or sports
     String subtitleText = l10n.fitnessCenter;
-    if (place.category == PlaceCategory.restaurant) {
+    if (place.category == PlaceCategory.restaurant)
       subtitleText = l10n.healthyFood;
-    } else if (place.category == PlaceCategory.trainer) {
+    if (place.category == PlaceCategory.trainer)
       subtitleText = l10n.personalTrainer;
-    }
 
     if (place.sports.isNotEmpty) {
       subtitleText = place.sports.join(' • ');
     }
 
-    // Calculate dynamic distance using the instance service and named parameters
     final String dynamicDistance = userLocation != null
         ? locationService.formatDistance(
             locationService.calculateDistanceInMeters(
@@ -54,7 +49,6 @@ class PlaceInfoCard extends ConsumerWidget {
           )
         : '-- ${l10n.km}';
 
-    // Determine facility status
     final bool isClosed = place.isTemporarilyClosed || !place.isOpenNow;
     final String closedText = place.isTemporarilyClosed
         ? l10n.temporarilyClosed
@@ -225,7 +219,6 @@ class PlaceInfoCard extends ConsumerWidget {
     );
   }
 
-  /// Builds a fallback placeholder when an image fails to load or is empty.
   Widget _buildPremiumPlaceholder() {
     return Container(
       width: double.infinity,
