@@ -5,6 +5,13 @@ class ApiConstants {
   // Base URL (10.0.2.2 is localhost for Android Emulators)
   static const String baseUrl = 'http://10.0.2.2:8000/api/v1';
 
+  // --- Auth & User Profile ---
+  static const String register = '/users/register/';
+  static const String verifyEmail = '/users/verify-email/';
+  static const String resendVerification = '/users/resend-verification/';
+  static const String login = '/users/login/';
+  static const String completeProfile = '/users/profile/complete/';
+
   // Map Discovery
   static const String mapDiscover = '/providers/discover/';
 
