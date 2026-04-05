@@ -227,4 +227,36 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get any => 'بدون حد';
+
+  @override
+  String get nameRequired => 'الاسم الكامل مطلوب';
+
+  @override
+  String get invalidName =>
+      'أدخل اسماً صحيحاً (3-50 حرفاً، بدون أرقام أو رموز)';
+
+  @override
+  String get emailRequired => 'البريد الإلكتروني مطلوب';
+
+  @override
+  String get invalidEmail => 'أدخل بريداً إلكترونياً صحيحاً';
+
+  @override
+  String get passwordRequired => 'كلمة المرور مطلوبة';
+
+  @override
+  String get invalidPassword =>
+      'يجب أن تتكون من 8 أحرف، وتحتوي على حرف كبير، حرف صغير، رقم، ورمز خاص';
+
+  @override
+  String get genderRequired => 'تحديد القسم مطلوب';
+
+  @override
+  String get cityRequired => 'تحديد المدينة مطلوب';
+
+  @override
+  String get createAccount => 'إنشاء حساب جديد';
+
+  @override
+  String get register => 'تسجيل';
 }

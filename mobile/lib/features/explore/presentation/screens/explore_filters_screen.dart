@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/database/database_service.dart';
+import '../../../../core/database/local_data_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme_provider.dart';
@@ -21,98 +21,98 @@ class ExploreFiltersScreen extends ConsumerStatefulWidget {
 class _ExploreFiltersScreenState extends ConsumerState<ExploreFiltersScreen> {
   late ExploreFilterState _localState;
 
-  List<Map<String, dynamic>> _serviceTypes = [];
-  List<Map<String, dynamic>> _cities = [];
-  List<Map<String, dynamic>> _sports = [];
-  List<Map<String, dynamic>> _amenities = [];
-  bool _isLoadingData = true;
-
   bool _showAllSports = false;
   bool _showAllAmenities = false;
 
   @override
   void initState() {
     super.initState();
+    // Initialize the local state form with the current active filters
     _localState = ref.read(exploreFilterProvider);
-    _loadStaticData();
-  }
-
-  Future<void> _loadStaticData() async {
-    final dbService = ref.read(databaseServiceProvider);
-    final types = await dbService.getServiceTypes();
-    final cities = await dbService.getCities();
-    final sports = await dbService.getSports();
-    final amenities = await dbService.getAmenities();
-
-    if (mounted) {
-      setState(() {
-        _serviceTypes = types;
-        _cities = cities;
-        _sports = sports;
-        _amenities = amenities;
-        _isLoadingData = false;
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final AppColors colors = ref.watch(appThemeProvider);
+    final staticDataAsync = ref.watch(filterStaticDataProvider);
 
     return Scaffold(
       backgroundColor: colors.background,
-      body: _isLoadingData
-          ? Center(child: CircularProgressIndicator(color: colors.primary))
-          : CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                _buildSliverAppBar(l10n, colors),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: Dimensions.spacingLarge,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: Dimensions.spacingLarge),
-                        _buildSectionTitle(l10n.cityOrRegion, colors),
-                        _buildCitySelector(colors, l10n),
-                        SizedBox(height: Dimensions.spacingExtraLarge),
+      body: staticDataAsync.when(
+        loading: () =>
+            Center(child: CircularProgressIndicator(color: colors.primary)),
+        error: (error, stack) => Center(
+          child: Text(
+            'Error loading data',
+            style: TextStyle(color: colors.error),
+          ),
+        ),
+        data: (staticData) {
+          return CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              _buildSliverAppBar(l10n, colors, staticData.serviceTypes),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Dimensions.spacingLarge,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: Dimensions.spacingLarge),
+                      _buildSectionTitle(l10n.cityOrRegion, colors),
+                      _buildCitySelector(colors, l10n, staticData.cities),
+                      SizedBox(height: Dimensions.spacingExtraLarge),
 
-                        _buildSectionTitle(l10n.searchRadiusKm, colors),
-                        _buildRadiusSlider(colors, l10n),
-                        SizedBox(height: Dimensions.spacingExtraLarge),
+                      _buildSectionTitle(l10n.searchRadiusKm, colors),
+                      _buildRadiusSlider(colors, l10n),
+                      SizedBox(height: Dimensions.spacingExtraLarge),
 
-                        // Dynamic Category Injection
-                        if (_localState.category == 'gym')
-                          ..._buildGymFilters(l10n, colors),
-                        if (_localState.category == 'trainer')
-                          ..._buildTrainerFilters(l10n, colors),
+                      // Dynamic Category Injection
+                      if (_localState.category == 'gym')
+                        ..._buildGymFilters(
+                          l10n,
+                          colors,
+                          staticData.sports,
+                          staticData.amenities,
+                        ),
+                      if (_localState.category == 'trainer')
+                        ..._buildTrainerFilters(
+                          l10n,
+                          colors,
+                          staticData.sports,
+                        ),
 
-                        _buildSectionTitle(l10n.maxPriceLimit, colors),
-                        _buildPriceInputs(colors, l10n),
-                        SizedBox(height: Dimensions.spacingExtraLarge),
+                      _buildSectionTitle(l10n.maxPriceLimit, colors),
+                      _buildPriceInputs(colors, l10n),
+                      SizedBox(height: Dimensions.spacingExtraLarge),
 
-                        _buildSectionTitle(l10n.status, colors),
-                        _buildOpenNowToggle(colors, l10n),
-                        SizedBox(height: Dimensions.spacingExtraLarge),
+                      _buildSectionTitle(l10n.status, colors),
+                      _buildOpenNowToggle(colors, l10n),
+                      SizedBox(height: Dimensions.spacingExtraLarge),
 
-                        _buildSectionTitle(l10n.sortBy, colors),
-                        _buildSortSelector(colors, l10n),
-                        SizedBox(height: Dimensions.spacingExtraLarge * 3),
-                      ],
-                    ),
+                      _buildSectionTitle(l10n.sortBy, colors),
+                      _buildSortSelector(colors, l10n),
+                      SizedBox(height: Dimensions.spacingExtraLarge * 3),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
+          );
+        },
+      ),
       bottomNavigationBar: _buildBottomBar(l10n, colors),
     );
   }
 
-  SliverAppBar _buildSliverAppBar(AppLocalizations l10n, AppColors colors) {
+  SliverAppBar _buildSliverAppBar(
+    AppLocalizations l10n,
+    AppColors colors,
+    List<Map<String, dynamic>> serviceTypes,
+  ) {
     return SliverAppBar(
       pinned: true,
       elevation: 0,
@@ -148,7 +148,7 @@ class _ExploreFiltersScreenState extends ConsumerState<ExploreFiltersScreen> {
         child: Container(
           alignment: Alignment.centerLeft,
           padding: EdgeInsets.only(bottom: Dimensions.spacingMedium),
-          child: _buildServiceCategoryTabs(colors),
+          child: _buildServiceCategoryTabs(colors, serviceTypes),
         ),
       ),
     );
@@ -156,15 +156,20 @@ class _ExploreFiltersScreenState extends ConsumerState<ExploreFiltersScreen> {
 
   // --- Dynamic Form Parts ---
 
-  List<Widget> _buildGymFilters(AppLocalizations l10n, AppColors colors) {
+  List<Widget> _buildGymFilters(
+    AppLocalizations l10n,
+    AppColors colors,
+    List<Map<String, dynamic>> sports,
+    List<Map<String, dynamic>> amenities,
+  ) {
     return [
       _buildSectionTitle(l10n.gender, colors),
       _buildGenderSelector(colors, l10n),
       SizedBox(height: Dimensions.spacingExtraLarge),
-      if (_sports.isNotEmpty) ...[
+      if (sports.isNotEmpty) ...[
         _buildSectionTitle(l10n.sports, colors),
         _buildExpandableGrid(
-          _sports,
+          sports,
           _localState.selectedSports,
           _showAllSports,
           (val) => setState(() => _showAllSports = val),
@@ -176,10 +181,10 @@ class _ExploreFiltersScreenState extends ConsumerState<ExploreFiltersScreen> {
         ),
         SizedBox(height: Dimensions.spacingExtraLarge),
       ],
-      if (_amenities.isNotEmpty) ...[
+      if (amenities.isNotEmpty) ...[
         _buildSectionTitle(l10n.amenities, colors),
         _buildExpandableGrid(
-          _amenities,
+          amenities,
           _localState.selectedAmenities,
           _showAllAmenities,
           (val) => setState(() => _showAllAmenities = val),
@@ -194,15 +199,19 @@ class _ExploreFiltersScreenState extends ConsumerState<ExploreFiltersScreen> {
     ];
   }
 
-  List<Widget> _buildTrainerFilters(AppLocalizations l10n, AppColors colors) {
+  List<Widget> _buildTrainerFilters(
+    AppLocalizations l10n,
+    AppColors colors,
+    List<Map<String, dynamic>> sports,
+  ) {
     return [
       _buildSectionTitle(l10n.gender, colors),
       _buildGenderSelector(colors, l10n),
       SizedBox(height: Dimensions.spacingExtraLarge),
-      if (_sports.isNotEmpty) ...[
+      if (sports.isNotEmpty) ...[
         _buildSectionTitle(l10n.specialties, colors),
         _buildExpandableGrid(
-          _sports,
+          sports,
           _localState.selectedSports,
           _showAllSports,
           (val) => setState(() => _showAllSports = val),
@@ -219,14 +228,17 @@ class _ExploreFiltersScreenState extends ConsumerState<ExploreFiltersScreen> {
 
   // --- Premium UI Widgets ---
 
-  Widget _buildServiceCategoryTabs(AppColors colors) {
-    if (_serviceTypes.isEmpty) return const SizedBox.shrink();
+  Widget _buildServiceCategoryTabs(
+    AppColors colors,
+    List<Map<String, dynamic>> serviceTypes,
+  ) {
+    if (serviceTypes.isEmpty) return const SizedBox.shrink();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.symmetric(horizontal: Dimensions.spacingLarge),
       child: Row(
-        children: _serviceTypes.map((type) {
+        children: serviceTypes.map((type) {
           final id = type['id'].toString();
           final name = type['name'].toString();
           final isSelected = _localState.category == id;
@@ -263,7 +275,11 @@ class _ExploreFiltersScreenState extends ConsumerState<ExploreFiltersScreen> {
     );
   }
 
-  Widget _buildCitySelector(AppColors colors, AppLocalizations l10n) {
+  Widget _buildCitySelector(
+    AppColors colors,
+    AppLocalizations l10n,
+    List<Map<String, dynamic>> cities,
+  ) {
     return DropdownButtonFormField<String>(
       value: _localState.cityId,
       dropdownColor: colors.surface,
@@ -289,7 +305,7 @@ class _ExploreFiltersScreenState extends ConsumerState<ExploreFiltersScreen> {
             ),
           ),
         ),
-        ..._cities.map(
+        ...cities.map(
           (city) => DropdownMenuItem<String>(
             value: city['id'].toString(),
             child: Text(
@@ -674,7 +690,7 @@ class _ExploreFiltersScreenState extends ConsumerState<ExploreFiltersScreen> {
     String label,
     bool isSelected,
     VoidCallback onTap,
-    AppColors colors, // <--- Corrected to use AppColors
+    AppColors colors,
   ) {
     return Expanded(
       child: InkWell(

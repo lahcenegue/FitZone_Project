@@ -70,5 +70,15 @@
   "status": "Status",
   "minPrice": "Min Price",
   "maxPrice": "Max Price",
-  "any": "Any"
+  "any": "Any",
+  "nameRequired": "Full name is required",
+  "invalidName": "Enter a valid name (3-50 letters, no symbols)",
+  "emailRequired": "Email is required",
+  "invalidEmail": "Enter a valid email address",
+  "passwordRequired": "Password is required",
+  "invalidPassword": "Must be at least 8 chars, include uppercase, lowercase, number, and symbol",
+  "genderRequired": "Gender is required",
+  "cityRequired": "City is required",
+  "createAccount": "Create Account",
+  "register": "Register"
 }

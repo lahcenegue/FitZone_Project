@@ -529,6 +529,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Any'**
   String get any;
+
+  /// No description provided for @nameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name is required'**
+  String get nameRequired;
+
+  /// No description provided for @invalidName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid name (3-50 letters, no symbols)'**
+  String get invalidName;
+
+  /// No description provided for @emailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Email is required'**
+  String get emailRequired;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get invalidEmail;
+
+  /// No description provided for @passwordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required'**
+  String get passwordRequired;
+
+  /// No description provided for @invalidPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be at least 8 chars, include uppercase, lowercase, number, and symbol'**
+  String get invalidPassword;
+
+  /// No description provided for @genderRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender is required'**
+  String get genderRequired;
+
+  /// No description provided for @cityRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'City is required'**
+  String get cityRequired;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccount;
+
+  /// No description provided for @register.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get register;
 }
 
 class _AppLocalizationsDelegate

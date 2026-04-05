@@ -228,4 +228,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get any => 'Any';
+
+  @override
+  String get nameRequired => 'Full name is required';
+
+  @override
+  String get invalidName => 'Enter a valid name (3-50 letters, no symbols)';
+
+  @override
+  String get emailRequired => 'Email is required';
+
+  @override
+  String get invalidEmail => 'Enter a valid email address';
+
+  @override
+  String get passwordRequired => 'Password is required';
+
+  @override
+  String get invalidPassword =>
+      'Must be at least 8 chars, include uppercase, lowercase, number, and symbol';
+
+  @override
+  String get genderRequired => 'Gender is required';
+
+  @override
+  String get cityRequired => 'City is required';
+
+  @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get register => 'Register';
 }
