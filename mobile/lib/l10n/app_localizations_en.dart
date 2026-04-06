@@ -462,4 +462,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get personalInfo => 'Personal Information';
+
+  @override
+  String get loyaltyPoints => 'Loyalty Points';
+
+  @override
+  String get pointsToPremium => 'Earn more points to reach the Premium tier!';
+
+  @override
+  String get mySubscriptions => 'My Subscriptions';
+
+  @override
+  String get myOrders => 'My Orders';
+
+  @override
+  String get paymentMethods => 'Payment Methods';
+
+  @override
+  String get changePassword => 'Change Password';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get locationServices => 'Location Services';
+
+  @override
+  String get inviteFriends => 'Invite Friends';
+
+  @override
+  String get termsOfService => 'Terms of Service';
+
+  @override
+  String get appSettings => 'App Settings';
+
+  @override
+  String get supportAndAbout => 'Support & About';
+
+  @override
+  String get helpCenter => 'Help Center';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get activePlans => 'Active Plans';
+
+  @override
+  String get membership => 'Membership';
+
+  @override
+  String get basicMembership => 'Basic';
+
+  @override
+  String get accessGym => 'Access Gym';
+
+  @override
+  String get loyaltyOverview => 'Loyalty Overview';
+
+  @override
+  String get earned => 'Earned';
+
+  @override
+  String get remaining => 'Remaining';
+
+  @override
+  String get pts => 'PTS';
+
+  @override
+  String get newBadge => 'NEW';
+
+  @override
+  String get guest => 'Guest';
 }

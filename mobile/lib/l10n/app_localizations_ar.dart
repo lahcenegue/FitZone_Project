@@ -461,4 +461,79 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get personalInfo => 'المعلومات الشخصية';
+
+  @override
+  String get loyaltyPoints => 'نقاط الولاء';
+
+  @override
+  String get pointsToPremium => 'اجمع المزيد من النقاط للوصول للعضوية المميزة!';
+
+  @override
+  String get mySubscriptions => 'اشتراكاتي';
+
+  @override
+  String get myOrders => 'مشترياتي';
+
+  @override
+  String get paymentMethods => 'طرق الدفع';
+
+  @override
+  String get changePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get deleteAccount => 'حذف الحساب';
+
+  @override
+  String get notifications => 'الإشعارات';
+
+  @override
+  String get locationServices => 'خدمات الموقع';
+
+  @override
+  String get inviteFriends => 'دعوة الأصدقاء';
+
+  @override
+  String get termsOfService => 'شروط الاستخدام';
+
+  @override
+  String get appSettings => 'إعدادات التطبيق';
+
+  @override
+  String get supportAndAbout => 'الدعم والسياسات';
+
+  @override
+  String get helpCenter => 'مركز المساعدة';
+
+  @override
+  String get privacyPolicy => 'سياسة الخصوصية';
+
+  @override
+  String get activePlans => 'الباقات النشطة';
+
+  @override
+  String get membership => 'العضوية';
+
+  @override
+  String get basicMembership => 'أساسية';
+
+  @override
+  String get accessGym => 'دخول القاعة';
+
+  @override
+  String get loyaltyOverview => 'نظرة على الولاء';
+
+  @override
+  String get earned => 'مكتسبة';
+
+  @override
+  String get remaining => 'متبقية';
+
+  @override
+  String get pts => 'نقطة';
+
+  @override
+  String get newBadge => 'جديد';
+
+  @override
+  String get guest => 'زائر';
 }
