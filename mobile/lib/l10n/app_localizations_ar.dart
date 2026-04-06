@@ -517,9 +517,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get basicMembership => 'أساسية';
 
   @override
-  String get accessGym => 'دخول القاعة';
-
-  @override
   String get loyaltyOverview => 'نظرة على الولاء';
 
   @override

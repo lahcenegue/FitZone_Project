@@ -101,7 +101,7 @@ class ProfileHeroCard extends StatelessWidget {
                   ),
                   SizedBox(height: Dimensions.spacingTiny),
                   Text(
-                    user?.city ?? l10n.guest ?? 'Guest',
+                    user?.city ?? l10n.guest,
                     style: TextStyle(
                       fontSize: Dimensions.fontBodyLarge,
                       color: colors.textSecondary,
@@ -133,23 +133,20 @@ class ProfileHeroCard extends StatelessWidget {
                 children: [
                   _buildStatItem(
                     user?.pointsBalance.toString() ?? '0',
-                    l10n.points ?? 'Points',
+                    l10n.points,
                   ),
                   Divider(
                     height: Dimensions.spacingLarge,
                     color: colors.iconGrey.withOpacity(0.2),
                     thickness: Dimensions.dividerHeight,
                   ),
-                  _buildStatItem('0', l10n.activePlans ?? 'Active Plans'),
+                  _buildStatItem('0', l10n.activePlans),
                   Divider(
                     height: Dimensions.spacingLarge,
                     color: colors.iconGrey.withOpacity(0.2),
                     thickness: Dimensions.dividerHeight,
                   ),
-                  _buildStatItem(
-                    l10n.basicMembership ?? 'Basic',
-                    l10n.membership ?? 'Membership',
-                  ),
+                  _buildStatItem(l10n.basicMembership, l10n.membership),
                 ],
               ),
             ),
@@ -208,7 +205,7 @@ class ProfileHeroCard extends StatelessWidget {
           ),
           SizedBox(height: Dimensions.spacingMedium),
           Text(
-            l10n.loginToContinue ?? 'Login to unlock features',
+            l10n.loginToContinue,
             style: TextStyle(
               fontSize: Dimensions.fontTitleMedium,
               fontWeight: FontWeight.w800,
@@ -228,7 +225,7 @@ class ProfileHeroCard extends StatelessWidget {
             ),
             onPressed: () => context.push(RoutePaths.login),
             child: Text(
-              l10n.login ?? 'Login',
+              l10n.login,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),

@@ -6,7 +6,9 @@ import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme_provider.dart';
+import '../../../../core/l10n/app_locale_provider.dart';
 import '../../../../l10n/app_localizations.dart';
+import 'package:fitzone/core/location/location_provider.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
@@ -27,6 +29,11 @@ class ProfileScreen extends ConsumerWidget {
     final UserModel? user = authState.value;
     final bool isLoggedIn = user != null;
 
+    final locationState = ref.watch(userLocationProvider);
+    final currentLocale = ref.watch(appLocaleProvider);
+    final bool isArabic = currentLocale.languageCode == 'ar';
+    final bool isDarkMode = colors is DarkColors;
+
     return Scaffold(
       backgroundColor: colors.background,
       body: SafeArea(
@@ -45,7 +52,7 @@ class ProfileScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      l10n.profile ?? 'Profile',
+                      l10n.profile,
                       style: TextStyle(
                         fontSize: Dimensions.fontHeading1 * 1.3,
                         fontWeight: FontWeight.w900,
@@ -95,60 +102,54 @@ class ProfileScreen extends ConsumerWidget {
                         l10n: l10n,
                       ),
                       SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
+
+                      _buildSectionHeader(l10n.accountSettings, colors),
+                      ProfileSettingsItem(
+                        icon: Icons.person_outline_rounded,
+                        title: l10n.personalInfo,
+                        colors: colors,
+                        onTap: () {},
+                      ),
+                      _buildDivider(colors),
+                      ProfileSettingsItem(
+                        icon: Icons.payment_rounded,
+                        title: l10n.paymentMethods,
+                        colors: colors,
+                        onTap: () {},
+                      ),
+                      _buildDivider(colors),
+                      ProfileSettingsItem(
+                        icon: Icons.lock_outline_rounded,
+                        title: l10n.changePassword,
+                        colors: colors,
+                        onTap: () {},
+                      ),
+                      _buildDivider(colors),
+                      ProfileSettingsItem(
+                        icon: Icons.delete_outline_rounded,
+                        title: l10n.deleteAccount,
+                        colors: colors,
+                        isDestructive: true,
+                        onTap: () {},
+                      ),
+                      SizedBox(height: Dimensions.spacingExtraLarge),
                     ],
 
-                    _buildSectionHeader(
-                      l10n.accountSettings ?? 'Account Settings',
-                      colors,
-                    ),
-                    ProfileSettingsItem(
-                      icon: Icons.person_outline_rounded,
-                      title: l10n.personalInfo ?? 'Personal Info',
-                      colors: colors,
-                      onTap: () {},
-                    ),
-                    _buildDivider(colors),
-                    ProfileSettingsItem(
-                      icon: Icons.payment_rounded,
-                      title: l10n.paymentMethods ?? 'Payment Methods',
-                      colors: colors,
-                      onTap: () {},
-                    ),
-                    _buildDivider(colors),
-                    ProfileSettingsItem(
-                      icon: Icons.lock_outline_rounded,
-                      title: l10n.changePassword ?? 'Change Password',
-                      colors: colors,
-                      onTap: () {},
-                    ),
-                    _buildDivider(colors),
-                    ProfileSettingsItem(
-                      icon: Icons.delete_outline_rounded,
-                      title: l10n.deleteAccount ?? 'Delete Account',
-                      colors: colors,
-                      isDestructive: true,
-                      onTap: () {},
-                    ),
-
-                    SizedBox(height: Dimensions.spacingExtraLarge),
-                    _buildSectionHeader(
-                      l10n.appSettings ?? 'App Settings',
-                      colors,
-                    ),
+                    _buildSectionHeader(l10n.appSettings, colors),
                     ProfileSettingsItem(
                       icon: Icons.language_rounded,
-                      title: l10n.language ?? 'Language',
-                      trailingText: 'English',
+                      title: l10n.language,
+                      trailingText: isArabic ? 'العربية' : 'English',
                       colors: colors,
-                      onTap: () {},
+                      onTap: () =>
+                          _showLanguagePicker(context, ref, colors, isArabic),
                     ),
                     _buildDivider(colors),
                     ProfileSettingsItem(
                       icon: Icons.dark_mode_outlined,
-                      title: l10n.darkMode ?? 'Dark Mode',
+                      title: l10n.darkMode,
                       isSwitch: true,
-                      switchValue:
-                          Theme.of(context).brightness == Brightness.dark,
+                      switchValue: isDarkMode,
                       colors: colors,
                       onSwitchChanged: (val) {
                         ref.read(appThemeProvider.notifier).toggleTheme();
@@ -157,35 +158,36 @@ class ProfileScreen extends ConsumerWidget {
                     _buildDivider(colors),
                     ProfileSettingsItem(
                       icon: Icons.location_on_outlined,
-                      title: l10n.locationServices ?? 'Location Services',
+                      title: l10n.locationServices,
                       isSwitch: true,
-                      switchValue: true,
+                      switchValue: locationState.isServiceEnabled,
                       colors: colors,
-                      onSwitchChanged: (val) {},
+                      onSwitchChanged: (val) {
+                        ref
+                            .read(userLocationProvider.notifier)
+                            .promptEnableLocation();
+                      },
                     ),
 
                     SizedBox(height: Dimensions.spacingExtraLarge),
-                    _buildSectionHeader(
-                      l10n.supportAndAbout ?? 'Support & About',
-                      colors,
-                    ),
+                    _buildSectionHeader(l10n.supportAndAbout, colors),
                     ProfileSettingsItem(
                       icon: Icons.help_outline_rounded,
-                      title: l10n.helpCenter ?? 'Help Center',
+                      title: l10n.helpCenter,
                       colors: colors,
                       onTap: () {},
                     ),
                     _buildDivider(colors),
                     ProfileSettingsItem(
                       icon: Icons.privacy_tip_outlined,
-                      title: l10n.privacyPolicy ?? 'Privacy Policy',
+                      title: l10n.privacyPolicy,
                       colors: colors,
                       onTap: () {},
                     ),
                     _buildDivider(colors),
                     ProfileSettingsItem(
                       icon: Icons.description_outlined,
-                      title: l10n.termsOfService ?? 'Terms of Service',
+                      title: l10n.termsOfService,
                       colors: colors,
                       onTap: () {},
                     ),
@@ -202,6 +204,96 @@ class ProfileScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showLanguagePicker(
+    BuildContext context,
+    WidgetRef ref,
+    AppColors colors,
+    bool isCurrentlyArabic,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(Dimensions.borderRadiusLarge),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(Dimensions.spacingLarge),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isCurrentlyArabic ? 'اختر اللغة' : 'Select Language',
+                  style: TextStyle(
+                    fontSize: Dimensions.fontHeading2,
+                    fontWeight: FontWeight.bold,
+                    color: colors.textPrimary,
+                  ),
+                ),
+                SizedBox(height: Dimensions.spacingLarge),
+                ListTile(
+                  title: Text(
+                    'العربية',
+                    style: TextStyle(
+                      fontSize: Dimensions.fontBodyLarge,
+                      fontWeight: FontWeight.bold,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  trailing: isCurrentlyArabic
+                      ? Icon(Icons.check_circle_rounded, color: colors.primary)
+                      : null,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      Dimensions.borderRadius,
+                    ),
+                  ),
+                  tileColor: isCurrentlyArabic
+                      ? colors.primary.withOpacity(0.05)
+                      : null,
+                  onTap: () {
+                    ref.read(appLocaleProvider.notifier).setLocale('ar');
+                    Navigator.pop(context);
+                  },
+                ),
+                SizedBox(height: Dimensions.spacingSmall),
+                ListTile(
+                  title: Text(
+                    'English',
+                    style: TextStyle(
+                      fontSize: Dimensions.fontBodyLarge,
+                      fontWeight: FontWeight.bold,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  trailing: !isCurrentlyArabic
+                      ? Icon(Icons.check_circle_rounded, color: colors.primary)
+                      : null,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      Dimensions.borderRadius,
+                    ),
+                  ),
+                  tileColor: !isCurrentlyArabic
+                      ? colors.primary.withOpacity(0.05)
+                      : null,
+                  onTap: () {
+                    ref.read(appLocaleProvider.notifier).setLocale('en');
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -259,7 +351,7 @@ class ProfileScreen extends ConsumerWidget {
             Icon(Icons.logout_rounded, size: Dimensions.iconLarge),
             SizedBox(width: Dimensions.spacingMedium),
             Text(
-              l10n.logout ?? 'Logout',
+              l10n.logout,
               style: TextStyle(
                 fontWeight: FontWeight.w900,
                 fontSize: Dimensions.fontTitleMedium,

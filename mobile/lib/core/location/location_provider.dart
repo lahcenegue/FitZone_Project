@@ -55,7 +55,6 @@ class UserLocation extends _$UserLocation {
           final isEnabled = status == ServiceStatus.enabled;
           state = state.copyWith(isServiceEnabled: isEnabled);
           if (isEnabled) {
-            // Auto-fetch the new location the moment GPS is turned back on
             fetchLocation();
           }
         });
@@ -70,6 +69,19 @@ class UserLocation extends _$UserLocation {
   /// Opens the device settings to force user to enable GPS
   Future<void> openSettings() async {
     await ref.read(locationServiceProvider).openLocationSettings();
+  }
+
+  /// Shows the In-App Location Resolution Dialog (Google Play Services)
+  Future<void> promptEnableLocation() async {
+    final isEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!isEnabled) {
+      // Show the beautiful native popup instead of settings!
+      await ref.read(locationServiceProvider).requestLocationServicePopup();
+    } else {
+      // If already enabled, user might want to turn it off. Android restricts apps from turning off GPS directly.
+      // So we fallback to opening settings if they want to toggle it off.
+      await openSettings();
+    }
   }
 
   Future<void> fetchLocation() async {

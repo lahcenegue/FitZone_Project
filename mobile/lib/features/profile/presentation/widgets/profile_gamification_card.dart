@@ -38,7 +38,6 @@ class ProfileGamificationCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // تم تكبير الدائرة ودمج الأرقام بداخلها بطريقة عصرية
           SizedBox(
             width: Dimensions.iconLarge * 4.0,
             height: Dimensions.iconLarge * 4.0,
@@ -88,14 +87,13 @@ class ProfileGamificationCard extends StatelessWidget {
           ),
           SizedBox(width: Dimensions.spacingLarge),
 
-          // تم تنظيف النصوص وتكبير الخطوط لسهولة القراءة
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  l10n.loyaltyOverview ?? 'Loyalty Overview',
+                  l10n.loyaltyOverview,
                   style: TextStyle(
                     fontSize: Dimensions.fontHeading2,
                     fontWeight: FontWeight.w900,
@@ -105,8 +103,7 @@ class ProfileGamificationCard extends StatelessWidget {
                 ),
                 SizedBox(height: Dimensions.spacingSmall),
                 Text(
-                  l10n.pointsToPremium ??
-                      'Earn more points to reach the Premium tier!',
+                  l10n.pointsToPremium,
                   style: TextStyle(
                     fontSize: Dimensions.fontBodyLarge,
                     color: colors.textSecondary,

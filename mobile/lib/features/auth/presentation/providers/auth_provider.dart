@@ -1,3 +1,4 @@
+import 'package:fitzone/core/storage/storage_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/network/api_provider.dart';
@@ -22,7 +23,8 @@ AuthApiService authApiService(Ref ref) {
 class AuthController extends _$AuthController {
   @override
   AsyncValue<UserModel?> build() {
-    return const AsyncData(null);
+    final cachedUser = ref.read(storageServiceProvider).getCachedUser();
+    return AsyncData(cachedUser);
   }
 
   /// Registers a new user.
@@ -54,6 +56,8 @@ class AuthController extends _$AuthController {
             refreshToken: response.refreshToken,
           );
 
+      await ref.read(storageServiceProvider).cacheUser(response.user);
+
       state = AsyncData(response.user);
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
@@ -73,6 +77,8 @@ class AuthController extends _$AuthController {
             accessToken: response.accessToken,
             refreshToken: response.refreshToken,
           );
+
+      await ref.read(storageServiceProvider).cacheUser(response.user);
 
       state = AsyncData(response.user);
     } catch (error, stackTrace) {
@@ -96,6 +102,8 @@ class AuthController extends _$AuthController {
     try {
       final AuthApiService authService = ref.read(authApiServiceProvider);
       final UserModel updatedUser = await authService.completeProfile(request);
+
+      await ref.read(storageServiceProvider).cacheUser(updatedUser);
       state = AsyncData(updatedUser);
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
@@ -105,9 +113,8 @@ class AuthController extends _$AuthController {
   /// Logs out the current user by clearing tokens and resetting the state.
   Future<void> logout() async {
     try {
-      // Clear secure storage (Tokens)
       await ref.read(secureStorageServiceProvider).clearAll();
-      // Reset user state to null
+      await ref.read(storageServiceProvider).clearCachedUser();
       state = const AsyncData(null);
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);

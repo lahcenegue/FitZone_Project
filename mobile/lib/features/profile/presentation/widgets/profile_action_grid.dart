@@ -15,24 +15,21 @@ class ProfileActionGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // استخدام AspectRatio يجعل الشبكة متجاوبة 100% مع الهواتف والتابلت بدون تحديد ارتفاع ثابت
     return AspectRatio(
       aspectRatio: 2.1,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Left Large Card
           Expanded(
             flex: 1,
             child: _buildGridCard(
-              title: l10n.mySubscriptions ?? 'My Subscriptions',
-              subtitle: l10n.accessGym ?? 'Access Gym',
+              title: l10n.mySubscriptions,
               icon: Icons.qr_code_scanner_rounded,
               onTap: () {},
+              compact: false,
             ),
           ),
           SizedBox(width: Dimensions.spacingMedium),
-          // Right Small Cards
           Expanded(
             flex: 1,
             child: Column(
@@ -40,18 +37,20 @@ class ProfileActionGrid extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildGridCard(
-                    title: l10n.myOrders ?? 'My Orders',
+                    title: l10n.myOrders,
                     icon: Icons.shopping_bag_rounded,
                     onTap: () {},
+                    compact: true,
                   ),
                 ),
                 SizedBox(height: Dimensions.spacingMedium),
                 Expanded(
                   child: _buildGridCard(
-                    title: l10n.saved ?? 'Saved',
+                    title: l10n.saved,
                     icon: Icons.favorite_rounded,
                     iconColor: colors.error,
                     onTap: () {},
+                    compact: true,
                   ),
                 ),
               ],
@@ -64,54 +63,60 @@ class ProfileActionGrid extends StatelessWidget {
 
   Widget _buildGridCard({
     required String title,
-    String? subtitle,
     required IconData icon,
     Color? iconColor,
     required VoidCallback onTap,
+    bool compact = false,
   }) {
-    return Material(
-      color: colors.surface,
-      borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-      elevation: 2,
-      shadowColor: colors.shadow.withOpacity(0.05),
-      child: InkWell(
-        onTap: onTap,
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surface,
         borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-        child: Padding(
-          padding: EdgeInsets.all(Dimensions.spacingMedium),
-          // استخدام FittedBox يمنع أي Overflow مستقبلي مهما كبر الخط
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
+        boxShadow: [
+          BoxShadow(
+            color: colors.shadow,
+            blurRadius: Dimensions.shadowBlurRadius,
+            offset: Offset(0, Dimensions.shadowOffsetY),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+          child: Padding(
+            padding: EdgeInsets.all(
+              compact ? Dimensions.spacingSmall : Dimensions.spacingMedium,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   icon,
                   color: iconColor ?? colors.textPrimary,
-                  size: Dimensions.iconLarge * 1.3,
+                  size: compact ? Dimensions.iconMedium : Dimensions.iconLarge,
                 ),
-                SizedBox(height: Dimensions.spacingMedium),
+                SizedBox(
+                  height: compact
+                      ? Dimensions.spacingSmall
+                      : Dimensions.spacingMedium,
+                ),
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: Dimensions.fontBodyLarge,
+                    fontSize: compact
+                        ? Dimensions.fontBodyLarge
+                        : Dimensions.fontHeading3,
                     fontWeight: FontWeight.w900,
                     color: colors.textPrimary,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                if (subtitle != null) ...[
-                  SizedBox(height: Dimensions.spacingTiny),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: Dimensions.fontBodyMedium,
-                      color: colors.textSecondary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
               ],
             ),
           ),

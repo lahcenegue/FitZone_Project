@@ -1,6 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logging/logging.dart';
+import 'package:location/location.dart' as loc;
 
 /// Core service for handling device location and permissions.
 class LocationService {
@@ -13,6 +14,19 @@ class LocationService {
   /// Opens the device's location settings so the user can enable GPS.
   Future<bool> openLocationSettings() async {
     return await Geolocator.openLocationSettings();
+  }
+
+  /// Requests to enable GPS via Google Play Services in-app Popup Dialog.
+  Future<bool> requestLocationServicePopup() async {
+    try {
+      loc.Location location = loc.Location();
+      bool isTurnedOn = await location.requestService();
+      _logger.info('Location popup result: $isTurnedOn');
+      return isTurnedOn;
+    } catch (e) {
+      _logger.severe('Failed to show location popup', e);
+      return false;
+    }
   }
 
   /// Requests location permissions and retrieves the user's current GPS position.

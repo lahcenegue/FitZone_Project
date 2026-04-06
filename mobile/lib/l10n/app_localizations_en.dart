@@ -518,9 +518,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get basicMembership => 'Basic';
 
   @override
-  String get accessGym => 'Access Gym';
-
-  @override
   String get loyaltyOverview => 'Loyalty Overview';
 
   @override

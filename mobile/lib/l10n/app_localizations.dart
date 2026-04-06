@@ -1082,12 +1082,6 @@ abstract class AppLocalizations {
   /// **'Basic'**
   String get basicMembership;
 
-  /// No description provided for @accessGym.
-  ///
-  /// In en, this message translates to:
-  /// **'Access Gym'**
-  String get accessGym;
-
   /// No description provided for @loyaltyOverview.
   ///
   /// In en, this message translates to:
