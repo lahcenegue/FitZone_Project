@@ -168,5 +168,12 @@
   "remaining": "Remaining",
   "pts": "PTS",
   "newBadge": "NEW",
-  "guest": "Guest"
+  "guest": "Guest",
+  "noInternetTitle": "No Internet Connection",
+  "noInternetMessage": "Please check your network connection and try again.",
+  "locationRequiredTitle": "Location Required",
+  "locationRequiredMessage": "FitZone requires your location to find nearby gyms and services.",
+  "retryButton": "Retry",
+  "enableLocationButton": "Enable Location",
+  "locationTimeoutMessage": "Could not detect exact location. Redirecting to map to browse manually."
 }

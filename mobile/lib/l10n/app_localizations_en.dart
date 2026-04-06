@@ -534,4 +534,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guest => 'Guest';
+
+  @override
+  String get noInternetTitle => 'No Internet Connection';
+
+  @override
+  String get noInternetMessage =>
+      'Please check your network connection and try again.';
+
+  @override
+  String get locationRequiredTitle => 'Location Required';
+
+  @override
+  String get locationRequiredMessage =>
+      'FitZone requires your location to find nearby gyms and services.';
+
+  @override
+  String get retryButton => 'Retry';
+
+  @override
+  String get enableLocationButton => 'Enable Location';
+
+  @override
+  String get locationTimeoutMessage =>
+      'Could not detect exact location. Redirecting to map to browse manually.';
 }

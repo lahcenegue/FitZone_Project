@@ -1117,6 +1117,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Guest'**
   String get guest;
+
+  /// No description provided for @noInternetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Internet Connection'**
+  String get noInternetTitle;
+
+  /// No description provided for @noInternetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your network connection and try again.'**
+  String get noInternetMessage;
+
+  /// No description provided for @locationRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Required'**
+  String get locationRequiredTitle;
+
+  /// No description provided for @locationRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'FitZone requires your location to find nearby gyms and services.'**
+  String get locationRequiredMessage;
+
+  /// No description provided for @retryButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retryButton;
+
+  /// No description provided for @enableLocationButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Location'**
+  String get enableLocationButton;
+
+  /// No description provided for @locationTimeoutMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not detect exact location. Redirecting to map to browse manually.'**
+  String get locationTimeoutMessage;
 }
 
 class _AppLocalizationsDelegate

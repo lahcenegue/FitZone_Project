@@ -158,12 +158,15 @@ class CompleteProfileForm extends _$CompleteProfileForm {
       if (placemarks.isNotEmpty) {
         final place = placemarks.first;
         final List<String> addressParts = [];
-        if (place.subLocality != null && place.subLocality!.isNotEmpty)
+        if (place.subLocality != null && place.subLocality!.isNotEmpty) {
           addressParts.add(place.subLocality!);
-        if (place.locality != null && place.locality!.isNotEmpty)
+        }
+        if (place.locality != null && place.locality!.isNotEmpty) {
           addressParts.add(place.locality!);
-        if (addressParts.isEmpty && place.street != null)
+        }
+        if (addressParts.isEmpty && place.street != null) {
           addressParts.add(place.street!);
+        }
 
         final String readableAddress = addressParts.join(', ');
 

@@ -533,4 +533,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get guest => 'زائر';
+
+  @override
+  String get noInternetTitle => 'لا يوجد اتصال بالإنترنت';
+
+  @override
+  String get noInternetMessage =>
+      'يرجى التحقق من اتصالك بالشبكة والمحاولة مرة أخرى.';
+
+  @override
+  String get locationRequiredTitle => 'الموقع الجغرافي مطلوب';
+
+  @override
+  String get locationRequiredMessage =>
+      'تطبيق FitZone يحتاج إلى موقعك للعثور على الصالات والخدمات القريبة منك.';
+
+  @override
+  String get retryButton => 'إعادة المحاولة';
+
+  @override
+  String get enableLocationButton => 'تفعيل الموقع';
+
+  @override
+  String get locationTimeoutMessage =>
+      'لم نتمكن من تحديد موقعك بدقة. سيتم توجيهك للخريطة لتصفح الخدمات يدوياً.';
 }

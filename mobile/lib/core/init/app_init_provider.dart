@@ -1,7 +1,10 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:logging/logging.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../config/api_constants.dart';
 import '../network/api_provider.dart';
@@ -9,6 +12,12 @@ import '../database/database_service.dart';
 import '../location/location_provider.dart';
 
 part 'app_init_provider.g.dart';
+
+class OfflineException implements Exception {}
+
+class LocationDisabledException implements Exception {}
+
+enum StartupStatus { success, locationTimeout }
 
 class AppInitService {
   final Dio _dio;
@@ -99,26 +108,70 @@ AppInitService appInitService(Ref ref) {
   return AppInitService(dio: dio, dbService: dbService);
 }
 
-/// The master provider that Bootstraps the entire app
 @Riverpod(keepAlive: true)
-Future<void> appStartup(Ref ref) async {
+Future<StartupStatus> appStartup(Ref ref) async {
   final Logger logger = Logger('AppStartup');
 
-  logger.info('Phase 1: Fetching User Location securely...');
+  logger.info('Phase 1: Checking Hardware Network State...');
+  final List<ConnectivityResult> connectivityResult = await Connectivity()
+      .checkConnectivity();
+  if (connectivityResult.contains(ConnectivityResult.none)) {
+    throw OfflineException();
+  }
+
+  logger.info('Phase 2: Verifying Real Internet Access...');
+  bool hasInternet = false;
   try {
-    // 5 seconds timeout to prevent Splash Screen from freezing if GPS is weak
+    final result = await InternetAddress.lookup(
+      'google.com',
+    ).timeout(const Duration(seconds: 3));
+    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+      hasInternet = true;
+    }
+  } catch (_) {
+    hasInternet = false;
+  }
+
+  if (!hasInternet) {
+    logger.warning('Real Internet check failed or timed out.');
+    throw OfflineException();
+  }
+
+  logger.info('Phase 3: Checking Location Services...');
+  final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    throw LocationDisabledException();
+  }
+
+  logger.info(
+    'Phase 4: Parallel Execution (Waiting for GPS Lock & DB Sync)...',
+  );
+  bool locationTimedOut = false;
+
+  await Future.wait([
+    ref.read(appInitServiceProvider).initializeApp(),
+    _fetchLocationWithTimeout(ref, logger).then((timedOut) {
+      locationTimedOut = timedOut;
+    }),
+  ]);
+
+  return locationTimedOut
+      ? StartupStatus.locationTimeout
+      : StartupStatus.success;
+}
+
+Future<bool> _fetchLocationWithTimeout(Ref ref, Logger logger) async {
+  try {
     await ref
         .read(userLocationProvider.notifier)
         .fetchLocation()
-        .timeout(const Duration(seconds: 5));
-    logger.info('User location cached successfully.');
+        .timeout(const Duration(seconds: 15));
+    logger.info('GPS Lock acquired successfully.');
+    return false;
   } catch (e) {
     logger.warning(
-      'Location fetch timed out or failed. Proceeding to Phase 2...',
+      'GPS Lock timed out after 15 seconds. Proceeding to explore screen.',
     );
+    return true;
   }
-
-  logger.info('Phase 2: Synchronizing Database...');
-  final AppInitService initService = ref.read(appInitServiceProvider);
-  await initService.initializeApp();
 }

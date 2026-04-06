@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   cached_network_image: ^3.4.1
+  connectivity_plus: ^7.1.0
   cupertino_icons: ^1.0.8
   dio: ^5.9.2
   equatable: ^2.0.8
@@ -25,6 +26,7 @@ dependencies:
   google_fonts: ^8.0.2
   google_maps_flutter: ^2.15.0
   image_picker: ^1.2.1
+  internet_connection_checker_plus: ^2.9.1+2
   intl: ^0.20.2
   json_annotation: ^4.11.0
   location: ^8.0.1

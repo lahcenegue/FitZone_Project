@@ -105,7 +105,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
               _buildCustomTextField(
-                label: l10n.emailAddress ?? 'Email Address',
+                label: l10n.emailAddress,
                 hint: 'user@fitzone.sa',
                 icon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
@@ -126,7 +126,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     _logger.info('Navigate to Forgot Password');
                   },
                   child: Text(
-                    l10n.forgotPassword ?? 'Forgot Password?',
+                    l10n.forgotPassword,
                     style: TextStyle(
                       color: colors.primary,
                       fontWeight: FontWeight.bold,
@@ -146,7 +146,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: TextButton(
                   onPressed: () => context.push(RoutePaths.register),
                   child: Text(
-                    l10n.dontHaveAccount ?? "Don't have an account? Register",
+                    l10n.dontHaveAccount,
                     style: TextStyle(
                       color: colors.textSecondary,
                       fontWeight: FontWeight.bold,
@@ -167,7 +167,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n.loginTitle ?? 'Welcome Back',
+          l10n.loginTitle,
           style: TextStyle(
             fontSize: Dimensions.fontHeading1 * 1.2,
             fontWeight: FontWeight.w900,
@@ -177,7 +177,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ),
         SizedBox(height: Dimensions.spacingTiny),
         Text(
-          l10n.loginSubtitle ?? 'Login to your FitZone account.',
+          l10n.loginSubtitle,
           style: TextStyle(
             fontSize: Dimensions.fontBodyLarge,
             color: colors.textSecondary,
@@ -231,7 +231,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n.password ?? 'Password',
+          l10n.password,
           style: TextStyle(
             fontSize: Dimensions.fontBodyLarge,
             fontWeight: FontWeight.w700,
@@ -314,7 +314,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               )
             : Text(
-                l10n.loginButton ?? 'Login',
+                l10n.loginButton,
                 style: TextStyle(
                   fontSize: Dimensions.fontTitleMedium,
                   fontWeight: FontWeight.bold,

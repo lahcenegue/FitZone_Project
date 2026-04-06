@@ -168,5 +168,12 @@
   "remaining": "متبقية",
   "pts": "نقطة",
   "newBadge": "جديد",
-  "guest": "زائر"
+  "guest": "زائر",
+  "noInternetTitle": "لا يوجد اتصال بالإنترنت",
+  "noInternetMessage": "يرجى التحقق من اتصالك بالشبكة والمحاولة مرة أخرى.",
+  "locationRequiredTitle": "الموقع الجغرافي مطلوب",
+  "locationRequiredMessage": "تطبيق FitZone يحتاج إلى موقعك للعثور على الصالات والخدمات القريبة منك.",
+  "retryButton": "إعادة المحاولة",
+  "enableLocationButton": "تفعيل الموقع",
+  "locationTimeoutMessage": "لم نتمكن من تحديد موقعك بدقة. سيتم توجيهك للخريطة لتصفح الخدمات يدوياً."
 }

@@ -50,17 +50,17 @@ final class AppInitServiceProvider
 
 String _$appInitServiceHash() => r'b1f167f4a7d7f92bc73221be8f39055bfc972b0c';
 
-/// The master provider that Bootstraps the entire app
-
 @ProviderFor(appStartup)
 final appStartupProvider = AppStartupProvider._();
 
-/// The master provider that Bootstraps the entire app
-
 final class AppStartupProvider
-    extends $FunctionalProvider<AsyncValue<void>, void, FutureOr<void>>
-    with $FutureModifier<void>, $FutureProvider<void> {
-  /// The master provider that Bootstraps the entire app
+    extends
+        $FunctionalProvider<
+          AsyncValue<StartupStatus>,
+          StartupStatus,
+          FutureOr<StartupStatus>
+        >
+    with $FutureModifier<StartupStatus>, $FutureProvider<StartupStatus> {
   AppStartupProvider._()
     : super(
         from: null,
@@ -77,13 +77,14 @@ final class AppStartupProvider
 
   @$internal
   @override
-  $FutureProviderElement<void> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+  $FutureProviderElement<StartupStatus> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<void> create(Ref ref) {
+  FutureOr<StartupStatus> create(Ref ref) {
     return appStartup(ref);
   }
 }
 
-String _$appStartupHash() => r'bd6912f6dc0324ae05b4357d310c094a91a645d2';
+String _$appStartupHash() => r'7256252c1a57b78081ba767098e134552e0a39a8';
