@@ -5,13 +5,16 @@ Must be set as AUTH_USER_MODEL before the first migration.
 """
 
 import logging
-import uuid
+import random
 from datetime import timedelta
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.gis.db import models as gis_models
 from django.db import models
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+
+from apps.core.constants import OTP_EXPIRATION_MINUTES
 
 logger = logging.getLogger(__name__)
 
@@ -350,25 +353,72 @@ class User(AbstractBaseUser, PermissionsMixin):
             self.email, longitude, latitude,
         )
 
+def generate_otp():
+    """Generates a secure, random 6-digit OTP."""
+    return str(random.randint(100000, 999999))
+
+def get_otp_expiration():
+    """Returns the expiration timestamp for the OTP."""
+    return timezone.now() + timedelta(minutes=OTP_EXPIRATION_MINUTES)
+
 class UserVerificationToken(models.Model):
     """
-    Token for customer email verification.
+    Stores the 6-digit OTP for user email verification.
     """
-    user = models.ForeignKey(
-        User, 
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE, 
-        related_name='verification_tokens'
+        related_name='verification_token'
     )
-    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    otp = models.CharField(
+        max_length=6, 
+        default=generate_otp, 
+        unique=True,
+        verbose_name="One Time Password"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        verbose_name = _("User Verification Token")
-        verbose_name_plural = _("User Verification Tokens")
+    expires_at = models.DateTimeField(default=get_otp_expiration)
 
-    def is_valid(self):
-        """Token is valid for 24 hours."""
-        return self.created_at >= timezone.now() - timedelta(days=1)
+    class Meta:
+        verbose_name = "Verification Token"
+        verbose_name_plural = "Verification Tokens"
 
     def __str__(self):
-        return f"Token for {self.user.email}"
+        return f"OTP for {self.user.email}"
+
+    def is_valid(self):
+        """
+        Checks if the OTP is still valid (not expired).
+        """
+        return timezone.now() <= self.expires_at
+    
+
+class PasswordResetToken(models.Model):
+    """
+    Stores the 6-digit OTP specifically for password reset requests.
+    """
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='password_reset_token'
+    )
+    otp = models.CharField(
+        max_length=6, 
+        default=generate_otp, 
+        unique=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(default=get_otp_expiration)
+
+    class Meta:
+        verbose_name = "Password Reset Token"
+        verbose_name_plural = "Password Reset Tokens"
+
+    def __str__(self):
+        return f"Password Reset OTP for {self.user.email}"
+
+    def is_valid(self):
+        """
+        Checks if the password reset OTP is still valid (not expired).
+        """
+        return timezone.now() <= self.expires_at

@@ -99,6 +99,12 @@ FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:8000")
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # ---------------------------------------------------------------------------
+# Deep Linking & URLs
+# ---------------------------------------------------------------------------
+# Used in emails to redirect users straight to the mobile app
+DEEP_LINK_BASE = env("DEEP_LINK_BASE", default="fitzone://verify")
+
+# ---------------------------------------------------------------------------
 # Templates
 # ---------------------------------------------------------------------------
 

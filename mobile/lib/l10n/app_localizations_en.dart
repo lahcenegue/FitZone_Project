@@ -259,4 +259,155 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get register => 'Register';
+
+  @override
+  String get verifyingEmail => 'Verifying your email';
+
+  @override
+  String get verificationSuccess => 'Email Verified Successfully';
+
+  @override
+  String get verificationFailed => 'Verification Failed';
+
+  @override
+  String get invalidToken => 'Invalid or missing verification token';
+
+  @override
+  String get goHome => 'Go to Home';
+
+  @override
+  String get pleaseWait => 'Please wait while we secure your account';
+
+  @override
+  String get tryAgain => 'Try Again';
+
+  @override
+  String get completeProfileTitle => 'Complete Profile';
+
+  @override
+  String get completeProfileSubtitle =>
+      'To ensure a safe environment and comply with gym regulations, please verify your identity. This one-time step is required to activate your membership.';
+
+  @override
+  String get phoneNumber => 'Phone Number';
+
+  @override
+  String get phoneNumberHint => '05XXXXXXXX';
+
+  @override
+  String get invalidPhoneNumber => 'Enter a valid Saudi phone number';
+
+  @override
+  String get idCardImage => 'National ID';
+
+  @override
+  String get uploadIdCard => 'Tap to upload ID';
+
+  @override
+  String get faceImage => 'Face Photo';
+
+  @override
+  String get uploadFaceImage => 'Take a selfie';
+
+  @override
+  String get addressOptional => 'Address (Optional)';
+
+  @override
+  String get addressHint => 'Enter your full address';
+
+  @override
+  String get submitProfile => 'Submit Profile';
+
+  @override
+  String get imagesRequiredError => 'Both ID and Face images are required';
+
+  @override
+  String get locationFetched => 'Location updated successfully';
+
+  @override
+  String get refreshLocation => 'Get current location';
+
+  @override
+  String get authRequiredTitle => 'Authentication Required';
+
+  @override
+  String get authRequiredSubtitle =>
+      'Please login or create an account to proceed with your subscription.';
+
+  @override
+  String get login => 'Login';
+
+  @override
+  String get registrationSuccessTitle => 'Registration Successful!';
+
+  @override
+  String get registrationSuccessMsg =>
+      'We have sent a verification link to your email. Please check your inbox and click the link to activate your account.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get awaitingVerificationTitle => 'Verify Your Email';
+
+  @override
+  String get awaitingVerificationSubtitle =>
+      'We\'ve sent a verification link to your email. Please check your inbox and click the link to activate your account.';
+
+  @override
+  String get resendLink => 'Resend Link';
+
+  @override
+  String resendLinkCooldown(Object seconds) {
+    return 'Resend Link in ${seconds}s';
+  }
+
+  @override
+  String get verificationSent => 'Verification link sent successfully.';
+
+  @override
+  String get profileIncompleteWarning =>
+      'Email verified! Please complete your profile later to purchase subscriptions.';
+
+  @override
+  String get backToHome => 'Back to Home';
+
+  @override
+  String get enterOtpTitle => 'Enter Verification Code';
+
+  @override
+  String enterOtpSubtitle(Object email) {
+    return 'We\'ve sent a 6-digit code to $email. Please enter it below.';
+  }
+
+  @override
+  String get verifyAccount => 'Verify Account';
+
+  @override
+  String get invalidOtp => 'Please enter a valid 6-digit code';
+
+  @override
+  String get otpHint => '000000';
+
+  @override
+  String get fetchingAddress => 'Fetching your address...';
+
+  @override
+  String get searchLocationHint =>
+      'Search for city, street, or neighborhood...';
+
+  @override
+  String get confirmLocation => 'Confirm Location';
+
+  @override
+  String get useThisAddress => 'Use this address';
+
+  @override
+  String get selectImageSource => 'Select Image Source';
+
+  @override
+  String get camera => 'Camera';
+
+  @override
+  String get gallery => 'Gallery';
 }

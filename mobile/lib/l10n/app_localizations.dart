@@ -589,6 +589,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Register'**
   String get register;
+
+  /// No description provided for @verifyingEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying your email'**
+  String get verifyingEmail;
+
+  /// No description provided for @verificationSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Verified Successfully'**
+  String get verificationSuccess;
+
+  /// No description provided for @verificationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification Failed'**
+  String get verificationFailed;
+
+  /// No description provided for @invalidToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid or missing verification token'**
+  String get invalidToken;
+
+  /// No description provided for @goHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Home'**
+  String get goHome;
+
+  /// No description provided for @pleaseWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait while we secure your account'**
+  String get pleaseWait;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get tryAgain;
+
+  /// No description provided for @completeProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Profile'**
+  String get completeProfileTitle;
+
+  /// No description provided for @completeProfileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'To ensure a safe environment and comply with gym regulations, please verify your identity. This one-time step is required to activate your membership.'**
+  String get completeProfileSubtitle;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phoneNumber;
+
+  /// No description provided for @phoneNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'05XXXXXXXX'**
+  String get phoneNumberHint;
+
+  /// No description provided for @invalidPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid Saudi phone number'**
+  String get invalidPhoneNumber;
+
+  /// No description provided for @idCardImage.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID'**
+  String get idCardImage;
+
+  /// No description provided for @uploadIdCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to upload ID'**
+  String get uploadIdCard;
+
+  /// No description provided for @faceImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Face Photo'**
+  String get faceImage;
+
+  /// No description provided for @uploadFaceImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a selfie'**
+  String get uploadFaceImage;
+
+  /// No description provided for @addressOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Address (Optional)'**
+  String get addressOptional;
+
+  /// No description provided for @addressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full address'**
+  String get addressHint;
+
+  /// No description provided for @submitProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Profile'**
+  String get submitProfile;
+
+  /// No description provided for @imagesRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Both ID and Face images are required'**
+  String get imagesRequiredError;
+
+  /// No description provided for @locationFetched.
+  ///
+  /// In en, this message translates to:
+  /// **'Location updated successfully'**
+  String get locationFetched;
+
+  /// No description provided for @refreshLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Get current location'**
+  String get refreshLocation;
+
+  /// No description provided for @authRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication Required'**
+  String get authRequiredTitle;
+
+  /// No description provided for @authRequiredSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login or create an account to proceed with your subscription.'**
+  String get authRequiredSubtitle;
+
+  /// No description provided for @login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get login;
+
+  /// No description provided for @registrationSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration Successful!'**
+  String get registrationSuccessTitle;
+
+  /// No description provided for @registrationSuccessMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'We have sent a verification link to your email. Please check your inbox and click the link to activate your account.'**
+  String get registrationSuccessMsg;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @awaitingVerificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify Your Email'**
+  String get awaitingVerificationTitle;
+
+  /// No description provided for @awaitingVerificationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve sent a verification link to your email. Please check your inbox and click the link to activate your account.'**
+  String get awaitingVerificationSubtitle;
+
+  /// No description provided for @resendLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend Link'**
+  String get resendLink;
+
+  /// No description provided for @resendLinkCooldown.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend Link in {seconds}s'**
+  String resendLinkCooldown(Object seconds);
+
+  /// No description provided for @verificationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification link sent successfully.'**
+  String get verificationSent;
+
+  /// No description provided for @profileIncompleteWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Email verified! Please complete your profile later to purchase subscriptions.'**
+  String get profileIncompleteWarning;
+
+  /// No description provided for @backToHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Home'**
+  String get backToHome;
+
+  /// No description provided for @enterOtpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Verification Code'**
+  String get enterOtpTitle;
+
+  /// No description provided for @enterOtpSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve sent a 6-digit code to {email}. Please enter it below.'**
+  String enterOtpSubtitle(Object email);
+
+  /// No description provided for @verifyAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify Account'**
+  String get verifyAccount;
+
+  /// No description provided for @invalidOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid 6-digit code'**
+  String get invalidOtp;
+
+  /// No description provided for @otpHint.
+  ///
+  /// In en, this message translates to:
+  /// **'000000'**
+  String get otpHint;
+
+  /// No description provided for @fetchingAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching your address...'**
+  String get fetchingAddress;
+
+  /// No description provided for @searchLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for city, street, or neighborhood...'**
+  String get searchLocationHint;
+
+  /// No description provided for @confirmLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Location'**
+  String get confirmLocation;
+
+  /// No description provided for @useThisAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this address'**
+  String get useThisAddress;
+
+  /// No description provided for @selectImageSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Image Source'**
+  String get selectImageSource;
+
+  /// No description provided for @camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get camera;
+
+  /// No description provided for @gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallery;
 }
 
 class _AppLocalizationsDelegate

@@ -1,19 +1,166 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:fitzone/l10n/app_localizations.dart';
+
+import '../../../../core/routing/app_router.dart';
+import '../../../../core/routing/auth_intent_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/models/gym_details_model.dart';
 import 'gym_section_title.dart';
 
-class GymPlansSection extends StatelessWidget {
+class GymPlansSection extends ConsumerWidget {
   final List<GymPlan> plans;
   final AppColors colors;
+  final int gymId;
 
-  const GymPlansSection({super.key, required this.plans, required this.colors});
+  const GymPlansSection({
+    super.key,
+    required this.plans,
+    required this.colors,
+    required this.gymId,
+  });
+
+  /// Saves the user's intent to buy a specific plan so they return here after Auth
+  void _savePurchaseIntent(WidgetRef ref, int planId) {
+    ref
+        .read(authIntentServiceProvider)
+        .saveIntent(
+          AuthIntent(
+            type: AuthIntentType.buyGymSubscription,
+            payload: {'gym_id': gymId, 'plan_id': planId},
+          ),
+        );
+  }
+
+  /// Shows an elegant bottom sheet prompting the user to Login or Register
+  void _showAuthPrompt(
+    BuildContext context,
+    WidgetRef ref,
+    int planId,
+    AppColors colors,
+    AppLocalizations l10n,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(Dimensions.borderRadiusLarge),
+        ),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(Dimensions.spacingLarge),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 48.0,
+                  height: 5.0,
+                  margin: EdgeInsets.only(bottom: Dimensions.spacingLarge),
+                  decoration: BoxDecoration(
+                    color: colors.iconGrey.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(Dimensions.radiusPill),
+                  ),
+                ),
+                Icon(
+                  Icons.lock_person_rounded,
+                  size: Dimensions.iconLarge * 2,
+                  color: colors.primary,
+                ),
+                SizedBox(height: Dimensions.spacingMedium),
+                Text(
+                  l10n.authRequiredTitle, // "Authentication Required"
+                  style: TextStyle(
+                    fontSize: Dimensions.fontHeading2,
+                    fontWeight: FontWeight.bold,
+                    color: colors.textPrimary,
+                  ),
+                ),
+                SizedBox(height: Dimensions.spacingSmall),
+                Text(
+                  l10n.authRequiredSubtitle, // "Please login or create an account..."
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: Dimensions.fontBodyLarge,
+                    color: colors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+                SizedBox(height: Dimensions.spacingExtraLarge),
+                SizedBox(
+                  width: double.infinity,
+                  height: Dimensions.buttonHeight,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.borderRadius,
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      _savePurchaseIntent(ref, planId);
+                      context.pop(); // Close prompt
+                      context.push(RoutePaths.login); // Go to Login
+                    },
+                    child: Text(
+                      l10n.login,
+                      style: TextStyle(
+                        fontSize: Dimensions.fontButton,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: Dimensions.spacingMedium),
+                SizedBox(
+                  width: double.infinity,
+                  height: Dimensions.buttonHeight,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: colors.primary,
+                      side: BorderSide(color: colors.primary, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.borderRadius,
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      _savePurchaseIntent(ref, planId);
+                      context.pop(); // Close prompt
+                      context.push(RoutePaths.register); // Go to Register
+                    },
+                    child: Text(
+                      l10n.createAccount, // Ensure this key exists in your .arb files
+                      style: TextStyle(
+                        fontSize: Dimensions.fontButton,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: Dimensions.spacingMedium),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   void _showPlanDetails(
     BuildContext context,
+    WidgetRef ref,
     GymPlan plan,
     NumberFormat format,
     AppLocalizations l10n,
@@ -178,7 +325,7 @@ class GymPlansSection extends StatelessWidget {
 
                         // Features
                         Text(
-                          l10n.subscriptionPlans, // Reusing localized string for "Features" header
+                          l10n.subscriptionPlans,
                           style: TextStyle(
                             fontSize: Dimensions.fontHeading2,
                             fontWeight: FontWeight.bold,
@@ -196,7 +343,7 @@ class GymPlansSection extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
-                                      margin: EdgeInsets.only(top: 2),
+                                      margin: const EdgeInsets.only(top: 2),
                                       padding: EdgeInsets.all(
                                         Dimensions.spacingTiny / 2,
                                       ),
@@ -267,9 +414,35 @@ class GymPlansSection extends StatelessWidget {
                               ),
                             ),
                           ),
-                          onPressed: () => Navigator.pop(
-                            context,
-                          ), // TODO: Navigate to Payment
+                          onPressed: () {
+                            context.pop(); // Close the Plan Details sheet
+
+                            final user = ref.read(authControllerProvider).value;
+
+                            if (user == null) {
+                              // User is completely unauthenticated -> Show elegant auth prompt
+                              _showAuthPrompt(
+                                context,
+                                ref,
+                                plan.id,
+                                colors,
+                                l10n,
+                              );
+                            } else if (!user.profileIsComplete) {
+                              // User is logged in but profile is incomplete -> Step 2
+                              context.push(RoutePaths.completeProfile);
+                            } else {
+                              // Fully authenticated and complete -> Proceed to Payment
+                              // TODO: context.push('/payment/${plan.id}');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Proceeding to Payment for ${plan.name}...',
+                                  ),
+                                ),
+                              );
+                            }
+                          },
                           child: Text(
                             '${l10n.buyNow} • ${format.format(plan.price)} ${l10n.sar}',
                             style: TextStyle(
@@ -291,7 +464,7 @@ class GymPlansSection extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final NumberFormat currencyFormat = NumberFormat.currency(
       locale: l10n.localeName,
@@ -426,6 +599,7 @@ class GymPlansSection extends StatelessWidget {
                         ),
                         onPressed: () => _showPlanDetails(
                           context,
+                          ref,
                           plan,
                           currencyFormat,
                           l10n,

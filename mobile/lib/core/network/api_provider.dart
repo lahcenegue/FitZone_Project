@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:fitzone/core/network/auth_interceptor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../config/api_constants.dart';
@@ -18,7 +19,10 @@ Dio dioClient(Ref ref) {
     ),
   );
 
-  // Attach our custom Language Interceptor
+  // Attach the Auth Interceptor to securely inject JWT tokens
+  dio.interceptors.add(AuthInterceptor(ref));
+
+  // Attach the Language Interceptor
   dio.interceptors.add(LanguageInterceptor(ref));
 
   // Attach standard Log Interceptor for debugging in terminal

@@ -4,7 +4,6 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 
-
 from .serializers import (
     UserRegistrationSerializer, 
     UserLoginSerializer, 
@@ -83,7 +82,7 @@ class CustomerVerifyEmailView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            user = UserAuthService.verify_email(serializer.validated_data['token'])
+            user = UserAuthService.verify_email(serializer.validated_data['otp'])
             refresh = RefreshToken.for_user(user)
             
             return Response({
@@ -96,7 +95,6 @@ class CustomerVerifyEmailView(APIView):
             }, status=status.HTTP_200_OK)
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class CustomerResendVerificationView(APIView):
     """
@@ -111,9 +109,8 @@ class CustomerResendVerificationView(APIView):
 
         UserAuthService.resend_verification(serializer.validated_data['email'])
         return Response({
-            "message": "If this email is registered, a new link has been sent."
+            "message": "If this email is registered, a new OTP has been sent."
         }, status=status.HTTP_200_OK)
-
 
 class CustomerProfileCompletionView(APIView):
     """

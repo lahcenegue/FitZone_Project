@@ -2,12 +2,49 @@ import logging
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.contrib.gis.geos import Point
+from django.core.mail import send_mail
+from django.conf import settings
 from apps.users.models import UserRole, UserVerificationToken
+from apps.core.constants import OTP_EXPIRATION_MINUTES
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
 class UserAuthService:
+
+    @staticmethod
+    def _send_verification_email(user, otp_code):
+        """
+        Constructs and sends the OTP verification email.
+        """
+        subject = "Your FitZone OTP Verification Code"
+        message = f"""Hello {user.full_name},
+
+Welcome to FitZone!
+To activate your account, please enter the following One-Time Password (OTP) in the app:
+
+{otp_code}
+
+This code is valid for {OTP_EXPIRATION_MINUTES} minutes.
+If you did not request this, please ignore this email.
+
+Best regards,
+FitZone Team
+"""
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@fitzone.sa')
+
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=from_email,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+            logger.info(f"OTP email successfully dispatched for: {user.email}")
+        except Exception as e:
+            logger.error(f"Failed to send OTP email to {user.email}: {str(e)}")
+
     @staticmethod
     @transaction.atomic
     def register_customer(validated_data):
@@ -23,31 +60,27 @@ class UserAuthService:
             is_verified=False 
         )
 
-        # Generate Verification Token and simulate sending email
         token_obj = UserVerificationToken.objects.create(user=user)
-        logger.info(f"\n========== SIMULATED EMAIL ==========")
-        logger.info(f"To: {user.email}")
-        logger.info(f"Subject: Verify your FitZone Account")
-        logger.info(f"Token: {token_obj.token}")
-        logger.info(f"=====================================\n")
+        
+        UserAuthService._send_verification_email(user, token_obj.otp)
 
         logger.info(f"New customer registered: {email}")
         return user
 
     @staticmethod
-    def verify_email(token_string):
-        """Verifies the email and activates the user."""
+    def verify_email(otp_code):
+        """Verifies the email and activates the user using OTP."""
         try:
-            token_obj = UserVerificationToken.objects.get(token=token_string)
+            token_obj = UserVerificationToken.objects.get(otp=otp_code)
         except UserVerificationToken.DoesNotExist:
-            raise ValueError("Invalid verification token.")
+            raise ValueError("Invalid or missing verification code.")
 
         if not token_obj.is_valid():
-            raise ValueError("Verification token has expired.")
+            raise ValueError("Verification code has expired.")
 
         user = token_obj.user
         if user.is_verified:
-            raise ValueError("Email is already verified.")
+            raise ValueError("Account is already verified.")
 
         user.is_verified = True
         user.save(update_fields=['is_verified', 'updated_at'])
@@ -57,7 +90,7 @@ class UserAuthService:
 
     @staticmethod
     def resend_verification(email):
-        """Generates a new token if the user is not verified."""
+        """Generates a new OTP if the user is not verified."""
         try:
             user = User.objects.get(email=email, role=UserRole.CUSTOMER)
             if user.is_verified:
@@ -66,10 +99,8 @@ class UserAuthService:
             UserVerificationToken.objects.filter(user=user).delete()
             token_obj = UserVerificationToken.objects.create(user=user)
             
-            logger.info(f"\n========== SIMULATED RESEND EMAIL ==========")
-            logger.info(f"To: {user.email}")
-            logger.info(f"Token: {token_obj.token}")
-            logger.info(f"============================================\n")
+            UserAuthService._send_verification_email(user, token_obj.otp)
+            
         except User.DoesNotExist:
             pass
 

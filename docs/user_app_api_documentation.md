@@ -223,7 +223,7 @@ Returns the user object.
 
 ### 2.2 Verify Email
 
-Verifies the customer's email using the token sent to their inbox.
+Verifies the customer's email using the 6-digit OTP sent to their inbox.
 
 | Property | Value |
 | :--- | :--- |
@@ -235,13 +235,38 @@ Verifies the customer's email using the token sent to their inbox.
 
 ```json
 {
-  "token": "uuid-token-string"
+  "otp": "123456"
 }
 ```
 
 #### Responses
 
 **`200 OK` — Success**
+```json
+{
+  "message": "Email verified successfully.",
+  "user": {
+    "id": 16,
+    "email": "customer4@fitzone.sa",
+    "full_name": "سعد عبدالله",
+    "phone_number": "",
+    "gender": "male",
+    "avatar": null,
+    "address": "",
+    "city": "Jeddah",
+    "lat": null,
+    "lng": null,
+    "is_active": true,
+    "is_verified": true,
+    "points_balance": 0,
+    "profile_is_complete": false
+  },
+  "tokens": {
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5...",
+    "access": "eyJhbGciOiJIUzI1NiIsInR5..."
+  }
+}
+```
 
 Returns the user object along with `access` and `refresh` tokens for auto-login.
 

@@ -97,7 +97,11 @@ class GymDetailsScreen extends ConsumerWidget {
                       ],
 
                       if (gym.plans.isNotEmpty) ...[
-                        GymPlansSection(plans: gym.plans, colors: colors),
+                        GymPlansSection(
+                          plans: gym.plans,
+                          colors: colors,
+                          gymId: gymId,
+                        ),
                         SizedBox(height: Dimensions.spacingExtraLarge),
                       ],
 

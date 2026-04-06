@@ -3,6 +3,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class AppConstants {
   AppConstants._();
 
+  static const String googleMapsApiKey =
+      'AIzaSyABzM7d31JhW_SlgxSTrRlJWoa81MpHaaY';
+
   static const LatLng defaultMapCenter = LatLng(24.7136, 46.6753);
   static const double defaultMapZoom = 14.0;
   static const double maxMapZoom = 18.0;

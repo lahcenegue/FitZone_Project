@@ -1,3 +1,4 @@
+import 'package:fitzone/core/routing/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,7 +12,6 @@ import '../../../../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../providers/register_form_provider.dart';
 
-/// A modern, premium registration screen for new users.
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
@@ -31,16 +31,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final authState = ref.watch(authControllerProvider);
     final staticDataAsync = ref.watch(filterStaticDataProvider);
 
-    // Listen to authentication state changes to handle success/error navigation and UI feedback
     ref.listen<AsyncValue<dynamic>>(authControllerProvider, (previous, next) {
       next.whenOrNull(
         data: (user) {
-          if (user != null) {
+          if (user != null && previous?.value == null) {
             _logger.info(
-              'Registration successful, navigating to verification or home.',
+              'Registration successful, navigating to awaiting verification.',
             );
-            _showSnackBar(context, 'Registration Successful!', colors.success);
-            // TODO: context.go(RoutePaths.verifyEmail);
+            // Navigate securely to the new OTP Verification Screen
+            context.go('${RoutePaths.verifyOtp}?email=${user.email}');
           }
         },
         error: (error, stackTrace) {
@@ -75,8 +74,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               SizedBox(height: Dimensions.spacingExtraLarge),
 
               _buildCustomTextField(
-                label:
-                    'Full Name', // Replaced with l10n in a real scenario if exists
+                label: 'Full Name',
                 hint: 'John Doe',
                 icon: Icons.person_outline_rounded,
                 errorText: formState.fullNameError,
@@ -88,7 +86,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               SizedBox(height: Dimensions.spacingMedium),
 
               _buildCustomTextField(
-                label: 'Email Address', // Replaced with l10n
+                label: 'Email Address',
                 hint: 'user@fitzone.sa',
                 icon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
@@ -126,8 +124,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     );
   }
 
-  // --- UI Components ---
-
   Widget _buildHeader(AppLocalizations l10n, AppColors colors) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,7 +139,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         ),
         SizedBox(height: Dimensions.spacingTiny),
         Text(
-          'Join FitZone and start your fitness journey today.', // Example subtitle
+          'Join FitZone and start your fitness journey today.',
           style: TextStyle(
             fontSize: Dimensions.fontBodyLarge,
             color: colors.textSecondary,
@@ -188,7 +184,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionLabel('Password', colors), // Replaced with l10n
+        _buildSectionLabel('Password', colors),
         SizedBox(height: Dimensions.spacingSmall),
         TextFormField(
           obscureText: _isPasswordObscured,
@@ -304,7 +300,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget _buildCityDropdown(
     AppLocalizations l10n,
     RegisterFormState formState,
-    AsyncValue<FilterStaticData> staticDataAsync,
+    AsyncValue<dynamic> staticDataAsync,
     AppColors colors,
   ) {
     return staticDataAsync.when(
@@ -322,7 +318,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             colors,
             null,
           ),
-          items: data.cities.map((city) {
+          items: data.cities.map<DropdownMenuItem<String>>((city) {
             return DropdownMenuItem<String>(
               value: city['id'].toString(),
               child: Text(
@@ -348,7 +344,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     AppColors colors,
   ) {
     final bool isLoading = authState.isLoading;
-    // The button is strictly enabled ONLY if the form is fully valid and not currently loading
     final bool isEnabled = formState.isValid && !isLoading;
 
     return SizedBox(
@@ -368,7 +363,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         ),
         onPressed: isEnabled
             ? () {
-                // Ensure all fields are validated one last time before converting to request model
                 if (ref.read(registerFormProvider.notifier).validateAll(l10n)) {
                   final request = ref
                       .read(registerFormProvider.notifier)
@@ -399,8 +393,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ),
     );
   }
-
-  // --- Helpers ---
 
   Widget _buildSectionLabel(String text, AppColors colors) {
     return Text(
@@ -454,7 +446,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        borderSide: BorderSide(color: Colors.transparent),
+        borderSide: const BorderSide(color: Colors.transparent),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),

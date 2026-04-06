@@ -259,4 +259,154 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get register => 'تسجيل';
+
+  @override
+  String get verifyingEmail => 'جاري تأكيد البريد الإلكتروني';
+
+  @override
+  String get verificationSuccess => 'تم تأكيد البريد بنجاح';
+
+  @override
+  String get verificationFailed => 'فشل عملية التأكيد';
+
+  @override
+  String get invalidToken => 'رمز التأكيد غير صالح أو مفقود';
+
+  @override
+  String get goHome => 'العودة للرئيسية';
+
+  @override
+  String get pleaseWait => 'يرجى الانتظار بينما نقوم بتأمين حسابك';
+
+  @override
+  String get tryAgain => 'إعادة المحاولة';
+
+  @override
+  String get completeProfileTitle => 'إكمال الملف الشخصي';
+
+  @override
+  String get completeProfileSubtitle =>
+      'لضمان بيئة آمنة والامتثال للوائح الأندية الرياضية، يرجى تأكيد هويتك. هذه الخطوة مطلوبة لمرة واحدة لتفعيل عضويتك.';
+
+  @override
+  String get phoneNumber => 'رقم الهاتف';
+
+  @override
+  String get phoneNumberHint => '05XXXXXXXX';
+
+  @override
+  String get invalidPhoneNumber => 'أدخل رقم هاتف سعودي صحيح';
+
+  @override
+  String get idCardImage => 'الهوية الوطنية';
+
+  @override
+  String get uploadIdCard => 'اضغط لرفع الهوية';
+
+  @override
+  String get faceImage => 'صورة الوجه';
+
+  @override
+  String get uploadFaceImage => 'التقط صورة شخصية';
+
+  @override
+  String get addressOptional => 'العنوان (اختياري)';
+
+  @override
+  String get addressHint => 'أدخل عنوانك بالتفصيل';
+
+  @override
+  String get submitProfile => 'تأكيد وإرسال';
+
+  @override
+  String get imagesRequiredError => 'يجب رفع صورة الهوية وصورة الوجه معاً';
+
+  @override
+  String get locationFetched => 'تم تحديث الموقع بنجاح';
+
+  @override
+  String get refreshLocation => 'تحديث الموقع الحالي';
+
+  @override
+  String get authRequiredTitle => 'تسجيل الدخول مطلوب';
+
+  @override
+  String get authRequiredSubtitle =>
+      'يرجى تسجيل الدخول أو إنشاء حساب جديد لإتمام عملية الاشتراك.';
+
+  @override
+  String get login => 'تسجيل الدخول';
+
+  @override
+  String get registrationSuccessTitle => 'تم التسجيل بنجاح!';
+
+  @override
+  String get registrationSuccessMsg =>
+      'لقد أرسلنا رابط التفعيل إلى بريدك الإلكتروني. يرجى مراجعة صندوق الوارد والضغط على الرابط لتفعيل حسابك.';
+
+  @override
+  String get ok => 'حسناً';
+
+  @override
+  String get awaitingVerificationTitle => 'تأكيد البريد الإلكتروني';
+
+  @override
+  String get awaitingVerificationSubtitle =>
+      'لقد أرسلنا رابط التفعيل إلى بريدك الإلكتروني. يرجى مراجعة صندوق الوارد والضغط على الرابط لتفعيل حسابك.';
+
+  @override
+  String get resendLink => 'إعادة إرسال الرابط';
+
+  @override
+  String resendLinkCooldown(Object seconds) {
+    return 'إعادة الإرسال بعد $seconds ثانية';
+  }
+
+  @override
+  String get verificationSent => 'تم إرسال رابط التفعيل بنجاح.';
+
+  @override
+  String get profileIncompleteWarning =>
+      'تم تأكيد البريد! يرجى إكمال ملفك الشخصي لاحقاً لتتمكن من شراء الاشتراكات.';
+
+  @override
+  String get backToHome => 'العودة للرئيسية';
+
+  @override
+  String get enterOtpTitle => 'أدخل رمز التحقق';
+
+  @override
+  String enterOtpSubtitle(Object email) {
+    return 'لقد أرسلنا رمزاً من 6 أرقام إلى $email. يرجى إدخاله أدناه.';
+  }
+
+  @override
+  String get verifyAccount => 'تأكيد الحساب';
+
+  @override
+  String get invalidOtp => 'يرجى إدخال رمز صحيح مكون من 6 أرقام';
+
+  @override
+  String get otpHint => '000000';
+
+  @override
+  String get fetchingAddress => 'جاري تحديد العنوان...';
+
+  @override
+  String get searchLocationHint => 'ابحث عن مدينة، شارع، أو حي...';
+
+  @override
+  String get confirmLocation => 'تأكيد الموقع';
+
+  @override
+  String get useThisAddress => 'استخدم هذا العنوان';
+
+  @override
+  String get selectImageSource => 'اختر مصدر الصورة';
+
+  @override
+  String get camera => 'الكاميرا';
+
+  @override
+  String get gallery => 'ألبوم الصور';
 }

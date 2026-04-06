@@ -65,7 +65,15 @@ class UserLoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
 class UserEmailVerificationSerializer(serializers.Serializer):
-    token = serializers.UUIDField(error_messages={"invalid": "Invalid token format."})
+    otp = serializers.CharField(
+        max_length=6, 
+        min_length=6, 
+        error_messages={
+            "invalid": "Invalid OTP format.",
+            "min_length": "OTP must be exactly 6 digits.",
+            "max_length": "OTP must be exactly 6 digits."
+        }
+    )
 
 class UserResendVerificationSerializer(serializers.Serializer):
     email = serializers.EmailField()

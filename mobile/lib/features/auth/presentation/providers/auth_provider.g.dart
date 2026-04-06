@@ -54,15 +54,15 @@ final class AuthApiServiceProvider
 
 String _$authApiServiceHash() => r'2def2e7843dae96b4c7e00bc740d97dcd217ae22';
 
-/// Manages the authentication state and operations (e.g., Registration).
+/// Manages the authentication state and operations.
 
 @ProviderFor(AuthController)
 final authControllerProvider = AuthControllerProvider._();
 
-/// Manages the authentication state and operations (e.g., Registration).
+/// Manages the authentication state and operations.
 final class AuthControllerProvider
     extends $NotifierProvider<AuthController, AsyncValue<UserModel?>> {
-  /// Manages the authentication state and operations (e.g., Registration).
+  /// Manages the authentication state and operations.
   AuthControllerProvider._()
     : super(
         from: null,
@@ -90,9 +90,9 @@ final class AuthControllerProvider
   }
 }
 
-String _$authControllerHash() => r'a6e705f9328a3f20c80447d7f216efee72699c4b';
+String _$authControllerHash() => r'bfda2571d741b289164cd474901435162724fb84';
 
-/// Manages the authentication state and operations (e.g., Registration).
+/// Manages the authentication state and operations.
 
 abstract class _$AuthController extends $Notifier<AsyncValue<UserModel?>> {
   AsyncValue<UserModel?> build();

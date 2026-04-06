@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../storage/storage_provider.dart';
+import '../l10n/app_locale_provider.dart';
 
 /// Intercepts outgoing HTTP requests to inject the active App Language.
 class LanguageInterceptor extends Interceptor {
@@ -10,11 +10,12 @@ class LanguageInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // Fetch the currently saved language from local storage
-    final String? currentLanguage = ref.read(storageServiceProvider).locale;
+    // Read the actual active locale directly from the AppLocaleProvider
+    // This accurately reflects either the user's choice or the device's system language.
+    final locale = ref.read(appLocaleProvider);
 
-    // Inject the Accept-Language header. Default to 'ar' if null.
-    options.headers['Accept-Language'] = currentLanguage ?? 'ar';
+    // Inject the Accept-Language header (e.g., 'en' or 'ar')
+    options.headers['Accept-Language'] = locale.languageCode;
 
     super.onRequest(options, handler);
   }

@@ -1,5 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 
+
+OTP_EXPIRATION_MINUTES = 10
 PAGE_SIZE_DEFAULT = 20
 
 WEEK_DAYS = (
