@@ -438,4 +438,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordRequiredError => 'Password is required';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get accountSettings => 'Account Settings';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get darkMode => 'Dark Mode';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get guestUser => 'Guest User';
+
+  @override
+  String get loginToContinue => 'Login to unlock all features';
+
+  @override
+  String get personalInfo => 'Personal Information';
 }

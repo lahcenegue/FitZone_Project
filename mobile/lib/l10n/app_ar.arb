@@ -136,5 +136,13 @@
   "emailAddress": "البريد الإلكتروني",
   "password": "كلمة المرور",
   "invalidEmailError": "يرجى إدخال بريد إلكتروني صحيح",
-  "passwordRequiredError": "كلمة المرور مطلوبة"
+  "passwordRequiredError": "كلمة المرور مطلوبة",
+  "profileTitle": "الملف الشخصي",
+  "accountSettings": "إعدادات الحساب",
+  "language": "اللغة",
+  "darkMode": "الوضع الليلي",
+  "logout": "تسجيل الخروج",
+  "guestUser": "زائر",
+  "loginToContinue": "قم بتسجيل الدخول لفتح كافة المزايا",
+  "personalInfo": "المعلومات الشخصية"
 }

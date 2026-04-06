@@ -136,5 +136,13 @@
   "emailAddress": "Email Address",
   "password": "Password",
   "invalidEmailError": "Please enter a valid email address",
-  "passwordRequiredError": "Password is required"
+  "passwordRequiredError": "Password is required",
+  "profileTitle": "Profile",
+  "accountSettings": "Account Settings",
+  "language": "Language",
+  "darkMode": "Dark Mode",
+  "logout": "Logout",
+  "guestUser": "Guest User",
+  "loginToContinue": "Login to unlock all features",
+  "personalInfo": "Personal Information"
 }

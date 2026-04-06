@@ -437,4 +437,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get passwordRequiredError => 'كلمة المرور مطلوبة';
+
+  @override
+  String get profileTitle => 'الملف الشخصي';
+
+  @override
+  String get accountSettings => 'إعدادات الحساب';
+
+  @override
+  String get language => 'اللغة';
+
+  @override
+  String get darkMode => 'الوضع الليلي';
+
+  @override
+  String get logout => 'تسجيل الخروج';
+
+  @override
+  String get guestUser => 'زائر';
+
+  @override
+  String get loginToContinue => 'قم بتسجيل الدخول لفتح كافة المزايا';
+
+  @override
+  String get personalInfo => 'المعلومات الشخصية';
 }

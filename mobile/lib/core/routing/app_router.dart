@@ -1,4 +1,5 @@
 import 'package:fitzone/features/auth/presentation/screens/login_screen.dart';
+import 'package:fitzone/features/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -134,11 +135,4 @@ class SavedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       Scaffold(body: Center(child: Text(context.l10n.savedItems)));
-}
-
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
-  @override
-  Widget build(BuildContext context) =>
-      Scaffold(body: Center(child: Text(context.l10n.userProfile)));
 }

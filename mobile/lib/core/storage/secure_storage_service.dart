@@ -60,4 +60,9 @@ class SecureStorageService {
       _logger.severe('Failed to clear tokens', e, stackTrace);
     }
   }
+
+  /// Clears all stored data (Tokens, User Info, etc.) upon logout.
+  Future<void> clearAll() async {
+    await _storage.deleteAll();
+  }
 }

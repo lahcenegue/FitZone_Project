@@ -1,3 +1,4 @@
+import 'package:fitzone/core/routing/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -90,7 +91,13 @@ class _GymImageGalleryState extends State<GymImageGallery> {
           backgroundColor: Colors.black.withOpacity(0.3),
           child: IconButton(
             icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-            onPressed: () => context.pop(),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go(RoutePaths.explore);
+              }
+            },
           ),
         ),
       ),

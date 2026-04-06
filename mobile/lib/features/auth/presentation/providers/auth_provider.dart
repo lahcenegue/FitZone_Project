@@ -101,4 +101,16 @@ class AuthController extends _$AuthController {
       state = AsyncError(error, stackTrace);
     }
   }
+
+  /// Logs out the current user by clearing tokens and resetting the state.
+  Future<void> logout() async {
+    try {
+      // Clear secure storage (Tokens)
+      await ref.read(secureStorageServiceProvider).clearAll();
+      // Reset user state to null
+      state = const AsyncData(null);
+    } catch (error, stackTrace) {
+      state = AsyncError(error, stackTrace);
+    }
+  }
 }
