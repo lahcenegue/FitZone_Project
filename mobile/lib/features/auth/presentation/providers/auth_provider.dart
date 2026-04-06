@@ -37,6 +37,29 @@ class AuthController extends _$AuthController {
     }
   }
 
+  /// Logs in an existing user and stores their tokens.
+  Future<void> login(String email, String password) async {
+    state = const AsyncLoading();
+    try {
+      final AuthApiService authService = ref.read(authApiServiceProvider);
+      final AuthResponseModel response = await authService.login(
+        email,
+        password,
+      );
+
+      await ref
+          .read(secureStorageServiceProvider)
+          .saveTokens(
+            accessToken: response.accessToken,
+            refreshToken: response.refreshToken,
+          );
+
+      state = AsyncData(response.user);
+    } catch (error, stackTrace) {
+      state = AsyncError(error, stackTrace);
+    }
+  }
+
   /// Verifies the user's email via OTP.
   Future<void> verifyEmail(String otp) async {
     state = const AsyncLoading();

@@ -1,3 +1,4 @@
+import 'package:fitzone/features/auth/presentation/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -54,7 +55,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.login,
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const LoginMockScreen(),
+        builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
         path: RoutePaths.register,
@@ -127,13 +128,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     },
   );
 });
-
-class LoginMockScreen extends StatelessWidget {
-  const LoginMockScreen({super.key});
-  @override
-  Widget build(BuildContext context) =>
-      const Scaffold(body: Center(child: Text('Login Screen')));
-}
 
 class SavedScreen extends StatelessWidget {
   const SavedScreen({super.key});

@@ -127,5 +127,14 @@
   "useThisAddress": "استخدم هذا العنوان",
   "selectImageSource": "اختر مصدر الصورة",
   "camera": "الكاميرا",
-  "gallery": "ألبوم الصور"
+  "gallery": "ألبوم الصور",
+  "loginTitle": "مرحباً بعودتك",
+  "loginSubtitle": "سجل الدخول لحسابك في فت زون لمواصلة رحلتك الرياضية.",
+  "forgotPassword": "هل نسيت كلمة المرور؟",
+  "dontHaveAccount": "ليس لديك حساب؟ سجل الآن",
+  "loginButton": "تسجيل الدخول",
+  "emailAddress": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "invalidEmailError": "يرجى إدخال بريد إلكتروني صحيح",
+  "passwordRequiredError": "كلمة المرور مطلوبة"
 }

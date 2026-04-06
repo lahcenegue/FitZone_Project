@@ -410,4 +410,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gallery => 'Gallery';
+
+  @override
+  String get loginTitle => 'Welcome Back';
+
+  @override
+  String get loginSubtitle =>
+      'Login to your FitZone account to continue your fitness journey.';
+
+  @override
+  String get forgotPassword => 'Forgot Password?';
+
+  @override
+  String get dontHaveAccount => 'Don\'t have an account? Register';
+
+  @override
+  String get loginButton => 'Login';
+
+  @override
+  String get emailAddress => 'Email Address';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get invalidEmailError => 'Please enter a valid email address';
+
+  @override
+  String get passwordRequiredError => 'Password is required';
 }

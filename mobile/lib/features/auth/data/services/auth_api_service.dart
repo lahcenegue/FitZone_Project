@@ -10,7 +10,10 @@ import '../models/user_model.dart';
 /// Custom exception for authentication errors.
 class AuthException implements Exception {
   final String message;
-  AuthException(this.message);
+  final String? code;
+  final String? email;
+
+  AuthException(this.message, {this.code, this.email});
 
   @override
   String toString() => message;
@@ -39,6 +42,25 @@ class AuthApiService {
     } catch (e, stackTrace) {
       _logger.severe('Unexpected registration error', e, stackTrace);
       throw AuthException('An unexpected error occurred during registration.');
+    }
+  }
+
+  /// Authenticates a user and returns tokens and profile data.
+  Future<AuthResponseModel> login(String email, String password) async {
+    try {
+      _logger.info('Attempting to login user: $email');
+      final Response response = await _dio.post(
+        ApiConstants.login,
+        data: {'email': email, 'password': password},
+      );
+      _logger.info('Login successful for: $email');
+      return AuthResponseModel.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      _logger.severe('Login failed', e, e.stackTrace);
+      throw _handleDioError(e);
+    } catch (e, stackTrace) {
+      _logger.severe('Unexpected login error', e, stackTrace);
+      throw AuthException('An unexpected error occurred during login.');
     }
   }
 
@@ -105,23 +127,27 @@ class AuthApiService {
     }
   }
 
-  /// Parses Dio exceptions into user-friendly AuthExceptions.
+  /// Parses Dio exceptions into user-friendly AuthExceptions with detailed codes.
   AuthException _handleDioError(DioException error) {
     if (error.response != null) {
       final dynamic data = error.response?.data;
       String errorMessage = 'Server error occurred.';
+      String? errorCode;
+      String? errorEmail;
+
       if (data is Map<String, dynamic>) {
+        errorCode = data['code']?.toString();
+        errorEmail = data['email']?.toString();
+
         if (data.containsKey('detail')) {
           errorMessage = data['detail'].toString();
-        } else if (data.containsKey('email')) {
-          errorMessage = 'Email: ${data['email'].toString()}';
         } else if (data.containsKey('message')) {
           errorMessage = data['message'].toString();
         } else {
           errorMessage = 'Invalid request data provided.';
         }
       }
-      return AuthException(errorMessage);
+      return AuthException(errorMessage, code: errorCode, email: errorEmail);
     } else if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout) {
       return AuthException('Connection timed out. Please check your internet.');

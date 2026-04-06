@@ -409,4 +409,32 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get gallery => 'ألبوم الصور';
+
+  @override
+  String get loginTitle => 'مرحباً بعودتك';
+
+  @override
+  String get loginSubtitle =>
+      'سجل الدخول لحسابك في فت زون لمواصلة رحلتك الرياضية.';
+
+  @override
+  String get forgotPassword => 'هل نسيت كلمة المرور؟';
+
+  @override
+  String get dontHaveAccount => 'ليس لديك حساب؟ سجل الآن';
+
+  @override
+  String get loginButton => 'تسجيل الدخول';
+
+  @override
+  String get emailAddress => 'البريد الإلكتروني';
+
+  @override
+  String get password => 'كلمة المرور';
+
+  @override
+  String get invalidEmailError => 'يرجى إدخال بريد إلكتروني صحيح';
+
+  @override
+  String get passwordRequiredError => 'كلمة المرور مطلوبة';
 }

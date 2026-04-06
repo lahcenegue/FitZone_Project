@@ -127,5 +127,14 @@
   "useThisAddress": "Use this address",
   "selectImageSource": "Select Image Source",
   "camera": "Camera",
-  "gallery": "Gallery"
+  "gallery": "Gallery",
+  "loginTitle": "Welcome Back",
+  "loginSubtitle": "Login to your FitZone account to continue your fitness journey.",
+  "forgotPassword": "Forgot Password?",
+  "dontHaveAccount": "Don't have an account? Register",
+  "loginButton": "Login",
+  "emailAddress": "Email Address",
+  "password": "Password",
+  "invalidEmailError": "Please enter a valid email address",
+  "passwordRequiredError": "Password is required"
 }
