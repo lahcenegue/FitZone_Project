@@ -11,6 +11,8 @@ class ApiConstants {
   static const String resendVerification = '/users/resend-verification/';
   static const String login = '/users/login/';
   static const String completeProfile = '/users/profile/complete/';
+  static const String requestPasswordReset = '/users/password-reset/request/';
+  static const String confirmPasswordReset = '/users/password-reset/confirm/';
 
   // Map Discovery
   static const String mapDiscover = '/providers/discover/';

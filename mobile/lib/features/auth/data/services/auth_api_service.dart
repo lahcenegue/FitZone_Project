@@ -155,4 +155,52 @@ class AuthApiService {
       return AuthException('Network error. Please try again later.');
     }
   }
+
+  /// Requests a password reset OTP for the given email.
+  Future<void> requestPasswordReset(String email) async {
+    try {
+      _logger.info('Requesting password reset for: $email');
+      await _dio.post(
+        ApiConstants.requestPasswordReset,
+        data: {'email': email},
+      );
+      _logger.info('Password reset request completed.');
+    } on DioException catch (e) {
+      _logger.severe('Password reset request failed', e, e.stackTrace);
+      throw _handleDioError(e);
+    } catch (e, stackTrace) {
+      _logger.severe(
+        'Unexpected error during password reset request',
+        e,
+        stackTrace,
+      );
+      throw AuthException('An unexpected error occurred.');
+    }
+  }
+
+  /// Confirms the password reset with OTP and new password.
+  Future<void> confirmPasswordReset(
+    String email,
+    String otp,
+    String newPassword,
+  ) async {
+    try {
+      _logger.info('Confirming password reset for: $email');
+      await _dio.post(
+        ApiConstants.confirmPasswordReset,
+        data: {'email': email, 'otp': otp, 'new_password': newPassword},
+      );
+      _logger.info('Password reset confirmed successfully.');
+    } on DioException catch (e) {
+      _logger.severe('Password reset confirmation failed', e, e.stackTrace);
+      throw _handleDioError(e);
+    } catch (e, stackTrace) {
+      _logger.severe(
+        'Unexpected error during password reset confirmation',
+        e,
+        stackTrace,
+      );
+      throw AuthException('An unexpected error occurred.');
+    }
+  }
 }

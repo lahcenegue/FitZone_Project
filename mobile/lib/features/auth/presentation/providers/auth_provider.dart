@@ -120,4 +120,34 @@ class AuthController extends _$AuthController {
       state = AsyncError(error, stackTrace);
     }
   }
+
+  /// Requests a password reset OTP.
+  Future<void> requestPasswordReset(String email) async {
+    state = const AsyncLoading();
+    try {
+      final AuthApiService authService = ref.read(authApiServiceProvider);
+      await authService.requestPasswordReset(email);
+      state = const AsyncData(null); // Return to unauthenticated state safely
+    } catch (error, stackTrace) {
+      state = AsyncError(error, stackTrace);
+      rethrow; // Rethrow to handle it in the UI (SnackBar)
+    }
+  }
+
+  /// Confirms the password reset.
+  Future<void> confirmPasswordReset(
+    String email,
+    String otp,
+    String newPassword,
+  ) async {
+    state = const AsyncLoading();
+    try {
+      final AuthApiService authService = ref.read(authApiServiceProvider);
+      await authService.confirmPasswordReset(email, otp, newPassword);
+      state = const AsyncData(null);
+    } catch (error, stackTrace) {
+      state = AsyncError(error, stackTrace);
+      rethrow;
+    }
+  }
 }

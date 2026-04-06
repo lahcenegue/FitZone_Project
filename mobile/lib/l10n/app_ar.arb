@@ -175,5 +175,16 @@
   "locationRequiredMessage": "تطبيق FitZone يحتاج إلى موقعك للعثور على الصالات والخدمات القريبة منك.",
   "retryButton": "إعادة المحاولة",
   "enableLocationButton": "تفعيل الموقع",
-  "locationTimeoutMessage": "لم نتمكن من تحديد موقعك بدقة. سيتم توجيهك للخريطة لتصفح الخدمات يدوياً."
+  "locationTimeoutMessage": "لم نتمكن من تحديد موقعك بدقة. سيتم توجيهك للخريطة لتصفح الخدمات يدوياً.",
+  "forgotPasswordTitle": "نسيت كلمة المرور؟",
+  "forgotPasswordSubtitle": "أدخل بريدك الإلكتروني المسجل لتلقي رمز إعادة تعيين كلمة المرور.",
+  "sendResetCode": "إرسال رمز الاسترداد",
+  "resetPasswordTitle": "إعادة تعيين كلمة المرور",
+  "resetPasswordSubtitle": "أدخل الرمز المكون من 6 أرقام المرسل إلى بريدك الإلكتروني وكلمة المرور الجديدة.",
+  "newPassword": "كلمة المرور الجديدة",
+  "confirmNewPassword": "تأكيد كلمة المرور",
+  "passwordsDoNotMatch": "كلمات المرور غير متطابقة.",
+  "resetPasswordSuccess": "تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.",
+  "resetCodeSent": "إذا كان هذا البريد مسجلاً، فقد تم إرسال رمز الاسترداد.",
+  "verifyAndReset": "تحقق وإعادة تعيين"
 }

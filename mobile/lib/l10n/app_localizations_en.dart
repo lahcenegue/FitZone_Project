@@ -558,4 +558,41 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get locationTimeoutMessage =>
       'Could not detect exact location. Redirecting to map to browse manually.';
+
+  @override
+  String get forgotPasswordTitle => 'Forgot Password?';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'Enter your registered email address to receive a password reset code.';
+
+  @override
+  String get sendResetCode => 'Send Reset Code';
+
+  @override
+  String get resetPasswordTitle => 'Reset Password';
+
+  @override
+  String get resetPasswordSubtitle =>
+      'Enter the 6-digit code sent to your email and your new password.';
+
+  @override
+  String get newPassword => 'New Password';
+
+  @override
+  String get confirmNewPassword => 'Confirm New Password';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match.';
+
+  @override
+  String get resetPasswordSuccess =>
+      'Password has been reset successfully. You can now login.';
+
+  @override
+  String get resetCodeSent =>
+      'If this email is registered, a reset code has been sent.';
+
+  @override
+  String get verifyAndReset => 'Verify & Reset Password';
 }

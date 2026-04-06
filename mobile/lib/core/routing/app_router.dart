@@ -1,5 +1,3 @@
-import 'package:fitzone/features/auth/presentation/screens/login_screen.dart';
-import 'package:fitzone/features/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +11,11 @@ import '../../features/gyms/presentation/screens/gym_details_screen.dart';
 
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/complete_profile_screen.dart';
-import '../../features/auth/presentation/screens/otp_verification_screen.dart'; // NEW
+import '../../features/auth/presentation/screens/otp_verification_screen.dart';
+import 'package:fitzone/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:fitzone/features/auth/presentation/screens/login_screen.dart';
+import 'package:fitzone/features/auth/presentation/screens/reset_password_screen.dart';
+import 'package:fitzone/features/profile/presentation/screens/profile_screen.dart';
 
 import '../l10n/l10n_extension.dart';
 
@@ -25,8 +27,10 @@ class RoutePaths {
 
   static const String login = '/login';
   static const String register = '/register';
-  static const String verifyOtp = '/verify-otp'; // UPDATED
+  static const String verifyOtp = '/verify-otp';
   static const String completeProfile = '/complete-profile';
+  static const String forgotPassword = '/forgot-password';
+  static const String resetPassword = '/reset-password';
 
   static const String explore = '/';
   static const String saved = '/saved';
@@ -70,6 +74,20 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final String email = state.uri.queryParameters['email'] ?? '';
           return OtpVerificationScreen(email: email);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.forgotPassword,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        name: 'reset_password',
+        path: RoutePaths.resetPassword,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final String email = state.uri.queryParameters['email'] ?? '';
+          return ResetPasswordScreen(email: email);
         },
       ),
       GoRoute(

@@ -557,4 +557,41 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get locationTimeoutMessage =>
       'لم نتمكن من تحديد موقعك بدقة. سيتم توجيهك للخريطة لتصفح الخدمات يدوياً.';
+
+  @override
+  String get forgotPasswordTitle => 'نسيت كلمة المرور؟';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'أدخل بريدك الإلكتروني المسجل لتلقي رمز إعادة تعيين كلمة المرور.';
+
+  @override
+  String get sendResetCode => 'إرسال رمز الاسترداد';
+
+  @override
+  String get resetPasswordTitle => 'إعادة تعيين كلمة المرور';
+
+  @override
+  String get resetPasswordSubtitle =>
+      'أدخل الرمز المكون من 6 أرقام المرسل إلى بريدك الإلكتروني وكلمة المرور الجديدة.';
+
+  @override
+  String get newPassword => 'كلمة المرور الجديدة';
+
+  @override
+  String get confirmNewPassword => 'تأكيد كلمة المرور';
+
+  @override
+  String get passwordsDoNotMatch => 'كلمات المرور غير متطابقة.';
+
+  @override
+  String get resetPasswordSuccess =>
+      'تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.';
+
+  @override
+  String get resetCodeSent =>
+      'إذا كان هذا البريد مسجلاً، فقد تم إرسال رمز الاسترداد.';
+
+  @override
+  String get verifyAndReset => 'تحقق وإعادة تعيين';
 }

@@ -122,8 +122,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
-                    // TODO: Navigate to Forgot Password Screen
-                    _logger.info('Navigate to Forgot Password');
+                    context.push(RoutePaths.forgotPassword);
                   },
                   child: Text(
                     l10n.forgotPassword,

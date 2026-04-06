@@ -1159,6 +1159,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not detect exact location. Redirecting to map to browse manually.'**
   String get locationTimeoutMessage;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password?'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your registered email address to receive a password reset code.'**
+  String get forgotPasswordSubtitle;
+
+  /// No description provided for @sendResetCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Reset Code'**
+  String get sendResetCode;
+
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetPasswordTitle;
+
+  /// No description provided for @resetPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code sent to your email and your new password.'**
+  String get resetPasswordSubtitle;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get newPassword;
+
+  /// No description provided for @confirmNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm New Password'**
+  String get confirmNewPassword;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @resetPasswordSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Password has been reset successfully. You can now login.'**
+  String get resetPasswordSuccess;
+
+  /// No description provided for @resetCodeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If this email is registered, a reset code has been sent.'**
+  String get resetCodeSent;
+
+  /// No description provided for @verifyAndReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify & Reset Password'**
+  String get verifyAndReset;
 }
 
 class _AppLocalizationsDelegate

@@ -175,5 +175,16 @@
   "locationRequiredMessage": "FitZone requires your location to find nearby gyms and services.",
   "retryButton": "Retry",
   "enableLocationButton": "Enable Location",
-  "locationTimeoutMessage": "Could not detect exact location. Redirecting to map to browse manually."
+  "locationTimeoutMessage": "Could not detect exact location. Redirecting to map to browse manually.",
+  "forgotPasswordTitle": "Forgot Password?",
+  "forgotPasswordSubtitle": "Enter your registered email address to receive a password reset code.",
+  "sendResetCode": "Send Reset Code",
+  "resetPasswordTitle": "Reset Password",
+  "resetPasswordSubtitle": "Enter the 6-digit code sent to your email and your new password.",
+  "newPassword": "New Password",
+  "confirmNewPassword": "Confirm New Password",
+  "passwordsDoNotMatch": "Passwords do not match.",
+  "resetPasswordSuccess": "Password has been reset successfully. You can now login.",
+  "resetCodeSent": "If this email is registered, a reset code has been sent.",
+  "verifyAndReset": "Verify & Reset Password"
 }
