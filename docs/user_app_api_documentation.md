@@ -1,4 +1,4 @@
-# FitZone User App — API Documentation
+# FitZone — User App API Documentation
 
 > **Base URL:** `http://localhost:8000/api/v1/`  
 > **Target App:** User Application (Client App)
@@ -7,21 +7,23 @@
 
 ## Table of Contents
 
-- [1. Discovery & Search](#1-discovery--search)
-  - [1.1 Unified Discovery & Search (Map & List)](#11-unified-discovery--search-map--list)
-  - [1.2 Get Gym Branch Details](#12-get-gym-branch-details)
-- [2. Customer Authentication & Profile](#2-customer-authentication--profile)
-  - [2.1 Quick Register (Step 1)](#21-quick-register-step-1)
-  - [2.2 Verify Email](#22-verify-email)
-  - [2.3 Resend Verification Email](#23-resend-verification-email)
-  - [2.4 Login](#24-login)
-  - [2.5 Complete Profile (Step 2)](#25-complete-profile-step-2--before-subscription)
-- [3. App Initialization & Static Data](#3-app-initialization--static-data-bootstrapping)
-  - [3.1 App Initialization (Check Versions)](#31-app-initialization-check-versions)
-  - [3.2 Get Service Types List](#32-get-service-types-list)
-  - [3.3 Get Cities List](#33-get-cities-list)
-  - [3.4 Get Sports List](#34-get-sports-list)
-  - [3.5 Get Amenities List](#35-get-amenities-list)
+1. [Discovery & Search](#1-discovery--search)
+   - [1.1 Unified Discovery & Search (Map & List)](#11-unified-discovery--search-map--list)
+   - [1.2 Get Gym Branch Details](#12-get-gym-branch-details)
+2. [Customer Authentication & Profile](#2-customer-authentication--profile)
+   - [2.1 Quick Register (Step 1)](#21-quick-register-step-1)
+   - [2.2 Verify Email](#22-verify-email)
+   - [2.3 Resend Verification Email](#23-resend-verification-email)
+   - [2.4 Login](#24-login)
+   - [2.5 Complete Profile (Step 2)](#25-complete-profile-step-2--before-subscription)
+   - [2.6 Request Password Reset OTP](#26-request-password-reset-otp)
+   - [2.7 Confirm Password Reset](#27-confirm-password-reset)
+3. [App Initialization & Static Data](#3-app-initialization--static-data)
+   - [3.1 App Initialization (Check Versions)](#31-app-initialization-check-versions)
+   - [3.2 Get Service Types List](#32-get-service-types-list)
+   - [3.3 Get Cities List](#33-get-cities-list)
+   - [3.4 Get Sports List](#34-get-sports-list)
+   - [3.5 Get Amenities List](#35-get-amenities-list)
 
 ---
 
@@ -29,7 +31,7 @@
 
 ### 1.1 Unified Discovery & Search (Map & List)
 
-The ultimate endpoint that powers both the **Map View** and the **List View**. It supports text search, geo-spatial filtering (bounding box for maps, radius for lists), dynamic filtering (price, gender, sports, amenities), and pagination.
+The main endpoint powering both the **Map View** and the **List View**. Supports text search, geo-spatial filtering (bounding box for maps, radius for lists), dynamic filters (price, gender, sports, amenities), and pagination.
 
 | Property | Value |
 | :--- | :--- |
@@ -43,19 +45,19 @@ The ultimate endpoint that powers both the **Map View** and the **List View**. I
 
 | Parameter | Type | Example | Description |
 | :--- | :--- | :--- | :--- |
-| `type` | String | `gym` | Service type (`gym`, `trainer`, `restaurant`, `equipment`). Defaults to `gym`. |
+| `type` | String | `gym` | Service type: `gym`, `trainer`, `restaurant`, `equipment`. Defaults to `gym`. |
 | `q` | String | `power` | Text search across name, address, and description. |
-| `gender` | String | `men` | Filter by target audience (`men`, `women`, `mixed`). (Gym specific) |
-| `city_id` | String | `riyadh` | Exact match for city code (alias for `city`). |
-| `sports` | String | `1,4` | Comma-separated list of Sport IDs. (Gym specific) |
-| `amenities` | String | `2,3` | Comma-separated list of Amenity IDs. (Gym specific) |
+| `gender` | String | `men` | Filter by target audience: `men`, `women`, `mixed`. (Gym-specific) |
+| `city_id` | String | `riyadh` | Exact match for city code. |
+| `sports` | String | `1,4` | Comma-separated Sport IDs. (Gym-specific) |
+| `amenities` | String | `2,3` | Comma-separated Amenity IDs. (Gym-specific) |
 | `min_price` | Float | `150.0` | Minimum subscription plan price. |
 | `max_price` | Float | `500.0` | Maximum subscription plan price. |
-| `is_open` | Boolean | `true` | If `true`, returns only branches currently open (handles overnight shifts). |
-| `min_lat`, `min_lng`, `max_lat`, `max_lng` | Float | `24.7110` | Bounding Box coordinates — required for **Map View** discovery. |
+| `is_open` | Boolean | `true` | If `true`, returns only currently open branches (handles overnight shifts). |
+| `min_lat`, `min_lng`, `max_lat`, `max_lng` | Float | `24.7110` | Bounding box coordinates — required for **Map View**. |
 | `lat`, `lng` | Float | `24.7136` | User's current coordinates — required for distance calculation and sorting. |
 | `radius_km` | Float | `10.5` | Search radius in kilometers. Requires `lat` and `lng`. |
-| `sort_by` | String | `distance` | Sorting method (`distance`, `created_at`). Defaults to `created_at`. |
+| `sort_by` | String | `distance` | Sorting method: `distance` or `created_at`. Defaults to `created_at`. |
 | `page` | Integer | `1` | Page number for pagination. Defaults to `1`. |
 
 #### Example Request
@@ -108,7 +110,7 @@ GET /api/v1/providers/discover/?type=gym&city_id=riyadh&gender=mixed&lat=24.7136
 
 ### 1.2 Get Gym Branch Details
 
-Retrieves full details of a specific gym branch, including its image gallery, amenities, and available subscription plans.
+Retrieves full details of a specific gym branch, including the image gallery, amenities, and available subscription plans.
 
 | Property | Value |
 | :--- | :--- |
@@ -137,7 +139,7 @@ GET /api/v1/gyms/branches/6/
   "closing_time": "20:00:00",
   "city": "jeddah",
   "address": "النعيم, جدة, السعودية",
-  "lat": 21.619132999999998,
+  "lat": 21.619133,
   "lng": 39.147018,
   "branch_logo": "http://localhost:8000/media/gyms/branches/logos/logo.jpg",
   "images": [
@@ -191,7 +193,7 @@ GET /api/v1/gyms/branches/6/
 
 ### 2.1 Quick Register (Step 1)
 
-Registers a new customer. The account will require email verification before it can be used.
+Registers a new customer. The account requires email verification before it can be used.
 
 | Property | Value |
 | :--- | :--- |
@@ -215,7 +217,27 @@ Registers a new customer. The account will require email verification before it 
 
 **`201 Created` — Success**
 
-Returns the user object.
+```json
+{
+  "message": "Registration successful. Please verify your email.",
+  "user": {
+    "id": 34,
+    "email": "customer8@fitzone.sa",
+    "full_name": "سعد عبدالله",
+    "phone_number": "",
+    "gender": "male",
+    "avatar": null,
+    "address": "",
+    "city": "Jeddah",
+    "lat": null,
+    "lng": null,
+    "is_active": true,
+    "is_verified": false,
+    "points_balance": 0,
+    "profile_is_complete": false
+  }
+}
+```
 
 > **Note:** `profile_is_complete` will be `false` at this stage.
 
@@ -242,6 +264,7 @@ Verifies the customer's email using the 6-digit OTP sent to their inbox.
 #### Responses
 
 **`200 OK` — Success**
+
 ```json
 {
   "message": "Email verified successfully.",
@@ -268,13 +291,13 @@ Verifies the customer's email using the 6-digit OTP sent to their inbox.
 }
 ```
 
-Returns the user object along with `access` and `refresh` tokens for auto-login.
+> Returns the user object along with `access` and `refresh` tokens for auto-login.
 
 ---
 
 ### 2.3 Resend Verification Email
 
-Sends a new verification token to the customer's email address.
+Sends a new verification OTP to the customer's email address.
 
 | Property | Value |
 | :--- | :--- |
@@ -359,11 +382,83 @@ Returns the updated user object where `profile_is_complete` is now `true`.
 
 ---
 
-## 3. App Initialization & Static Data (Bootstrapping)
+### 2.6 Request Password Reset OTP
 
-These endpoints provide static data necessary for the app to function. To optimize performance, the mobile app must call `/init/` on startup. If data versions have changed, the app should fetch and cache the updated lists (Cities, Sports, Amenities, Service Types).
+Generates a 6-digit OTP and sends it to the user's email for password recovery.
 
-> **Important — Localization:** All static data endpoints support dynamic JSON translation. The app `MUST` send the `Accept-Language` header with every request to receive names in the user's current device language.
+> Always returns a success message to prevent email enumeration.
+
+| Property | Value |
+| :--- | :--- |
+| **Endpoint** | `/password-reset/request/` |
+| **Method** | `POST` |
+| **Auth Required** | No |
+
+#### Request Body
+
+```json
+{
+  "email": "customer@fitzone.sa"
+}
+```
+
+#### Responses
+
+**`200 OK` — Success**
+
+```json
+{
+  "message": "If this email is registered, a password reset OTP has been sent."
+}
+```
+
+---
+
+### 2.7 Confirm Password Reset
+
+Validates the OTP and sets a new password for the user.
+
+| Property | Value |
+| :--- | :--- |
+| **Endpoint** | `/password-reset/confirm/` |
+| **Method** | `POST` |
+| **Auth Required** | No |
+
+#### Request Body
+
+```json
+{
+  "email": "customer@fitzone.sa",
+  "otp": "123456",
+  "new_password": "NewStrongPassword123!"
+}
+```
+
+#### Responses
+
+**`200 OK` — Success**
+
+```json
+{
+  "message": "Password has been reset successfully. You can now login."
+}
+```
+
+**`400 Bad Request` — Invalid or Expired OTP**
+
+```json
+{
+  "detail": "Invalid or missing reset code."
+}
+```
+
+---
+
+## 3. App Initialization & Static Data
+
+These endpoints provide static data required for the app to function. The mobile app **must** call `/init/` on startup. If data versions have changed, the app should fetch and cache the updated lists.
+
+> **Localization:** All static data endpoints support dynamic JSON translation. The app **must** send the `Accept-Language` header with every request to receive names in the user's current language.
 >
 > Examples: `Accept-Language: ar` or `Accept-Language: en`
 
@@ -371,7 +466,7 @@ These endpoints provide static data necessary for the app to function. To optimi
 
 ### 3.1 App Initialization (Check Versions)
 
-Retrieves the current static data versions and app update requirements.
+Retrieves current static data versions and app update requirements.
 
 | Property | Value |
 | :--- | :--- |
@@ -397,8 +492,8 @@ Retrieves the current static data versions and app update requirements.
 ```
 
 ---
-### 3.2 Get Cities List
-Get Service Types List
+
+### 3.2 Get Service Types List
 
 Retrieves the main categories of service providers available in the app. Automatically translated based on `Accept-Language`.
 

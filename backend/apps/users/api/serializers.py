@@ -77,3 +77,28 @@ class UserEmailVerificationSerializer(serializers.Serializer):
 
 class UserResendVerificationSerializer(serializers.Serializer):
     email = serializers.EmailField()
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    """Serializer for requesting a password reset OTP."""
+    email = serializers.EmailField()
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    """Serializer for confirming the OTP and setting a new password."""
+    email = serializers.EmailField()
+    otp = serializers.CharField(
+        max_length=6, 
+        min_length=6, 
+        error_messages={
+            "invalid": "Invalid OTP format.",
+            "min_length": "OTP must be exactly 6 digits.",
+            "max_length": "OTP must be exactly 6 digits."
+        }
+    )
+    new_password = serializers.CharField(write_only=True, min_length=8)
+
+    def validate(self, data):
+        try:
+            validate_password(data["new_password"])
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError({"new_password": list(exc.messages)})
+        return data

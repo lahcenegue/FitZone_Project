@@ -10,7 +10,9 @@ from .serializers import (
     UserProfileSerializer,
     UserProfileCompletionSerializer,
     UserEmailVerificationSerializer, 
-    UserResendVerificationSerializer
+    UserResendVerificationSerializer,
+    PasswordResetRequestSerializer,
+    PasswordResetConfirmSerializer
 )
 from ..services.user_service import UserAuthService
 
@@ -133,3 +135,44 @@ class CustomerProfileCompletionView(APIView):
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class CustomerPasswordResetRequestView(APIView):
+    """
+    POST /api/v1/users/password-reset/request/
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        UserAuthService.request_password_reset(serializer.validated_data['email'])
+        
+        # Always return success to prevent email enumeration attacks
+        return Response({
+            "message": "If this email is registered, a password reset OTP has been sent."
+        }, status=status.HTTP_200_OK)
+
+class CustomerPasswordResetConfirmView(APIView):
+    """
+    POST /api/v1/users/password-reset/confirm/
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            UserAuthService.confirm_password_reset(
+                email=serializer.validated_data['email'],
+                otp_code=serializer.validated_data['otp'],
+                new_password=serializer.validated_data['new_password']
+            )
+            return Response({
+                "message": "Password has been reset successfully. You can now login."
+            }, status=status.HTTP_200_OK)
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
