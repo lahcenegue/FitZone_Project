@@ -1,17 +1,19 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/models/gym_details_model.dart';
-import '../../data/services/gyms_api_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-/// Provides the singleton instance of the Gyms API service.
-final gymsApiServiceProvider = Provider<GymsApiService>((ref) {
+import 'package:fitzone/features/gyms/data/models/gym_details_model.dart';
+import 'package:fitzone/features/gyms/data/services/gyms_api_service.dart';
+
+part 'gym_details_provider.g.dart';
+
+/// Provides the instance of the Gyms API service using modern Riverpod approach.
+@riverpod
+GymsApiService gymsApiService(Ref ref) {
   return GymsApiService();
-});
+}
 
 /// Fetches and caches the gym details based on the provided branch ID.
-final gymDetailsProvider = FutureProvider.family<GymDetailsModel, int>((
-  ref,
-  branchId,
-) async {
+@riverpod
+Future<GymDetailsModel> gymDetails(Ref ref, int branchId) async {
   final apiService = ref.watch(gymsApiServiceProvider);
   return await apiService.fetchGymBranchDetails(branchId);
-});
+}

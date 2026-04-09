@@ -72,6 +72,42 @@ class UserModel extends Equatable {
     };
   }
 
+  /// Creates a copy of this UserModel with the given fields replaced by the new values.
+  /// This is the industry standard for updating immutable state objects.
+  UserModel copyWith({
+    int? id,
+    String? email,
+    String? fullName,
+    String? phoneNumber,
+    String? gender,
+    String? avatar,
+    String? address,
+    String? city,
+    double? lat,
+    double? lng,
+    bool? isActive,
+    bool? isVerified,
+    int? pointsBalance,
+    bool? profileIsComplete,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      fullName: fullName ?? this.fullName,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      gender: gender ?? this.gender,
+      avatar: avatar ?? this.avatar,
+      address: address ?? this.address,
+      city: city ?? this.city,
+      lat: lat ?? this.lat,
+      lng: lng ?? this.lng,
+      isActive: isActive ?? this.isActive,
+      isVerified: isVerified ?? this.isVerified,
+      pointsBalance: pointsBalance ?? this.pointsBalance,
+      profileIsComplete: profileIsComplete ?? this.profileIsComplete,
+    );
+  }
+
   @override
   List<Object?> get props => [
     id,

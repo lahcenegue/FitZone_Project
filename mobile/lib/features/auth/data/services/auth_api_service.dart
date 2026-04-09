@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
@@ -35,7 +37,9 @@ class AuthApiService {
         data: request.toJson(),
       );
       _logger.info('Registration successful for: ${request.email}');
-      return UserModel.fromJson(response.data as Map<String, dynamic>);
+
+      // FIXED: Parse the nested 'user' object, not the root response
+      return UserModel.fromJson(response.data['user'] as Map<String, dynamic>);
     } on DioException catch (e) {
       _logger.severe('Registration failed', e, e.stackTrace);
       throw _handleDioError(e);
@@ -137,20 +141,42 @@ class AuthApiService {
 
       if (data is Map<String, dynamic>) {
         errorCode = data['code']?.toString();
-        errorEmail = data['email']?.toString();
+
+        // Safely extract email if it's passed as a simple string (e.g., for unverified email redirect)
+        if (data['email'] is String) {
+          errorEmail = data['email'].toString();
+        }
 
         if (data.containsKey('detail')) {
           errorMessage = data['detail'].toString();
         } else if (data.containsKey('message')) {
           errorMessage = data['message'].toString();
         } else {
-          errorMessage = 'Invalid request data provided.';
+          // Extract specific field validation errors from the backend (DRF format)
+          final List<String> fieldErrors = [];
+          data.forEach((key, value) {
+            // Skip the internal code identifier
+            if (key == 'code') return;
+
+            // Django DRF typically returns field errors as lists
+            if (value is List && value.isNotEmpty) {
+              fieldErrors.add(value.first.toString());
+            } else if (value is String && key != 'email') {
+              fieldErrors.add(value);
+            }
+          });
+
+          if (fieldErrors.isNotEmpty) {
+            errorMessage = fieldErrors.join('\n');
+          } else {
+            errorMessage = 'Invalid request data provided.';
+          }
         }
       }
       return AuthException(errorMessage, code: errorCode, email: errorEmail);
     } else if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout) {
-      return AuthException('Connection timed out. Please check your internet.');
+      return AuthException('Connection timed out. Please check your network.');
     } else {
       return AuthException('Network error. Please try again later.');
     }
@@ -201,6 +227,36 @@ class AuthApiService {
         stackTrace,
       );
       throw AuthException('An unexpected error occurred.');
+    }
+  }
+
+  Future<String?> uploadUserAvatar(String imagePath) async {
+    try {
+      final File file = File(imagePath);
+      final String fileName = imagePath.split('/').last;
+      final List<int> bytes = await file.readAsBytes();
+
+      final FormData formData = FormData.fromMap({
+        'avatar': MultipartFile.fromBytes(bytes, filename: fileName),
+      });
+
+      final response = await _dio.post(
+        ApiConstants.updateAvatar,
+        data: formData,
+      );
+
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        // Extract the avatar URL from the tiny response
+        if (data.containsKey('avatar')) {
+          return data['avatar'].toString();
+        } else if (data.containsKey('user') && data['user']['avatar'] != null) {
+          return data['user']['avatar'].toString();
+        }
+      }
+      return null;
+    } catch (e) {
+      rethrow;
     }
   }
 }

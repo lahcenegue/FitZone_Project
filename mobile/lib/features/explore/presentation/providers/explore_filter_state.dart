@@ -1,4 +1,3 @@
-import 'package:fitzone/core/config/app_constants.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 /// Holds the comprehensive state of all explore filters across all service categories.
@@ -10,13 +9,13 @@ class ExploreFilterState {
   final String? sortBy;
   final LatLngBounds? bounds;
 
-  // --- Shared Filters ---
+  // Shared Filters
   final bool isOpen;
-  final String? gender; // 'male', 'female'
+  final String? gender;
   final double? minPrice;
   final double? maxPrice;
 
-  // --- Type-Specific Array Filters (IDs) ---
+  // Type-Specific Array Filters (IDs)
   final List<int> selectedSports;
   final List<int> selectedAmenities;
   final List<int> selectedDietary;
@@ -26,7 +25,7 @@ class ExploreFilterState {
     this.query,
     this.category = 'gym',
     this.cityId,
-    this.radiusKm = AppConstants.maxdistamceKm,
+    this.radiusKm = 200.0,
     this.sortBy,
     this.bounds,
     this.isOpen = false,
@@ -43,9 +42,7 @@ class ExploreFilterState {
   int get activeFilterCount {
     int count = 0;
     if (cityId != null) count++;
-    if (radiusKm < AppConstants.maxdistamceKm) {
-      count++;
-    }
+    if (radiusKm < 200.0) count++;
     if (gender != null) count++;
     if (minPrice != null) count++;
     if (maxPrice != null) count++;

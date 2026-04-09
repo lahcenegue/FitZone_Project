@@ -1,4 +1,3 @@
-/// Represents the data required to register a new user.
 class RegisterRequestModel {
   final String email;
   final String password;
@@ -14,7 +13,6 @@ class RegisterRequestModel {
     required this.city,
   });
 
-  /// Converts the model to a JSON map for the API request.
   Map<String, dynamic> toJson() {
     return {
       'email': email,

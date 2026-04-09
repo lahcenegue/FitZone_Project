@@ -186,5 +186,21 @@
   "passwordsDoNotMatch": "Passwords do not match.",
   "resetPasswordSuccess": "Password has been reset successfully. You can now login.",
   "resetCodeSent": "If this email is registered, a reset code has been sent.",
-  "verifyAndReset": "Verify & Reset Password"
+  "verifyAndReset": "Verify & Reset Password",
+  "errorRequestCancelled": "Request to server was cancelled.",
+  "errorConnectionTimeout": "Connection timeout with server.",
+  "errorReceiveTimeout": "Receive timeout in connection with server.",
+  "errorSendTimeout": "Send timeout in connection with server.",
+  "errorNoInternet": "No internet connection. Please check your network.",
+  "errorUnexpected": "An unexpected error occurred.",
+  "errorUnknownStatus": "Unknown status code error.",
+  "errorBadRequest": "Bad request.",
+  "errorUnauthorized": "Unauthorized access. Please login again.",
+  "errorForbidden": "Forbidden access.",
+  "errorNotFound": "Resource not found.",
+  "errorValidation": "Validation error.",
+  "errorInternalServer": "Internal server error. Please try again later.",
+  "errorBadGateway": "Bad gateway.",
+  "errorOops": "Oops, something went wrong.",
+  "avatarUpdatedSuccessfully": "Avatar updated successfully!"
 }

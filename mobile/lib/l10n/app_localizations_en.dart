@@ -595,4 +595,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get verifyAndReset => 'Verify & Reset Password';
+
+  @override
+  String get errorRequestCancelled => 'Request to server was cancelled.';
+
+  @override
+  String get errorConnectionTimeout => 'Connection timeout with server.';
+
+  @override
+  String get errorReceiveTimeout =>
+      'Receive timeout in connection with server.';
+
+  @override
+  String get errorSendTimeout => 'Send timeout in connection with server.';
+
+  @override
+  String get errorNoInternet =>
+      'No internet connection. Please check your network.';
+
+  @override
+  String get errorUnexpected => 'An unexpected error occurred.';
+
+  @override
+  String get errorUnknownStatus => 'Unknown status code error.';
+
+  @override
+  String get errorBadRequest => 'Bad request.';
+
+  @override
+  String get errorUnauthorized => 'Unauthorized access. Please login again.';
+
+  @override
+  String get errorForbidden => 'Forbidden access.';
+
+  @override
+  String get errorNotFound => 'Resource not found.';
+
+  @override
+  String get errorValidation => 'Validation error.';
+
+  @override
+  String get errorInternalServer =>
+      'Internal server error. Please try again later.';
+
+  @override
+  String get errorBadGateway => 'Bad gateway.';
+
+  @override
+  String get errorOops => 'Oops, something went wrong.';
+
+  @override
+  String get avatarUpdatedSuccessfully => 'Avatar updated successfully!';
 }

@@ -12,7 +12,7 @@ class RegisterFormState {
   final String email;
   final String password;
   final String? gender;
-  final String? cityId;
+  final String? city;
 
   final String? fullNameError;
   final String? emailError;
@@ -25,7 +25,7 @@ class RegisterFormState {
     this.email = '',
     this.password = '',
     this.gender,
-    this.cityId,
+    this.city,
     this.fullNameError,
     this.emailError,
     this.passwordError,
@@ -43,7 +43,7 @@ class RegisterFormState {
       passwordError == null &&
       gender != null &&
       genderError == null &&
-      cityId != null &&
+      city != null &&
       cityError == null;
 
   RegisterFormState copyWith({
@@ -51,7 +51,7 @@ class RegisterFormState {
     String? email,
     String? password,
     String? gender,
-    String? cityId,
+    String? city,
     String? fullNameError,
     bool clearFullNameError = false,
     String? emailError,
@@ -68,7 +68,7 @@ class RegisterFormState {
       email: email ?? this.email,
       password: password ?? this.password,
       gender: gender ?? this.gender,
-      cityId: cityId ?? this.cityId,
+      city: city ?? this.city,
       fullNameError: clearFullNameError
           ? null
           : (fullNameError ?? this.fullNameError),
@@ -150,7 +150,7 @@ class RegisterForm extends _$RegisterForm {
       error = l10n.cityRequired;
     }
     state = state.copyWith(
-      cityId: value,
+      city: value,
       cityError: error,
       clearCityError: error == null,
     );
@@ -162,7 +162,7 @@ class RegisterForm extends _$RegisterForm {
     updateEmail(state.email, l10n);
     updatePassword(state.password, l10n);
     updateGender(state.gender, l10n);
-    updateCity(state.cityId, l10n);
+    updateCity(state.city, l10n);
     return state.isValid;
   }
 
@@ -173,7 +173,7 @@ class RegisterForm extends _$RegisterForm {
       email: state.email,
       password: state.password,
       gender: state.gender!,
-      city: state.cityId!,
+      city: state.city!,
     );
   }
 }

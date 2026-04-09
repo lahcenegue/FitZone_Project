@@ -186,5 +186,21 @@
   "passwordsDoNotMatch": "كلمات المرور غير متطابقة.",
   "resetPasswordSuccess": "تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.",
   "resetCodeSent": "إذا كان هذا البريد مسجلاً، فقد تم إرسال رمز الاسترداد.",
-  "verifyAndReset": "تحقق وإعادة تعيين"
+  "verifyAndReset": "تحقق وإعادة تعيين",
+  "errorRequestCancelled": "تم إلغاء الطلب من الخادم.",
+  "errorConnectionTimeout": "انتهى وقت الاتصال بالخادم.",
+  "errorReceiveTimeout": "انتهى وقت الاستجابة من الخادم.",
+  "errorSendTimeout": "انتهى وقت إرسال البيانات للخادم.",
+  "errorNoInternet": "لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة.",
+  "errorUnexpected": "حدث خطأ غير متوقع.",
+  "errorUnknownStatus": "خطأ غير معروف في رمز الحالة.",
+  "errorBadRequest": "طلب غير صالح.",
+  "errorUnauthorized": "وصول غير مصرح به. يرجى تسجيل الدخول مرة أخرى.",
+  "errorForbidden": "تم رفض الوصول.",
+  "errorNotFound": "المورد المطلوب غير موجود.",
+  "errorValidation": "خطأ في التحقق من صحة البيانات.",
+  "errorInternalServer": "خطأ داخلي في الخادم. يرجى المحاولة لاحقاً.",
+  "errorBadGateway": "خطأ في البوابة (Bad gateway).",
+  "errorOops": "عذراً، حدث خطأ ما.",
+  "avatarUpdatedSuccessfully": "تم تحديث الصورة الشخصية بنجاح!"
 }

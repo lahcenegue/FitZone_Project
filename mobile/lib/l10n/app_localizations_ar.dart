@@ -594,4 +594,55 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get verifyAndReset => 'تحقق وإعادة تعيين';
+
+  @override
+  String get errorRequestCancelled => 'تم إلغاء الطلب من الخادم.';
+
+  @override
+  String get errorConnectionTimeout => 'انتهى وقت الاتصال بالخادم.';
+
+  @override
+  String get errorReceiveTimeout => 'انتهى وقت الاستجابة من الخادم.';
+
+  @override
+  String get errorSendTimeout => 'انتهى وقت إرسال البيانات للخادم.';
+
+  @override
+  String get errorNoInternet =>
+      'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة.';
+
+  @override
+  String get errorUnexpected => 'حدث خطأ غير متوقع.';
+
+  @override
+  String get errorUnknownStatus => 'خطأ غير معروف في رمز الحالة.';
+
+  @override
+  String get errorBadRequest => 'طلب غير صالح.';
+
+  @override
+  String get errorUnauthorized =>
+      'وصول غير مصرح به. يرجى تسجيل الدخول مرة أخرى.';
+
+  @override
+  String get errorForbidden => 'تم رفض الوصول.';
+
+  @override
+  String get errorNotFound => 'المورد المطلوب غير موجود.';
+
+  @override
+  String get errorValidation => 'خطأ في التحقق من صحة البيانات.';
+
+  @override
+  String get errorInternalServer =>
+      'خطأ داخلي في الخادم. يرجى المحاولة لاحقاً.';
+
+  @override
+  String get errorBadGateway => 'خطأ في البوابة (Bad gateway).';
+
+  @override
+  String get errorOops => 'عذراً، حدث خطأ ما.';
+
+  @override
+  String get avatarUpdatedSuccessfully => 'تم تحديث الصورة الشخصية بنجاح!';
 }

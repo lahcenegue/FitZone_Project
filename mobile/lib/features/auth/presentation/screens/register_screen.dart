@@ -38,7 +38,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             _logger.info(
               'Registration successful, navigating to awaiting verification.',
             );
-            // Navigate securely to the new OTP Verification Screen
             context.go('${RoutePaths.verifyOtp}?email=${user.email}');
           }
         },
@@ -308,8 +307,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       error: (_, __) =>
           Text('Failed to load cities', style: TextStyle(color: colors.error)),
       data: (data) {
+        // We must bind the dropdown to the String ID (e.g., 'riyadh')
         return DropdownButtonFormField<String>(
-          value: formState.cityId,
+          value: formState.city,
           dropdownColor: colors.surface,
           icon: Icon(Icons.keyboard_arrow_down_rounded, color: colors.iconGrey),
           decoration: _getPremiumInputDecoration(
@@ -319,6 +319,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             null,
           ),
           items: data.cities.map<DropdownMenuItem<String>>((city) {
+            // value = the ID (e.g., 'riyadh'), child = the display name (e.g., 'الرياض')
             return DropdownMenuItem<String>(
               value: city['id'].toString(),
               child: Text(

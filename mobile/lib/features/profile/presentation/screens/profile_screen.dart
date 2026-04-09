@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -89,6 +90,8 @@ class ProfileScreen extends ConsumerWidget {
                       isLoggedIn: isLoggedIn,
                       colors: colors,
                       l10n: l10n,
+                      onEditAvatarPressed: () =>
+                          _handleAvatarUpdate(context, ref, colors, l10n),
                     ),
                     SizedBox(height: Dimensions.spacingExtraLarge),
 
@@ -361,5 +364,71 @@ class ProfileScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _handleAvatarUpdate(
+    BuildContext context,
+    WidgetRef ref,
+    AppColors colors,
+    AppLocalizations l10n,
+  ) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+
+    if (pickedFile == null || !context.mounted) return;
+
+    void Function()? closeDialog;
+
+    // 1. Show Loading Dialog securely
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      useRootNavigator: true,
+      builder: (ctx) {
+        closeDialog = () {
+          if (ctx.mounted) Navigator.of(ctx, rootNavigator: true).pop();
+        };
+        return Center(child: CircularProgressIndicator(color: colors.primary));
+      },
+    );
+
+    // 2. Perform API Upload ONLY (No state changes yet)
+    final String? newAvatarUrl = await ref
+        .read(authControllerProvider.notifier)
+        .uploadAvatarToApi(pickedFile.path);
+
+    // 3. Safely close the dialog first
+    if (closeDialog != null) {
+      closeDialog!();
+    }
+
+    // 4. Update State, Cache, and show SnackBar safely
+    if (newAvatarUrl != null) {
+      ref
+          .read(authControllerProvider.notifier)
+          .updateAvatarStateAndCache(newAvatarUrl);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.avatarUpdatedSuccessfully),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.errorOops),
+            backgroundColor: colors.error,
+          ),
+        );
+      }
+    }
   }
 }

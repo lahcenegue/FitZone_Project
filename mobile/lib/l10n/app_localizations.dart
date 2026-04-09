@@ -1225,6 +1225,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Verify & Reset Password'**
   String get verifyAndReset;
+
+  /// No description provided for @errorRequestCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Request to server was cancelled.'**
+  String get errorRequestCancelled;
+
+  /// No description provided for @errorConnectionTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection timeout with server.'**
+  String get errorConnectionTimeout;
+
+  /// No description provided for @errorReceiveTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive timeout in connection with server.'**
+  String get errorReceiveTimeout;
+
+  /// No description provided for @errorSendTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Send timeout in connection with server.'**
+  String get errorSendTimeout;
+
+  /// No description provided for @errorNoInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Please check your network.'**
+  String get errorNoInternet;
+
+  /// No description provided for @errorUnexpected.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred.'**
+  String get errorUnexpected;
+
+  /// No description provided for @errorUnknownStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown status code error.'**
+  String get errorUnknownStatus;
+
+  /// No description provided for @errorBadRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Bad request.'**
+  String get errorBadRequest;
+
+  /// No description provided for @errorUnauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Unauthorized access. Please login again.'**
+  String get errorUnauthorized;
+
+  /// No description provided for @errorForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Forbidden access.'**
+  String get errorForbidden;
+
+  /// No description provided for @errorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Resource not found.'**
+  String get errorNotFound;
+
+  /// No description provided for @errorValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Validation error.'**
+  String get errorValidation;
+
+  /// No description provided for @errorInternalServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal server error. Please try again later.'**
+  String get errorInternalServer;
+
+  /// No description provided for @errorBadGateway.
+  ///
+  /// In en, this message translates to:
+  /// **'Bad gateway.'**
+  String get errorBadGateway;
+
+  /// No description provided for @errorOops.
+  ///
+  /// In en, this message translates to:
+  /// **'Oops, something went wrong.'**
+  String get errorOops;
+
+  /// No description provided for @avatarUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar updated successfully!'**
+  String get avatarUpdatedSuccessfully;
 }
 
 class _AppLocalizationsDelegate

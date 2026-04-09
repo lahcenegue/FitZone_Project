@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -12,18 +13,24 @@ class ProfileHeroCard extends StatelessWidget {
   final AppColors colors;
   final AppLocalizations l10n;
 
+  // Added a callback to handle avatar update logic externally
+  // keeping this widget strictly for UI presentation (Single Responsibility).
+  final VoidCallback? onEditAvatarPressed;
+
   const ProfileHeroCard({
     super.key,
     required this.user,
     required this.isLoggedIn,
     required this.colors,
     required this.l10n,
+    this.onEditAvatarPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     if (!isLoggedIn) return _buildGuestCard(context);
 
+    // Provide a fallback initial if the user's name is missing
     final String initial = user?.fullName.isNotEmpty == true
         ? user!.fullName[0].toUpperCase()
         : '?';
@@ -45,48 +52,94 @@ class ProfileHeroCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Avatar & Name
+            // Avatar & Name Section
             Expanded(
               flex: 5,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Avatar Stack with Edit Button and Verified Badge
                   Stack(
-                    alignment: Alignment.bottomRight,
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
                     children: [
-                      CircleAvatar(
-                        radius: Dimensions.iconLarge * 1.5,
-                        backgroundColor: colors.textPrimary,
-                        backgroundImage: user?.avatar != null
-                            ? NetworkImage(user!.avatar!)
-                            : null,
-                        child: user?.avatar == null
-                            ? Text(
-                                initial,
-                                style: TextStyle(
-                                  fontSize: Dimensions.fontHeading1 * 1.2,
-                                  fontWeight: FontWeight.bold,
-                                  color: colors.surface,
-                                ),
-                              )
-                            : null,
+                      // Main Avatar
+                      GestureDetector(
+                        onTap: onEditAvatarPressed,
+                        child: CircleAvatar(
+                          radius: Dimensions.iconLarge * 1.5,
+                          backgroundColor: colors.textPrimary,
+                          backgroundImage: user?.avatar != null
+                              ? NetworkImage(user!.avatar!)
+                              : null,
+                          child: user?.avatar == null
+                              ? Text(
+                                  initial,
+                                  style: TextStyle(
+                                    fontSize: Dimensions.fontHeading1 * 1.2,
+                                    fontWeight: FontWeight.bold,
+                                    color: colors.surface,
+                                  ),
+                                )
+                              : null,
+                        ),
                       ),
+
+                      // Verified Badge (Bottom Right)
                       if (user?.isVerified == true)
-                        Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: colors.surface,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.verified_rounded,
-                            color: colors.error,
-                            size: Dimensions.iconLarge,
+                        Positioned(
+                          bottom: 0,
+                          right: -4,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: colors.surface,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.verified_rounded,
+                              color: colors.error,
+                              size: Dimensions.iconLarge,
+                            ),
                           ),
                         ),
+
+                      // Edit Avatar Button (Bottom Left)
+                      Positioned(
+                        bottom: 0,
+                        left: -4,
+                        child: GestureDetector(
+                          onTap: onEditAvatarPressed,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: colors.primary,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: colors.surface,
+                                width: 2.0,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: colors.shadow.withOpacity(0.15),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              Icons.camera_alt_rounded,
+                              color: Colors.white,
+                              size: Dimensions.iconMedium * 0.8,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: Dimensions.spacingMedium),
+
+                  // User Name
                   Text(
                     user?.fullName ?? '',
                     style: TextStyle(
@@ -100,6 +153,8 @@ class ProfileHeroCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: Dimensions.spacingTiny),
+
+                  // User City
                   Text(
                     user?.city ?? l10n.guest,
                     style: TextStyle(
@@ -115,7 +170,7 @@ class ProfileHeroCard extends StatelessWidget {
               ),
             ),
 
-            // Divider
+            // Vertical Divider
             VerticalDivider(
               width: Dimensions.spacingExtraLarge,
               thickness: Dimensions.dividerHeight,
@@ -124,7 +179,7 @@ class ProfileHeroCard extends StatelessWidget {
               endIndent: Dimensions.spacingMedium,
             ),
 
-            // Stats
+            // User Stats Section
             Expanded(
               flex: 4,
               child: Column(
@@ -156,6 +211,7 @@ class ProfileHeroCard extends StatelessWidget {
     );
   }
 
+  /// Builds an individual statistics item (Value and Label)
   Widget _buildStatItem(String value, String label) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,6 +236,7 @@ class ProfileHeroCard extends StatelessWidget {
     );
   }
 
+  /// Builds the alternative card displayed when the user is not authenticated
   Widget _buildGuestCard(BuildContext context) {
     return Container(
       width: double.infinity,

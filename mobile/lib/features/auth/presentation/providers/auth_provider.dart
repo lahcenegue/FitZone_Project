@@ -150,4 +150,37 @@ class AuthController extends _$AuthController {
       rethrow;
     }
   }
+
+  /// ONLY performs the API request and returns the new URL. Does NOT trigger UI rebuilds.
+  Future<String?> uploadAvatarToApi(String imagePath) async {
+    try {
+      final AuthApiService authService = ref.read(authApiServiceProvider);
+      return await authService.uploadUserAvatar(imagePath);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  /// Updates Riverpod state AND local storage AFTER the loading dialog is fully closed.
+  void updateAvatarStateAndCache(String newAvatarUrl) {
+    if (state.value != null) {
+      // 1. Update immutable state
+      final UserModel updatedUser = state.value!.copyWith(avatar: newAvatarUrl);
+      state = AsyncData(updatedUser);
+
+      // 2. Persist to local storage so it survives app restarts
+      ref.read(storageServiceProvider).cacheUser(updatedUser);
+    }
+  }
+
+  /// Explicitly updates the in-memory state and persists user data to local storage.
+  /// This ensures the avatar and profile changes are preserved after app restarts.
+  void updateUserState(UserModel user) {
+    // 1. Update the Riverpod state for immediate UI synchronization
+    state = AsyncData(user);
+
+    // 2. Persist the updated user object to SharedPreferences
+    // Using the 'cacheUser' method identified in your StorageService
+    ref.read(storageServiceProvider).cacheUser(user);
+  }
 }

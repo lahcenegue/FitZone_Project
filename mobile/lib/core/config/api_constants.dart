@@ -14,18 +14,25 @@ class ApiConstants {
   static const String requestPasswordReset = '/users/password-reset/request/';
   static const String confirmPasswordReset = '/users/password-reset/confirm/';
 
-  // Map Discovery
+  // --- New Security & Profile Endpoints ---
+  static const String refreshToken = '/users/token/refresh/';
+  static const String changePassword = '/users/password/change/';
+  static const String updateAvatar = '/users/profile/avatar/';
+  static const String updateProfile = '/users/profile/update/';
+  static const String deleteAccount = '/users/account/delete/';
+
+  // --- Map Discovery ---
   static const String mapDiscover = '/providers/discover/';
 
-  // Branch Details
+  // --- Branch Details ---
   static const String gymBranchDetails = '/gyms/branches/';
 
-  // Bootstrapping Endpoints
+  // --- Bootstrapping Endpoints ---
   static const String initConfig = '/init/';
   static const String serviceTypes = '/service-types/';
   static const String cities = '/cities/';
 
-  // Filtres For Gym
+  // --- Filters For Gym ---
   static const String sports = '/gyms/sports/';
   static const String amenities = '/gyms/amenities/';
 }

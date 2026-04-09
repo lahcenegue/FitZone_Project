@@ -4,8 +4,10 @@ import 'package:logging/logging.dart';
 
 import '../config/api_constants.dart';
 import '../storage/secure_storage_provider.dart';
+import 'api_provider.dart';
 
-/// Intercepts outgoing HTTP requests to inject the Authorization Bearer token.
+/// Intercepts outgoing HTTP requests to inject the Authorization Bearer token
+/// and securely handles silent token refreshes.
 class AuthInterceptor extends Interceptor {
   final Ref ref;
   final Logger _logger = Logger('AuthInterceptor');
@@ -24,9 +26,10 @@ class AuthInterceptor extends Interceptor {
         ApiConstants.login,
         ApiConstants.verifyEmail,
         ApiConstants.resendVerification,
+        ApiConstants.requestPasswordReset,
+        ApiConstants.confirmPasswordReset,
       ];
 
-      // Check if the current request path matches any public endpoint
       final bool isPublicEndpoint = publicEndpoints.any(
         (endpoint) => options.path.contains(endpoint),
       );
@@ -48,12 +51,95 @@ class AuthInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    // Note: Future implementation for Token Refresh (401 Unauthorized)
-    // will be handled here to automatically refresh the token and retry.
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
       _logger.warning('Unauthorized request (401). Token might be expired.');
+
+      final bool isRefreshed = await _attemptTokenRefresh();
+
+      if (isRefreshed) {
+        _logger.info(
+          'Token refreshed successfully. Retrying original request.',
+        );
+
+        try {
+          final secureStorage = ref.read(secureStorageServiceProvider);
+          final String? newAccessToken = await secureStorage.getAccessToken();
+
+          if (newAccessToken != null) {
+            err.requestOptions.headers['Authorization'] =
+                'Bearer $newAccessToken';
+          }
+
+          // Retry the request using the globally provided Dio client
+          final dio = ref.read(dioClientProvider);
+          final response = await dio.fetch(err.requestOptions);
+          return handler.resolve(response);
+        } on DioException catch (retryError) {
+          _logger.severe(
+            'Retry request failed after successful token refresh.',
+            retryError,
+          );
+          return handler.next(retryError);
+        }
+      } else {
+        _logger.severe(
+          'Token refresh failed completely. User session has expired.',
+        );
+        final secureStorage = ref.read(secureStorageServiceProvider);
+        await secureStorage.clearTokens();
+        // Return the error so the UI can log the user out
+        return super.onError(err, handler);
+      }
     }
+
     super.onError(err, handler);
+  }
+
+  /// Attempts to securely refresh the JWT tokens via the API.
+  Future<bool> _attemptTokenRefresh() async {
+    try {
+      final secureStorage = ref.read(secureStorageServiceProvider);
+      final String? refreshToken = await secureStorage.getRefreshToken();
+
+      if (refreshToken == null || refreshToken.isEmpty) {
+        _logger.warning('No refresh token found. Cannot perform refresh.');
+        return false;
+      }
+
+      // Create a dedicated Dio instance for refreshing to avoid recursive interceptor loops
+      final refreshDio = Dio(
+        BaseOptions(
+          baseUrl: ApiConstants.baseUrl,
+          connectTimeout: const Duration(seconds: 15),
+          receiveTimeout: const Duration(seconds: 15),
+          responseType: ResponseType.json,
+        ),
+      );
+
+      final response = await refreshDio.post(
+        ApiConstants.refreshToken,
+        data: {'refresh': refreshToken},
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final newAccessToken = response.data['access'];
+        final newRefreshToken = response.data['refresh'];
+
+        if (newAccessToken != null) {
+          await secureStorage.saveTokens(
+            accessToken: newAccessToken.toString(),
+            refreshToken: newRefreshToken != null
+                ? newRefreshToken.toString()
+                : refreshToken,
+          );
+          return true;
+        }
+      }
+      return false;
+    } catch (error) {
+      _logger.severe('Exception occurred during token refresh process', error);
+      return false;
+    }
   }
 }
