@@ -1,7 +1,13 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.validators import RegexValidator
 from apps.users.models import User, UserGender
+
+phone_regex = RegexValidator(
+    regex=r'^\+?[0-9]{9,15}$',
+    message="Phone number must be valid, between 9 and 15 digits, and can start with '+'."
+)
 
 class UserRegistrationSerializer(serializers.Serializer):
     """Step 1: Quick Registration (5 fields only)"""
@@ -26,12 +32,11 @@ class UserRegistrationSerializer(serializers.Serializer):
 
 class UserProfileCompletionSerializer(serializers.Serializer):
     """Step 2: Profile Completion (Required before subscribing)"""
-    phone_number = serializers.CharField(max_length=20, min_length=7)
+    phone_number = serializers.CharField(validators=[phone_regex], max_length=20)
     address = serializers.CharField(max_length=512, required=False, allow_blank=True)
     lat = serializers.FloatField(required=False)
     lng = serializers.FloatField(required=False)
     
-    # Files
     avatar = serializers.ImageField(required=False)
     real_face_image = serializers.ImageField(required=True)
     id_card_image = serializers.ImageField(required=True)
@@ -102,3 +107,36 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         except DjangoValidationError as exc:
             raise serializers.ValidationError({"new_password": list(exc.messages)})
         return data
+
+class UserChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, min_length=8)
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
+
+class UserAvatarUpdateSerializer(serializers.Serializer):
+    avatar = serializers.ImageField(required=True)
+
+class UserProfileUpdateSerializer(serializers.Serializer):
+    """Supports partial updates for all profile fields."""
+    email = serializers.EmailField(required=False)
+    full_name = serializers.CharField(required=False, min_length=2)
+    gender = serializers.ChoiceField(choices=UserGender.choices, required=False)
+    city = serializers.CharField(required=False)
+    phone_number = serializers.CharField(validators=[phone_regex], max_length=20, required=False)
+    address = serializers.CharField(required=False, allow_blank=True)
+    real_face_image = serializers.ImageField(required=False)
+    id_card_image = serializers.ImageField(required=False)
+
+class UserAccountDeleteSerializer(serializers.Serializer):
+    """Serializer for account deletion, requiring password confirmation."""
+    password = serializers.CharField(required=True, write_only=True)
+
+class UserLogoutSerializer(serializers.Serializer):
+    """Serializer for logging out and blacklisting the refresh token."""
+    refresh = serializers.CharField(
+        required=True, 
+        error_messages={"required": "Refresh token is required."}
+    )

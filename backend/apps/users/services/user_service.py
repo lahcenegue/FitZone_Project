@@ -221,3 +221,83 @@ FitZone Team
         
         # Invalidate token after successful use
         token_obj.delete()
+
+
+    @staticmethod
+    @transaction.atomic
+    def change_password(user, old_password, new_password):
+        """
+        Changes the password for an authenticated user after verifying the old password.
+        """
+        if not user.check_password(old_password):
+            raise ValueError("Current password is incorrect.")
+        
+        user.set_password(new_password)
+        user.save(update_fields=['password', 'updated_at'])
+        logger.info(f"Password successfully changed for user: {user.email}")
+
+    @staticmethod
+    @transaction.atomic
+    def update_user_avatar(user, avatar_file):
+        """
+        Updates only the user's avatar image.
+        """
+        user.avatar = avatar_file
+        user.save(update_fields=['avatar', 'updated_at'])
+        logger.info(f"Avatar updated for user: {user.email}")
+        return user
+
+    @staticmethod
+    @transaction.atomic
+    def update_user_profile(user, data):
+        """
+        Updates one or multiple profile fields. 
+        Triggers re-verification if email is changed.
+        """
+        email_changed = False
+        new_email = data.get('email')
+
+        if new_email and new_email != user.email:
+            if User.objects.filter(email=new_email).exists():
+                raise ValueError("This email is already registered with another account.")
+            
+            user.email = new_email
+            user.is_verified = False
+            email_changed = True
+
+        # Update fields only if they are present in the data
+        user.full_name = data.get('full_name', user.full_name)
+        user.gender = data.get('gender', user.gender)
+        user.city = data.get('city', user.city)
+        user.phone_number = data.get('phone_number', user.phone_number)
+        user.address = data.get('address', user.address)
+        
+        if 'real_face_image' in data:
+            user.real_face_image = data['real_face_image']
+        if 'id_card_image' in data:
+            user.id_card_image = data['id_card_image']
+
+        user.save()
+
+        if email_changed:
+            # Clear old tokens and send new verification OTP
+            UserVerificationToken.objects.filter(user=user).delete()
+            token_obj = UserVerificationToken.objects.create(user=user)
+            UserAuthService._send_verification_email(user, token_obj.otp)
+            logger.info(f"Email changed. Verification OTP sent to: {new_email}")
+
+        return user, email_changed
+    
+    
+    @staticmethod
+    @transaction.atomic
+    def delete_user_account(user, password):
+        """
+        Permanently deletes the user account after verifying the password.
+        """
+        if not user.check_password(password):
+            raise ValueError("Incorrect password. Account deletion failed.")
+
+        user_email = user.email
+        user.delete()
+        logger.info(f"User account permanently deleted for: {user_email}")

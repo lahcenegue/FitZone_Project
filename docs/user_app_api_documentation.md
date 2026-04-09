@@ -1,29 +1,36 @@
 # FitZone — User App API Documentation
 
-> **Base URL:** `http://localhost:8000/api/v1/`  
+> **Base URL:** `http://localhost:8000/api/v1/`
 > **Target App:** User Application (Client App)
 
 ---
 
 ## Table of Contents
 
-1. [Discovery & Search](#1-discovery--search)
-   - [1.1 Unified Discovery & Search (Map & List)](#11-unified-discovery--search-map--list)
-   - [1.2 Get Gym Branch Details](#12-get-gym-branch-details)
-2. [Customer Authentication & Profile](#2-customer-authentication--profile)
-   - [2.1 Quick Register (Step 1)](#21-quick-register-step-1)
-   - [2.2 Verify Email](#22-verify-email)
-   - [2.3 Resend Verification Email](#23-resend-verification-email)
-   - [2.4 Login](#24-login)
-   - [2.5 Complete Profile (Step 2)](#25-complete-profile-step-2--before-subscription)
-   - [2.6 Request Password Reset OTP](#26-request-password-reset-otp)
-   - [2.7 Confirm Password Reset](#27-confirm-password-reset)
-3. [App Initialization & Static Data](#3-app-initialization--static-data)
-   - [3.1 App Initialization (Check Versions)](#31-app-initialization-check-versions)
-   - [3.2 Get Service Types List](#32-get-service-types-list)
-   - [3.3 Get Cities List](#33-get-cities-list)
-   - [3.4 Get Sports List](#34-get-sports-list)
-   - [3.5 Get Amenities List](#35-get-amenities-list)
+- [1. Discovery & Search](#1-discovery--search)
+  - [1.1 Unified Discovery & Search (Map & List)](#11-unified-discovery--search-map--list)
+  - [1.2 Get Gym Branch Details](#12-get-gym-branch-details)
+- [2. Customer Authentication & Profile](#2-customer-authentication--profile)
+  - [2.1 Quick Register (Step 1)](#21-quick-register-step-1)
+  - [2.2 Verify Email](#22-verify-email)
+  - [2.3 Resend Verification Email](#23-resend-verification-email)
+  - [2.4 Login](#24-login)
+  - [2.5 Complete Profile (Step 2)](#25-complete-profile-step-2--before-subscription)
+  - [2.6 Request Password Reset OTP](#26-request-password-reset-otp)
+  - [2.7 Confirm Password Reset](#27-confirm-password-reset)
+  - [2.8 Change Password](#28-change-password)
+  - [2.9 Update Avatar](#29-update-avatar)
+  - [2.10 Update Profile (Partial)](#210-update-profile-partial)
+  - [2.11 Delete Account](#211-delete-account)
+  - [2.12 Token Refresh](#212-token-refresh)
+  - [2.13 Logout](#213-logout)
+- [3. App Initialization & Static Data](#3-app-initialization--static-data)
+  - [3.1 App Initialization (Check Versions)](#31-app-initialization-check-versions)
+  - [3.2 Get Service Types List](#32-get-service-types-list)
+  - [3.3 Get Cities List](#33-get-cities-list)
+  - [3.4 Get Sports List](#34-get-sports-list)
+  - [3.5 Get Amenities List](#35-get-amenities-list)
+- [4. Common Error Responses](#4-common-error-responses)
 
 ---
 
@@ -103,6 +110,22 @@ GET /api/v1/providers/discover/?type=gym&city_id=riyadh&gender=mixed&lat=24.7136
     "has_next": false,
     "has_previous": false
   }
+}
+```
+
+**`400 Bad Request` — Unsupported service type**
+
+```json
+{
+  "error": "Unsupported service type: unknown"
+}
+```
+
+**`400 Bad Request` — min_price greater than max_price**
+
+```json
+{
+  "detail": "Minimum price cannot be greater than maximum price."
 }
 ```
 
@@ -213,6 +236,16 @@ Registers a new customer. The account requires email verification before it can 
 }
 ```
 
+#### Request Fields
+
+| Field | Type | Required | Description |
+| :--- | :--- | :---: | :--- |
+| `email` | String | ✅ | Valid email address |
+| `password` | String | ✅ | Minimum 8 characters |
+| `full_name` | String | ✅ | Cannot be blank |
+| `gender` | String | ✅ | `male` or `female` |
+| `city` | String | ✅ | City code (e.g., `Riyadh`, `Jeddah`) |
+
 #### Responses
 
 **`201 Created` — Success**
@@ -239,7 +272,33 @@ Registers a new customer. The account requires email verification before it can 
 }
 ```
 
-> **Note:** `profile_is_complete` will be `false` at this stage.
+> **Note:** `profile_is_complete` will be `false` at this stage. `is_verified` will also be `false` until the user verifies their email.
+
+**`400 Bad Request` — Email already registered**
+
+```json
+{
+  "email": [
+    "This email is already registered."
+  ]
+}
+```
+
+**`400 Bad Request` — Validation errors**
+
+```json
+{
+  "email": [
+    "Enter a valid email address."
+  ],
+  "password": [
+    "Ensure this field has at least 8 characters."
+  ],
+  "full_name": [
+    "This field may not be blank."
+  ]
+}
+```
 
 ---
 
@@ -291,7 +350,35 @@ Verifies the customer's email using the 6-digit OTP sent to their inbox.
 }
 ```
 
-> Returns the user object along with `access` and `refresh` tokens for auto-login.
+> Returns the user object along with `access` and `refresh` tokens for auto-login after verification.
+
+**`400 Bad Request` — OTP length is not 6 digits**
+
+```json
+{
+  "otp": [
+    "OTP must be exactly 6 digits."
+  ]
+}
+```
+
+**`400 Bad Request` — Invalid or expired OTP**
+
+```json
+{
+  "detail": "Invalid or missing verification code."
+}
+```
+
+**`400 Bad Request` — OTP field is blank**
+
+```json
+{
+  "otp": [
+    "This field may not be blank."
+  ]
+}
+```
 
 ---
 
@@ -313,11 +400,43 @@ Sends a new verification OTP to the customer's email address.
 }
 ```
 
+#### Responses
+
+**`200 OK` — Success**
+
+```json
+{
+  "message": "If this email address is registered, a new link has been sent."
+}
+```
+
+> Always returns a success message to prevent email enumeration.
+
+**`400 Bad Request` — Email field is blank**
+
+```json
+{
+  "email": [
+    "This field may not be blank."
+  ]
+}
+```
+
+**`400 Bad Request` — Invalid email format**
+
+```json
+{
+  "email": [
+    "Enter a valid email address."
+  ]
+}
+```
+
 ---
 
 ### 2.4 Login
 
-Authenticates the customer and returns JWT tokens.
+Authenticates the customer and returns JWT tokens along with the user object.
 
 | Property | Value |
 | :--- | :--- |
@@ -338,7 +457,39 @@ Authenticates the customer and returns JWT tokens.
 
 **`200 OK` — Success**
 
-Returns JWT `access` and `refresh` tokens.
+```json
+{
+  "message": "Login successful.",
+  "user": {
+    "id": 18,
+    "email": "customer6@fitzone.sa",
+    "full_name": "سعد عبدالله",
+    "phone_number": "0559988776",
+    "gender": "male",
+    "avatar": null,
+    "address": "حي النرجس، الرياض",
+    "city": "Jeddah",
+    "lat": 24.7936,
+    "lng": 46.6753,
+    "is_active": true,
+    "is_verified": true,
+    "points_balance": 0,
+    "profile_is_complete": true
+  },
+  "tokens": {
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+**`401 Unauthorized` — Invalid credentials**
+
+```json
+{
+  "detail": "Invalid email or password."
+}
+```
 
 **`403 Forbidden` — Email not verified**
 
@@ -346,9 +497,11 @@ Returns JWT `access` and `refresh` tokens.
 {
   "detail": "Email is not verified.",
   "code": "EMAIL_NOT_VERIFIED",
-  "email": "customer@fitzone.sa"
+  "email": "customer7@fitzone.sa"
 }
 ```
+
+> When `EMAIL_NOT_VERIFIED` is returned, the client must redirect the user to the OTP verification screen using the `email` value from the response.
 
 ---
 
@@ -378,15 +531,49 @@ Updates the user profile with sensitive information required for gym subscriptio
 
 **`200 OK` — Success**
 
-Returns the updated user object where `profile_is_complete` is now `true`.
+```json
+{
+  "message": "Profile completed successfully.",
+  "user": {
+    "id": 35,
+    "email": "customer7@fitzone.sa",
+    "full_name": "سعد عبدالله",
+    "phone_number": "0559988776",
+    "gender": "male",
+    "avatar": null,
+    "address": "حي النرجس، الرياض",
+    "city": "Jeddah",
+    "lat": 24.7936,
+    "lng": 46.6753,
+    "is_active": true,
+    "is_verified": true,
+    "points_balance": 0,
+    "profile_is_complete": true
+  }
+}
+```
+
+**`400 Bad Request` — Missing required fields**
+
+```json
+{
+  "phone_number": [
+    "This field is required."
+  ],
+  "real_face_image": [
+    "No file was submitted."
+  ],
+  "id_card_image": [
+    "No file was submitted."
+  ]
+}
+```
 
 ---
 
 ### 2.6 Request Password Reset OTP
 
 Generates a 6-digit OTP and sends it to the user's email for password recovery.
-
-> Always returns a success message to prevent email enumeration.
 
 | Property | Value |
 | :--- | :--- |
@@ -411,6 +598,8 @@ Generates a 6-digit OTP and sends it to the user's email for password recovery.
   "message": "If this email is registered, a password reset OTP has been sent."
 }
 ```
+
+> Always returns a success message to prevent email enumeration.
 
 ---
 
@@ -444,11 +633,293 @@ Validates the OTP and sets a new password for the user.
 }
 ```
 
-**`400 Bad Request` — Invalid or Expired OTP**
+**`400 Bad Request` — Invalid or expired OTP**
 
 ```json
 {
   "detail": "Invalid or missing reset code."
+}
+```
+
+> **Note:** Error responses for `new_password` shorter than 8 characters and for non-existent emails are not yet confirmed from the backend — to be added after testing.
+
+---
+
+### 2.8 Change Password
+
+Allows an authenticated user to change their password by verifying the current one.
+
+| Property | Value |
+| :--- | :--- |
+| **Endpoint** | `/profile/change-password/` |
+| **Method** | `POST` |
+| **Auth Required** | Yes — `Authorization: Bearer <access_token>` |
+
+#### Request Body
+
+```json
+{
+  "old_password": "StrongPassword2026!",
+  "new_password": "NewStrongPassword2026!"
+}
+```
+
+#### Responses
+
+**`200 OK` — Success**
+
+```json
+{
+  "message": "Password changed successfully."
+}
+```
+
+**`400 Bad Request` — Current password is incorrect**
+
+```json
+{
+  "detail": "Current password is incorrect."
+}
+```
+
+**`400 Bad Request` — New password too short**
+
+```json
+{
+  "new_password": [
+    "Ensure this field has at least 8 characters."
+  ]
+}
+```
+
+---
+
+### 2.9 Update Avatar
+
+Updates only the user's profile picture.
+
+| Property | Value |
+| :--- | :--- |
+| **Endpoint** | `/profile/avatar/` |
+| **Method** | `POST` |
+| **Auth Required** | Yes — `Authorization: Bearer <access_token>` |
+| **Content-Type** | `multipart/form-data` |
+
+#### Request Body (Form-Data)
+
+| Field | Type | Required | Description |
+| :--- | :--- | :---: | :--- |
+| `avatar` | File | ✅ | The new profile image file |
+
+#### Responses
+
+**`200 OK` — Success**
+
+```json
+{
+  "message": "Avatar updated successfully.",
+  "avatar": "http://localhost:8000/media/avatars/logo.png"
+}
+```
+
+**`400 Bad Request` — No file submitted**
+
+```json
+{
+  "avatar": [
+    "The submitted data was not a file. Check the encoding type on the form."
+  ]
+}
+```
+
+---
+
+### 2.10 Update Profile (Partial)
+
+Updates one or more profile fields. If the `email` field is modified, the user's `is_verified` status changes to `false` and a new verification OTP is sent automatically.
+
+| Property | Value |
+| :--- | :--- |
+| **Endpoint** | `/profile/update/` |
+| **Method** | `PATCH` |
+| **Auth Required** | Yes — `Authorization: Bearer <access_token>` |
+| **Content-Type** | `application/json` or `multipart/form-data` |
+
+#### Request Body
+
+> All fields are optional. Only provide the fields that need to be updated.
+
+```json
+{
+  "full_name": "سعد عبدالله المعدل",
+  "phone_number": "0555555555",
+  "city": "Dammam"
+}
+```
+
+#### Responses
+
+**`200 OK` — Success**
+
+> If `email_changed` is `true`, the client must redirect the user to the OTP verification screen.
+
+```json
+{
+  "message": "Profile updated successfully.",
+  "email_changed": false,
+  "user": {
+    "id": 28,
+    "email": "customer7@fitzone.sa",
+    "full_name": "سعد عبدالله المعدل",
+    "phone_number": "0555555555",
+    "gender": "male",
+    "avatar": "http://localhost:8000/media/avatars/logo.png",
+    "address": "حي النسيم, Jeddah",
+    "city": "Dammam",
+    "lat": 21.5202783,
+    "lng": 39.2424917,
+    "is_active": true,
+    "is_verified": true,
+    "points_balance": 0,
+    "profile_is_complete": true
+  }
+}
+```
+
+**`400 Bad Request` — Email already registered to another account**
+
+```json
+{
+  "detail": "This email is already registered with another account."
+}
+```
+
+**`400 Bad Request` — Invalid phone number**
+
+```json
+{
+  "phone_number": [
+    "Phone number must be valid, between 9 and 15 digits, and can start with '+'."
+  ]
+}
+```
+
+---
+
+### 2.11 Delete Account
+
+Permanently deletes the user's account and all associated data. Requires password confirmation to prevent accidental deletion.
+
+| Property | Value |
+| :--- | :--- |
+| **Endpoint** | `/profile/delete/` |
+| **Method** | `DELETE` |
+| **Auth Required** | Yes — `Authorization: Bearer <access_token>` |
+
+#### Request Body
+
+```json
+{
+  "password": "StrongPassword123!"
+}
+```
+
+#### Responses
+
+**`200 OK` — Success**
+
+```json
+{
+  "message": "Account has been permanently deleted."
+}
+```
+
+**`400 Bad Request` — Incorrect password**
+
+```json
+{
+  "detail": "Incorrect password. Account deletion failed."
+}
+```
+
+---
+
+### 2.12 Token Refresh
+
+Generates a new `access` token (and a rotated `refresh` token) using a valid refresh token. The app should call this endpoint automatically when any authenticated request returns `401 Unauthorized`.
+
+| Property | Value |
+| :--- | :--- |
+| **Endpoint** | `/token/refresh/` |
+| **Method** | `POST` |
+| **Auth Required** | No |
+
+#### Request Body
+
+```json
+{
+  "refresh": "<refresh_token>"
+}
+```
+
+#### Responses
+
+**`200 OK` — Success**
+
+```json
+{
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+> Both a new `access` token and a rotated `refresh` token are returned. The app must save the new `refresh` token to replace the old one.
+
+**`401 Unauthorized` — Token is blacklisted (already used after logout)**
+
+```json
+{
+  "detail": "Token is blacklisted",
+  "code": "token_not_valid"
+}
+```
+
+**`401 Unauthorized` — Token is invalid or expired**
+
+```json
+{
+  "detail": "Token is invalid or expired",
+  "code": "token_not_valid"
+}
+```
+
+---
+
+### 2.13 Logout
+
+Invalidates the user's refresh token by adding it to the blacklist. After logout, any attempt to use the same refresh token will be rejected.
+
+| Property | Value |
+| :--- | :--- |
+| **Endpoint** | `/logout/` |
+| **Method** | `POST` |
+| **Auth Required** | Yes — `Authorization: Bearer <access_token>` |
+
+#### Request Body
+
+```json
+{
+  "refresh": "<refresh_token>"
+}
+```
+
+#### Responses
+
+**`200 OK` — Success**
+
+```json
+{
+  "message": "Successfully logged out."
 }
 ```
 
@@ -473,6 +944,19 @@ Retrieves current static data versions and app update requirements.
 | **Endpoint** | `/init/` |
 | **Method** | `GET` |
 | **Auth Required** | No |
+
+#### Response Fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `sports_version` | Float | Current version of the sports list |
+| `amenities_version` | Float | Current version of the amenities list |
+| `cities_version` | Float | Current version of the cities list |
+| `service_types_version` | Float | Current version of the service types list |
+| `android_version` | String | Minimum required Android app version |
+| `ios_version` | String | Minimum required iOS app version |
+| `force_update` | Boolean | If `true`, the app must force the user to update before proceeding |
+| `update_message` | String | Message to display to user when an update is required |
 
 #### Responses
 
@@ -501,6 +985,7 @@ Retrieves the main categories of service providers available in the app. Automat
 | :--- | :--- |
 | **Endpoint** | `/service-types/` |
 | **Method** | `GET` |
+| **Auth Required** | No |
 | **Header** | `Accept-Language: ar` (or `en`) |
 
 #### Responses
@@ -524,6 +1009,7 @@ Retrieves the list of active cities. Automatically translated based on `Accept-L
 | :--- | :--- |
 | **Endpoint** | `/cities/` |
 | **Method** | `GET` |
+| **Auth Required** | No |
 | **Header** | `Accept-Language: ar` (or `en`) |
 
 #### Responses
@@ -547,6 +1033,7 @@ Retrieves the full list of available sports and their images for caching.
 | :--- | :--- |
 | **Endpoint** | `/gyms/sports/` |
 | **Method** | `GET` |
+| **Auth Required** | No |
 | **Header** | `Accept-Language: ar` (or `en`) |
 
 #### Responses
@@ -573,6 +1060,7 @@ Retrieves the full list of available amenities and their icons for caching.
 | :--- | :--- |
 | **Endpoint** | `/gyms/amenities/` |
 | **Method** | `GET` |
+| **Auth Required** | No |
 | **Header** | `Accept-Language: ar` (or `en`) |
 
 #### Responses
@@ -588,3 +1076,28 @@ Retrieves the full list of available amenities and their icons for caching.
   }
 ]
 ```
+
+---
+
+## 4. Common Error Responses
+
+These responses apply to **all endpoints that require authentication** (`Authorization: Bearer <access_token>`).
+
+### `401 Unauthorized` — Missing or invalid token
+
+```json
+{
+  "detail": "Authentication credentials were not provided."
+}
+```
+
+### `401 Unauthorized` — Expired access token
+
+```json
+{
+  "detail": "Given token not valid for any token type",
+  "code": "token_not_valid"
+}
+```
+
+> When this occurs, the app must call [2.12 Token Refresh](#212-token-refresh) to obtain a new access token. If the refresh token is also expired or blacklisted, the user must be redirected to the login screen.

@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 
 from .serializers import (
     UserRegistrationSerializer, 
@@ -12,7 +13,12 @@ from .serializers import (
     UserEmailVerificationSerializer, 
     UserResendVerificationSerializer,
     PasswordResetRequestSerializer,
-    PasswordResetConfirmSerializer
+    PasswordResetConfirmSerializer,
+    UserChangePasswordSerializer,
+    UserAvatarUpdateSerializer,
+    UserProfileUpdateSerializer,
+    UserAccountDeleteSerializer,
+    UserLogoutSerializer
 )
 from ..services.user_service import UserAuthService
 
@@ -31,7 +37,7 @@ class CustomerRegisterView(APIView):
             user = UserAuthService.register_customer(serializer.validated_data)
             return Response({
                 "message": "Registration successful. Please verify your email.",
-                "user": UserProfileSerializer(user).data
+                "user": UserProfileSerializer(user, context={'request': request}).data
             }, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -65,7 +71,7 @@ class CustomerLoginView(APIView):
 
         return Response({
             "message": "Login successful.",
-            "user": UserProfileSerializer(user).data,
+            "user": UserProfileSerializer(user, context={'request': request}).data,
             "tokens": {
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
@@ -89,7 +95,7 @@ class CustomerVerifyEmailView(APIView):
             
             return Response({
                 "message": "Email verified successfully.",
-                "user": UserProfileSerializer(user).data,
+                "user": UserProfileSerializer(user, context={'request': request}).data,
                 "tokens": {
                     "refresh": str(refresh),
                     "access": str(refresh.access_token),
@@ -117,8 +123,6 @@ class CustomerResendVerificationView(APIView):
 class CustomerProfileCompletionView(APIView):
     """
     POST /api/v1/users/profile/complete/
-    Requires valid JWT token. 
-    Accepts multipart/form-data for image uploads.
     """
     permission_classes = [IsAuthenticated]
 
@@ -131,7 +135,7 @@ class CustomerProfileCompletionView(APIView):
             user = UserAuthService.complete_profile(request.user, serializer.validated_data)
             return Response({
                 "message": "Profile completed successfully.",
-                "user": UserProfileSerializer(user).data
+                "user": UserProfileSerializer(user, context={'request': request}).data
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -149,7 +153,6 @@ class CustomerPasswordResetRequestView(APIView):
 
         UserAuthService.request_password_reset(serializer.validated_data['email'])
         
-        # Always return success to prevent email enumeration attacks
         return Response({
             "message": "If this email is registered, a password reset OTP has been sent."
         }, status=status.HTTP_200_OK)
@@ -176,3 +179,109 @@ class CustomerPasswordResetConfirmView(APIView):
             }, status=status.HTTP_200_OK)
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+class CustomerChangePasswordView(APIView):
+    """
+    POST /api/v1/users/profile/change-password/
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = UserChangePasswordSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            UserAuthService.change_password(
+                user=request.user,
+                old_password=serializer.validated_data['old_password'],
+                new_password=serializer.validated_data['new_password']
+            )
+            return Response({"message": "Password changed successfully."}, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class CustomerAvatarUpdateView(APIView):
+    """
+    POST /api/v1/users/profile/avatar/
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = UserAvatarUpdateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = UserAuthService.update_user_avatar(request.user, serializer.validated_data['avatar'])
+        
+        avatar_url = request.build_absolute_uri(user.avatar.url) if user.avatar else None
+        
+        return Response({
+            "message": "Avatar updated successfully.",
+            "avatar": avatar_url
+        }, status=status.HTTP_200_OK)
+
+class CustomerProfileUpdateView(APIView):
+    """
+    PATCH /api/v1/users/profile/update/
+    """
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        serializer = UserProfileUpdateSerializer(data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user, email_changed = UserAuthService.update_user_profile(request.user, serializer.validated_data)
+            return Response({
+                "message": "Profile updated successfully.",
+                "email_changed": email_changed,
+                "user": UserProfileSerializer(user, context={'request': request}).data
+            }, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class CustomerAccountDeleteView(APIView):
+    """
+    DELETE /api/v1/users/profile/delete/
+    """
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        serializer = UserAccountDeleteSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            UserAuthService.delete_user_account(request.user, serializer.validated_data['password'])
+            return Response({
+                "message": "Account has been permanently deleted."
+            }, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class CustomerLogoutView(APIView):
+    """
+    POST /api/v1/users/logout/
+    Blacklists the provided refresh token.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = UserLogoutSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            token = RefreshToken(serializer.validated_data["refresh"])
+            token.blacklist()
+            return Response(
+                {"message": "Successfully logged out."}, 
+                status=status.HTTP_205_RESET_CONTENT
+            )
+        except TokenError:
+            return Response(
+                {"detail": "Token is invalid or already blacklisted."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )

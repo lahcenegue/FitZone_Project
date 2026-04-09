@@ -21,7 +21,7 @@ class ProfileActionGrid extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            flex: 1,
+            flex: 4,
             child: _buildGridCard(
               title: l10n.mySubscriptions,
               icon: Icons.qr_code_scanner_rounded,
@@ -31,7 +31,7 @@ class ProfileActionGrid extends StatelessWidget {
           ),
           SizedBox(width: Dimensions.spacingMedium),
           Expanded(
-            flex: 1,
+            flex: 3,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -69,6 +69,7 @@ class ProfileActionGrid extends StatelessWidget {
     bool compact = false,
   }) {
     return Container(
+      //padding: EdgeInsets.only(left: Dimensions.spacingMedium),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
@@ -86,39 +87,34 @@ class ProfileActionGrid extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-          child: Padding(
-            padding: EdgeInsets.all(
-              compact ? Dimensions.spacingSmall : Dimensions.spacingMedium,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  icon,
-                  color: iconColor ?? colors.textPrimary,
-                  size: compact ? Dimensions.iconMedium : Dimensions.iconLarge,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: iconColor ?? colors.textPrimary,
+                size: compact ? Dimensions.iconMedium : Dimensions.iconLarge,
+              ),
+              SizedBox(
+                height: compact
+                    ? Dimensions.spacingTiny
+                    : Dimensions.spacingSmall,
+              ),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: compact
+                      ? Dimensions.fontBodyLarge
+                      : Dimensions.fontHeading3,
+                  fontWeight: FontWeight.w900,
+                  color: colors.textPrimary,
                 ),
-                SizedBox(
-                  height: compact
-                      ? Dimensions.spacingSmall
-                      : Dimensions.spacingMedium,
-                ),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: compact
-                        ? Dimensions.fontBodyLarge
-                        : Dimensions.fontHeading3,
-                    fontWeight: FontWeight.w900,
-                    color: colors.textPrimary,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
       ),

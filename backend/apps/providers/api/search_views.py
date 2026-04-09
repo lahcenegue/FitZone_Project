@@ -24,22 +24,73 @@ class UnifiedSearchAPIView(APIView):
             service_type = params.get('type', 'gym').lower()
             page_number = params.get('page', 1)
 
-            # 1. Fetch data through the service layer routing
+            # --- 1. Validate Price Parameters ---
+            min_price = params.get('min_price')
+            max_price = params.get('max_price')
+
+            if min_price and max_price:
+                try:
+                    min_p = float(min_price)
+                    max_p = float(max_price)
+                    if min_p > max_p:
+                        return Response(
+                            {"detail": "Minimum price cannot be greater than maximum price."},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                except ValueError:
+                    return Response(
+                        {"detail": "Price values must be valid numbers."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            # --- 2. Validate Map Bounding Box Parameters ---
+            min_lat = params.get('min_lat')
+            max_lat = params.get('max_lat')
+            min_lng = params.get('min_lng')
+            max_lng = params.get('max_lng')
+
+            if min_lat and max_lat:
+                try:
+                    if float(min_lat) > float(max_lat):
+                        return Response(
+                            {"detail": "Minimum latitude cannot be greater than maximum latitude."},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                except ValueError:
+                    return Response(
+                        {"detail": "Latitude values must be valid numbers."}, 
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            
+            if min_lng and max_lng:
+                try:
+                    if float(min_lng) > float(max_lng):
+                        return Response(
+                            {"detail": "Minimum longitude cannot be greater than maximum longitude."},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                except ValueError:
+                    return Response(
+                        {"detail": "Longitude values must be valid numbers."}, 
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            # --- 3. Fetch data through the service layer routing ---
             try:
                 queryset = UnifiedSearchService.search_providers(params)
             except ValueError as ve:
-                return Response({"error": str(ve)}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": str(ve)}, status=status.HTTP_400_BAD_REQUEST)
 
-            # 2. Assign the correct Serializer based on service type
+            # --- 4. Assign the correct Serializer based on service type ---
             if service_type == 'gym':
                 serializer_class = GymBranchSearchSerializer
             else:
                 return Response(
-                    {"error": f"Serializer for type '{service_type}' is not implemented yet."}, 
+                    {"detail": f"Serializer for type '{service_type}' is not implemented yet."}, 
                     status=status.HTTP_501_NOT_IMPLEMENTED
                 )
 
-            # 3. Handle Pagination
+            # --- 5. Handle Pagination ---
             paginator = Paginator(queryset, PAGE_SIZE_DEFAULT)
             try:
                 page_obj = paginator.page(page_number)
@@ -49,11 +100,13 @@ class UnifiedSearchAPIView(APIView):
                     "meta": {
                         "total_items": paginator.count,
                         "total_pages": paginator.num_pages,
-                        "current_page": int(page_number)
+                        "current_page": int(page_number),
+                        "has_next": False,
+                        "has_previous": False
                     }
                 }, status=status.HTTP_200_OK)
 
-            # 4. Serialize Data
+            # --- 6. Serialize Data ---
             serializer = serializer_class(page_obj.object_list, many=True, context={'request': request})
 
             return Response({
@@ -70,6 +123,6 @@ class UnifiedSearchAPIView(APIView):
         except Exception as e:
             logger.error(f"Error in UnifiedSearchAPIView: {str(e)}", exc_info=True)
             return Response(
-                {"error": "An internal server error occurred during search."}, 
+                {"detail": "An internal server error occurred during search."}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
