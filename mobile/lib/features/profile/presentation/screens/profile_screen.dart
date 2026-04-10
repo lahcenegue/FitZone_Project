@@ -111,7 +111,7 @@ class ProfileScreen extends ConsumerWidget {
                         icon: Icons.person_outline_rounded,
                         title: l10n.personalInfo,
                         colors: colors,
-                        onTap: () {},
+                        onTap: () => context.push(RoutePaths.personalInfo),
                       ),
                       _buildDivider(colors),
                       ProfileSettingsItem(
@@ -382,7 +382,6 @@ class ProfileScreen extends ConsumerWidget {
 
     void Function()? closeDialog;
 
-    // 1. Show Loading Dialog securely
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -395,17 +394,14 @@ class ProfileScreen extends ConsumerWidget {
       },
     );
 
-    // 2. Perform API Upload ONLY (No state changes yet)
     final String? newAvatarUrl = await ref
         .read(authControllerProvider.notifier)
         .uploadAvatarToApi(pickedFile.path);
 
-    // 3. Safely close the dialog first
     if (closeDialog != null) {
       closeDialog!();
     }
 
-    // 4. Update State, Cache, and show SnackBar safely
     if (newAvatarUrl != null) {
       ref
           .read(authControllerProvider.notifier)

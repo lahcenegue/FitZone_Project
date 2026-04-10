@@ -1,3 +1,4 @@
+import 'package:fitzone/features/profile/presentation/screens/personal_info_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -35,6 +36,7 @@ class RoutePaths {
   static const String explore = '/';
   static const String saved = '/saved';
   static const String profile = '/profile';
+  static const String personalInfo = '/personal-info';
 
   static const String gymDetails = '/gym/:id';
 
@@ -94,6 +96,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.completeProfile,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const CompleteProfileScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.personalInfo,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const PersonalInfoScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

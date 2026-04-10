@@ -69,8 +69,10 @@ class Dimensions {
   static double get shadowSpreadRadius => _scale(2.0);
   static double get shadowOffsetY => _scale(8.0);
 
-  // Typography
+  // Typography Extensions
   static double get fontTitleMedium => _scale(18.0);
+  static double get fontTitleLarge =>
+      _scale(22.0); // ADDED: Required for PersonalInfoScreen
 
   // Structural Elements
   static double get borderRadiusLarge => _scale(24.0);

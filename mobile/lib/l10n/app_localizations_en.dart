@@ -646,4 +646,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get avatarUpdatedSuccessfully => 'Avatar updated successfully!';
+
+  @override
+  String get basicInfo => 'Basic Information';
+
+  @override
+  String get identityVerification => 'Identity Verification';
+
+  @override
+  String get editProfile => 'Edit Profile';
+
+  @override
+  String get saveChanges => 'Save Changes';
+
+  @override
+  String get profileUpdatedSuccessfully => 'Profile updated successfully!';
+
+  @override
+  String get emailChangedWarning =>
+      'Email changed. Please verify it to continue.';
+
+  @override
+  String get verified => 'Verified';
+
+  @override
+  String get unverified => 'Unverified';
 }

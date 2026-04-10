@@ -14,4 +14,7 @@ class AppValidators {
 
   /// Accepts English and Arabic letters, and spaces only. Min 3, Max 50.
   static final RegExp nameRegex = RegExp(r'^[\u0600-\u06FFa-zA-Z\s]{3,50}$');
+
+  /// Saudi phone number format: starts with 05 and has exactly 10 digits.
+  static final RegExp phoneRegex = RegExp(r'^05[0-9]{8}$');
 }

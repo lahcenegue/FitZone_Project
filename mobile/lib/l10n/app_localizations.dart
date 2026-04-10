@@ -1321,6 +1321,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Avatar updated successfully!'**
   String get avatarUpdatedSuccessfully;
+
+  /// No description provided for @basicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic Information'**
+  String get basicInfo;
+
+  /// No description provided for @identityVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity Verification'**
+  String get identityVerification;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfile;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
+  /// No description provided for @profileUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully!'**
+  String get profileUpdatedSuccessfully;
+
+  /// No description provided for @emailChangedWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Email changed. Please verify it to continue.'**
+  String get emailChangedWarning;
+
+  /// No description provided for @verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get verified;
+
+  /// No description provided for @unverified.
+  ///
+  /// In en, this message translates to:
+  /// **'Unverified'**
+  String get unverified;
 }
 
 class _AppLocalizationsDelegate

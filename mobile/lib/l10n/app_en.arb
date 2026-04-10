@@ -202,5 +202,13 @@
   "errorInternalServer": "Internal server error. Please try again later.",
   "errorBadGateway": "Bad gateway.",
   "errorOops": "Oops, something went wrong.",
-  "avatarUpdatedSuccessfully": "Avatar updated successfully!"
+  "avatarUpdatedSuccessfully": "Avatar updated successfully!",
+  "basicInfo": "Basic Information",
+  "identityVerification": "Identity Verification",
+  "editProfile": "Edit Profile",
+  "saveChanges": "Save Changes",
+  "profileUpdatedSuccessfully": "Profile updated successfully!",
+  "emailChangedWarning": "Email changed. Please verify it to continue.",
+  "verified": "Verified",
+  "unverified": "Unverified"
 }

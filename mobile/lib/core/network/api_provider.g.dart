@@ -9,15 +9,18 @@ part of 'api_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Provides a globally configured Dio client for all API requests.
+/// Professional setup with clear separation of interceptors.
 
 @ProviderFor(dioClient)
 final dioClientProvider = DioClientProvider._();
 
 /// Provides a globally configured Dio client for all API requests.
+/// Professional setup with clear separation of interceptors.
 
 final class DioClientProvider extends $FunctionalProvider<Dio, Dio, Dio>
     with $Provider<Dio> {
   /// Provides a globally configured Dio client for all API requests.
+  /// Professional setup with clear separation of interceptors.
   DioClientProvider._()
     : super(
         from: null,
@@ -51,4 +54,4 @@ final class DioClientProvider extends $FunctionalProvider<Dio, Dio, Dio>
   }
 }
 
-String _$dioClientHash() => r'24a4d5413d2e2e6d52201422a7a266644db9201b';
+String _$dioClientHash() => r'65fa57c02f1dd3587271b02166ad04df80efffcc';

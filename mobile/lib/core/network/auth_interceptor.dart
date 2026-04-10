@@ -4,10 +4,9 @@ import 'package:logging/logging.dart';
 
 import '../config/api_constants.dart';
 import '../storage/secure_storage_provider.dart';
-import 'api_provider.dart';
 
 /// Intercepts outgoing HTTP requests to inject the Authorization Bearer token
-/// and securely handles silent token refreshes.
+/// and securely handles silent token refreshes without circular dependencies.
 class AuthInterceptor extends Interceptor {
   final Ref ref;
   final Logger _logger = Logger('AuthInterceptor');
@@ -67,13 +66,18 @@ class AuthInterceptor extends Interceptor {
           final String? newAccessToken = await secureStorage.getAccessToken();
 
           if (newAccessToken != null) {
+            // Update the header of the failed request with the new valid token
             err.requestOptions.headers['Authorization'] =
                 'Bearer $newAccessToken';
           }
 
-          // Retry the request using the globally provided Dio client
-          final dio = ref.read(dioClientProvider);
-          final response = await dio.fetch(err.requestOptions);
+          // ARCHITECTURE FIX: Use a completely isolated Dio instance to retry the request.
+          // Using ref.read(dioClientProvider) here causes a fatal Circular Dependency crash.
+          // Since err.requestOptions already contains the full URL, body, and headers (including language),
+          // a fresh, isolated Dio instance will execute it perfectly.
+          final isolatedRetryDio = Dio();
+          final response = await isolatedRetryDio.fetch(err.requestOptions);
+
           return handler.resolve(response);
         } on DioException catch (retryError) {
           _logger.severe(
@@ -88,11 +92,12 @@ class AuthInterceptor extends Interceptor {
         );
         final secureStorage = ref.read(secureStorageServiceProvider);
         await secureStorage.clearTokens();
-        // Return the error so the UI can log the user out
+        // Return the error so the UI/Repository can handle the logout logic
         return super.onError(err, handler);
       }
     }
 
+    // Pass any non-401 errors down the chain
     super.onError(err, handler);
   }
 
@@ -107,7 +112,8 @@ class AuthInterceptor extends Interceptor {
         return false;
       }
 
-      // Create a dedicated Dio instance for refreshing to avoid recursive interceptor loops
+      // Create a dedicated Dio instance exclusively for refreshing tokens
+      // to avoid triggering the same interceptor loops.
       final refreshDio = Dio(
         BaseOptions(
           baseUrl: ApiConstants.baseUrl,
@@ -131,7 +137,7 @@ class AuthInterceptor extends Interceptor {
             accessToken: newAccessToken.toString(),
             refreshToken: newRefreshToken != null
                 ? newRefreshToken.toString()
-                : refreshToken,
+                : refreshToken, // Fallback to old refresh token if backend doesn't rotate it
           );
           return true;
         }

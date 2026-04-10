@@ -259,4 +259,30 @@ class AuthApiService {
       rethrow;
     }
   }
+
+  /// Updates partial user profile data (e.g., name, phone, city, address).
+  /// Returns a Map containing the updated 'user' and 'email_changed' boolean flag.
+  Future<Map<String, dynamic>> updateProfile(
+    Map<String, dynamic> updateData,
+  ) async {
+    try {
+      _logger.info('Attempting to update user profile.');
+      final Response response = await _dio.patch(
+        ApiConstants
+            .updateProfile, // Ensure this is defined in your ApiConstants as '/profile/update/'
+        data: updateData,
+      );
+      _logger.info('Profile updated successfully.');
+
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      _logger.severe('Profile update failed', e, e.stackTrace);
+      throw _handleDioError(e);
+    } catch (e, stackTrace) {
+      _logger.severe('Unexpected profile update error', e, stackTrace);
+      throw AuthException(
+        'An unexpected error occurred while updating the profile.',
+      );
+    }
+  }
 }

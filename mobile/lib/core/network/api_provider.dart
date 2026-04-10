@@ -8,6 +8,7 @@ import 'language_interceptor.dart';
 part 'api_provider.g.dart';
 
 /// Provides a globally configured Dio client for all API requests.
+/// Professional setup with clear separation of interceptors.
 @Riverpod(keepAlive: true)
 Dio dioClient(Ref ref) {
   final Dio dio = Dio(
@@ -19,20 +20,16 @@ Dio dioClient(Ref ref) {
     ),
   );
 
-  // Attach the Auth Interceptor to securely inject JWT tokens
-  dio.interceptors.add(AuthInterceptor(ref));
-
-  // Attach the Language Interceptor
-  dio.interceptors.add(LanguageInterceptor(ref));
-
-  // Attach standard Log Interceptor for debugging in terminal
-  dio.interceptors.add(
+  // Attach interceptors in a clean batch
+  dio.interceptors.addAll([
+    AuthInterceptor(ref),
+    LanguageInterceptor(ref),
     LogInterceptor(
       requestBody: true,
-      responseBody: false, // Set to true if you need to see raw JSON responses
+      responseBody: false, // Set to true only for heavy debugging
       error: true,
     ),
-  );
+  ]);
 
   return dio;
 }

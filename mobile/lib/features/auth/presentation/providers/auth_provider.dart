@@ -183,4 +183,28 @@ class AuthController extends _$AuthController {
     // Using the 'cacheUser' method identified in your StorageService
     ref.read(storageServiceProvider).cacheUser(user);
   }
+
+  /// Updates user profile data and syncs the Riverpod state and local storage.
+  /// Returns true if successful. If email is changed, it requires re-verification.
+  Future<bool> updateProfileData(Map<String, dynamic> updateData) async {
+    try {
+      final AuthApiService authService = ref.read(authApiServiceProvider);
+      final Map<String, dynamic> response = await authService.updateProfile(
+        updateData,
+      );
+
+      // Parse the updated user from the response
+      final UserModel updatedUser = UserModel.fromJson(
+        response['user'] as Map<String, dynamic>,
+      );
+
+      // Update state and cache safely using the method we built earlier
+      updateUserState(updatedUser);
+
+      // Note: UI can check response['email_changed'] if needed to navigate to OTP screen
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
 }

@@ -202,5 +202,13 @@
   "errorInternalServer": "خطأ داخلي في الخادم. يرجى المحاولة لاحقاً.",
   "errorBadGateway": "خطأ في البوابة (Bad gateway).",
   "errorOops": "عذراً، حدث خطأ ما.",
-  "avatarUpdatedSuccessfully": "تم تحديث الصورة الشخصية بنجاح!"
+  "avatarUpdatedSuccessfully": "تم تحديث الصورة الشخصية بنجاح!",
+  "basicInfo": "المعلومات الأساسية",
+  "identityVerification": "توثيق الحساب",
+  "editProfile": "تعديل البيانات",
+  "saveChanges": "حفظ التغييرات",
+  "profileUpdatedSuccessfully": "تم تحديث البيانات بنجاح!",
+  "emailChangedWarning": "تم تغيير البريد الإلكتروني. يرجى تأكيده للمتابعة.",
+  "verified": "موثق",
+  "unverified": "غير موثق"
 }

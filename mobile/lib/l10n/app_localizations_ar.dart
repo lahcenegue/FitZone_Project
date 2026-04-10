@@ -645,4 +645,29 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get avatarUpdatedSuccessfully => 'تم تحديث الصورة الشخصية بنجاح!';
+
+  @override
+  String get basicInfo => 'المعلومات الأساسية';
+
+  @override
+  String get identityVerification => 'توثيق الحساب';
+
+  @override
+  String get editProfile => 'تعديل البيانات';
+
+  @override
+  String get saveChanges => 'حفظ التغييرات';
+
+  @override
+  String get profileUpdatedSuccessfully => 'تم تحديث البيانات بنجاح!';
+
+  @override
+  String get emailChangedWarning =>
+      'تم تغيير البريد الإلكتروني. يرجى تأكيده للمتابعة.';
+
+  @override
+  String get verified => 'موثق';
+
+  @override
+  String get unverified => 'غير موثق';
 }

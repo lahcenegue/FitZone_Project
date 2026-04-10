@@ -26,10 +26,23 @@ class CompleteProfileScreen extends ConsumerStatefulWidget {
 class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
   final Logger _logger = Logger('CompleteProfileScreen');
   final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Load initial data from the authenticated user
+    final user = ref.read(authControllerProvider).value;
+    if (user != null) {
+      _addressController.text = user.address ?? '';
+      _phoneController.text = user.phoneNumber ?? '';
+    }
+  }
 
   @override
   void dispose() {
     _addressController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -104,6 +117,19 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
     );
   }
 
+  void _handleSmartRouting() {
+    final intentService = ref.read(authIntentServiceProvider);
+    final intent = intentService.getIntent();
+    intentService.clearIntent();
+
+    if (intent.type == AuthIntentType.buyGymSubscription) {
+      final int id = intent.payload['gym_id'] as int? ?? 0;
+      context.go(RoutePaths.gymDetailsPath(id));
+    } else {
+      context.go(RoutePaths.explore);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
@@ -140,14 +166,22 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
         title: Text(
           l10n.completeProfileTitle,
           style: TextStyle(
             color: colors.textPrimary,
             fontWeight: FontWeight.bold,
+            fontSize: Dimensions.fontTitleLarge,
           ),
         ),
-        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: colors.textPrimary,
+          ),
+          onPressed: () => context.pop(),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -159,9 +193,11 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
               Container(
                 padding: EdgeInsets.all(Dimensions.spacingMedium),
                 decoration: BoxDecoration(
-                  color: colors.primary.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-                  border: Border.all(color: colors.primary.withOpacity(0.2)),
+                  color: colors.primary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(
+                    Dimensions.borderRadiusLarge,
+                  ),
+                  border: Border.all(color: colors.primary.withOpacity(0.15)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,89 +210,199 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                         style: TextStyle(
                           fontSize: Dimensions.fontBodyMedium,
                           color: colors.textPrimary,
-                          height: 1.4,
+                          height: 1.5,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
+
               SizedBox(height: Dimensions.spacingExtraLarge),
 
-              _buildCustomTextField(
-                label: l10n.phoneNumber,
-                hint: l10n.phoneNumberHint,
-                icon: Icons.phone_android_rounded,
-                keyboardType: TextInputType.phone,
-                errorText: formState.phoneError,
-                colors: colors,
-                onChanged: (val) => ref
-                    .read(completeProfileFormProvider.notifier)
-                    .updatePhone(val, l10n),
-              ),
-              SizedBox(height: Dimensions.spacingExtraLarge),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildImageUploadCard(
-                      title: l10n.idCardImage,
-                      subtitle: l10n.uploadIdCard,
-                      icon: Icons.badge_outlined,
-                      imagePath: formState.idCardImagePath,
-                      onTap: () => _showImageSourceActionSheet(
-                        context,
-                        colors,
-                        l10n,
-                        (source) => ref
-                            .read(completeProfileFormProvider.notifier)
-                            .pickIdCardImage(source),
-                      ),
-                      colors: colors,
+              Container(
+                padding: EdgeInsets.all(Dimensions.spacingLarge),
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(
+                    Dimensions.borderRadiusLarge,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
-                  ),
-                  SizedBox(width: Dimensions.spacingMedium),
-                  Expanded(
-                    child: _buildImageUploadCard(
-                      title: l10n.faceImage,
-                      subtitle: l10n.uploadFaceImage,
-                      icon: Icons.face_retouching_natural_rounded,
-                      imagePath: formState.realFaceImagePath,
-                      onTap: () => _showImageSourceActionSheet(
-                        context,
-                        colors,
-                        l10n,
-                        (source) => ref
-                            .read(completeProfileFormProvider.notifier)
-                            .pickFaceImage(source),
-                      ),
-                      colors: colors,
-                    ),
-                  ),
-                ],
-              ),
-              if (formState.formError != null) ...[
-                SizedBox(height: Dimensions.spacingSmall),
-                Text(
-                  formState.formError!,
-                  style: TextStyle(
-                    color: colors.error,
-                    fontSize: Dimensions.fontBodyMedium,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  ],
                 ),
-              ],
-              SizedBox(height: Dimensions.spacingExtraLarge),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildPhoneField(l10n, formState, colors),
+                    SizedBox(height: Dimensions.spacingLarge),
 
-              _buildAddressField(l10n, formState, colors),
+                    _buildAddressField(l10n, formState, colors),
+                    SizedBox(height: Dimensions.spacingLarge),
 
-              SizedBox(height: Dimensions.spacingExtraLarge * 2),
+                    Text(
+                      l10n.identityVerification,
+                      style: TextStyle(
+                        color: colors.textSecondary,
+                        fontSize: Dimensions.fontBodyMedium,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: Dimensions.spacingSmall),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildImageUploadCard(
+                            title: l10n.idCardImage,
+                            subtitle: l10n.uploadIdCard,
+                            icon: Icons.badge_outlined,
+                            imagePath: formState.idCardImagePath,
+                            onTap: () => _showImageSourceActionSheet(
+                              context,
+                              colors,
+                              l10n,
+                              (source) => ref
+                                  .read(completeProfileFormProvider.notifier)
+                                  .pickIdCardImage(source),
+                            ),
+                            colors: colors,
+                          ),
+                        ),
+                        SizedBox(width: Dimensions.spacingMedium),
+                        Expanded(
+                          child: _buildImageUploadCard(
+                            title: l10n.faceImage,
+                            subtitle: l10n.uploadFaceImage,
+                            icon: Icons.face_retouching_natural_rounded,
+                            imagePath: formState.realFaceImagePath,
+                            onTap: () => _showImageSourceActionSheet(
+                              context,
+                              colors,
+                              l10n,
+                              (source) => ref
+                                  .read(completeProfileFormProvider.notifier)
+                                  .pickFaceImage(source),
+                            ),
+                            colors: colors,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (formState.formError != null) ...[
+                      SizedBox(height: Dimensions.spacingMedium),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Dimensions.spacingMedium,
+                          vertical: Dimensions.spacingSmall,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colors.error.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.borderRadius,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline_rounded,
+                              color: colors.error,
+                              size: Dimensions.iconSmall,
+                            ),
+                            SizedBox(width: Dimensions.spacingSmall),
+                            Expanded(
+                              child: Text(
+                                formState.formError!,
+                                style: TextStyle(
+                                  color: colors.error,
+                                  fontSize: Dimensions.fontBodySmall,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
               _buildSubmitButton(l10n, formState, authState, colors),
+              SizedBox(height: Dimensions.spacingExtraLarge),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildPhoneField(
+    AppLocalizations l10n,
+    CompleteProfileFormState formState,
+    AppColors colors,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.phoneNumber,
+          style: TextStyle(
+            color: colors.textSecondary,
+            fontSize: Dimensions.fontBodyMedium,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: Dimensions.spacingSmall),
+        TextFormField(
+          controller: _phoneController,
+          keyboardType: TextInputType.phone,
+          style: TextStyle(
+            color: colors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+          decoration: InputDecoration(
+            hintText: l10n.phoneNumberHint,
+            hintStyle: TextStyle(
+              color: colors.iconGrey,
+              fontWeight: FontWeight.w400,
+            ),
+            prefixIcon: Icon(
+              Icons.phone_android_rounded,
+              color: colors.iconGrey,
+            ),
+            filled: true,
+            fillColor: colors.background,
+            errorText: formState.phoneError,
+            contentPadding: EdgeInsets.all(Dimensions.spacingMedium),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+              borderSide: BorderSide(color: colors.iconGrey.withOpacity(0.1)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+              borderSide: BorderSide(color: colors.primary, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+              borderSide: BorderSide(color: colors.error, width: 1.5),
+            ),
+          ),
+          onChanged: (val) => ref
+              .read(completeProfileFormProvider.notifier)
+              .updatePhone(val, l10n),
+        ),
+      ],
     );
   }
 
@@ -271,145 +417,76 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
         Text(
           l10n.addressOptional,
           style: TextStyle(
-            fontSize: Dimensions.fontBodyLarge,
-            fontWeight: FontWeight.bold,
-            color: colors.textPrimary,
+            color: colors.textSecondary,
+            fontSize: Dimensions.fontBodyMedium,
+            fontWeight: FontWeight.w600,
           ),
         ),
         SizedBox(height: Dimensions.spacingSmall),
-        TextFormField(
-          controller: _addressController,
-          style: TextStyle(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-          decoration: InputDecoration(
-            hintText: formState.isFetchingLocation
-                ? l10n.fetchingAddress
-                : l10n.addressHint,
-            hintStyle: TextStyle(
-              color: colors.iconGrey,
-              fontWeight: FontWeight.w400,
-            ),
-            prefixIcon: Icon(Icons.map_outlined, color: colors.iconGrey),
-            suffixIcon: formState.isFetchingLocation
-                ? Padding(
-                    padding: EdgeInsets.all(Dimensions.spacingMedium),
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colors.primary,
-                      ),
-                    ),
-                  )
-                : IconButton(
-                    icon: Icon(
-                      Icons.my_location_rounded,
-                      color: colors.primary,
-                    ),
-                    tooltip: l10n.refreshLocation,
-                    onPressed: () async {
-                      final dynamic result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MapPickerScreen(),
-                        ),
-                      );
+        GestureDetector(
+          onTap: () async {
+            final dynamic result = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const MapPickerScreen()),
+            );
 
-                      if (result != null && result is Map<String, dynamic>) {
-                        _addressController.text = result['address'];
-                        ref
-                            .read(completeProfileFormProvider.notifier)
-                            .updateAddress(result['address']);
-                      }
-                    },
+            if (result != null && result is Map<String, dynamic>) {
+              _addressController.text = result['address'];
+              ref
+                  .read(completeProfileFormProvider.notifier)
+                  .updateAddress(result['address']);
+            }
+          },
+          child: AbsorbPointer(
+            child: TextFormField(
+              controller: _addressController,
+              readOnly: true,
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+              decoration: InputDecoration(
+                hintText: formState.isFetchingLocation
+                    ? l10n.fetchingAddress
+                    : l10n.addressHint,
+                hintStyle: TextStyle(
+                  color: colors.iconGrey,
+                  fontWeight: FontWeight.w400,
+                ),
+                prefixIcon: Icon(
+                  Icons.location_on_outlined,
+                  color: colors.iconGrey,
+                ),
+                suffixIcon: Container(
+                  margin: EdgeInsets.all(Dimensions.spacingTiny),
+                  decoration: BoxDecoration(
+                    color: colors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(
+                      Dimensions.borderRadius,
+                    ),
                   ),
-            filled: true,
-            fillColor: colors.surface,
-            contentPadding: EdgeInsets.all(Dimensions.spacingMedium),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.primary, width: 2),
-            ),
-          ),
-          onChanged: (val) =>
-              ref.read(completeProfileFormProvider.notifier).updateAddress(val),
-        ),
-      ],
-    );
-  }
-
-  void _handleSmartRouting() {
-    final intentService = ref.read(authIntentServiceProvider);
-    final intent = intentService.getIntent();
-    intentService.clearIntent();
-
-    if (intent.type == AuthIntentType.buyGymSubscription) {
-      final int id = intent.payload['gym_id'] as int? ?? 0;
-      context.go(RoutePaths.gymDetailsPath(id));
-    } else {
-      context.go(RoutePaths.explore);
-    }
-  }
-
-  Widget _buildCustomTextField({
-    required String label,
-    required String hint,
-    required IconData icon,
-    required AppColors colors,
-    required Function(String) onChanged,
-    String? errorText,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: Dimensions.fontBodyLarge,
-            fontWeight: FontWeight.bold,
-            color: colors.textPrimary,
-          ),
-        ),
-        SizedBox(height: Dimensions.spacingSmall),
-        TextFormField(
-          keyboardType: keyboardType,
-          style: TextStyle(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(
-              color: colors.iconGrey,
-              fontWeight: FontWeight.w400,
-            ),
-            prefixIcon: Icon(icon, color: colors.iconGrey),
-            filled: true,
-            fillColor: colors.surface,
-            errorText: errorText,
-            contentPadding: EdgeInsets.all(Dimensions.spacingMedium),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.primary, width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.error, width: 1.5),
+                  child: Icon(Icons.my_location_rounded, color: colors.primary),
+                ),
+                filled: true,
+                fillColor: colors.background,
+                contentPadding: EdgeInsets.all(Dimensions.spacingMedium),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+                  borderSide: BorderSide(
+                    color: colors.iconGrey.withOpacity(0.1),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+                  borderSide: BorderSide(color: colors.primary, width: 2),
+                ),
+              ),
             ),
           ),
-          onChanged: onChanged,
         ),
       ],
     );
@@ -427,12 +504,12 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: Dimensions.heightPercent(18).clamp(140.0, 180.0),
+        height: Dimensions.heightPercent(16).clamp(130.0, 160.0),
         decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+          color: colors.background,
+          borderRadius: BorderRadius.circular(Dimensions.borderRadius),
           border: Border.all(
-            color: hasImage ? colors.primary : colors.iconGrey.withOpacity(0.3),
+            color: hasImage ? colors.primary : colors.iconGrey.withOpacity(0.2),
             width: hasImage ? 2 : 1,
           ),
           image: hasImage
@@ -440,7 +517,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                   image: FileImage(File(imagePath)),
                   fit: BoxFit.cover,
                   colorFilter: ColorFilter.mode(
-                    Colors.black.withOpacity(0.3),
+                    Colors.black.withOpacity(0.4),
                     BlendMode.darken,
                   ),
                 )
@@ -452,7 +529,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
             Icon(
               hasImage ? Icons.check_circle_rounded : icon,
               color: hasImage ? Colors.white : colors.primary,
-              size: Dimensions.iconLarge * 1.5,
+              size: Dimensions.iconLarge * 1.2,
             ),
             SizedBox(height: Dimensions.spacingSmall),
             Text(
@@ -460,15 +537,20 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
               style: TextStyle(
                 color: hasImage ? Colors.white : colors.textPrimary,
                 fontWeight: FontWeight.bold,
-                fontSize: Dimensions.fontBodyLarge,
+                fontSize: Dimensions.fontBodyMedium,
               ),
+              textAlign: TextAlign.center,
             ),
             if (!hasImage)
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: colors.textSecondary,
-                  fontSize: Dimensions.fontBodySmall,
+              Padding(
+                padding: EdgeInsets.only(top: Dimensions.spacingTiny),
+                child: Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: colors.textSecondary,
+                    fontSize: Dimensions.fontBodySmall,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
           ],
@@ -486,11 +568,13 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
     final bool isLoading = authState.isLoading;
     return SizedBox(
       width: double.infinity,
-      height: Dimensions.buttonHeight * 1.2,
+      height: Dimensions.buttonHeight * 1.1,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: colors.primary,
           foregroundColor: Colors.white,
+          elevation: 4,
+          shadowColor: colors.primary.withOpacity(0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           ),
@@ -510,12 +594,20 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                 }
               },
         child: isLoading
-            ? const CircularProgressIndicator(color: Colors.white)
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 3,
+                ),
+              )
             : Text(
                 l10n.submitProfile,
                 style: TextStyle(
                   fontSize: Dimensions.fontTitleMedium,
                   fontWeight: FontWeight.bold,
+                  letterSpacing: 1.0,
                 ),
               ),
       ),
@@ -538,6 +630,10 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
         ),
         backgroundColor: backgroundColor,
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+        ),
+        margin: EdgeInsets.all(Dimensions.spacingMedium),
       ),
     );
   }

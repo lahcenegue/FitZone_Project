@@ -5,8 +5,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:logging/logging.dart';
 
 import '../../../../core/location/location_provider.dart';
+import '../../../../core/utils/app_validators.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/models/complete_profile_request_model.dart';
+import 'auth_provider.dart';
 
 part 'complete_profile_form_provider.g.dart';
 
@@ -75,9 +77,12 @@ class CompleteProfileForm extends _$CompleteProfileForm {
   @override
   CompleteProfileFormState build() {
     final locationState = ref.read(userLocationProvider);
+    // ARCHITECTURE FIX: Read user directly to act as Single Source of Truth
+    final user = ref.read(authControllerProvider).value;
     final bool hasLocation = locationState.location != null;
 
-    if (hasLocation) {
+    // Only fetch address if the user hasn't already saved one
+    if (hasLocation && (user?.address == null || user!.address!.isEmpty)) {
       Future.microtask(() {
         _getAddressFromLatLng(
           locationState.location!.latitude,
@@ -87,16 +92,19 @@ class CompleteProfileForm extends _$CompleteProfileForm {
     }
 
     return CompleteProfileFormState(
-      lat: locationState.location?.latitude,
-      lng: locationState.location?.longitude,
-      isFetchingLocation: hasLocation,
+      phoneNumber: user?.phoneNumber ?? '',
+      address: user?.address ?? '',
+      lat: user?.lat ?? locationState.location?.latitude,
+      lng: user?.lng ?? locationState.location?.longitude,
+      isFetchingLocation:
+          hasLocation && (user?.address == null || user!.address!.isEmpty),
     );
   }
 
   void updatePhone(String value, AppLocalizations l10n) {
     String? error;
-    final RegExp phoneRegex = RegExp(r'^05[0-9]{8}$');
-    if (value.isEmpty || !phoneRegex.hasMatch(value)) {
+    // ARCHITECTURE FIX: Use centralized AppValidators
+    if (value.isEmpty || !AppValidators.phoneRegex.hasMatch(value)) {
       error = l10n.invalidPhoneNumber;
     }
     state = state.copyWith(
