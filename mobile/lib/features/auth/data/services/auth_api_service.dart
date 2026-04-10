@@ -4,12 +4,13 @@ import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
 import '../../../../core/config/api_constants.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../models/auth_response_model.dart';
 import '../models/complete_profile_request_model.dart';
 import '../models/register_request_model.dart';
 import '../models/user_model.dart';
 
-/// Custom exception for authentication errors.
+/// Custom exception for authentication errors with built-in localization support.
 class AuthException implements Exception {
   final String message;
   final String? code;
@@ -17,11 +18,27 @@ class AuthException implements Exception {
 
   AuthException(this.message, {this.code, this.email});
 
+  /// Translates local network error keys to localized strings.
+  /// If the message is not a known key, it assumes it's a translated string from the backend.
+  String getLocalizedMessage(AppLocalizations l10n) {
+    switch (message) {
+      case 'errorInternalServer':
+        return l10n.errorInternalServer;
+      case 'errorValidation':
+        return l10n.errorValidation;
+      case 'errorConnectionTimeout':
+        return l10n.errorConnectionTimeout;
+      case 'errorUnexpected':
+        return l10n.errorUnexpected;
+      default:
+        return message; // Message already translated by Django backend
+    }
+  }
+
   @override
   String toString() => message;
 }
 
-/// Service responsible for handling authentication API requests.
 class AuthApiService {
   final Dio _dio;
   static final Logger _logger = Logger('AuthApiService');
@@ -35,14 +52,11 @@ class AuthApiService {
         ApiConstants.register,
         data: request.toJson(),
       );
-      _logger.info('Registration successful for: ${request.email}');
       return UserModel.fromJson(response.data['user'] as Map<String, dynamic>);
     } on DioException catch (e) {
-      _logger.severe('Registration failed', e, e.stackTrace);
       throw _handleDioError(e);
-    } catch (e, stackTrace) {
-      _logger.severe('Unexpected registration error', e, stackTrace);
-      throw AuthException('An unexpected error occurred during registration.');
+    } catch (e) {
+      throw AuthException('errorUnexpected');
     }
   }
 
@@ -53,135 +67,76 @@ class AuthApiService {
         ApiConstants.login,
         data: {'email': email, 'password': password},
       );
-      _logger.info('Login successful for: $email');
       return AuthResponseModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      _logger.severe('Login failed', e, e.stackTrace);
       throw _handleDioError(e);
-    } catch (e, stackTrace) {
-      _logger.severe('Unexpected login error', e, stackTrace);
-      throw AuthException('An unexpected error occurred during login.');
+    } catch (e) {
+      throw AuthException('errorUnexpected');
+    }
+  }
+
+  Future<void> logout(String refreshToken) async {
+    try {
+      _logger.info('Attempting to logout and blacklist token.');
+      await _dio.post(ApiConstants.logout, data: {'refresh': refreshToken});
+      _logger.info('Token blacklisted successfully.');
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw AuthException('errorUnexpected');
     }
   }
 
   Future<AuthResponseModel> verifyEmail(String otp) async {
     try {
-      _logger.info('Attempting to verify email with OTP.');
       final Response response = await _dio.post(
         ApiConstants.verifyEmail,
         data: {'otp': otp},
       );
-      _logger.info('Email verified successfully.');
       return AuthResponseModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      _logger.severe('Email verification failed', e, e.stackTrace);
       throw _handleDioError(e);
-    } catch (e, stackTrace) {
-      _logger.severe('Unexpected verification error', e, stackTrace);
-      throw AuthException(
-        'An unexpected error occurred during email verification.',
-      );
+    } catch (e) {
+      throw AuthException('errorUnexpected');
     }
   }
 
   Future<void> resendOtp(String email) async {
     try {
-      _logger.info('Requesting new OTP for: $email');
       await _dio.post(ApiConstants.resendVerification, data: {'email': email});
-      _logger.info('OTP resent successfully.');
     } on DioException catch (e) {
-      _logger.severe('Resend OTP failed', e, e.stackTrace);
       throw _handleDioError(e);
-    } catch (e, stackTrace) {
-      _logger.severe('Unexpected resend error', e, stackTrace);
-      throw AuthException(
-        'An unexpected error occurred while resending the OTP.',
-      );
+    } catch (e) {
+      throw AuthException('errorUnexpected');
     }
   }
 
   Future<UserModel> completeProfile(CompleteProfileRequestModel request) async {
     try {
-      _logger.info('Attempting to complete user profile.');
       final FormData formData = await request.toFormData();
       final Response response = await _dio.post(
         ApiConstants.completeProfile,
         data: formData,
         options: Options(contentType: 'multipart/form-data'),
       );
-      _logger.info('Profile completed successfully.');
       return UserModel.fromJson(response.data['user'] as Map<String, dynamic>);
     } on DioException catch (e) {
-      _logger.severe('Profile completion failed', e, e.stackTrace);
       throw _handleDioError(e);
-    } catch (e, stackTrace) {
-      _logger.severe(
-        'Unexpected error during profile completion',
-        e,
-        stackTrace,
-      );
-      throw AuthException('An unexpected error occurred while uploading data.');
-    }
-  }
-
-  AuthException _handleDioError(DioException error) {
-    if (error.response != null) {
-      final dynamic data = error.response?.data;
-      String errorMessage = 'Server error occurred.';
-      String? errorCode;
-      String? errorEmail;
-
-      if (data is Map<String, dynamic>) {
-        errorCode = data['code']?.toString();
-        if (data['email'] is String) {
-          errorEmail = data['email'].toString();
-        }
-
-        if (data.containsKey('detail')) {
-          errorMessage = data['detail'].toString();
-        } else if (data.containsKey('message')) {
-          errorMessage = data['message'].toString();
-        } else {
-          final List<String> fieldErrors = [];
-          data.forEach((key, value) {
-            if (key == 'code') return;
-            if (value is List && value.isNotEmpty) {
-              fieldErrors.add(value.first.toString());
-            } else if (value is String && key != 'email') {
-              fieldErrors.add(value);
-            }
-          });
-
-          if (fieldErrors.isNotEmpty) {
-            errorMessage = fieldErrors.join('\n');
-          } else {
-            errorMessage = 'Invalid request data provided.';
-          }
-        }
-      }
-      return AuthException(errorMessage, code: errorCode, email: errorEmail);
-    } else if (error.type == DioExceptionType.connectionTimeout ||
-        error.type == DioExceptionType.receiveTimeout) {
-      return AuthException('Connection timed out. Please check your network.');
-    } else {
-      return AuthException('Network error. Please try again later.');
+    } catch (e) {
+      throw AuthException('errorUnexpected');
     }
   }
 
   Future<void> requestPasswordReset(String email) async {
     try {
-      _logger.info('Requesting password reset for: $email');
       await _dio.post(
         ApiConstants.requestPasswordReset,
         data: {'email': email},
       );
-      _logger.info('Password reset request completed.');
     } on DioException catch (e) {
-      _logger.severe('Password reset request failed', e, e.stackTrace);
       throw _handleDioError(e);
-    } catch (e, stackTrace) {
-      _logger.severe('Unexpected error', e, stackTrace);
-      throw AuthException('An unexpected error occurred.');
+    } catch (e) {
+      throw AuthException('errorUnexpected');
     }
   }
 
@@ -191,18 +146,44 @@ class AuthApiService {
     String newPassword,
   ) async {
     try {
-      _logger.info('Confirming password reset for: $email');
       await _dio.post(
         ApiConstants.confirmPasswordReset,
         data: {'email': email, 'otp': otp, 'new_password': newPassword},
       );
-      _logger.info('Password reset confirmed successfully.');
     } on DioException catch (e) {
-      _logger.severe('Password reset confirmation failed', e, e.stackTrace);
       throw _handleDioError(e);
-    } catch (e, stackTrace) {
-      _logger.severe('Unexpected error', e, stackTrace);
-      throw AuthException('An unexpected error occurred.');
+    } catch (e) {
+      throw AuthException('errorUnexpected');
+    }
+  }
+
+  Future<void> changePassword(String oldPassword, String newPassword) async {
+    try {
+      _logger.info('Attempting to change password.');
+      await _dio.post(
+        ApiConstants.changePassword,
+        data: {'old_password': oldPassword, 'new_password': newPassword},
+      );
+      _logger.info('Password changed successfully.');
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw AuthException('errorUnexpected');
+    }
+  }
+
+  Future<void> deleteAccount(String password) async {
+    try {
+      _logger.info('Attempting to delete account.');
+      await _dio.delete(
+        ApiConstants.deleteAccount,
+        data: {'password': password},
+      );
+      _logger.info('Account deleted successfully.');
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw AuthException('errorUnexpected');
     }
   }
 
@@ -235,24 +216,61 @@ class AuthApiService {
     }
   }
 
-  /// ARCHITECTURE FIX: Accepts dynamic data (Map or FormData) to support unified updates
   Future<Map<String, dynamic>> updateProfile(dynamic updateData) async {
     try {
-      _logger.info('Attempting to update user profile (Mixed Data).');
       final Response response = await _dio.patch(
         ApiConstants.updateProfile,
         data: updateData,
       );
-      _logger.info('Profile updated successfully.');
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
-      _logger.severe('Profile update failed', e, e.stackTrace);
       throw _handleDioError(e);
-    } catch (e, stackTrace) {
-      _logger.severe('Unexpected profile update error', e, stackTrace);
-      throw AuthException(
-        'An unexpected error occurred while updating the profile.',
-      );
+    } catch (e) {
+      throw AuthException('errorUnexpected');
+    }
+  }
+
+  AuthException _handleDioError(DioException error) {
+    if (error.response != null) {
+      final dynamic data = error.response?.data;
+      String errorMessage = 'errorInternalServer'; // Now returns a key
+      String? errorCode;
+      String? errorEmail;
+
+      if (data is Map<String, dynamic>) {
+        errorCode = data['code']?.toString();
+        if (data['email'] is String) {
+          errorEmail = data['email'].toString();
+        }
+
+        if (data.containsKey('detail')) {
+          errorMessage = data['detail'].toString();
+        } else if (data.containsKey('message')) {
+          errorMessage = data['message'].toString();
+        } else {
+          final List<String> fieldErrors = [];
+          data.forEach((key, value) {
+            if (key == 'code') return;
+            if (value is List && value.isNotEmpty) {
+              fieldErrors.add(value.first.toString());
+            } else if (value is String && key != 'email') {
+              fieldErrors.add(value);
+            }
+          });
+
+          if (fieldErrors.isNotEmpty) {
+            errorMessage = fieldErrors.join('\n');
+          } else {
+            errorMessage = 'errorValidation'; // Return key
+          }
+        }
+      }
+      return AuthException(errorMessage, code: errorCode, email: errorEmail);
+    } else if (error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.receiveTimeout) {
+      return AuthException('errorConnectionTimeout'); // Return key
+    } else {
+      return AuthException('errorUnexpected'); // Return key
     }
   }
 }

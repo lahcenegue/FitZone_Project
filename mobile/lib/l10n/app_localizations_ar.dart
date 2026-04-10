@@ -282,7 +282,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tryAgain => 'إعادة المحاولة';
 
   @override
-  String get completeProfileTitle => 'إكمال الملف الشخصي';
+  String get completeProfileTitle => 'إكمال الملف';
 
   @override
   String get completeProfileSubtitle =>
@@ -670,4 +670,33 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get unverified => 'غير موثق';
+
+  @override
+  String get passwordChangedSuccessfully => 'تم تغيير كلمة المرور بنجاح.';
+
+  @override
+  String get accountDeletedSuccessfully => 'تم حذف الحساب نهائياً.';
+
+  @override
+  String get oldPassword => 'كلمة المرور الحالية';
+
+  @override
+  String get oldPasswordRequired => 'كلمة المرور الحالية مطلوبة';
+
+  @override
+  String get deleteAccountWarningTitle => 'هل أنت متأكد من حذف الحساب؟';
+
+  @override
+  String get deleteAccountWarningMessage =>
+      'هذا الإجراء نهائي ولا يمكن التراجع عنه. سيتم مسح جميع بياناتك، اشتراكاتك، ونقاطك نهائياً من خوادمنا.';
+
+  @override
+  String get confirmDeleteAccount => 'نعم، احذف حسابي نهائياً';
+
+  @override
+  String get cancel => 'إلغاء الإجراء';
+
+  @override
+  String get changePasswordSubtitle =>
+      'أدخل كلمة المرور الحالية واختر كلمة مرور جديدة وآمنة لحماية حسابك.';
 }

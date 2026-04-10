@@ -28,33 +28,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final intentService = ref.read(authIntentServiceProvider);
     final intent = intentService.getIntent();
 
-    if (!profileIsComplete) {
-      // Intent is NOT cleared here because it's needed in CompleteProfileScreen
-      context.go(RoutePaths.completeProfile);
-    } else {
-      intentService.clearIntent(); // Safe to clear, flow ends here
-      if (intent.type == AuthIntentType.buyGymSubscription) {
+    // ARCHITECTURE FIX: Evaluate User Intent BEFORE enforcing KYC.
+    if (intent.type == AuthIntentType.buyGymSubscription) {
+      if (!profileIsComplete) {
+        // User wants to buy, but needs KYC first. Keep intent active.
+        _logger.info(
+          'User intent is subscription, but KYC is missing. Redirecting to KYC.',
+        );
+        context.go(RoutePaths.completeProfile);
+      } else {
+        // User wants to buy and KYC is complete. Proceed to checkout/gym.
+        _logger.info(
+          'User intent is subscription and KYC is complete. Redirecting to Gym.',
+        );
+        intentService.clearIntent();
         final int id = intent.payload['gym_id'] as int? ?? 0;
         context.go(RoutePaths.gymDetailsPath(id));
-      } else {
-        context.go(RoutePaths.explore);
       }
+    } else {
+      // Normal login flow. Clear any stale intent and go home.
+      _logger.info('Standard login flow. Redirecting to Explore.');
+      intentService.clearIntent();
+      context.go(RoutePaths.explore);
     }
   }
 
   void _handleLoginError(Object error, AppColors colors) {
     _logger.warning('Login failed: $error');
 
-    // Automatically trigger OTP resend and navigate if email is not verified
     if (error is AuthException &&
         error.code == 'EMAIL_NOT_VERIFIED' &&
         error.email != null) {
       _showSnackBar(context, error.message, colors.warning);
 
-      // Silently request a new OTP in the background
       ref.read(authControllerProvider.notifier).resendOtp(error.email!);
-
-      // Navigate the user to the OTP screen
       context.push('${RoutePaths.verifyOtp}?email=${error.email}');
     } else {
       _showSnackBar(context, error.toString(), colors.error);
@@ -90,7 +97,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             Icons.arrow_back_ios_new_rounded,
             color: colors.textPrimary,
           ),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(RoutePaths.explore);
+            }
+          },
         ),
       ),
       body: SafeArea(

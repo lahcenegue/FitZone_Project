@@ -1,11 +1,14 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../core/storage/storage_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../auth/data/models/user_model.dart';
 
-class ProfileGamificationCard extends StatelessWidget {
+class ProfileGamificationCard extends ConsumerWidget {
   final UserModel user;
   final AppColors colors;
   final AppLocalizations l10n;
@@ -18,10 +21,17 @@ class ProfileGamificationCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    const int targetPoints = 500;
+  Widget build(BuildContext context, WidgetRef ref) {
+    // ARCHITECTURE FIX: Fetch dynamic target points from storage instead of hardcoding
+    final storageService = ref.watch(storageServiceProvider);
+    final int targetPoints = storageService.getPremiumPointsRequired();
+
     final int currentPoints = user.pointsBalance;
-    final double progress = (currentPoints / targetPoints).clamp(0.0, 1.0);
+
+    // Safely calculate progress ensuring no division by zero
+    final double progress = targetPoints > 0
+        ? (currentPoints / targetPoints).clamp(0.0, 1.0)
+        : 0.0;
 
     return Container(
       padding: EdgeInsets.all(Dimensions.spacingLarge),
@@ -50,7 +60,7 @@ class ProfileGamificationCard extends StatelessWidget {
                   painter: _CircularProgressPainter(
                     progress: value,
                     backgroundColor: colors.iconGrey.withOpacity(0.15),
-                    progressColor: colors.star,
+                    progressColor: colors.star, // Or a distinct premium color
                   ),
                   child: Center(
                     child: FittedBox(

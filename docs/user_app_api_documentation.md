@@ -959,6 +959,8 @@ Retrieves current static data versions and app update requirements.
 | `amenities_version` | Float | Current version of the amenities list |
 | `cities_version` | Float | Current version of the cities list |
 | `service_types_version` | Float | Current version of the service types list |
+| `points_config_version` | Float | Current version of the loyalty points configuration |
+| `premium_points_required` | Integer | Number of points required to unlock a Premium account |
 | `android_version` | String | Minimum required Android app version |
 | `ios_version` | String | Minimum required iOS app version |
 | `force_update` | Boolean | If `true`, the app must force the user to update before proceeding |
@@ -974,6 +976,8 @@ Retrieves current static data versions and app update requirements.
   "amenities_version": 1.0,
   "cities_version": 1.0,
   "service_types_version": 1.0,
+  "points_config_version": 1.0,
+  "premium_points_required": 1000,
   "android_version": "1.0.0",
   "ios_version": "1.0.0",
   "force_update": false,

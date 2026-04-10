@@ -210,5 +210,14 @@
   "profileUpdatedSuccessfully": "Profile updated successfully!",
   "emailChangedWarning": "Email changed. Please verify it to continue.",
   "verified": "Verified",
-  "unverified": "Unverified"
+  "unverified": "Unverified",
+  "passwordChangedSuccessfully": "Password changed successfully.",
+  "accountDeletedSuccessfully": "Account has been permanently deleted.",
+  "oldPassword": "Current Password",
+  "oldPasswordRequired": "Current password is required",
+  "deleteAccountWarningTitle": "Are you sure you want to delete your account?",
+  "deleteAccountWarningMessage": "This action is permanent and cannot be undone. All your data, subscriptions, and points will be permanently erased from our servers.",
+  "confirmDeleteAccount": "Yes, Permanently Delete My Account",
+  "cancel": "Cancel Action",
+  "changePasswordSubtitle": "Enter your current password and choose a new secure password to protect your account."
 }

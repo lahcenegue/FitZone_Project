@@ -671,4 +671,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unverified => 'Unverified';
+
+  @override
+  String get passwordChangedSuccessfully => 'Password changed successfully.';
+
+  @override
+  String get accountDeletedSuccessfully =>
+      'Account has been permanently deleted.';
+
+  @override
+  String get oldPassword => 'Current Password';
+
+  @override
+  String get oldPasswordRequired => 'Current password is required';
+
+  @override
+  String get deleteAccountWarningTitle =>
+      'Are you sure you want to delete your account?';
+
+  @override
+  String get deleteAccountWarningMessage =>
+      'This action is permanent and cannot be undone. All your data, subscriptions, and points will be permanently erased from our servers.';
+
+  @override
+  String get confirmDeleteAccount => 'Yes, Permanently Delete My Account';
+
+  @override
+  String get cancel => 'Cancel Action';
+
+  @override
+  String get changePasswordSubtitle =>
+      'Enter your current password and choose a new secure password to protect your account.';
 }

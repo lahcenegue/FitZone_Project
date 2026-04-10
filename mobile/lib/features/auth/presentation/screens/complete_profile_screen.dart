@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
 
+import '../../../../core/presentation/widgets/premium_alert_banner.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/routing/auth_intent_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -163,7 +164,13 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
             Icons.arrow_back_ios_new_rounded,
             color: colors.textPrimary,
           ),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(RoutePaths.explore);
+            }
+          },
         ),
       ),
       body: SafeArea(
@@ -175,50 +182,11 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
             children: [
               SizedBox(height: Dimensions.spacingMedium),
 
-              // Premium Info Banner
-              Container(
-                padding: EdgeInsets.all(Dimensions.spacingMedium),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      colors.primary.withOpacity(0.15),
-                      colors.primary.withOpacity(0.05),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(
-                    Dimensions.borderRadiusLarge,
-                  ),
-                  border: Border.all(color: colors.primary.withOpacity(0.2)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(Dimensions.spacingSmall),
-                      decoration: BoxDecoration(
-                        color: colors.primary.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.security_rounded,
-                        color: colors.primary,
-                      ),
-                    ),
-                    SizedBox(width: Dimensions.spacingMedium),
-                    Expanded(
-                      child: Text(
-                        l10n.completeProfileSubtitle,
-                        style: TextStyle(
-                          fontSize: Dimensions.fontBodyMedium,
-                          color: colors.textPrimary,
-                          height: 1.5,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              PremiumAlertBanner(
+                colors: colors,
+                themeColor: colors.primary,
+                icon: Icons.security_rounded,
+                subtitle: l10n.completeProfileSubtitle,
               ),
 
               SizedBox(height: Dimensions.spacingExtraLarge),
@@ -234,7 +202,6 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
               ),
               SizedBox(height: Dimensions.spacingMedium),
 
-              // KYC Task List Style
               _buildDocumentTaskCard(
                 title: l10n.idCardImage,
                 subtitle: l10n.uploadIdCard,
@@ -317,7 +284,6 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
     );
   }
 
-  /// Out-of-the-box Professional KYC Card Design
   Widget _buildDocumentTaskCard({
     required String title,
     required String subtitle,
@@ -355,7 +321,6 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
         ),
         child: Row(
           children: [
-            // Thumbnail or Icon Area with Animation
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               transitionBuilder: (Widget child, Animation<double> animation) {
@@ -418,10 +383,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                       ),
                     ),
             ),
-
             SizedBox(width: Dimensions.spacingLarge),
-
-            // Text Area
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,8 +411,6 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                 ],
               ),
             ),
-
-            // Action Button
             Container(
               padding: EdgeInsets.all(Dimensions.spacingSmall),
               decoration: BoxDecoration(

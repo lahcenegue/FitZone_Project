@@ -1,4 +1,3 @@
-import 'package:fitzone/features/profile/presentation/screens/personal_info_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,7 +15,12 @@ import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import 'package:fitzone/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:fitzone/features/auth/presentation/screens/login_screen.dart';
 import 'package:fitzone/features/auth/presentation/screens/reset_password_screen.dart';
+// استيراد الشاشات الجديدة
+import '../../features/auth/presentation/screens/change_password_screen.dart';
+import '../../features/auth/presentation/screens/delete_account_screen.dart';
+
 import 'package:fitzone/features/profile/presentation/screens/profile_screen.dart';
+import 'package:fitzone/features/profile/presentation/screens/personal_info_screen.dart';
 
 import '../l10n/l10n_extension.dart';
 
@@ -37,6 +41,10 @@ class RoutePaths {
   static const String saved = '/saved';
   static const String profile = '/profile';
   static const String personalInfo = '/personal-info';
+
+  // New Routes added
+  static const String changePassword = '/change-password';
+  static const String deleteAccount = '/delete-account';
 
   static const String gymDetails = '/gym/:id';
 
@@ -101,6 +109,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.personalInfo,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const PersonalInfoScreen(),
+      ),
+      // --- إضافة مسارات الشاشات الجديدة هنا ---
+      GoRoute(
+        path: RoutePaths.changePassword,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ChangePasswordScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.deleteAccount,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const DeleteAccountScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

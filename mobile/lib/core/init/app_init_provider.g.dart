@@ -48,7 +48,7 @@ final class AppInitServiceProvider
   }
 }
 
-String _$appInitServiceHash() => r'b1f167f4a7d7f92bc73221be8f39055bfc972b0c';
+String _$appInitServiceHash() => r'77c88b95f65e2db080fb58f15772e192773b7a45';
 
 @ProviderFor(appStartup)
 final appStartupProvider = AppStartupProvider._();
@@ -87,4 +87,4 @@ final class AppStartupProvider
   }
 }
 
-String _$appStartupHash() => r'7256252c1a57b78081ba767098e134552e0a39a8';
+String _$appStartupHash() => r'603fc44ef88885f8bfee77cb2b1e46b35bf97c45';

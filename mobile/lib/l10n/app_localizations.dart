@@ -1369,6 +1369,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unverified'**
   String get unverified;
+
+  /// No description provided for @passwordChangedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully.'**
+  String get passwordChangedSuccessfully;
+
+  /// No description provided for @accountDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Account has been permanently deleted.'**
+  String get accountDeletedSuccessfully;
+
+  /// No description provided for @oldPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Password'**
+  String get oldPassword;
+
+  /// No description provided for @oldPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password is required'**
+  String get oldPasswordRequired;
+
+  /// No description provided for @deleteAccountWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete your account?'**
+  String get deleteAccountWarningTitle;
+
+  /// No description provided for @deleteAccountWarningMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This action is permanent and cannot be undone. All your data, subscriptions, and points will be permanently erased from our servers.'**
+  String get deleteAccountWarningMessage;
+
+  /// No description provided for @confirmDeleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, Permanently Delete My Account'**
+  String get confirmDeleteAccount;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Action'**
+  String get cancel;
+
+  /// No description provided for @changePasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password and choose a new secure password to protect your account.'**
+  String get changePasswordSubtitle;
 }
 
 class _AppLocalizationsDelegate

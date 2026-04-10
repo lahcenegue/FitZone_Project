@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:fitzone/core/storage/storage_provider.dart';
+import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/network/api_provider.dart';
@@ -20,6 +21,8 @@ AuthApiService authApiService(Ref ref) {
 
 @riverpod
 class AuthController extends _$AuthController {
+  static final Logger _logger = Logger('AuthController');
+
   @override
   AsyncValue<UserModel?> build() {
     final cachedUser = ref.read(storageServiceProvider).getCachedUser();
@@ -102,13 +105,23 @@ class AuthController extends _$AuthController {
     }
   }
 
+  /// Logs out securely by sending the refresh token to the blacklist
+  /// before clearing local data.
   Future<void> logout() async {
     try {
+      final secureStorage = ref.read(secureStorageServiceProvider);
+      final refreshToken = await secureStorage.getRefreshToken();
+
+      if (refreshToken != null) {
+        final authService = ref.read(authApiServiceProvider);
+        await authService.logout(refreshToken);
+      }
+    } catch (error) {
+      _logger.warning('Logout API failed, proceeding with local logout', error);
+    } finally {
       await ref.read(secureStorageServiceProvider).clearAll();
       await ref.read(storageServiceProvider).clearCachedUser();
       state = const AsyncData(null);
-    } catch (error, stackTrace) {
-      state = AsyncError(error, stackTrace);
     }
   }
 
@@ -140,6 +153,29 @@ class AuthController extends _$AuthController {
     }
   }
 
+  Future<void> changePassword(String oldPassword, String newPassword) async {
+    try {
+      final AuthApiService authService = ref.read(authApiServiceProvider);
+      await authService.changePassword(oldPassword, newPassword);
+    } catch (error) {
+      rethrow; // Rethrow to handle it inside the specific UI screen
+    }
+  }
+
+  Future<void> deleteAccount(String password) async {
+    try {
+      final AuthApiService authService = ref.read(authApiServiceProvider);
+      await authService.deleteAccount(password);
+
+      // If successful, clear everything locally
+      await ref.read(secureStorageServiceProvider).clearAll();
+      await ref.read(storageServiceProvider).clearCachedUser();
+      state = const AsyncData(null);
+    } catch (error) {
+      rethrow;
+    }
+  }
+
   Future<String?> uploadAvatarToApi(String imagePath) async {
     try {
       final AuthApiService authService = ref.read(authApiServiceProvider);
@@ -162,8 +198,6 @@ class AuthController extends _$AuthController {
     ref.read(storageServiceProvider).cacheUser(user);
   }
 
-  /// ARCHITECTURE FIX: Smartly converts to FormData if images are provided,
-  /// otherwise sends a standard JSON payload.
   Future<bool> updateProfileData({
     required Map<String, dynamic> updateData,
     String? newFaceImagePath,
@@ -172,10 +206,8 @@ class AuthController extends _$AuthController {
     try {
       dynamic dataToSend;
 
-      // If files exist, we MUST use FormData
       if (newFaceImagePath != null || newIdImagePath != null) {
         final formData = FormData.fromMap(updateData);
-
         if (newFaceImagePath != null) {
           formData.files.add(
             MapEntry(
@@ -184,7 +216,6 @@ class AuthController extends _$AuthController {
             ),
           );
         }
-
         if (newIdImagePath != null) {
           formData.files.add(
             MapEntry(
@@ -193,10 +224,8 @@ class AuthController extends _$AuthController {
             ),
           );
         }
-
         dataToSend = formData;
       } else {
-        // No files, just send standard Map (JSON)
         dataToSend = updateData;
       }
 
@@ -204,7 +233,6 @@ class AuthController extends _$AuthController {
       final Map<String, dynamic> response = await authService.updateProfile(
         dataToSend,
       );
-
       final UserModel updatedUser = UserModel.fromJson(
         response['user'] as Map<String, dynamic>,
       );

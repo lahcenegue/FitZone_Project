@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:fitzone/core/storage/storage_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:logging/logging.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -10,6 +11,7 @@ import '../config/api_constants.dart';
 import '../network/api_provider.dart';
 import '../database/database_service.dart';
 import '../location/location_provider.dart';
+import '../storage/storage_provider.dart';
 
 part 'app_init_provider.g.dart';
 
@@ -22,20 +24,31 @@ enum StartupStatus { success, locationTimeout }
 class AppInitService {
   final Dio _dio;
   final DatabaseService _dbService;
+  final StorageService _storageService;
   final Logger _logger = Logger('AppInitService');
 
-  AppInitService({required Dio dio, required DatabaseService dbService})
-    : _dio = dio,
-      _dbService = dbService;
+  AppInitService({
+    required Dio dio,
+    required DatabaseService dbService,
+    required StorageService storageService,
+  }) : _dio = dio,
+       _dbService = dbService,
+       _storageService = storageService;
 
   Future<void> initializeApp() async {
     try {
-      _logger.info('Starting app initialization (SQLite Sync)...');
+      _logger.info('Starting app initialization (Configs & SQLite Sync)...');
 
       final Response initResponse = await _dio.get(ApiConstants.initConfig);
       final Map<String, dynamic> initData =
           initResponse.data as Map<String, dynamic>;
 
+      // ARCHITECTURE FIX: Save lightweight configs to SharedPreferences
+      final int premiumPoints =
+          initData['premium_points_required'] as int? ?? 1000;
+      await _storageService.setPremiumPointsRequired(premiumPoints);
+
+      // Proceed with heavy SQLite syncs
       await _syncTable(
         versionKey: 'service_types_version',
         remoteVersion:
@@ -67,11 +80,11 @@ class AppInitService {
       );
 
       _logger.info(
-        'App initialization complete. SQLite database is up to date.',
+        'App initialization complete. Configs and SQLite database are up to date.',
       );
     } catch (e, stackTrace) {
       _logger.severe(
-        'Initialization failed. Relying on cached SQLite data.',
+        'Initialization failed. Relying on cached data.',
         e,
         stackTrace,
       );
@@ -105,7 +118,13 @@ class AppInitService {
 AppInitService appInitService(Ref ref) {
   final Dio dio = ref.watch(dioClientProvider);
   final DatabaseService dbService = ref.watch(databaseServiceProvider);
-  return AppInitService(dio: dio, dbService: dbService);
+  final StorageService storageService = ref.watch(storageServiceProvider);
+
+  return AppInitService(
+    dio: dio,
+    dbService: dbService,
+    storageService: storageService,
+  );
 }
 
 @Riverpod(keepAlive: true)
@@ -144,7 +163,7 @@ Future<StartupStatus> appStartup(Ref ref) async {
   }
 
   logger.info(
-    'Phase 4: Parallel Execution (Waiting for GPS Lock & DB Sync)...',
+    'Phase 4: Parallel Execution (Waiting for GPS Lock & Init Sync)...',
   );
   bool locationTimedOut = false;
 

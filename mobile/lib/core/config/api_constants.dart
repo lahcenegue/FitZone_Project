@@ -16,10 +16,11 @@ class ApiConstants {
 
   // --- New Security & Profile Endpoints ---
   static const String refreshToken = '/users/token/refresh/';
-  static const String changePassword = '/users/password/change/';
+  static const String logout = '/users/logout/';
+  static const String changePassword = '/users/profile/change-password/';
   static const String updateAvatar = '/users/profile/avatar/';
   static const String updateProfile = '/users/profile/update/';
-  static const String deleteAccount = '/users/account/delete/';
+  static const String deleteAccount = '/users/profile/delete/';
 
   // --- Map Discovery ---
   static const String mapDiscover = '/providers/discover/';

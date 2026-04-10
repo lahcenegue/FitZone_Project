@@ -17,6 +17,9 @@ class StorageService {
   static const String _lastLngKey = 'last_lng';
   static const String _userKey = 'cached_user_profile';
 
+  // NEW: Key for Gamification Points
+  static const String _premiumPointsKey = 'premium_points_required';
+
   String? get locale => _prefs.getString(_languageKey);
 
   Future<void> setLocale(String langCode) async {
@@ -66,6 +69,17 @@ class StorageService {
   Future<void> clearCachedUser() async {
     await _prefs.remove(_userKey);
     _logger.info('Cached user profile cleared.');
+  }
+
+  // --- NEW: Gamification Logic ---
+  int getPremiumPointsRequired() {
+    // Return 1000 as a safe default fallback if not yet fetched
+    return _prefs.getInt(_premiumPointsKey) ?? 1000;
+  }
+
+  Future<void> setPremiumPointsRequired(int points) async {
+    await _prefs.setInt(_premiumPointsKey, points);
+    _logger.info('Premium points required saved: $points');
   }
 
   Future<void> clearSettings() async {
