@@ -8,6 +8,8 @@ class UserModel extends Equatable {
   final String? phoneNumber;
   final String gender;
   final String? avatar;
+  final String? realFaceImage;
+  final String? idCardImage;
   final String? address;
   final String city;
   final double? lat;
@@ -24,6 +26,8 @@ class UserModel extends Equatable {
     this.phoneNumber,
     required this.gender,
     this.avatar,
+    this.realFaceImage,
+    this.idCardImage,
     this.address,
     required this.city,
     this.lat,
@@ -42,10 +46,12 @@ class UserModel extends Equatable {
       phoneNumber: json['phone_number'] as String?,
       gender: json['gender'] as String,
       avatar: json['avatar'] as String?,
+      realFaceImage: json['real_face_image'] as String?,
+      idCardImage: json['id_card_image'] as String?,
       address: json['address'] as String?,
       city: json['city'] as String,
-      lat: json['lat'] as double?,
-      lng: json['lng'] as double?,
+      lat: json['lat'] != null ? (json['lat'] as num).toDouble() : null,
+      lng: json['lng'] != null ? (json['lng'] as num).toDouble() : null,
       isActive: json['is_active'] as bool? ?? false,
       isVerified: json['is_verified'] as bool? ?? false,
       pointsBalance: json['points_balance'] as int? ?? 0,
@@ -61,6 +67,8 @@ class UserModel extends Equatable {
       'phone_number': phoneNumber,
       'gender': gender,
       'avatar': avatar,
+      'real_face_image': realFaceImage,
+      'id_card_image': idCardImage,
       'address': address,
       'city': city,
       'lat': lat,
@@ -73,7 +81,6 @@ class UserModel extends Equatable {
   }
 
   /// Creates a copy of this UserModel with the given fields replaced by the new values.
-  /// This is the industry standard for updating immutable state objects.
   UserModel copyWith({
     int? id,
     String? email,
@@ -81,6 +88,8 @@ class UserModel extends Equatable {
     String? phoneNumber,
     String? gender,
     String? avatar,
+    String? realFaceImage,
+    String? idCardImage,
     String? address,
     String? city,
     double? lat,
@@ -97,6 +106,8 @@ class UserModel extends Equatable {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       gender: gender ?? this.gender,
       avatar: avatar ?? this.avatar,
+      realFaceImage: realFaceImage ?? this.realFaceImage,
+      idCardImage: idCardImage ?? this.idCardImage,
       address: address ?? this.address,
       city: city ?? this.city,
       lat: lat ?? this.lat,
@@ -116,6 +127,8 @@ class UserModel extends Equatable {
     phoneNumber,
     gender,
     avatar,
+    realFaceImage,
+    idCardImage,
     address,
     city,
     lat,

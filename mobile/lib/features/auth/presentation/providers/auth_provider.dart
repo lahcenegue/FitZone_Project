@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:fitzone/core/storage/storage_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -11,14 +12,12 @@ import '../../data/services/auth_api_service.dart';
 
 part 'auth_provider.g.dart';
 
-/// Provides the AuthApiService instance with the globally configured Dio client.
 @riverpod
 AuthApiService authApiService(Ref ref) {
   final dio = ref.watch(dioClientProvider);
   return AuthApiService(dio);
 }
 
-/// Manages the authentication state and operations.
 @riverpod
 class AuthController extends _$AuthController {
   @override
@@ -27,7 +26,6 @@ class AuthController extends _$AuthController {
     return AsyncData(cachedUser);
   }
 
-  /// Registers a new user.
   Future<void> registerUser(RegisterRequestModel request) async {
     state = const AsyncLoading();
     try {
@@ -39,7 +37,6 @@ class AuthController extends _$AuthController {
     }
   }
 
-  /// Logs in an existing user and stores their tokens.
   Future<void> login(String email, String password) async {
     state = const AsyncLoading();
     try {
@@ -57,14 +54,12 @@ class AuthController extends _$AuthController {
           );
 
       await ref.read(storageServiceProvider).cacheUser(response.user);
-
       state = AsyncData(response.user);
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
     }
   }
 
-  /// Verifies the user's email via OTP.
   Future<void> verifyEmail(String otp) async {
     state = const AsyncLoading();
     try {
@@ -79,14 +74,12 @@ class AuthController extends _$AuthController {
           );
 
       await ref.read(storageServiceProvider).cacheUser(response.user);
-
       state = AsyncData(response.user);
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
     }
   }
 
-  /// Resends the OTP verification code.
   Future<void> resendOtp(String email) async {
     try {
       final AuthApiService authService = ref.read(authApiServiceProvider);
@@ -96,7 +89,6 @@ class AuthController extends _$AuthController {
     }
   }
 
-  /// Completes the user's profile.
   Future<void> completeProfile(CompleteProfileRequestModel request) async {
     state = const AsyncLoading();
     try {
@@ -110,7 +102,6 @@ class AuthController extends _$AuthController {
     }
   }
 
-  /// Logs out the current user by clearing tokens and resetting the state.
   Future<void> logout() async {
     try {
       await ref.read(secureStorageServiceProvider).clearAll();
@@ -121,20 +112,18 @@ class AuthController extends _$AuthController {
     }
   }
 
-  /// Requests a password reset OTP.
   Future<void> requestPasswordReset(String email) async {
     state = const AsyncLoading();
     try {
       final AuthApiService authService = ref.read(authApiServiceProvider);
       await authService.requestPasswordReset(email);
-      state = const AsyncData(null); // Return to unauthenticated state safely
+      state = const AsyncData(null);
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
-      rethrow; // Rethrow to handle it in the UI (SnackBar)
+      rethrow;
     }
   }
 
-  /// Confirms the password reset.
   Future<void> confirmPasswordReset(
     String email,
     String otp,
@@ -151,7 +140,6 @@ class AuthController extends _$AuthController {
     }
   }
 
-  /// ONLY performs the API request and returns the new URL. Does NOT trigger UI rebuilds.
   Future<String?> uploadAvatarToApi(String imagePath) async {
     try {
       final AuthApiService authService = ref.read(authApiServiceProvider);
@@ -161,47 +149,67 @@ class AuthController extends _$AuthController {
     }
   }
 
-  /// Updates Riverpod state AND local storage AFTER the loading dialog is fully closed.
   void updateAvatarStateAndCache(String newAvatarUrl) {
     if (state.value != null) {
-      // 1. Update immutable state
       final UserModel updatedUser = state.value!.copyWith(avatar: newAvatarUrl);
       state = AsyncData(updatedUser);
-
-      // 2. Persist to local storage so it survives app restarts
       ref.read(storageServiceProvider).cacheUser(updatedUser);
     }
   }
 
-  /// Explicitly updates the in-memory state and persists user data to local storage.
-  /// This ensures the avatar and profile changes are preserved after app restarts.
   void updateUserState(UserModel user) {
-    // 1. Update the Riverpod state for immediate UI synchronization
     state = AsyncData(user);
-
-    // 2. Persist the updated user object to SharedPreferences
-    // Using the 'cacheUser' method identified in your StorageService
     ref.read(storageServiceProvider).cacheUser(user);
   }
 
-  /// Updates user profile data and syncs the Riverpod state and local storage.
-  /// Returns true if successful. If email is changed, it requires re-verification.
-  Future<bool> updateProfileData(Map<String, dynamic> updateData) async {
+  /// ARCHITECTURE FIX: Smartly converts to FormData if images are provided,
+  /// otherwise sends a standard JSON payload.
+  Future<bool> updateProfileData({
+    required Map<String, dynamic> updateData,
+    String? newFaceImagePath,
+    String? newIdImagePath,
+  }) async {
     try {
+      dynamic dataToSend;
+
+      // If files exist, we MUST use FormData
+      if (newFaceImagePath != null || newIdImagePath != null) {
+        final formData = FormData.fromMap(updateData);
+
+        if (newFaceImagePath != null) {
+          formData.files.add(
+            MapEntry(
+              'real_face_image',
+              await MultipartFile.fromFile(newFaceImagePath),
+            ),
+          );
+        }
+
+        if (newIdImagePath != null) {
+          formData.files.add(
+            MapEntry(
+              'id_card_image',
+              await MultipartFile.fromFile(newIdImagePath),
+            ),
+          );
+        }
+
+        dataToSend = formData;
+      } else {
+        // No files, just send standard Map (JSON)
+        dataToSend = updateData;
+      }
+
       final AuthApiService authService = ref.read(authApiServiceProvider);
       final Map<String, dynamic> response = await authService.updateProfile(
-        updateData,
+        dataToSend,
       );
 
-      // Parse the updated user from the response
       final UserModel updatedUser = UserModel.fromJson(
         response['user'] as Map<String, dynamic>,
       );
 
-      // Update state and cache safely using the method we built earlier
       updateUserState(updatedUser);
-
-      // Note: UI can check response['email_changed'] if needed to navigate to OTP screen
       return true;
     } catch (error) {
       return false;

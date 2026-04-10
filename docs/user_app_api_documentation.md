@@ -228,11 +228,15 @@ Registers a new customer. The account requires email verification before it can 
 
 ```json
 {
-  "email": "customer@fitzone.sa",
+  "email": "customer11@fitzone.sa",
   "password": "StrongPassword123!",
-  "full_name": "سعد عبدالله",
+  "full_name": "lahcene",
   "gender": "male",
-  "city": "Riyadh"
+  "city": "riyadh",
+  "phone_number": "0559988776",
+  "address": "حي النرجس، الرياض",
+  "lat": 24.7936,
+  "lng": 46.6753
 }
 ```
 
@@ -254,16 +258,18 @@ Registers a new customer. The account requires email verification before it can 
 {
   "message": "Registration successful. Please verify your email.",
   "user": {
-    "id": 34,
-    "email": "customer8@fitzone.sa",
-    "full_name": "سعد عبدالله",
-    "phone_number": "",
+    "id": 40,
+    "email": "customer11@fitzone.sa",
+    "full_name": "lahcene",
+    "phone_number": "0559988776",
     "gender": "male",
     "avatar": null,
-    "address": "",
-    "city": "Jeddah",
-    "lat": null,
-    "lng": null,
+    "real_face_image": null,
+    "id_card_image": null,
+    "address": "حي النرجس، الرياض",
+    "city": "riyadh",
+    "lat": 24.7936,
+    "lng": 46.6753,
     "is_active": true,
     "is_verified": false,
     "points_balance": 0,
@@ -461,14 +467,16 @@ Authenticates the customer and returns JWT tokens along with the user object.
 {
   "message": "Login successful.",
   "user": {
-    "id": 18,
-    "email": "customer6@fitzone.sa",
-    "full_name": "سعد عبدالله",
+    "id": 40,
+    "email": "customer11@fitzone.sa",
+    "full_name": "lahcene",
     "phone_number": "0559988776",
     "gender": "male",
-    "avatar": null,
+    "avatar": "http://localhost:8000/media/avatars/scaled_33.png",
+    "real_face_image": "http://localhost:8000/media/users/faces/face.jpg",
+    "id_card_image": "http://localhost:8000/media/users/id_cards/id.jpg",
     "address": "حي النرجس، الرياض",
-    "city": "Jeddah",
+    "city": "riyadh",
     "lat": 24.7936,
     "lng": 46.6753,
     "is_active": true,
@@ -477,8 +485,8 @@ Authenticates the customer and returns JWT tokens along with the user object.
     "profile_is_complete": true
   },
   "tokens": {
-    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    "refresh": "eyJhbGciOiJIUzI...",
+    "access": "eyJhbGciOiJIUzI..."
   }
 }
 ```
@@ -520,12 +528,8 @@ Updates the user profile with sensitive information required for gym subscriptio
 
 | Field | Type | Required | Description |
 | :--- | :--- | :---: | :--- |
-| `phone_number` | Text | ✅ | e.g., `0551234567` |
 | `real_face_image` | File | ✅ | User face photo |
 | `id_card_image` | File | ✅ | National ID card image |
-| `address` | Text | ❌ | Optional address |
-| `lat` | Float | ❌ | Optional latitude |
-| `lng` | Float | ❌ | Optional longitude |
 
 #### Responses
 
@@ -535,14 +539,16 @@ Updates the user profile with sensitive information required for gym subscriptio
 {
   "message": "Profile completed successfully.",
   "user": {
-    "id": 35,
-    "email": "customer7@fitzone.sa",
-    "full_name": "سعد عبدالله",
+    "id": 40,
+    "email": "customer11@fitzone.sa",
+    "full_name": "lahcene",
     "phone_number": "0559988776",
     "gender": "male",
     "avatar": null,
+    "real_face_image": "http://localhost:8000/media/users/faces/new_face.jpg",
+    "id_card_image": "http://localhost:8000/media/users/id_cards/new_id.jpg",
     "address": "حي النرجس، الرياض",
-    "city": "Jeddah",
+    "city": "riyadh",
     "lat": 24.7936,
     "lng": 46.6753,
     "is_active": true,

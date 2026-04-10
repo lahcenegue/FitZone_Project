@@ -11,6 +11,7 @@ import '../../../../core/theme/app_theme_provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../providers/register_form_provider.dart';
+import '../../../maps/presentation/screens/map_picker_screen.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -21,7 +22,14 @@ class RegisterScreen extends ConsumerStatefulWidget {
 
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final Logger _logger = Logger('RegisterScreen');
+  final TextEditingController _addressController = TextEditingController();
   bool _isPasswordObscured = true;
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +39,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final authState = ref.watch(authControllerProvider);
     final staticDataAsync = ref.watch(filterStaticDataProvider);
 
+    ref.listen<RegisterFormState>(registerFormProvider, (previous, next) {
+      if (previous?.address != next.address &&
+          _addressController.text != next.address) {
+        _addressController.text = next.address;
+      }
+    });
+
     ref.listen<AsyncValue<dynamic>>(authControllerProvider, (previous, next) {
       next.whenOrNull(
         data: (user) {
           if (user != null && previous?.value == null) {
-            _logger.info(
-              'Registration successful, navigating to awaiting verification.',
-            );
+            _logger.info('Registration successful, navigating to OTP.');
             context.go('${RoutePaths.verifyOtp}?email=${user.email}');
           }
         },
@@ -72,48 +85,90 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               _buildHeader(l10n, colors),
               SizedBox(height: Dimensions.spacingExtraLarge),
 
-              _buildCustomTextField(
-                label: 'Full Name',
-                hint: 'John Doe',
-                icon: Icons.person_outline_rounded,
-                errorText: formState.fullNameError,
-                colors: colors,
-                onChanged: (val) => ref
-                    .read(registerFormProvider.notifier)
-                    .updateFullName(val, l10n),
+              Container(
+                padding: EdgeInsets.all(Dimensions.spacingLarge),
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(
+                    Dimensions.borderRadiusLarge,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildCustomTextField(
+                      label: 'Full Name',
+                      hint: 'John Doe',
+                      icon: Icons.person_outline_rounded,
+                      errorText: formState.fullNameError,
+                      colors: colors,
+                      onChanged: (val) => ref
+                          .read(registerFormProvider.notifier)
+                          .updateFullName(val, l10n),
+                    ),
+                    SizedBox(height: Dimensions.spacingMedium),
+
+                    _buildCustomTextField(
+                      label: l10n.emailAddress,
+                      hint: 'user@fitzone.sa',
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
+                      errorText: formState.emailError,
+                      colors: colors,
+                      onChanged: (val) => ref
+                          .read(registerFormProvider.notifier)
+                          .updateEmail(val, l10n),
+                    ),
+                    SizedBox(height: Dimensions.spacingMedium),
+
+                    _buildCustomTextField(
+                      label: l10n.phoneNumber,
+                      hint: l10n.phoneNumberHint,
+                      icon: Icons.phone_android_rounded,
+                      keyboardType: TextInputType.phone,
+                      errorText: formState.phoneError,
+                      colors: colors,
+                      onChanged: (val) => ref
+                          .read(registerFormProvider.notifier)
+                          .updatePhone(val, l10n),
+                    ),
+                    SizedBox(height: Dimensions.spacingMedium),
+
+                    _buildPasswordField(l10n, formState, colors),
+                    SizedBox(height: Dimensions.spacingMedium),
+
+                    _buildSectionLabel(l10n.gender, colors),
+                    SizedBox(height: Dimensions.spacingSmall),
+                    _buildGenderSelector(l10n, formState, colors),
+                    if (formState.genderError != null)
+                      _buildErrorText(formState.genderError!, colors),
+                    SizedBox(height: Dimensions.spacingMedium),
+
+                    _buildSectionLabel(l10n.cityOrRegion, colors),
+                    SizedBox(height: Dimensions.spacingSmall),
+                    _buildCityDropdown(
+                      l10n,
+                      formState,
+                      staticDataAsync,
+                      colors,
+                    ),
+                    if (formState.cityError != null)
+                      _buildErrorText(formState.cityError!, colors),
+                    SizedBox(height: Dimensions.spacingMedium),
+
+                    _buildAddressField(l10n, formState, colors),
+                  ],
+                ),
               ),
-              SizedBox(height: Dimensions.spacingMedium),
 
-              _buildCustomTextField(
-                label: 'Email Address',
-                hint: 'user@fitzone.sa',
-                icon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-                errorText: formState.emailError,
-                colors: colors,
-                onChanged: (val) => ref
-                    .read(registerFormProvider.notifier)
-                    .updateEmail(val, l10n),
-              ),
-              SizedBox(height: Dimensions.spacingMedium),
-
-              _buildPasswordField(l10n, formState, colors),
-              SizedBox(height: Dimensions.spacingMedium),
-
-              _buildSectionLabel(l10n.gender, colors),
-              SizedBox(height: Dimensions.spacingSmall),
-              _buildGenderSelector(l10n, formState, colors),
-              if (formState.genderError != null)
-                _buildErrorText(formState.genderError!, colors),
-              SizedBox(height: Dimensions.spacingMedium),
-
-              _buildSectionLabel(l10n.cityOrRegion, colors),
-              SizedBox(height: Dimensions.spacingSmall),
-              _buildCityDropdown(l10n, formState, staticDataAsync, colors),
-              if (formState.cityError != null)
-                _buildErrorText(formState.cityError!, colors),
               SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
-
               _buildSubmitButton(l10n, formState, authState, colors),
               SizedBox(height: Dimensions.spacingExtraLarge),
             ],
@@ -183,7 +238,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionLabel('Password', colors),
+        _buildSectionLabel(l10n.password, colors),
         SizedBox(height: Dimensions.spacingSmall),
         TextFormField(
           obscureText: _isPasswordObscured,
@@ -264,7 +319,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           decoration: BoxDecoration(
             color: isSelected
                 ? colors.primary.withOpacity(0.1)
-                : colors.surface,
+                : colors.background,
             borderRadius: BorderRadius.circular(Dimensions.borderRadius),
             border: Border.all(
               color: isSelected
@@ -307,7 +362,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       error: (_, __) =>
           Text('Failed to load cities', style: TextStyle(color: colors.error)),
       data: (data) {
-        // We must bind the dropdown to the String ID (e.g., 'riyadh')
         return DropdownButtonFormField<String>(
           value: formState.city,
           dropdownColor: colors.surface,
@@ -319,7 +373,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             null,
           ),
           items: data.cities.map<DropdownMenuItem<String>>((city) {
-            // value = the ID (e.g., 'riyadh'), child = the display name (e.g., 'الرياض')
             return DropdownMenuItem<String>(
               value: city['id'].toString(),
               child: Text(
@@ -335,6 +388,107 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ref.read(registerFormProvider.notifier).updateCity(val, l10n),
         );
       },
+    );
+  }
+
+  Widget _buildAddressField(
+    AppLocalizations l10n,
+    RegisterFormState formState,
+    AppColors colors,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionLabel(l10n.addressOptional, colors),
+        SizedBox(height: Dimensions.spacingSmall),
+        GestureDetector(
+          onTap: () async {
+            final dynamic result = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const MapPickerScreen()),
+            );
+
+            if (result != null && result is Map<String, dynamic>) {
+              _addressController.text = result['address'];
+              ref
+                  .read(registerFormProvider.notifier)
+                  .updateAddress(
+                    result['address'],
+                    result['lat'],
+                    result['lng'],
+                  );
+            }
+          },
+          child: AbsorbPointer(
+            child: TextFormField(
+              controller: _addressController,
+              readOnly: true,
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+              decoration: InputDecoration(
+                hintText: formState.isFetchingLocation
+                    ? l10n.fetchingAddress
+                    : l10n.addressHint,
+                hintStyle: TextStyle(
+                  color: colors.iconGrey,
+                  fontWeight: FontWeight.w400,
+                ),
+                prefixIcon: Icon(
+                  Icons.location_on_outlined,
+                  color: colors.iconGrey,
+                ),
+                suffixIcon: formState.isFetchingLocation
+                    ? Padding(
+                        padding: EdgeInsets.all(Dimensions.spacingMedium),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colors.primary,
+                          ),
+                        ),
+                      )
+                    : Container(
+                        margin: EdgeInsets.all(Dimensions.spacingTiny),
+                        decoration: BoxDecoration(
+                          color: colors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.borderRadius,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.my_location_rounded,
+                          color: colors.primary,
+                        ),
+                      ),
+                filled: true,
+                fillColor: colors.background,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: Dimensions.spacingLarge,
+                  vertical: Dimensions.spacingMedium,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+                  borderSide: BorderSide(
+                    color: colors.iconGrey.withOpacity(0.1),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+                  borderSide: BorderSide(color: colors.primary, width: 2),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -365,6 +519,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         onPressed: isEnabled
             ? () {
                 if (ref.read(registerFormProvider.notifier).validateAll(l10n)) {
+                  // Ensure address is selected
+                  if (formState.address.isEmpty || formState.lat == null) {
+                    _showSnackBar(
+                      context,
+                      'Please select your location',
+                      colors.error,
+                    );
+                    return;
+                  }
+
                   final request = ref
                       .read(registerFormProvider.notifier)
                       .toRequestModel();
@@ -399,9 +563,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Text(
       text,
       style: TextStyle(
-        fontSize: Dimensions.fontBodyLarge,
-        fontWeight: FontWeight.w700,
-        color: colors.textPrimary,
+        fontSize: Dimensions.fontBodyMedium,
+        fontWeight: FontWeight.w600,
+        color: colors.textSecondary,
       ),
     );
   }
@@ -434,7 +598,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       hintStyle: TextStyle(color: colors.iconGrey, fontWeight: FontWeight.w400),
       prefixIcon: Icon(icon, color: colors.iconGrey),
       filled: true,
-      fillColor: colors.surface,
+      fillColor: colors.background, // Match PersonalInfoScreen styling
       errorText: errorText,
       errorMaxLines: 2,
       contentPadding: EdgeInsets.symmetric(
@@ -447,7 +611,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        borderSide: const BorderSide(color: Colors.transparent),
+        borderSide: BorderSide(color: colors.iconGrey.withOpacity(0.1)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),

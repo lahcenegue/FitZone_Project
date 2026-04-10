@@ -13,7 +13,6 @@ import '../../../../core/theme/app_theme_provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../providers/complete_profile_form_provider.dart';
-import '../../../maps/presentation/screens/map_picker_screen.dart';
 
 class CompleteProfileScreen extends ConsumerStatefulWidget {
   const CompleteProfileScreen({super.key});
@@ -25,26 +24,6 @@ class CompleteProfileScreen extends ConsumerStatefulWidget {
 
 class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
   final Logger _logger = Logger('CompleteProfileScreen');
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    // Load initial data from the authenticated user
-    final user = ref.read(authControllerProvider).value;
-    if (user != null) {
-      _addressController.text = user.address ?? '';
-      _phoneController.text = user.phoneNumber ?? '';
-    }
-  }
-
-  @override
-  void dispose() {
-    _addressController.dispose();
-    _phoneController.dispose();
-    super.dispose();
-  }
 
   void _showImageSourceActionSheet(
     BuildContext context,
@@ -76,9 +55,16 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                 ),
               ),
               ListTile(
-                leading: Icon(
-                  Icons.photo_camera_rounded,
-                  color: colors.primary,
+                leading: Container(
+                  padding: EdgeInsets.all(Dimensions.spacingSmall),
+                  decoration: BoxDecoration(
+                    color: colors.primary.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.photo_camera_rounded,
+                    color: colors.primary,
+                  ),
                 ),
                 title: Text(
                   l10n.camera,
@@ -93,9 +79,16 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                 },
               ),
               ListTile(
-                leading: Icon(
-                  Icons.photo_library_rounded,
-                  color: colors.primary,
+                leading: Container(
+                  padding: EdgeInsets.all(Dimensions.spacingSmall),
+                  decoration: BoxDecoration(
+                    color: colors.primary.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.photo_library_rounded,
+                    color: colors.primary,
+                  ),
                 ),
                 title: Text(
                   l10n.gallery,
@@ -137,20 +130,10 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
     final formState = ref.watch(completeProfileFormProvider);
     final authState = ref.watch(authControllerProvider);
 
-    ref.listen<CompleteProfileFormState>(completeProfileFormProvider, (
-      previous,
-      next,
-    ) {
-      if (previous?.address != next.address &&
-          _addressController.text != next.address) {
-        _addressController.text = next.address;
-      }
-    });
-
     ref.listen<AsyncValue<dynamic>>(authControllerProvider, (previous, next) {
       next.whenOrNull(
         data: (user) {
-          if (user != null) {
+          if (user != null && user.profileIsComplete) {
             _logger.info('Profile completed successfully.');
             _handleSmartRouting();
           }
@@ -186,23 +169,42 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.all(Dimensions.spacingLarge),
+          padding: EdgeInsets.symmetric(horizontal: Dimensions.spacingLarge),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: Dimensions.spacingMedium),
+
+              // Premium Info Banner
               Container(
                 padding: EdgeInsets.all(Dimensions.spacingMedium),
                 decoration: BoxDecoration(
-                  color: colors.primary.withOpacity(0.08),
+                  gradient: LinearGradient(
+                    colors: [
+                      colors.primary.withOpacity(0.15),
+                      colors.primary.withOpacity(0.05),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   borderRadius: BorderRadius.circular(
                     Dimensions.borderRadiusLarge,
                   ),
-                  border: Border.all(color: colors.primary.withOpacity(0.15)),
+                  border: Border.all(color: colors.primary.withOpacity(0.2)),
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.shield_outlined, color: colors.primary),
+                    Container(
+                      padding: EdgeInsets.all(Dimensions.spacingSmall),
+                      decoration: BoxDecoration(
+                        color: colors.primary.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.security_rounded,
+                        color: colors.primary,
+                      ),
+                    ),
                     SizedBox(width: Dimensions.spacingMedium),
                     Expanded(
                       child: Text(
@@ -211,7 +213,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                           fontSize: Dimensions.fontBodyMedium,
                           color: colors.textPrimary,
                           height: 1.5,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -221,116 +223,88 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
 
               SizedBox(height: Dimensions.spacingExtraLarge),
 
-              Container(
-                padding: EdgeInsets.all(Dimensions.spacingLarge),
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  borderRadius: BorderRadius.circular(
-                    Dimensions.borderRadiusLarge,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+              Text(
+                l10n.identityVerification,
+                style: TextStyle(
+                  fontSize: Dimensions.fontTitleMedium,
+                  fontWeight: FontWeight.w900,
+                  color: colors.textPrimary,
+                  letterSpacing: -0.5,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildPhoneField(l10n, formState, colors),
-                    SizedBox(height: Dimensions.spacingLarge),
+              ),
+              SizedBox(height: Dimensions.spacingMedium),
 
-                    _buildAddressField(l10n, formState, colors),
-                    SizedBox(height: Dimensions.spacingLarge),
+              // KYC Task List Style
+              _buildDocumentTaskCard(
+                title: l10n.idCardImage,
+                subtitle: l10n.uploadIdCard,
+                icon: Icons.badge_rounded,
+                imagePath: formState.idCardImagePath,
+                colors: colors,
+                onTap: () => _showImageSourceActionSheet(
+                  context,
+                  colors,
+                  l10n,
+                  (source) => ref
+                      .read(completeProfileFormProvider.notifier)
+                      .pickIdCardImage(source),
+                ),
+              ),
 
-                    Text(
-                      l10n.identityVerification,
-                      style: TextStyle(
-                        color: colors.textSecondary,
-                        fontSize: Dimensions.fontBodyMedium,
-                        fontWeight: FontWeight.w600,
+              SizedBox(height: Dimensions.spacingMedium),
+
+              _buildDocumentTaskCard(
+                title: l10n.faceImage,
+                subtitle: l10n.uploadFaceImage,
+                icon: Icons.face_retouching_natural_rounded,
+                imagePath: formState.realFaceImagePath,
+                colors: colors,
+                onTap: () => _showImageSourceActionSheet(
+                  context,
+                  colors,
+                  l10n,
+                  (source) => ref
+                      .read(completeProfileFormProvider.notifier)
+                      .pickFaceImage(source),
+                ),
+              ),
+
+              if (formState.formError != null) ...[
+                SizedBox(height: Dimensions.spacingLarge),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Dimensions.spacingMedium,
+                    vertical: Dimensions.spacingMedium,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.error.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(
+                      Dimensions.borderRadius,
+                    ),
+                    border: Border.all(color: colors.error.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.error_rounded,
+                        color: colors.error,
+                        size: Dimensions.iconMedium,
                       ),
-                    ),
-                    SizedBox(height: Dimensions.spacingSmall),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildImageUploadCard(
-                            title: l10n.idCardImage,
-                            subtitle: l10n.uploadIdCard,
-                            icon: Icons.badge_outlined,
-                            imagePath: formState.idCardImagePath,
-                            onTap: () => _showImageSourceActionSheet(
-                              context,
-                              colors,
-                              l10n,
-                              (source) => ref
-                                  .read(completeProfileFormProvider.notifier)
-                                  .pickIdCardImage(source),
-                            ),
-                            colors: colors,
+                      SizedBox(width: Dimensions.spacingSmall),
+                      Expanded(
+                        child: Text(
+                          formState.formError!,
+                          style: TextStyle(
+                            color: colors.error,
+                            fontSize: Dimensions.fontBodyMedium,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ),
-                        SizedBox(width: Dimensions.spacingMedium),
-                        Expanded(
-                          child: _buildImageUploadCard(
-                            title: l10n.faceImage,
-                            subtitle: l10n.uploadFaceImage,
-                            icon: Icons.face_retouching_natural_rounded,
-                            imagePath: formState.realFaceImagePath,
-                            onTap: () => _showImageSourceActionSheet(
-                              context,
-                              colors,
-                              l10n,
-                              (source) => ref
-                                  .read(completeProfileFormProvider.notifier)
-                                  .pickFaceImage(source),
-                            ),
-                            colors: colors,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (formState.formError != null) ...[
-                      SizedBox(height: Dimensions.spacingMedium),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: Dimensions.spacingMedium,
-                          vertical: Dimensions.spacingSmall,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colors.error.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.borderRadius,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.error_outline_rounded,
-                              color: colors.error,
-                              size: Dimensions.iconSmall,
-                            ),
-                            SizedBox(width: Dimensions.spacingSmall),
-                            Expanded(
-                              child: Text(
-                                formState.formError!,
-                                style: TextStyle(
-                                  color: colors.error,
-                                  fontSize: Dimensions.fontBodySmall,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
                       ),
                     ],
-                  ],
+                  ),
                 ),
-              ),
+              ],
 
               SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
@@ -343,156 +317,8 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
     );
   }
 
-  Widget _buildPhoneField(
-    AppLocalizations l10n,
-    CompleteProfileFormState formState,
-    AppColors colors,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.phoneNumber,
-          style: TextStyle(
-            color: colors.textSecondary,
-            fontSize: Dimensions.fontBodyMedium,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: Dimensions.spacingSmall),
-        TextFormField(
-          controller: _phoneController,
-          keyboardType: TextInputType.phone,
-          style: TextStyle(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-          decoration: InputDecoration(
-            hintText: l10n.phoneNumberHint,
-            hintStyle: TextStyle(
-              color: colors.iconGrey,
-              fontWeight: FontWeight.w400,
-            ),
-            prefixIcon: Icon(
-              Icons.phone_android_rounded,
-              color: colors.iconGrey,
-            ),
-            filled: true,
-            fillColor: colors.background,
-            errorText: formState.phoneError,
-            contentPadding: EdgeInsets.all(Dimensions.spacingMedium),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.iconGrey.withOpacity(0.1)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.primary, width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.error, width: 1.5),
-            ),
-          ),
-          onChanged: (val) => ref
-              .read(completeProfileFormProvider.notifier)
-              .updatePhone(val, l10n),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAddressField(
-    AppLocalizations l10n,
-    CompleteProfileFormState formState,
-    AppColors colors,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.addressOptional,
-          style: TextStyle(
-            color: colors.textSecondary,
-            fontSize: Dimensions.fontBodyMedium,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: Dimensions.spacingSmall),
-        GestureDetector(
-          onTap: () async {
-            final dynamic result = await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const MapPickerScreen()),
-            );
-
-            if (result != null && result is Map<String, dynamic>) {
-              _addressController.text = result['address'];
-              ref
-                  .read(completeProfileFormProvider.notifier)
-                  .updateAddress(result['address']);
-            }
-          },
-          child: AbsorbPointer(
-            child: TextFormField(
-              controller: _addressController,
-              readOnly: true,
-              style: TextStyle(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
-              decoration: InputDecoration(
-                hintText: formState.isFetchingLocation
-                    ? l10n.fetchingAddress
-                    : l10n.addressHint,
-                hintStyle: TextStyle(
-                  color: colors.iconGrey,
-                  fontWeight: FontWeight.w400,
-                ),
-                prefixIcon: Icon(
-                  Icons.location_on_outlined,
-                  color: colors.iconGrey,
-                ),
-                suffixIcon: Container(
-                  margin: EdgeInsets.all(Dimensions.spacingTiny),
-                  decoration: BoxDecoration(
-                    color: colors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(
-                      Dimensions.borderRadius,
-                    ),
-                  ),
-                  child: Icon(Icons.my_location_rounded, color: colors.primary),
-                ),
-                filled: true,
-                fillColor: colors.background,
-                contentPadding: EdgeInsets.all(Dimensions.spacingMedium),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-                  borderSide: BorderSide(
-                    color: colors.iconGrey.withOpacity(0.1),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-                  borderSide: BorderSide(color: colors.primary, width: 2),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildImageUploadCard({
+  /// Out-of-the-box Professional KYC Card Design
+  Widget _buildDocumentTaskCard({
     required String title,
     required String subtitle,
     required IconData icon,
@@ -501,58 +327,144 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
     required AppColors colors,
   }) {
     final bool hasImage = imagePath != null && imagePath.isNotEmpty;
+
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: Dimensions.heightPercent(16).clamp(130.0, 160.0),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.all(Dimensions.spacingMedium),
         decoration: BoxDecoration(
-          color: colors.background,
-          borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           border: Border.all(
-            color: hasImage ? colors.primary : colors.iconGrey.withOpacity(0.2),
-            width: hasImage ? 2 : 1,
+            color: hasImage
+                ? Colors.green.withOpacity(0.5)
+                : colors.iconGrey.withOpacity(0.15),
+            width: hasImage ? 1.5 : 1.0,
           ),
-          image: hasImage
-              ? DecorationImage(
-                  image: FileImage(File(imagePath)),
-                  fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(
-                    Colors.black.withOpacity(0.4),
-                    BlendMode.darken,
-                  ),
-                )
-              : null,
+          boxShadow: [
+            BoxShadow(
+              color: hasImage
+                  ? Colors.green.withOpacity(0.05)
+                  : Colors.black.withOpacity(0.02),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
           children: [
-            Icon(
-              hasImage ? Icons.check_circle_rounded : icon,
-              color: hasImage ? Colors.white : colors.primary,
-              size: Dimensions.iconLarge * 1.2,
+            // Thumbnail or Icon Area with Animation
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return ScaleTransition(scale: animation, child: child);
+              },
+              child: hasImage
+                  ? Container(
+                      key: const ValueKey('image'),
+                      width: Dimensions.customButtonSize * 1.2,
+                      height: Dimensions.customButtonSize * 1.2,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.borderRadius,
+                        ),
+                        border: Border.all(
+                          color: Colors.green.withOpacity(0.3),
+                          width: 2,
+                        ),
+                        image: DecorationImage(
+                          image: FileImage(File(imagePath)),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Transform.translate(
+                          offset: const Offset(4, 4),
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(
+                      key: const ValueKey('icon'),
+                      width: Dimensions.customButtonSize * 1.2,
+                      height: Dimensions.customButtonSize * 1.2,
+                      decoration: BoxDecoration(
+                        color: colors.background,
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.borderRadius,
+                        ),
+                        border: Border.all(
+                          color: colors.iconGrey.withOpacity(0.1),
+                        ),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: colors.primary,
+                        size: Dimensions.iconLarge,
+                      ),
+                    ),
             ),
-            SizedBox(height: Dimensions.spacingSmall),
-            Text(
-              title,
-              style: TextStyle(
-                color: hasImage ? Colors.white : colors.textPrimary,
-                fontWeight: FontWeight.bold,
-                fontSize: Dimensions.fontBodyMedium,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if (!hasImage)
-              Padding(
-                padding: EdgeInsets.only(top: Dimensions.spacingTiny),
-                child: Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: colors.textSecondary,
-                    fontSize: Dimensions.fontBodySmall,
+
+            SizedBox(width: Dimensions.spacingLarge),
+
+            // Text Area
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: Dimensions.fontBodyLarge,
+                      fontWeight: FontWeight.bold,
+                      color: colors.textPrimary,
+                    ),
                   ),
-                  textAlign: TextAlign.center,
-                ),
+                  SizedBox(height: Dimensions.spacingTiny),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: Dimensions.fontBodySmall,
+                      color: hasImage ? Colors.green : colors.textSecondary,
+                      fontWeight: hasImage
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
+                  ),
+                ],
               ),
+            ),
+
+            // Action Button
+            Container(
+              padding: EdgeInsets.all(Dimensions.spacingSmall),
+              decoration: BoxDecoration(
+                color: hasImage
+                    ? colors.background
+                    : colors.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                hasImage ? Icons.edit_rounded : Icons.add_rounded,
+                color: hasImage ? colors.textSecondary : colors.primary,
+                size: Dimensions.iconMedium,
+              ),
+            ),
           ],
         ),
       ),
@@ -566,22 +478,25 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
     AppColors colors,
   ) {
     final bool isLoading = authState.isLoading;
+    final bool isEnabled = formState.isValid && !isLoading;
+
     return SizedBox(
       width: double.infinity,
-      height: Dimensions.buttonHeight * 1.1,
+      height: Dimensions.buttonHeight * 1.2,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: colors.primary,
+          backgroundColor: isEnabled
+              ? colors.primary
+              : colors.iconGrey.withOpacity(0.3),
           foregroundColor: Colors.white,
-          elevation: 4,
+          elevation: isEnabled ? 4 : 0,
           shadowColor: colors.primary.withOpacity(0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           ),
         ),
-        onPressed: isLoading
-            ? null
-            : () {
+        onPressed: isEnabled
+            ? () {
                 if (ref
                     .read(completeProfileFormProvider.notifier)
                     .validateAll(l10n)) {
@@ -592,7 +507,8 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                       .read(authControllerProvider.notifier)
                       .completeProfile(request);
                 }
-              },
+              }
+            : null,
         child: isLoading
             ? const SizedBox(
                 width: 24,

@@ -10,7 +10,7 @@ phone_regex = RegexValidator(
 )
 
 class UserRegistrationSerializer(serializers.Serializer):
-    """Step 1: Quick Registration (5 fields only)"""
+    """Step 1: Quick Registration"""
     email = serializers.EmailField(max_length=254)
     password = serializers.CharField(write_only=True, min_length=8)
     full_name = serializers.CharField(max_length=255, min_length=2)
@@ -18,6 +18,10 @@ class UserRegistrationSerializer(serializers.Serializer):
         choices=[(UserGender.MALE, "Male"), (UserGender.FEMALE, "Female")]
     )
     city = serializers.CharField(max_length=100)
+    phone_number = serializers.CharField(validators=[phone_regex], max_length=20)
+    address = serializers.CharField(max_length=512, required=False, allow_blank=True)
+    lat = serializers.FloatField(required=False)
+    lng = serializers.FloatField(required=False)
 
     def validate(self, data):
         try:
@@ -31,13 +35,7 @@ class UserRegistrationSerializer(serializers.Serializer):
         return data
 
 class UserProfileCompletionSerializer(serializers.Serializer):
-    """Step 2: Profile Completion (Required before subscribing)"""
-    phone_number = serializers.CharField(validators=[phone_regex], max_length=20)
-    address = serializers.CharField(max_length=512, required=False, allow_blank=True)
-    lat = serializers.FloatField(required=False)
-    lng = serializers.FloatField(required=False)
-    
-    avatar = serializers.ImageField(required=False)
+    """Step 2: Profile Completion (Documents Only)"""
     real_face_image = serializers.ImageField(required=True)
     id_card_image = serializers.ImageField(required=True)
 
@@ -51,7 +49,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'email', 'full_name', 'phone_number', 'gender', 
-            'avatar', 'address', 'city', 'lat', 'lng', 
+            'avatar', 'real_face_image', 'id_card_image',
+            'address', 'city', 'lat', 'lng', 
             'is_active', 'is_verified', 'points_balance', 'profile_is_complete'
         ]
 

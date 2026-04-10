@@ -1,9 +1,11 @@
+import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/database/local_data_provider.dart';
-import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme_provider.dart';
@@ -30,12 +32,21 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
   double? _selectedLat;
   double? _selectedLng;
 
+  // New Image States for Edit Mode
+  String? _newFaceImagePath;
+  String? _newIdImagePath;
+
   bool _isEditing = false;
   bool _isLoading = false;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
+    _initControllers();
+  }
+
+  void _initControllers() {
     final UserModel? user = ref.read(authControllerProvider).value;
 
     _nameController = TextEditingController(text: user?.fullName ?? '');
@@ -46,6 +57,10 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     _selectedCity = user?.city;
     _selectedLat = user?.lat;
     _selectedLng = user?.lng;
+
+    // Clear new image paths when initializing/resetting
+    _newFaceImagePath = null;
+    _newIdImagePath = null;
   }
 
   @override
@@ -72,6 +87,117 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     }
   }
 
+  void _showImageSourceActionSheet(
+    AppColors colors,
+    AppLocalizations l10n,
+    bool isFaceImage,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(Dimensions.borderRadiusLarge),
+        ),
+      ),
+      builder: (BuildContext bc) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(Dimensions.spacingMedium),
+                child: Text(
+                  l10n.selectImageSource,
+                  style: TextStyle(
+                    fontSize: Dimensions.fontTitleMedium,
+                    fontWeight: FontWeight.bold,
+                    color: colors.textPrimary,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: Container(
+                  padding: EdgeInsets.all(Dimensions.spacingSmall),
+                  decoration: BoxDecoration(
+                    color: colors.primary.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.photo_camera_rounded,
+                    color: colors.primary,
+                  ),
+                ),
+                title: Text(
+                  l10n.camera,
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  final XFile? image = await _picker.pickImage(
+                    source: ImageSource.camera,
+                    imageQuality: 80,
+                    preferredCameraDevice: isFaceImage
+                        ? CameraDevice.front
+                        : CameraDevice.rear,
+                  );
+                  if (image != null) {
+                    setState(() {
+                      if (isFaceImage) {
+                        _newFaceImagePath = image.path;
+                      } else {
+                        _newIdImagePath = image.path;
+                      }
+                    });
+                  }
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: EdgeInsets.all(Dimensions.spacingSmall),
+                  decoration: BoxDecoration(
+                    color: colors.primary.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.photo_library_rounded,
+                    color: colors.primary,
+                  ),
+                ),
+                title: Text(
+                  l10n.gallery,
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  final XFile? image = await _picker.pickImage(
+                    source: ImageSource.gallery,
+                    imageQuality: 80,
+                  );
+                  if (image != null) {
+                    setState(() {
+                      if (isFaceImage) {
+                        _newFaceImagePath = image.path;
+                      } else {
+                        _newIdImagePath = image.path;
+                      }
+                    });
+                  }
+                },
+              ),
+              SizedBox(height: Dimensions.spacingLarge),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _saveChanges(AppLocalizations l10n, AppColors colors) async {
     if (_nameController.text.trim().isEmpty) {
       _showSnackBar(context, l10n.nameRequired, colors.error);
@@ -79,7 +205,6 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     }
 
     final String phone = _phoneController.text.trim();
-    // ARCHITECTURE FIX: Enforce uniform validation rules across the app
     if (phone.isNotEmpty && !AppValidators.phoneRegex.hasMatch(phone)) {
       _showSnackBar(context, l10n.invalidPhoneNumber, colors.error);
       return;
@@ -99,12 +224,20 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
 
     final bool success = await ref
         .read(authControllerProvider.notifier)
-        .updateProfileData(updateData);
+        .updateProfileData(
+          updateData: updateData,
+          newFaceImagePath: _newFaceImagePath,
+          newIdImagePath: _newIdImagePath,
+        );
 
     if (mounted) {
       setState(() => _isLoading = false);
       if (success) {
-        setState(() => _isEditing = false);
+        setState(() {
+          _isEditing = false;
+          _newFaceImagePath = null;
+          _newIdImagePath = null;
+        });
         _showSnackBar(context, l10n.profileUpdatedSuccessfully, Colors.green);
       } else {
         _showSnackBar(context, l10n.errorOops, colors.error);
@@ -157,13 +290,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
             ),
             onPressed: () {
               if (_isEditing) {
-                _nameController.text = user.fullName;
-                _emailController.text = user.email;
-                _phoneController.text = user.phoneNumber ?? '';
-                _addressController.text = user.address ?? '';
-                _selectedCity = user.city;
-                _selectedLat = user.lat;
-                _selectedLng = user.lng;
+                _initControllers(); // Revert back to original data
               }
               setState(() => _isEditing = !_isEditing);
             },
@@ -179,9 +306,33 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildVerificationCard(user, colors, l10n),
+              SizedBox(height: Dimensions.spacingExtraLarge),
+
+              // === IDENTITY VAULT (DOCUMENTS) SECTION ===
+              Text(
+                l10n.identityVerification,
+                style: TextStyle(
+                  fontSize: Dimensions.fontTitleMedium,
+                  fontWeight: FontWeight.w800,
+                  color: colors.textPrimary,
+                ),
+              ),
+              SizedBox(height: Dimensions.spacingMedium),
+
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                switchInCurve: Curves.easeInOut,
+                switchOutCurve: Curves.easeInOut,
+                transitionBuilder: (child, animation) =>
+                    FadeTransition(opacity: animation, child: child),
+                child: _isEditing
+                    ? _buildEditDocumentsSection(user, colors, l10n)
+                    : _buildSecureDocumentsVault(user, colors, l10n),
+              ),
 
               SizedBox(height: Dimensions.spacingExtraLarge),
 
+              // === BASIC INFO SECTION ===
               Text(
                 l10n.basicInfo,
                 style: TextStyle(
@@ -255,6 +406,325 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     );
   }
 
+  /// The highly premium "Secure Vault" view for documents (Glassmorphism & Blur)
+  Widget _buildSecureDocumentsVault(
+    UserModel user,
+    AppColors colors,
+    AppLocalizations l10n,
+  ) {
+    return Container(
+      key: const ValueKey('vault'),
+      width: double.infinity,
+      padding: EdgeInsets.all(Dimensions.spacingLarge),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _buildLockedThumbnail(
+                  label: l10n.idCardImage,
+                  imageUrl: user.idCardImage,
+                  icon: Icons.badge_rounded,
+                  colors: colors,
+                ),
+              ),
+              SizedBox(width: Dimensions.spacingLarge),
+              Expanded(
+                child: _buildLockedThumbnail(
+                  label: l10n.faceImage,
+                  imageUrl: user.realFaceImage,
+                  icon: Icons.face_retouching_natural_rounded,
+                  colors: colors,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Dimensions.spacingMedium),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.lock_rounded,
+                size: Dimensions.iconSmall,
+                color: colors.iconGrey,
+              ),
+              SizedBox(width: Dimensions.spacingTiny),
+              Text(
+                'Documents are encrypted and securely stored',
+                style: TextStyle(
+                  fontSize: Dimensions.fontBodySmall,
+                  color: colors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLockedThumbnail({
+    required String label,
+    required String? imageUrl,
+    required IconData icon,
+    required AppColors colors,
+  }) {
+    final bool hasImage = imageUrl != null && imageUrl.isNotEmpty;
+    return Column(
+      children: [
+        Container(
+          height: Dimensions.heightPercent(10).clamp(80.0, 100.0),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: colors.background,
+            borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+            border: Border.all(color: colors.iconGrey.withOpacity(0.1)),
+            image: hasImage
+                ? DecorationImage(
+                    image: NetworkImage(imageUrl),
+                    fit: BoxFit.cover,
+                  )
+                : null,
+          ),
+          child: hasImage
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.2),
+                      child: Center(
+                        child: Container(
+                          padding: EdgeInsets.all(Dimensions.spacingSmall),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.lock_outline_rounded,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : Center(
+                  child: Icon(
+                    icon,
+                    color: colors.iconGrey.withOpacity(0.5),
+                    size: Dimensions.iconLarge,
+                  ),
+                ),
+        ),
+        SizedBox(height: Dimensions.spacingSmall),
+        Text(
+          label,
+          style: TextStyle(
+            color: colors.textPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: Dimensions.fontBodySmall,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// The interactive "Task List" style for Editing documents
+  Widget _buildEditDocumentsSection(
+    UserModel user,
+    AppColors colors,
+    AppLocalizations l10n,
+  ) {
+    return Column(
+      key: const ValueKey('edit_docs'),
+      children: [
+        _buildInteractiveTaskCard(
+          title: l10n.idCardImage,
+          subtitle: _newIdImagePath != null
+              ? 'New ID selected'
+              : l10n.uploadIdCard,
+          icon: Icons.badge_rounded,
+          localPath: _newIdImagePath,
+          networkUrl: user.idCardImage,
+          colors: colors,
+          onTap: () => _showImageSourceActionSheet(colors, l10n, false),
+        ),
+        SizedBox(height: Dimensions.spacingMedium),
+        _buildInteractiveTaskCard(
+          title: l10n.faceImage,
+          subtitle: _newFaceImagePath != null
+              ? 'New photo selected'
+              : l10n.uploadFaceImage,
+          icon: Icons.face_retouching_natural_rounded,
+          localPath: _newFaceImagePath,
+          networkUrl: user.realFaceImage,
+          colors: colors,
+          onTap: () => _showImageSourceActionSheet(colors, l10n, true),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInteractiveTaskCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required String? localPath,
+    required String? networkUrl,
+    required VoidCallback onTap,
+    required AppColors colors,
+  }) {
+    final bool hasLocalFile = localPath != null;
+    final bool hasAnyFile =
+        hasLocalFile || (networkUrl != null && networkUrl.isNotEmpty);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: EdgeInsets.all(Dimensions.spacingMedium),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+          border: Border.all(
+            color: hasAnyFile
+                ? Colors.green.withOpacity(0.5)
+                : colors.iconGrey.withOpacity(0.2),
+            width: hasAnyFile ? 1.5 : 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: hasAnyFile
+                  ? Colors.green.withOpacity(0.05)
+                  : Colors.black.withOpacity(0.02),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: hasAnyFile
+                  ? Container(
+                      key: const ValueKey('image'),
+                      width: Dimensions.customButtonSize * 1.2,
+                      height: Dimensions.customButtonSize * 1.2,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.borderRadius,
+                        ),
+                        border: Border.all(
+                          color: Colors.green.withOpacity(0.3),
+                          width: 2,
+                        ),
+                        image: DecorationImage(
+                          image: hasLocalFile
+                              ? FileImage(File(localPath)) as ImageProvider
+                              : NetworkImage(networkUrl!),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Transform.translate(
+                          offset: const Offset(4, 4),
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(
+                      key: const ValueKey('icon'),
+                      width: Dimensions.customButtonSize * 1.2,
+                      height: Dimensions.customButtonSize * 1.2,
+                      decoration: BoxDecoration(
+                        color: colors.background,
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.borderRadius,
+                        ),
+                        border: Border.all(
+                          color: colors.iconGrey.withOpacity(0.1),
+                        ),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: colors.primary,
+                        size: Dimensions.iconLarge,
+                      ),
+                    ),
+            ),
+            SizedBox(width: Dimensions.spacingLarge),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: Dimensions.fontBodyLarge,
+                      fontWeight: FontWeight.bold,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: Dimensions.spacingTiny),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: Dimensions.fontBodySmall,
+                      color: hasAnyFile ? Colors.green : colors.textSecondary,
+                      fontWeight: hasAnyFile
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.all(Dimensions.spacingSmall),
+              decoration: BoxDecoration(
+                color: hasAnyFile
+                    ? colors.background
+                    : colors.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                hasAnyFile ? Icons.edit_rounded : Icons.add_rounded,
+                color: hasAnyFile ? colors.textSecondary : colors.primary,
+                size: Dimensions.iconMedium,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildVerificationCard(
     UserModel user,
     AppColors colors,
@@ -310,7 +780,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
               ],
             ),
           ),
-          if (!isVerified)
+          if (!isVerified && !_isEditing)
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: statusColor,
@@ -320,7 +790,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                   borderRadius: BorderRadius.circular(Dimensions.borderRadius),
                 ),
               ),
-              onPressed: () => context.push(RoutePaths.completeProfile),
+              onPressed: () => setState(() => _isEditing = true),
               child: Text(
                 l10n.completeProfileTitle,
                 style: const TextStyle(fontWeight: FontWeight.bold),

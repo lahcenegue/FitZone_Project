@@ -44,7 +44,7 @@ final class RegisterFormProvider
   }
 }
 
-String _$registerFormHash() => r'e0122b23381fd6e72769bf58687614bec950ca7c';
+String _$registerFormHash() => r'55865d885095d38217e4cbda764217bb443d7d68';
 
 /// Manages the state and localized validation logic of the registration form.
 

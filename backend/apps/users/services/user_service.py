@@ -89,12 +89,21 @@ FitZone Team
             full_name=validated_data['full_name'],
             gender=validated_data['gender'],
             city=validated_data['city'],
+            phone_number=validated_data['phone_number'],
             role=UserRole.CUSTOMER,
             is_verified=False 
         )
 
-        token_obj = UserVerificationToken.objects.create(user=user)
+        user.address = validated_data.get('address', '')
         
+        lat = validated_data.get('lat')
+        lng = validated_data.get('lng')
+        if lat is not None and lng is not None:
+            user.location = Point(lng, lat, srid=4326)
+            
+        user.save()
+
+        token_obj = UserVerificationToken.objects.create(user=user)
         UserAuthService._send_verification_email(user, token_obj.otp)
 
         logger.info(f"New customer registered: {email}")
@@ -140,22 +149,12 @@ FitZone Team
     @staticmethod
     @transaction.atomic
     def complete_profile(user, validated_data):
-        user.phone_number = validated_data.get('phone_number', user.phone_number)
-        user.address = validated_data.get('address', user.address)
-        
-        lat = validated_data.get('lat')
-        lng = validated_data.get('lng')
-        if lat is not None and lng is not None:
-            user.location = Point(lng, lat, srid=4326)
-            
-        if 'avatar' in validated_data:
-            user.avatar = validated_data['avatar']
         if 'real_face_image' in validated_data:
             user.real_face_image = validated_data['real_face_image']
         if 'id_card_image' in validated_data:
             user.id_card_image = validated_data['id_card_image']
 
-        user.save()
+        user.save(update_fields=['real_face_image', 'id_card_image', 'updated_at'])
         return user
 
     @staticmethod

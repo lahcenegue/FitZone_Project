@@ -8,17 +8,13 @@ part of 'auth_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provides the AuthApiService instance with the globally configured Dio client.
 
 @ProviderFor(authApiService)
 final authApiServiceProvider = AuthApiServiceProvider._();
 
-/// Provides the AuthApiService instance with the globally configured Dio client.
-
 final class AuthApiServiceProvider
     extends $FunctionalProvider<AuthApiService, AuthApiService, AuthApiService>
     with $Provider<AuthApiService> {
-  /// Provides the AuthApiService instance with the globally configured Dio client.
   AuthApiServiceProvider._()
     : super(
         from: null,
@@ -54,15 +50,11 @@ final class AuthApiServiceProvider
 
 String _$authApiServiceHash() => r'2def2e7843dae96b4c7e00bc740d97dcd217ae22';
 
-/// Manages the authentication state and operations.
-
 @ProviderFor(AuthController)
 final authControllerProvider = AuthControllerProvider._();
 
-/// Manages the authentication state and operations.
 final class AuthControllerProvider
     extends $NotifierProvider<AuthController, AsyncValue<UserModel?>> {
-  /// Manages the authentication state and operations.
   AuthControllerProvider._()
     : super(
         from: null,
@@ -90,9 +82,7 @@ final class AuthControllerProvider
   }
 }
 
-String _$authControllerHash() => r'0545027ea1bf5c4974ff1cfe4c2fd7ba4e04c76f';
-
-/// Manages the authentication state and operations.
+String _$authControllerHash() => r'f8d29ca8010312faa18383bdde6b9cbd7a9f6448';
 
 abstract class _$AuthController extends $Notifier<AsyncValue<UserModel?>> {
   AsyncValue<UserModel?> build();

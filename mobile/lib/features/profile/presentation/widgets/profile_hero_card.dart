@@ -86,7 +86,8 @@ class ProfileHeroCard extends StatelessWidget {
                       ),
 
                       // Verified Badge (Bottom Right)
-                      if (user?.isVerified == true)
+                      // FIXED: Now checks if the KYC profile is complete instead of just email verification
+                      if (user?.profileIsComplete == true)
                         Positioned(
                           bottom: 0,
                           right: -4,
@@ -98,7 +99,8 @@ class ProfileHeroCard extends StatelessWidget {
                             ),
                             child: Icon(
                               Icons.verified_rounded,
-                              color: colors.error,
+                              color: Colors
+                                  .green, // Optional: Changed to green for a stronger 'verified' feeling, adjust to colors.primary if you prefer
                               size: Dimensions.iconLarge,
                             ),
                           ),

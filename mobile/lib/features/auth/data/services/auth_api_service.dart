@@ -28,7 +28,6 @@ class AuthApiService {
 
   AuthApiService(this._dio);
 
-  /// Registers a new user with the provided details.
   Future<UserModel> register(RegisterRequestModel request) async {
     try {
       _logger.info('Attempting to register user: ${request.email}');
@@ -37,8 +36,6 @@ class AuthApiService {
         data: request.toJson(),
       );
       _logger.info('Registration successful for: ${request.email}');
-
-      // FIXED: Parse the nested 'user' object, not the root response
       return UserModel.fromJson(response.data['user'] as Map<String, dynamic>);
     } on DioException catch (e) {
       _logger.severe('Registration failed', e, e.stackTrace);
@@ -49,7 +46,6 @@ class AuthApiService {
     }
   }
 
-  /// Authenticates a user and returns tokens and profile data.
   Future<AuthResponseModel> login(String email, String password) async {
     try {
       _logger.info('Attempting to login user: $email');
@@ -68,7 +64,6 @@ class AuthApiService {
     }
   }
 
-  /// Verifies the user email using the provided 6-digit OTP.
   Future<AuthResponseModel> verifyEmail(String otp) async {
     try {
       _logger.info('Attempting to verify email with OTP.');
@@ -89,7 +84,6 @@ class AuthApiService {
     }
   }
 
-  /// Requests a new OTP code to be sent to the user's email.
   Future<void> resendOtp(String email) async {
     try {
       _logger.info('Requesting new OTP for: $email');
@@ -106,7 +100,6 @@ class AuthApiService {
     }
   }
 
-  /// Completes the user profile by uploading sensitive data and images.
   Future<UserModel> completeProfile(CompleteProfileRequestModel request) async {
     try {
       _logger.info('Attempting to complete user profile.');
@@ -131,7 +124,6 @@ class AuthApiService {
     }
   }
 
-  /// Parses Dio exceptions into user-friendly AuthExceptions with detailed codes.
   AuthException _handleDioError(DioException error) {
     if (error.response != null) {
       final dynamic data = error.response?.data;
@@ -141,8 +133,6 @@ class AuthApiService {
 
       if (data is Map<String, dynamic>) {
         errorCode = data['code']?.toString();
-
-        // Safely extract email if it's passed as a simple string (e.g., for unverified email redirect)
         if (data['email'] is String) {
           errorEmail = data['email'].toString();
         }
@@ -152,13 +142,9 @@ class AuthApiService {
         } else if (data.containsKey('message')) {
           errorMessage = data['message'].toString();
         } else {
-          // Extract specific field validation errors from the backend (DRF format)
           final List<String> fieldErrors = [];
           data.forEach((key, value) {
-            // Skip the internal code identifier
             if (key == 'code') return;
-
-            // Django DRF typically returns field errors as lists
             if (value is List && value.isNotEmpty) {
               fieldErrors.add(value.first.toString());
             } else if (value is String && key != 'email') {
@@ -182,7 +168,6 @@ class AuthApiService {
     }
   }
 
-  /// Requests a password reset OTP for the given email.
   Future<void> requestPasswordReset(String email) async {
     try {
       _logger.info('Requesting password reset for: $email');
@@ -195,16 +180,11 @@ class AuthApiService {
       _logger.severe('Password reset request failed', e, e.stackTrace);
       throw _handleDioError(e);
     } catch (e, stackTrace) {
-      _logger.severe(
-        'Unexpected error during password reset request',
-        e,
-        stackTrace,
-      );
+      _logger.severe('Unexpected error', e, stackTrace);
       throw AuthException('An unexpected error occurred.');
     }
   }
 
-  /// Confirms the password reset with OTP and new password.
   Future<void> confirmPasswordReset(
     String email,
     String otp,
@@ -221,11 +201,7 @@ class AuthApiService {
       _logger.severe('Password reset confirmation failed', e, e.stackTrace);
       throw _handleDioError(e);
     } catch (e, stackTrace) {
-      _logger.severe(
-        'Unexpected error during password reset confirmation',
-        e,
-        stackTrace,
-      );
+      _logger.severe('Unexpected error', e, stackTrace);
       throw AuthException('An unexpected error occurred.');
     }
   }
@@ -247,7 +223,6 @@ class AuthApiService {
 
       if (response.data is Map<String, dynamic>) {
         final data = response.data as Map<String, dynamic>;
-        // Extract the avatar URL from the tiny response
         if (data.containsKey('avatar')) {
           return data['avatar'].toString();
         } else if (data.containsKey('user') && data['user']['avatar'] != null) {
@@ -260,20 +235,15 @@ class AuthApiService {
     }
   }
 
-  /// Updates partial user profile data (e.g., name, phone, city, address).
-  /// Returns a Map containing the updated 'user' and 'email_changed' boolean flag.
-  Future<Map<String, dynamic>> updateProfile(
-    Map<String, dynamic> updateData,
-  ) async {
+  /// ARCHITECTURE FIX: Accepts dynamic data (Map or FormData) to support unified updates
+  Future<Map<String, dynamic>> updateProfile(dynamic updateData) async {
     try {
-      _logger.info('Attempting to update user profile.');
+      _logger.info('Attempting to update user profile (Mixed Data).');
       final Response response = await _dio.patch(
-        ApiConstants
-            .updateProfile, // Ensure this is defined in your ApiConstants as '/profile/update/'
+        ApiConstants.updateProfile,
         data: updateData,
       );
       _logger.info('Profile updated successfully.');
-
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       _logger.severe('Profile update failed', e, e.stackTrace);
