@@ -44,7 +44,6 @@ class ProfileScreen extends ConsumerWidget {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // 1. Header Row
             SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
@@ -79,7 +78,6 @@ class ProfileScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 2. Profile Hero Card (Handles both logged in and guest UI)
                     ProfileHeroCard(
                       user: user,
                       isLoggedIn: isLoggedIn,
@@ -90,7 +88,6 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     SizedBox(height: Dimensions.spacingExtraLarge),
 
-                    // 3. Authenticated Content
                     if (isLoggedIn) ...[
                       ProfileActionGrid(colors: colors, l10n: l10n),
                       SizedBox(height: Dimensions.spacingExtraLarge),
@@ -133,7 +130,6 @@ class ProfileScreen extends ConsumerWidget {
                       SizedBox(height: Dimensions.spacingExtraLarge),
                     ],
 
-                    // 4. App Preferences Group (Visible to All)
                     _buildSectionLabel(l10n.appSettings, colors),
                     _buildSettingsGroup(colors, [
                       ProfileSettingsItem(
@@ -168,7 +164,6 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                     ]),
 
-                    // 5. Support Group (Visible to All)
                     SizedBox(height: Dimensions.spacingExtraLarge),
                     _buildSectionLabel(l10n.supportAndAbout, colors),
                     _buildSettingsGroup(colors, [
@@ -192,7 +187,6 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                     ]),
 
-                    // 6. Logout Section (Logged In Only)
                     if (isLoggedIn) ...[
                       SizedBox(height: Dimensions.spacingExtraLarge * 2),
                       _buildLogoutSection(context, ref, colors, l10n),
@@ -207,8 +201,6 @@ class ProfileScreen extends ConsumerWidget {
       ),
     );
   }
-
-  // --- UI Component Helpers ---
 
   Widget _buildSectionLabel(String text, AppColors colors) {
     return Padding(
@@ -321,8 +313,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  // --- Existing Logic Handlers ---
-
   void _showLanguagePicker(
     BuildContext context,
     WidgetRef ref,
@@ -385,6 +375,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
+  // ARCHITECTURE FIX: Securely decoupled the Dialog's Navigator from the Main Context.
   Future<void> _handleAvatarUpdate(
     BuildContext context,
     WidgetRef ref,
@@ -403,9 +394,13 @@ class ProfileScreen extends ConsumerWidget {
       return;
     }
 
+    // Capture the root navigator context before any async gaps to prevent GoError
+    final navigator = Navigator.of(context, rootNavigator: true);
+
     showDialog(
       context: context,
       barrierDismissible: false,
+      useRootNavigator: true,
       builder: (ctx) =>
           Center(child: CircularProgressIndicator(color: colors.primary)),
     );
@@ -415,7 +410,8 @@ class ProfileScreen extends ConsumerWidget {
         .read(authControllerProvider.notifier)
         .uploadAvatarToApi(pickedFile.path);
 
-    if (context.mounted) Navigator.pop(context);
+    // Safely pop the dialog using the precise root navigator we captured
+    navigator.pop();
 
     if (newAvatarUrl != null) {
       _logger.info('Avatar uploaded successfully. Updating local state.');

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:fitzone/core/routing/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -197,6 +198,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     );
   }
 
+  // ARCHITECTURE FIX: Smart routing based on update result
   Future<void> _saveChanges(AppLocalizations l10n, AppColors colors) async {
     if (_nameController.text.trim().isEmpty) {
       _showSnackBar(context, l10n.nameRequired, colors.error);
@@ -211,9 +213,11 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
 
     setState(() => _isLoading = true);
 
+    final String targetEmail = _emailController.text.trim();
+
     final Map<String, dynamic> updateData = {
       'full_name': _nameController.text.trim(),
-      'email': _emailController.text.trim(),
+      'email': targetEmail,
       'phone_number': phone,
       'address': _addressController.text.trim(),
       if (_selectedCity != null) 'city': _selectedCity,
@@ -221,7 +225,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
       if (_selectedLng != null) 'lng': _selectedLng,
     };
 
-    final bool success = await ref
+    final ProfileUpdateResult result = await ref
         .read(authControllerProvider.notifier)
         .updateProfileData(
           updateData: updateData,
@@ -231,7 +235,22 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
 
     if (mounted) {
       setState(() => _isLoading = false);
-      if (success) {
+
+      if (result == ProfileUpdateResult.requiresVerification) {
+        setState(() {
+          _isEditing = false;
+          _newFaceImagePath = null;
+          _newIdImagePath = null;
+        });
+
+        _showSnackBar(context, l10n.emailChangedWarning, colors.warning);
+
+        // Quietly ensure OTP is sent to the new email
+        ref.read(authControllerProvider.notifier).resendOtp(targetEmail);
+
+        // Redirect seamlessly to Verification
+        context.push('${RoutePaths.verifyOtp}?email=$targetEmail');
+      } else if (result == ProfileUpdateResult.success) {
         setState(() {
           _isEditing = false;
           _newFaceImagePath = null;

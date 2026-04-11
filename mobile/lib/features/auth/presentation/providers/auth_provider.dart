@@ -13,6 +13,9 @@ import '../../data/services/auth_api_service.dart';
 
 part 'auth_provider.g.dart';
 
+/// Defines the exact outcome of a profile update operation.
+enum ProfileUpdateResult { success, requiresVerification, error }
+
 @riverpod
 AuthApiService authApiService(Ref ref) {
   final dio = ref.watch(dioClientProvider);
@@ -105,8 +108,6 @@ class AuthController extends _$AuthController {
     }
   }
 
-  /// Logs out securely by sending the refresh token to the blacklist
-  /// before clearing local data.
   Future<void> logout() async {
     try {
       final secureStorage = ref.read(secureStorageServiceProvider);
@@ -158,7 +159,7 @@ class AuthController extends _$AuthController {
       final AuthApiService authService = ref.read(authApiServiceProvider);
       await authService.changePassword(oldPassword, newPassword);
     } catch (error) {
-      rethrow; // Rethrow to handle it inside the specific UI screen
+      rethrow;
     }
   }
 
@@ -167,7 +168,6 @@ class AuthController extends _$AuthController {
       final AuthApiService authService = ref.read(authApiServiceProvider);
       await authService.deleteAccount(password);
 
-      // If successful, clear everything locally
       await ref.read(secureStorageServiceProvider).clearAll();
       await ref.read(storageServiceProvider).clearCachedUser();
       state = const AsyncData(null);
@@ -198,7 +198,8 @@ class AuthController extends _$AuthController {
     ref.read(storageServiceProvider).cacheUser(user);
   }
 
-  Future<bool> updateProfileData({
+  /// ARCHITECTURE FIX: Now correctly identifies if the profile update triggered an email verification state.
+  Future<ProfileUpdateResult> updateProfileData({
     required Map<String, dynamic> updateData,
     String? newFaceImagePath,
     String? newIdImagePath,
@@ -233,14 +234,23 @@ class AuthController extends _$AuthController {
       final Map<String, dynamic> response = await authService.updateProfile(
         dataToSend,
       );
+
       final UserModel updatedUser = UserModel.fromJson(
         response['user'] as Map<String, dynamic>,
       );
 
       updateUserState(updatedUser);
-      return true;
+
+      // Deep inspection of the backend response to detect verification resets
+      final bool requiresVerification =
+          response['email_changed'] == true ||
+          response['user']['is_verified'] == false;
+
+      return requiresVerification
+          ? ProfileUpdateResult.requiresVerification
+          : ProfileUpdateResult.success;
     } catch (error) {
-      return false;
+      return ProfileUpdateResult.error;
     }
   }
 }
