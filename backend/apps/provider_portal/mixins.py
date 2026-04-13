@@ -9,23 +9,23 @@ class ProviderRequiredMixin:
     Handles Authentication and strictly blocks Admin accounts.
     """
     def dispatch(self, request, *args, **kwargs):
-        # 1. فحص تسجيل الدخول
+        # 1. Check authentication
         if not request.user.is_authenticated:
             return redirect('provider_portal:login')
 
-        # 2. فحص الإدمن (طرد فوري)
+        # 2. Check admin status (immediate ejection)
         if request.user.is_superuser or getattr(request.user, 'is_staff', False):
             logout(request)
             messages.error(request, _("Admin accounts cannot access the Provider Portal. You have been logged out."))
             return redirect('provider_portal:login')
             
-        # 3. فحص وجود ملف المورد
+        # 3. Check provider profile existence
         if not hasattr(request.user, 'provider_profile'):
             logout(request)
             messages.error(request, _("Your account is not registered as a Provider."))
             return redirect('provider_portal:login')
 
-        # السماح بالمرور إذا اجتاز كل الفحوصات
+        # Allow access if all checks pass
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -35,26 +35,26 @@ class GymProviderRequiredMixin:
     Includes all base checks + Gym type verification.
     """
     def dispatch(self, request, *args, **kwargs):
-        # 1. فحص تسجيل الدخول
+        # 1. Check authentication
         if not request.user.is_authenticated:
             return redirect('provider_portal:login')
 
-        # 2. فحص الإدمن (طرد فوري)
+        # 2. Check admin status (immediate ejection)
         if request.user.is_superuser or getattr(request.user, 'is_staff', False):
             logout(request)
             messages.error(request, _("Admin accounts cannot access the Provider Portal. You have been logged out."))
             return redirect('provider_portal:login')
 
-        # 3. فحص وجود ملف المورد
+        # 3. Check provider profile existence
         if not hasattr(request.user, 'provider_profile'):
             logout(request)
             messages.error(request, _("Your account is not registered as a Provider."))
             return redirect('provider_portal:login')
 
-        # 4. فحص نوع المورد (يجب أن يكون صالة رياضية)
+        # 4. Check provider type (Must be gym)
         if request.user.provider_profile.provider_type != 'gym':
             messages.error(request, _("Access denied. This section is for Gym providers only."))
             return redirect('provider_portal:dashboard')
 
-        # السماح بالمرور
+        # Allow access if all checks pass
         return super().dispatch(request, *args, **kwargs)

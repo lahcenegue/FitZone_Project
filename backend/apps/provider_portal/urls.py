@@ -113,9 +113,10 @@ urlpatterns = [
     path("store/products/<int:product_id>/delete/", store_views.ProductDeleteView.as_view(), name="store_product_delete"),
     path("store/orders/", store_views.OrderListView.as_view(), name="store_orders"),
 
-    # Earnings
+# Earnings
     path("earnings/", earnings_views.EarningsView.as_view(), name="earnings"),
     path("earnings/withdraw/", earnings_views.WithdrawView.as_view(), name="withdraw"),
+    path("earnings/bank-update/", earnings_views.BankUpdateView.as_view(), name="bank_update"),
 
     path('api/scan-qr/', gym_views.QRCodeScannerAPIView.as_view(), name='api_scan_qr'),
 ]
