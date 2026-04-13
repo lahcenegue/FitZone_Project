@@ -300,3 +300,61 @@ FitZone Team
         user_email = user.email
         user.delete()
         logger.info(f"User account permanently deleted for: {user_email}")
+
+
+class UserDashboardService:
+    """
+    Aggregator service responsible for fetching and unifying data across 
+    different app modules (Gyms, Trainers, Restaurants) for the user's dashboard.
+    """
+
+    @staticmethod
+    def get_all_subscriptions(user, request=None):
+        """
+        Fetches all active and historical subscriptions with full metadata.
+        Uses request object to build absolute URIs for branch logos.
+        """
+        unified_subscriptions = []
+
+        # 1. Fetch Gym Subscriptions (Prefetching branches to avoid N+1 queries)
+        from apps.gyms.models import GymSubscription
+        gym_subs = GymSubscription.objects.filter(user=user).select_related(
+            'plan', 'plan__provider'
+        ).prefetch_related('plan__branches').order_by('-end_date')
+
+        for sub in gym_subs:
+            plan = sub.plan
+            # Get primary branch (first associated branch)
+            branch = plan.branches.first()
+            
+            sub_entry = {
+                "service_type": "gym",
+                "id": sub.id,
+                "plan_name": plan.name,
+                "provider_name": plan.provider.business_name,
+                "status": sub.status,
+                "qr_code_signature": sub.get_signed_qr_code(),
+                "start_date": sub.start_date,
+                "end_date": sub.end_date,
+                
+                # Branch Context Metadata
+                "branch_id": branch.id if branch else None,
+                "address": branch.address if branch else plan.provider.business_name,
+                "lat": branch.location.y if branch and branch.location else None,
+                "lng": branch.location.x if branch and branch.location else None,
+                "branch_logo": None
+            }
+
+            # Build absolute URI for branch logo if available
+            if branch and branch.branch_logo and request:
+                sub_entry["branch_logo"] = request.build_absolute_uri(branch.branch_logo.url)
+            elif plan.provider.logo and request:
+                # Fallback to provider logo if branch logo is missing
+                sub_entry["branch_logo"] = request.build_absolute_uri(plan.provider.logo.url)
+
+            unified_subscriptions.append(sub_entry)
+
+        # Sort the unified list by end_date (most recent first)
+        unified_subscriptions.sort(key=lambda x: x["end_date"], reverse=True)
+        
+        return unified_subscriptions

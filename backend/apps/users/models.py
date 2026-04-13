@@ -126,11 +126,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         null=True,
     )
-    date_of_birth = models.DateField(
-        _("Date of birth"),
-        blank=True,
-        null=True,
-    )
+
     gender = models.CharField(
         _("Gender"),
         max_length=20,
@@ -258,15 +254,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def profile_complete(self):
         """
-        Return True if the user has filled in all essential profile fields.
-        Required: full_name, phone_number, city, date_of_birth.
+        Return True if the user has filled in all essential profile fields
+        and uploaded the required identity documents.
         """
-        return all([
-            self.full_name,
-            self.phone_number,
-            self.city,
-            self.date_of_birth,
-        ])
+        return bool(
+            self.full_name and 
+            self.phone_number and 
+            self.city and 
+            self.real_face_image and 
+            self.id_card_image
+        )
 
     # ---------------------------------------------------------------------------
     # Methods

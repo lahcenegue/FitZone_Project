@@ -702,4 +702,64 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get changePasswordSubtitle =>
       'Enter your current password and choose a new secure password to protect your account.';
+
+  @override
+  String get checkoutTitle => 'Checkout';
+
+  @override
+  String get orderSummary => 'Order Summary';
+
+  @override
+  String get paymentMethod => 'Payment Method';
+
+  @override
+  String get payNow => 'Pay Now';
+
+  @override
+  String get creditCard => 'Credit Card';
+
+  @override
+  String get applePay => 'Apple Pay';
+
+  @override
+  String get paymentSuccess => 'Payment successful. Subscription activated!';
+
+  @override
+  String get activeSubscription => 'Active';
+
+  @override
+  String get expiredSubscription => 'Expired';
+
+  @override
+  String get scanQrToEnter => 'Scan QR at the gate to enter';
+
+  @override
+  String get validUntil => 'Valid until';
+
+  @override
+  String get totalAmount => 'Total Amount';
+
+  @override
+  String get noSubscriptions => 'You have no active subscriptions.';
+
+  @override
+  String get subscriptionDetails => 'Subscription Details';
+
+  @override
+  String get validity => 'Validity Period';
+
+  @override
+  String get daysRemaining => 'Days Remaining';
+
+  @override
+  String get tapToExpandQr => 'Tap to enlarge QR';
+
+  @override
+  String get gymLocation => 'Gym Location';
+
+  @override
+  String get openInMaps => 'Open in Maps';
+
+  @override
+  String get subscriptionProgress => 'Subscription Progress';
 }

@@ -13,7 +13,8 @@ from .views import (
     CustomerAvatarUpdateView,
     CustomerChangePasswordView,
     CustomerAccountDeleteView,
-    CustomerLogoutView
+    CustomerLogoutView,
+    UserSubscriptionsAPIView
 )
 
 app_name = "users_api"
@@ -37,4 +38,7 @@ urlpatterns = [
     path("profile/avatar/", CustomerAvatarUpdateView.as_view(), name="profile-avatar-update"),
     path("profile/update/", CustomerProfileUpdateView.as_view(), name="profile-update"),
     path("profile/delete/", CustomerAccountDeleteView.as_view(), name="profile-delete"),
+    
+    # Unified User Dashboard Endpoints
+    path("my-subscriptions/", UserSubscriptionsAPIView.as_view(), name="my-subscriptions"),
 ]

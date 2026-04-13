@@ -139,3 +139,25 @@ class UserLogoutSerializer(serializers.Serializer):
         required=True, 
         error_messages={"required": "Refresh token is required."}
     )
+
+class AggregatedSubscriptionSerializer(serializers.Serializer):
+    """
+    Serializer for the unified user subscriptions list.
+    Enhanced to include detailed branch information for UI cards.
+    """
+    service_type = serializers.CharField()
+    id = serializers.IntegerField()
+    plan_name = serializers.CharField(required=False)
+    provider_name = serializers.CharField(required=False)
+    
+    # Branch Details
+    branch_id = serializers.IntegerField(required=False)
+    branch_logo = serializers.URLField(required=False, allow_null=True)
+    address = serializers.CharField(required=False)
+    lat = serializers.FloatField(required=False, allow_null=True)
+    lng = serializers.FloatField(required=False, allow_null=True)
+    
+    status = serializers.CharField()
+    qr_code_signature = serializers.CharField(required=False)
+    start_date = serializers.DateField(required=False)
+    end_date = serializers.DateField(required=False)

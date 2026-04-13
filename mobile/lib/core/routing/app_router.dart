@@ -1,3 +1,5 @@
+import 'package:fitzone/features/subscriptions/data/models/subscription_model.dart';
+import 'package:fitzone/features/subscriptions/presentation/screens/subscription_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,12 +17,15 @@ import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import 'package:fitzone/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:fitzone/features/auth/presentation/screens/login_screen.dart';
 import 'package:fitzone/features/auth/presentation/screens/reset_password_screen.dart';
-// استيراد الشاشات الجديدة
+
 import '../../features/auth/presentation/screens/change_password_screen.dart';
 import '../../features/auth/presentation/screens/delete_account_screen.dart';
 
 import 'package:fitzone/features/profile/presentation/screens/profile_screen.dart';
 import 'package:fitzone/features/profile/presentation/screens/personal_info_screen.dart';
+
+import '../../features/subscriptions/presentation/screens/checkout_screen.dart';
+import '../../features/subscriptions/presentation/screens/my_subscriptions_screen.dart';
 
 import '../l10n/l10n_extension.dart';
 
@@ -47,6 +52,10 @@ class RoutePaths {
   static const String deleteAccount = '/delete-account';
 
   static const String gymDetails = '/gym/:id';
+
+  static const String checkout = '/checkout';
+  static const String mySubscriptions = '/my-subscriptions';
+  static const String subscriptionDetails = '/subscription-details';
 
   static String gymDetailsPath(int id) => '/gym/$id';
 }
@@ -110,7 +119,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const PersonalInfoScreen(),
       ),
-      // --- إضافة مسارات الشاشات الجديدة هنا ---
       GoRoute(
         path: RoutePaths.changePassword,
         parentNavigatorKey: _rootNavigatorKey,
@@ -121,6 +129,34 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const DeleteAccountScreen(),
       ),
+      GoRoute(
+        path: RoutePaths.checkout,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return CheckoutScreen(
+            planId: extra['planId'] ?? 0,
+            planName: extra['planName'] ?? '',
+            price: extra['price'] ?? 0.0,
+            rewardPoints: extra['rewardPoints'] ?? 0,
+            gymName: extra['gymName'] ?? '',
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.mySubscriptions,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const MySubscriptionsScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.subscriptionDetails,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final sub = state.extra as SubscriptionModel;
+          return SubscriptionDetailsScreen(subscription: sub);
+        },
+      ),
+
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return MainShellScreen(navigationShell: navigationShell);

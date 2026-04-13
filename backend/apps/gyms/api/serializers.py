@@ -7,9 +7,10 @@ from rest_framework import serializers
 from django.utils import timezone
 from django.db.models import Avg
 
+from apps.payments.models import PaymentGateway
 from apps.gyms.models import (
-    GymBranch, BranchImage, GymAmenity, GymSport, SubscriptionPlan, 
-    PlanFeature, GymBranchSchedule, GymReview
+    GymBranch, GymAmenity, GymSport, SubscriptionPlan, 
+    PlanFeature, GymReview, GymSubscription
 )
 
 
@@ -311,3 +312,29 @@ class GymBranchSearchSerializer(serializers.ModelSerializer):
 
     def get_lng(self, obj):
         return obj.location.x if obj.location else None
+    
+class GymCheckoutSerializer(serializers.Serializer):
+    """Payload for initiating a subscription checkout."""
+    plan_id = serializers.IntegerField(required=True)
+    gateway = serializers.ChoiceField(
+        choices=PaymentGateway.choices, 
+        default=PaymentGateway.MOCK
+    )
+
+class GymSubscriptionSerializer(serializers.ModelSerializer):
+    """Returns the subscription details including the cryptographic QR signature."""
+    plan_name = serializers.CharField(source='plan.name', read_only=True)
+    provider_name = serializers.CharField(source='plan.provider.business_name', read_only=True)
+    qr_code_signature = serializers.SerializerMethodField()
+    price = serializers.DecimalField(source='plan.price', max_digits=10, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = GymSubscription
+        fields = [
+            'id', 'plan_name', 'provider_name', 'price', 'start_date', 'end_date', 
+            'status', 'purchased_at', 'is_resold', 'qr_code_signature'
+        ]
+
+    def get_qr_code_signature(self, obj):
+        # This is the encrypted token that the physical scanner will read
+        return obj.get_signed_qr_code()

@@ -1423,6 +1423,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter your current password and choose a new secure password to protect your account.'**
   String get changePasswordSubtitle;
+
+  /// No description provided for @checkoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout'**
+  String get checkoutTitle;
+
+  /// No description provided for @orderSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Summary'**
+  String get orderSummary;
+
+  /// No description provided for @paymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Method'**
+  String get paymentMethod;
+
+  /// No description provided for @payNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay Now'**
+  String get payNow;
+
+  /// No description provided for @creditCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Card'**
+  String get creditCard;
+
+  /// No description provided for @applePay.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Pay'**
+  String get applePay;
+
+  /// No description provided for @paymentSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment successful. Subscription activated!'**
+  String get paymentSuccess;
+
+  /// No description provided for @activeSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get activeSubscription;
+
+  /// No description provided for @expiredSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get expiredSubscription;
+
+  /// No description provided for @scanQrToEnter.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan QR at the gate to enter'**
+  String get scanQrToEnter;
+
+  /// No description provided for @validUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid until'**
+  String get validUntil;
+
+  /// No description provided for @totalAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Amount'**
+  String get totalAmount;
+
+  /// No description provided for @noSubscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no active subscriptions.'**
+  String get noSubscriptions;
+
+  /// No description provided for @subscriptionDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Details'**
+  String get subscriptionDetails;
+
+  /// No description provided for @validity.
+  ///
+  /// In en, this message translates to:
+  /// **'Validity Period'**
+  String get validity;
+
+  /// No description provided for @daysRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Days Remaining'**
+  String get daysRemaining;
+
+  /// No description provided for @tapToExpandQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to enlarge QR'**
+  String get tapToExpandQr;
+
+  /// No description provided for @gymLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym Location'**
+  String get gymLocation;
+
+  /// No description provided for @openInMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Maps'**
+  String get openInMaps;
+
+  /// No description provided for @subscriptionProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Progress'**
+  String get subscriptionProgress;
 }
 
 class _AppLocalizationsDelegate

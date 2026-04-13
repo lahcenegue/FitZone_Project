@@ -5,7 +5,7 @@ API views for Gym access and management operations.
 import logging
 from rest_framework import status
 from rest_framework.generics import ListAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
@@ -13,7 +13,9 @@ from django.db.models import Prefetch
 
 from apps.gyms.models import GymBranch, SubscriptionPlan, GymSport, GymAmenity
 from apps.gyms.api.serializers import GymSportSerializer, GymAmenitySerializer
-from .serializers import GymBranchDetailSerializer
+from .serializers import GymBranchDetailSerializer, GymCheckoutSerializer, GymSubscriptionSerializer
+from ..services import GymSubscriptionService
+
 
 logger = logging.getLogger(__name__)
 
@@ -76,3 +78,35 @@ class GymAmenityListAPIView(ListAPIView):
     authentication_classes = []  # Public endpoint
     permission_classes = []
     pagination_class = None  # Return all records at once for caching
+
+class GymCheckoutAPIView(APIView):
+    """
+    POST /api/v1/gyms/checkout/
+    Processes the payment and activates a gym subscription.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = GymCheckoutSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            subscription = GymSubscriptionService.checkout(
+                user=request.user,
+                plan_id=serializer.validated_data['plan_id'],
+                gateway_name=serializer.validated_data['gateway']
+            )
+            return Response({
+                "message": "Payment successful. Subscription activated.",
+                "subscription": GymSubscriptionSerializer(subscription).data
+            }, status=status.HTTP_201_CREATED)
+            
+        except ValueError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Checkout error for user {request.user.email}: {str(e)}", exc_info=True)
+            return Response(
+                {"detail": "An internal error occurred during checkout."}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

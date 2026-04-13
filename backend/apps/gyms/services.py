@@ -8,7 +8,10 @@ from datetime import timedelta
 from django.utils import timezone
 from django.db import transaction
 
-from .models import GymSubscription, GymVisit, GymGlobalSetting, GymBranch
+from .models import GymVisit, GymBranch
+from apps.gyms.models import GymVisit, GymBranch, SubscriptionPlan, GymSubscription, GymGlobalSetting
+from apps.payments.services import PaymentService
+
 
 logger = logging.getLogger(__name__)
 
@@ -107,3 +110,68 @@ class GymAccessService:
             "end_date": subscription.end_date.strftime("%Y-%m-%d"),
             "days_remaining": (subscription.end_date - today).days
         }
+    
+class GymSubscriptionService:
+    """
+    Business logic for purchasing and managing Gym Subscriptions.
+    """
+
+    @staticmethod
+    @transaction.atomic
+    def checkout(user, plan_id: int, gateway_name: str) -> GymSubscription:
+        # 1. Validate User Identity Documents
+        if not user.profile_complete:
+            raise ValueError("Profile is incomplete. Identity documents (Face and ID) are required before purchasing a subscription.")
+
+        # 2. Validate Plan
+        try:
+            plan = SubscriptionPlan.objects.get(id=plan_id, is_active=True)
+        except SubscriptionPlan.DoesNotExist:
+            raise ValueError("The selected subscription plan is invalid or currently inactive.")
+
+        # 3. Process Financial Transaction (via Payments App)
+        payment_txn = PaymentService.process_payment(
+            user=user,
+            amount=plan.price,
+            currency="SAR",
+            gateway_name=gateway_name
+        )
+
+        # 4. Calculate Subscription Dates (Handle overlapping/extensions)
+        now = timezone.now().date()
+        existing_sub = GymSubscription.objects.filter(
+            user=user,
+            plan=plan,
+            status="active"
+        ).order_by('-end_date').first()
+
+        if existing_sub and existing_sub.end_date >= now:
+            # Extension: Start exactly the day after the current one ends
+            start_date = existing_sub.end_date + timedelta(days=1)
+        else:
+            # New Subscription: Start today
+            start_date = now
+
+        end_date = start_date + timedelta(days=plan.duration_days - 1)
+
+        # 5. Create Subscription Record
+        subscription = GymSubscription.objects.create(
+            user=user,
+            plan=plan,
+            payment=payment_txn,
+            start_date=start_date,
+            end_date=end_date,
+            status="active"
+        )
+
+        # 6. Calculate and Add Loyalty Points
+        global_settings = GymGlobalSetting.load()
+        points_rate = global_settings.points_conversion_rate
+        
+        if points_rate and points_rate > 0:
+            points_earned = int(plan.price / points_rate)
+            if points_earned > 0:
+                user.add_points(amount=points_earned, reason=f"Purchased Gym Plan: {plan.name}")
+
+        logger.info(f"Subscription {subscription.id} successfully created for user {user.email}.")
+        return subscription

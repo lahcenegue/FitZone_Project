@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -25,7 +28,7 @@ class ProfileActionGrid extends StatelessWidget {
             child: _buildGridCard(
               title: l10n.mySubscriptions,
               icon: Icons.qr_code_scanner_rounded,
-              onTap: () {},
+              onTap: () => context.push(RoutePaths.mySubscriptions),
               compact: false,
             ),
           ),
@@ -49,7 +52,7 @@ class ProfileActionGrid extends StatelessWidget {
                     title: l10n.saved,
                     icon: Icons.favorite_rounded,
                     iconColor: colors.error,
-                    onTap: () {},
+                    onTap: () => context.push(RoutePaths.saved),
                     compact: true,
                   ),
                 ),
@@ -69,7 +72,6 @@ class ProfileActionGrid extends StatelessWidget {
     bool compact = false,
   }) {
     return Container(
-      //padding: EdgeInsets.only(left: Dimensions.spacingMedium),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),

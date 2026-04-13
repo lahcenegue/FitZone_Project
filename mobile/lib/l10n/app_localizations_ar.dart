@@ -699,4 +699,64 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get changePasswordSubtitle =>
       'أدخل كلمة المرور الحالية واختر كلمة مرور جديدة وآمنة لحماية حسابك.';
+
+  @override
+  String get checkoutTitle => 'إتمام الدفع';
+
+  @override
+  String get orderSummary => 'ملخص الطلب';
+
+  @override
+  String get paymentMethod => 'وسيلة الدفع';
+
+  @override
+  String get payNow => 'ادفع الآن';
+
+  @override
+  String get creditCard => 'بطاقة ائتمانية';
+
+  @override
+  String get applePay => 'Apple Pay';
+
+  @override
+  String get paymentSuccess => 'تم الدفع وتفعيل الاشتراك بنجاح!';
+
+  @override
+  String get activeSubscription => 'نشط';
+
+  @override
+  String get expiredSubscription => 'منتهي';
+
+  @override
+  String get scanQrToEnter => 'امسح الرمز عند بوابة الدخول';
+
+  @override
+  String get validUntil => 'صالح حتى';
+
+  @override
+  String get totalAmount => 'الإجمالي';
+
+  @override
+  String get noSubscriptions => 'لا توجد لديك اشتراكات حالية.';
+
+  @override
+  String get subscriptionDetails => 'تفاصيل الاشتراك';
+
+  @override
+  String get validity => 'فترة الصلاحية';
+
+  @override
+  String get daysRemaining => 'يوم متبقي';
+
+  @override
+  String get tapToExpandQr => 'اضغط لتكبير الرمز';
+
+  @override
+  String get gymLocation => 'موقع الصالة';
+
+  @override
+  String get openInMaps => 'الفتح في الخرائط';
+
+  @override
+  String get subscriptionProgress => 'تقدم الاشتراك';
 }

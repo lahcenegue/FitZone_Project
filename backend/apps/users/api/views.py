@@ -1,3 +1,4 @@
+import logging
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -18,9 +19,12 @@ from .serializers import (
     UserAvatarUpdateSerializer,
     UserProfileUpdateSerializer,
     UserAccountDeleteSerializer,
-    UserLogoutSerializer
+    UserLogoutSerializer,
+    AggregatedSubscriptionSerializer
 )
-from ..services.user_service import UserAuthService
+from ..services.user_service import UserAuthService, UserDashboardService
+
+logger = logging.getLogger(__name__)
 
 class CustomerRegisterView(APIView):
     """
@@ -284,4 +288,24 @@ class CustomerLogoutView(APIView):
             return Response(
                 {"detail": "Token is invalid or already blacklisted."}, 
                 status=status.HTTP_400_BAD_REQUEST
+            )
+
+class UserSubscriptionsAPIView(APIView):
+    """
+    GET /api/v1/users/my-subscriptions/
+    Retrieves an enriched unified list of all subscriptions for the user.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            # Pass request object to service for URI building
+            subs_data = UserDashboardService.get_all_subscriptions(request.user, request=request)
+            serializer = AggregatedSubscriptionSerializer(subs_data, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error fetching subscriptions for {request.user.email}: {str(e)}", exc_info=True)
+            return Response(
+                {"detail": "An internal error occurred while fetching subscriptions."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

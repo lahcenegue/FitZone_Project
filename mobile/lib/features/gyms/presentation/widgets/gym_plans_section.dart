@@ -16,15 +16,16 @@ class GymPlansSection extends ConsumerWidget {
   final List<GymPlan> plans;
   final AppColors colors;
   final int gymId;
+  final String gymName; // NEW: Accept Gym Name from parent
 
   const GymPlansSection({
     super.key,
     required this.plans,
     required this.colors,
     required this.gymId,
+    required this.gymName,
   });
 
-  /// Saves the user's intent to buy a specific plan so they return here after Auth
   void _savePurchaseIntent(WidgetRef ref, int planId) {
     ref
         .read(authIntentServiceProvider)
@@ -36,7 +37,6 @@ class GymPlansSection extends ConsumerWidget {
         );
   }
 
-  /// Shows an elegant bottom sheet prompting the user to Login or Register
   void _showAuthPrompt(
     BuildContext context,
     WidgetRef ref,
@@ -76,7 +76,7 @@ class GymPlansSection extends ConsumerWidget {
                 ),
                 SizedBox(height: Dimensions.spacingMedium),
                 Text(
-                  l10n.authRequiredTitle, // "Authentication Required"
+                  l10n.authRequiredTitle,
                   style: TextStyle(
                     fontSize: Dimensions.fontHeading2,
                     fontWeight: FontWeight.bold,
@@ -85,7 +85,7 @@ class GymPlansSection extends ConsumerWidget {
                 ),
                 SizedBox(height: Dimensions.spacingSmall),
                 Text(
-                  l10n.authRequiredSubtitle, // "Please login or create an account..."
+                  l10n.authRequiredSubtitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: Dimensions.fontBodyLarge,
@@ -109,8 +109,8 @@ class GymPlansSection extends ConsumerWidget {
                     ),
                     onPressed: () {
                       _savePurchaseIntent(ref, planId);
-                      context.pop(); // Close prompt
-                      context.push(RoutePaths.login); // Go to Login
+                      context.pop();
+                      context.push(RoutePaths.login);
                     },
                     child: Text(
                       l10n.login,
@@ -137,11 +137,11 @@ class GymPlansSection extends ConsumerWidget {
                     ),
                     onPressed: () {
                       _savePurchaseIntent(ref, planId);
-                      context.pop(); // Close prompt
-                      context.push(RoutePaths.register); // Go to Register
+                      context.pop();
+                      context.push(RoutePaths.register);
                     },
                     child: Text(
-                      l10n.createAccount, // Ensure this key exists in your .arb files
+                      l10n.createAccount,
                       style: TextStyle(
                         fontSize: Dimensions.fontButton,
                         fontWeight: FontWeight.bold,
@@ -184,7 +184,6 @@ class GymPlansSection extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  // Handle
                   Padding(
                     padding: EdgeInsets.symmetric(
                       vertical: Dimensions.spacingMedium,
@@ -201,7 +200,6 @@ class GymPlansSection extends ConsumerWidget {
                     ),
                   ),
 
-                  // Content
                   Expanded(
                     child: ListView(
                       controller: controller,
@@ -210,7 +208,6 @@ class GymPlansSection extends ConsumerWidget {
                         horizontal: Dimensions.spacingLarge,
                       ),
                       children: [
-                        // VIP Ticket Header
                         Container(
                           padding: EdgeInsets.all(Dimensions.spacingLarge),
                           decoration: BoxDecoration(
@@ -287,7 +284,6 @@ class GymPlansSection extends ConsumerWidget {
 
                         SizedBox(height: Dimensions.spacingLarge),
 
-                        // Points Ribbon
                         Container(
                           padding: EdgeInsets.all(Dimensions.spacingMedium),
                           decoration: BoxDecoration(
@@ -323,7 +319,6 @@ class GymPlansSection extends ConsumerWidget {
 
                         SizedBox(height: Dimensions.spacingExtraLarge),
 
-                        // Features
                         Text(
                           l10n.subscriptionPlans,
                           style: TextStyle(
@@ -379,7 +374,6 @@ class GymPlansSection extends ConsumerWidget {
                     ),
                   ),
 
-                  // Fixed Bottom Checkout Section
                   Container(
                     padding: EdgeInsets.fromLTRB(
                       Dimensions.spacingLarge,
@@ -415,12 +409,11 @@ class GymPlansSection extends ConsumerWidget {
                             ),
                           ),
                           onPressed: () {
-                            context.pop(); // Close the Plan Details sheet
+                            context.pop();
 
                             final user = ref.read(authControllerProvider).value;
 
                             if (user == null) {
-                              // User is completely unauthenticated -> Show elegant auth prompt
                               _showAuthPrompt(
                                 context,
                                 ref,
@@ -429,22 +422,23 @@ class GymPlansSection extends ConsumerWidget {
                                 l10n,
                               );
                             } else if (!user.profileIsComplete) {
-                              // User is logged in but profile is incomplete -> Step 2
                               context.push(RoutePaths.completeProfile);
                             } else {
-                              // Fully authenticated and complete -> Proceed to Payment
-                              // TODO: context.push('/payment/${plan.id}');
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Proceeding to Payment for ${plan.name}...',
-                                  ),
-                                ),
+                              // ARCHITECTURE FIX: Pass real gymName dynamically
+                              context.push(
+                                RoutePaths.checkout,
+                                extra: {
+                                  'planId': plan.id,
+                                  'planName': plan.name,
+                                  'price': plan.price,
+                                  'rewardPoints': plan.rewardPoints,
+                                  'gymName': gymName,
+                                },
                               );
                             }
                           },
                           child: Text(
-                            '${l10n.buyNow} • ${format.format(plan.price)} ${l10n.sar}',
+                            '${l10n.subscribeNow} • ${format.format(plan.price)} ${l10n.sar}',
                             style: TextStyle(
                               fontSize: Dimensions.fontButton,
                               fontWeight: FontWeight.bold,

@@ -97,10 +97,12 @@ class GymDetailsScreen extends ConsumerWidget {
                       ],
 
                       if (gym.plans.isNotEmpty) ...[
+                        // ARCHITECTURE FIX: Pass the real gym name to the plans section
                         GymPlansSection(
                           plans: gym.plans,
                           colors: colors,
                           gymId: gymId,
+                          gymName: gym.providerName,
                         ),
                         SizedBox(height: Dimensions.spacingExtraLarge),
                       ],

@@ -2,7 +2,6 @@
 class ApiConstants {
   ApiConstants._();
 
-  // Base URL (10.0.2.2 is localhost for Android Emulators)
   static const String baseUrl = 'http://10.0.2.2:8000/api/v1';
 
   // --- Auth & User Profile ---
@@ -14,13 +13,17 @@ class ApiConstants {
   static const String requestPasswordReset = '/users/password-reset/request/';
   static const String confirmPasswordReset = '/users/password-reset/confirm/';
 
-  // --- New Security & Profile Endpoints ---
+  // --- Security & Profile Endpoints ---
   static const String refreshToken = '/users/token/refresh/';
   static const String logout = '/users/logout/';
   static const String changePassword = '/users/profile/change-password/';
   static const String updateAvatar = '/users/profile/avatar/';
   static const String updateProfile = '/users/profile/update/';
   static const String deleteAccount = '/users/profile/delete/';
+
+  // --- Subscriptions & Checkout (NEW) ---
+  static const String checkout = '/gyms/checkout/';
+  static const String mySubscriptions = '/users/my-subscriptions/';
 
   // --- Map Discovery ---
   static const String mapDiscover = '/providers/discover/';

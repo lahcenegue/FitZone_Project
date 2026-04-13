@@ -253,4 +253,16 @@ class AuthController extends _$AuthController {
       return ProfileUpdateResult.error;
     }
   }
+
+  /// ARCHITECTURE FIX: Mutates local state to instantly reflect new points after a successful purchase.
+  void addLoyaltyPoints(int pointsToAdd) {
+    if (state.value != null && pointsToAdd > 0) {
+      _logger.info('Adding $pointsToAdd points to local state.');
+      final UserModel currentUser = state.value!;
+      final UserModel updatedUser = currentUser.copyWith(
+        pointsBalance: currentUser.pointsBalance + pointsToAdd,
+      );
+      updateUserState(updatedUser);
+    }
+  }
 }
