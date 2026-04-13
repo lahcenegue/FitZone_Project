@@ -511,6 +511,39 @@ class QRCodeScannerAPIView(GymProviderRequiredMixin, View):
         except Exception as e:
             logger.error(f"QR Scan Error: {str(e)}", exc_info=True)
             return JsonResponse({'status': 'ignore'}, status=200)
+        
+        
+class SubscriberListView(GymProviderRequiredMixin, ListView): 
+    """
+    GET /portal/gym/subscribers/
+    Enterprise Grade CRM Dashboard for Subscribers.
+    """
+    model = GymSubscription
+    template_name = "provider_portal/gym/subscribers/list.html"
+    context_object_name = "subscriptions"
 
-class SubscriberListView(GymProviderRequiredMixin, View): 
-    pass
+    def get_queryset(self):
+        provider = self.request.user.provider_profile
+        # Using prefetch_related for branches to avoid N+1 inside the template/JSON
+        return GymSubscription.objects.select_related(
+            'user', 'plan'
+        ).prefetch_related(
+            'visits', 'plan__branches'
+        ).filter(
+            plan__provider=provider
+        ).order_by('-start_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        qs = self.get_queryset()
+        
+        # KPIs
+        context['total_active'] = qs.filter(status='active').count()
+        context['total_expired'] = qs.filter(status='expired').count()
+        context['total_suspended'] = qs.filter(status='suspended').count()
+        
+        # Pass branches for the filter dropdown
+        from apps.gyms.models import GymBranch
+        context['branches'] = GymBranch.objects.filter(provider=self.request.user.provider_profile)
+        
+        return context
