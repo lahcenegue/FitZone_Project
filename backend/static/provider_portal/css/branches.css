@@ -1,0 +1,274 @@
+/* ==========================================================================
+   BRANCHES MANAGEMENT STYLES (ENTERPRISE BENTO CARDS)
+   ========================================================================== */
+
+.branches-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding-bottom: var(--space-8);
+}
+
+/* --- Header Section --- */
+.branches-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: var(--space-4);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    padding-bottom: var(--space-4);
+}
+
+[data-theme="dark"] .branches-header {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.header-text h2 {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+}
+
+.header-text p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    margin: 0;
+    font-weight: var(--font-weight-medium);
+}
+
+.btn-add-branch {
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    text-decoration: none;
+    border: none;
+}
+
+.btn-add-branch:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+}
+
+/* --- Grid Layout --- */
+.branches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: var(--space-6);
+    align-items: start;
+}
+
+/* --- The Bento Card --- */
+.b-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    position: relative;
+}
+
+.b-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* --- Card Hero (Cover Image) --- */
+.b-hero {
+    position: relative;
+    height: 140px;
+    background: linear-gradient(135deg, var(--color-border) 0%, var(--color-bg) 100%);
+    width: 100%;
+}
+
+.b-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.b-badge {
+    position: absolute;
+    top: 16px;
+    inset-inline-end: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: var(--font-weight-black);
+    text-transform: uppercase;
+    box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .b-badge {
+    background: rgba(15, 23, 42, 0.8);
+}
+
+.b-badge.active { color: var(--color-success); }
+.b-badge.closed { color: var(--color-error); }
+
+/* --- Card Body --- */
+.b-body {
+    padding: 0 var(--space-6) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    position: relative;
+}
+
+.b-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 4px solid var(--color-surface);
+    background-color: var(--color-bg);
+    object-fit: cover;
+    margin-top: -36px;
+    margin-bottom: 12px;
+    z-index: 2;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+}
+
+.b-name {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    margin: 0 0 4px 0;
+}
+
+.b-loc {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 20px;
+}
+
+/* --- Stats Grid (The Secret Sauce) --- */
+.b-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 24px;
+    background: var(--color-bg);
+    padding: 16px 12px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-inline-end: 1px solid rgba(0,0,0,0.05);
+}
+
+[data-theme="dark"] .stat-item { border-inline-end-color: rgba(255,255,255,0.05); }
+.stat-item:last-child { border-inline-end: none; }
+
+.stat-val {
+    font-size: 18px;
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    line-height: 1.2;
+}
+
+.stat-lbl {
+    font-size: 11px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+/* --- Toggles Section --- */
+.b-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: auto;
+}
+
+.t-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.t-info { display: flex; flex-direction: column; }
+.t-title { font-size: 14px; font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin-bottom: 2px; }
+.t-title.danger { color: var(--color-error); }
+.t-desc { font-size: 12px; color: var(--color-text-secondary); }
+
+/* Switch UI */
+.ui-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+.ui-switch input { opacity: 0; width: 0; height: 0; }
+.ui-slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--color-border); border-radius: var(--radius-full); transition: var(--transition); }
+.ui-slider::before { position: absolute; content: ""; height: 18px; width: 18px; inset-inline-start: 3px; bottom: 3px; background-color: var(--color-surface); border-radius: 50%; box-shadow: var(--shadow-sm); transition: transform var(--transition); }
+input:checked + .ui-slider { background-color: var(--color-success); }
+input.switch-danger:checked + .ui-slider { background-color: var(--color-error); }
+[dir="ltr"] input:checked + .ui-slider::before { transform: translateX(20px); }
+[dir="rtl"] input:checked + .ui-slider::before { transform: translateX(-20px); }
+
+/* --- Card Footer Actions --- */
+.b-footer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+}
+
+.b-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-secondary);
+    border-inline-end: 1px solid var(--color-border);
+    transition: var(--transition);
+    text-decoration: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.b-action:last-child { border-inline-end: none; }
+.b-action:hover { background-color: var(--color-bg); color: var(--color-text-primary); }
+.b-action.delete:hover { background-color: rgba(239, 68, 68, 0.05); color: var(--color-error); }
+
+/* --- Empty State --- */
+.empty-state {
+    text-align: center;
+    padding: var(--space-12) var(--space-4);
+    background-color: var(--color-surface);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

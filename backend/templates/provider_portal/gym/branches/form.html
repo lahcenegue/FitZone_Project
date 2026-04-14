@@ -2,340 +2,295 @@
 {% load i18n static %}
 
 {% block page_title %}
-  {% if is_edit %}
-    {% trans "Edit Branch" %}: {{ branch.name }}
-  {% else %}
-    {% trans "Add New Branch" %}
-  {% endif %}
+    {% if is_edit %}{% trans "Edit Branch:" %} {{ branch.name }}{% else %}{% trans "Add New Branch" %}{% endif %}
 {% endblock %}
-
 {% block nav_branches %}active{% endblock %}
 
 {% block extra_css %}
 {{ block.super }}
+<link rel="stylesheet" href="{% static 'provider_portal/css/branch_form.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 <style>
-  /* --- Wizard & Layout --- */
-  .wizard-container { max-width: 850px; margin: 0 auto; }
-  
-  .wizard-header { display: flex; justify-content: space-between; margin-bottom: var(--space-8); position: relative; }
-  .wizard-header::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: var(--color-border); z-index: 1; transform: translateY(-50%); }
-  .step-indicator { background: var(--color-surface); border: 2px solid var(--color-border); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: var(--font-weight-bold); color: var(--color-text-muted); z-index: 2; position: relative; transition: all var(--transition); }
-  .step-indicator.active { border-color: var(--color-accent); color: var(--color-accent); background: var(--color-surface); }
-  .step-indicator.completed { border-color: var(--color-success); background: var(--color-success); color: var(--color-surface); }
-
-  .wizard-step { display: none; background: var(--color-surface); padding: var(--space-8); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--color-border); }
-  .wizard-step.active { display: block; animation: fadeIn 0.4s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* --- Form Elements --- */
-  .form-group { margin-bottom: var(--space-6); }
-  .form-label { display: block; font-weight: var(--font-weight-bold); margin-bottom: var(--space-2); color: var(--color-text-primary); font-size: var(--font-size-base); }
-  .form-control { width: 100%; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; transition: border-color var(--transition), box-shadow var(--transition); background: var(--color-bg); }
-  .form-control:focus { border-color: var(--color-accent); outline: none; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1); background: var(--color-surface); }
-  
-  /* --- Logo Upload --- */
-  .logo-section { display: flex; align-items: center; gap: var(--space-6); margin-bottom: var(--space-6); padding-bottom: var(--space-6); border-bottom: 1px solid var(--color-border); }
-  .logo-preview { width: 100px; height: 100px; border-radius: var(--radius-lg); object-fit: cover; border: 1px dashed var(--color-border); background: var(--color-bg); }
-  .btn-upload-logo { background: var(--color-surface); border: 1px solid var(--color-border); padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer; font-size: var(--font-size-sm); display: inline-flex; align-items: center; gap: 8px; transition: all var(--transition); color: var(--color-text-primary); font-weight: var(--font-weight-medium); }
-  .btn-upload-logo:hover { border-color: var(--color-primary); background: var(--color-bg); }
-  
-  /* --- Map --- */
-  #branch-map { height: 350px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--color-border); z-index: 1; margin-bottom: var(--space-2); }
-  
-  /* --- Custom Select2 Styling for Sports & Amenities --- */
-  .select2-container { width: 100% !important; }
-  .select2-container--default .select2-selection--multiple {
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    min-height: 48px;
-    padding: 4px 8px;
-    transition: all var(--transition);
-  }
-  .select2-container--default.select2-container--focus .select2-selection--multiple {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-  }
-  .select2-container--default .select2-selection--multiple .select2-selection__choice {
-    background-color: var(--color-primary);
-    color: var(--color-surface);
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: 4px 10px;
-    margin-top: 6px;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-  }
-  .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-    color: rgba(255,255,255,0.7);
-    margin-inline-end: 6px;
-    border: none;
-    font-weight: bold;
-  }
-  .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-    color: var(--color-error);
-    background: transparent;
-  }
-  .select2-dropdown {
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
-  }
-  .select2-search__field { font-family: inherit !important; }
-
-  .pill-group input[type="checkbox"],
-  .pill-group input[type="radio"] { display: none; }
-  
-  .pill-group label:has(input[type="checkbox"]:checked),
-  .pill-group label:has(input[type="radio"]:checked) {
-    background-color: var(--color-primary); color: white; border-color: var(--color-primary);
-    box-shadow: var(--shadow-sm);
-  }
-
-  /* --- iOS-Style Toggle Switch --- */
-  .ui-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
-  .ui-switch input { opacity: 0; width: 0; height: 0; }
-  .ui-slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--color-border); border-radius: var(--radius-full); transition: var(--transition); }
-  .ui-slider::before { content: ""; position: absolute; height: 18px; width: 18px; inset-inline-start: 3px; bottom: 3px; background-color: var(--color-surface); border-radius: 50%; transition: transform var(--transition); box-shadow: var(--shadow-sm); }
-  input:checked + .ui-slider { background-color: var(--color-success); }
-  input.switch-danger:checked + .ui-slider { background-color: var(--color-error); }
-  [dir="ltr"] input:checked + .ui-slider::before { transform: translateX(20px); }
-  [dir="rtl"] input:checked + .ui-slider::before { transform: translateX(-20px); }
-
-  /* --- Schedule Grid --- */
-  .schedule-grid { display: grid; grid-template-columns: 100px 1fr 1fr; gap: var(--space-4); align-items: center; padding: var(--space-3) 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
-  .schedule-grid:last-child { border-bottom: none; }
-  .schedule-day-label { font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); color: var(--color-text-primary); }
-
-  /* --- Buttons & Actions --- */
-  .actions { display: flex; justify-content: space-between; margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border); flex-direction: row-reverse; }
-  .btn-primary { background: var(--color-primary); color: white; padding: 12px 32px; border-radius: var(--radius-md); font-weight: var(--font-weight-bold); border: none; cursor: pointer; transition: background var(--transition), transform var(--transition); display: inline-flex; align-items: center; gap: 8px; }
-  .btn-primary:hover { background: var(--color-accent); transform: translateY(-2px); }
-  .btn-secondary { background: var(--color-surface); color: var(--color-text-secondary); border: 1px solid var(--color-border); padding: 12px 24px; border-radius: var(--radius-md); font-weight: var(--font-weight-medium); cursor: pointer; transition: all var(--transition); }
-  .btn-secondary:hover { background: var(--color-bg); color: var(--color-text-primary); }
+    /* Select2 Soft UI Overrides for consistent look */
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background-color: var(--color-bg);
+        min-height: 54px;
+        padding: 6px 12px;
+        transition: all var(--transition);
+    }
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+    [data-theme="dark"] .select2-container--default .select2-selection--multiple {
+        background-color: var(--color-surface);
+    }
+    .select2-dropdown {
+        border-color: var(--color-border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-lg);
+        background-color: var(--color-surface);
+    }
 </style>
 {% endblock extra_css %}
 
 {% block content %}
-<div class="wizard-container">
-  <div class="wizard-header">
-    <div class="step-indicator active" id="ind-1">1</div>
-    <div class="step-indicator" id="ind-2">2</div>
-    <div class="step-indicator" id="ind-3">3</div>
-    <div class="step-indicator" id="ind-4">4</div>
-  </div>
+<div class="page-container">
 
-  <form method="post" enctype="multipart/form-data" id="branchForm" novalidate>
-    {% csrf_token %}
-    
-    {% if form.errors %}
-      <div class="alert alert--error" style="margin-bottom: var(--space-6); display: block;">
-        <strong>{% trans "Please correct the following errors to save the branch:" %}</strong>
-        <ul style="margin-top: 8px; margin-inline-start: 20px; font-size: 14px;">
-          {% for field in form %}
-            {% for error in field.errors %}
-              <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-            {% endfor %}
-          {% endfor %}
-          {% for error in form.non_field_errors %}
-            <li>{{ error }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
-
-  <form method="post" enctype="multipart/form-data" id="branchForm" novalidate>
-    {% csrf_token %}
-    
-    <div class="wizard-step active" id="step-1">
-      <h3 style="margin-bottom: var(--space-6); font-size: var(--font-size-xl);">{% trans "Branch Identity" %}</h3>
-      
-      <div class="logo-section">
-        <img src="{% if branch.branch_logo %}{{ branch.branch_logo.url }}{% elif request.user.provider_profile.logo %}{{ request.user.provider_profile.logo.url }}{% else %}{% static 'global/img/placeholder.png' %}{% endif %}" id="logoPreview" class="logo-preview" alt="Logo">
-        <div>
-          <h4 style="margin-bottom: 8px; font-size: var(--font-size-base);">{% trans "Branch Logo" %}</h4>
-          <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: 12px;">{% trans "By default, the main provider logo is used." %}</p>
-          <label class="btn-upload-logo">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            {% trans "Upload Custom Logo" %}
-            <input type="file" name="branch_logo" id="{{ form.branch_logo.id_for_label }}" accept="image/*" style="display: none;" onchange="previewLogo(event)">
-          </label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">{{ form.name.label }} <span style="color:var(--color-error)">*</span></label>
-        {{ form.name }}
-      </div>
-      
-      <div class="form-group">
-        <label class="form-label">{{ form.phone_number.label }}</label>
-        {{ form.phone_number }}
-      </div>
-
-      <div class="form-group" style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px dashed var(--color-border);">
-        <label class="form-label" style="font-size: var(--font-size-lg);">{{ form.gender.label }} <span style="color:var(--color-error)">*</span></label>
-        <p dir="auto" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">{% trans "Select the target audience for this branch." %}</p>
-        <div class="pill-group">
-          {{ form.gender }}
-        </div>
-      </div>
-
-      <div class="form-group" style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px dashed var(--color-border);">
-        <label class="form-label" style="font-size: var(--font-size-lg);">{{ form.sports.label }}</label>
-        <p dir="auto" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">{% trans "Select all sports categories available at this branch. This helps users find you in search filters." %}</p>
-          {{ form.sports }}
-      </div>
-
-      <div class="actions">
-        <button type="button" class="btn-primary" onclick="nextStep(2)">
-          {% trans "Next: Location" %}
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </button>
-      </div>
+    <div class="page-header">
+        <h2>{% if is_edit %}{% trans "Edit Branch:" %} {{ branch.name }}{% else %}{% trans "Add New Branch" %}{% endif %}</h2>
+        <p>{% trans "Manage your facility's identity, location, and advanced scheduling in one place." %}</p>
     </div>
 
-    <div class="wizard-step" id="step-2">
-      <h3 style="margin-bottom: var(--space-6); font-size: var(--font-size-xl);">{% trans "Precise Location" %}</h3>
-      
-      <div class="form-group">
-        <label class="form-label">{{ form.city.label }} <span style="color:var(--color-error)">*</span></label>
-        {{ form.city }}
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">{% trans "Pinpoint on Map" %}</label>
-        <p dir="auto" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: 8px;">{% trans "Drag the pin to your exact branch location." %}</p>
-        <div id="branch-map"></div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">{{ form.address.label }} <span style="color:var(--color-error)">*</span></label>
-        {{ form.address }}
-      </div>
-
-      {{ form.latitude }}
-      {{ form.longitude }}
-
-      <div class="actions">
-        <button type="button" class="btn-primary" onclick="nextStep(3)">
-          {% trans "Next: Amenities" %}
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </button>
-        <button type="button" class="btn-secondary" onclick="prevStep(1)">{% trans "Back" %}</button>
-      </div>
-    </div>
-
-    <div class="wizard-step" id="step-3">
-      <h3 style="margin-bottom: var(--space-6); font-size: var(--font-size-xl);">{% trans "Details & Amenities" %}</h3>
-      
-      <div class="form-group">
-        <label class="form-label">{{ form.description.label }}</label>
-        {{ form.description }}
-      </div>
-
-      <div class="form-group" style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px dashed var(--color-border);">
-        <label class="form-label" style="font-size: var(--font-size-lg);">{{ form.amenities.label }}</label>
-        <p dir="auto" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">{% trans "Select the facilities available to your members." %}</p>
-          {{ form.amenities }} 
-      </div>
-
-      <div class="actions">
-        <button type="button" class="btn-primary" onclick="nextStep(4)">
-          {% trans "Next: Operations" %}
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </button>
-        <button type="button" class="btn-secondary" onclick="prevStep(2)">{% trans "Back" %}</button>
-      </div>
-    </div>
-
-    <div class="wizard-step" id="step-4">
-      <h3 style="margin-bottom: var(--space-6); font-size: var(--font-size-xl);">{% trans "Operations & Schedule" %}</h3>
-
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-8);">
+    <form method="post" enctype="multipart/form-data" id="branchForm">
+        {% csrf_token %}
         
-        <div style="background: var(--color-bg); padding: var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-          <label class="form-label" style="display:flex; align-items:center; gap:8px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            {% trans "Average Stay Duration" %}
-          </label>
-          <p dir="auto" style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 12px;">{% trans "How long does a member usually stay? Used to calculate live crowd levels." %}</p>
-          <div style="display:flex; align-items:center; gap:10px;">
-            <div style="width: 120px;">
-              {{ form.estimated_stay_duration }}
+        {{ form.latitude }}
+        {{ form.longitude }}
+        {{ form.schedule_data }}
+
+        <div class="commander-layout">
+            
+            <div class="main-column">
+
+                <div class="f-card">
+                    <div class="f-card-header">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--dash-color-1)" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <h3 class="f-card-title">{% trans "Identity & Contact" %}</h3>
+                    </div>
+                    <div class="f-card-body basic-info-grid">
+                        
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                            <label class="circular-upload-zone" for="{{ form.branch_logo.id_for_label }}">
+                                {% if is_edit and branch.branch_logo %}
+                                    <img src="{{ branch.branch_logo.url }}" id="logoPreview" class="preview-image has-image" alt="Branch Logo">
+                                    <svg id="uploadIcon" style="display:none;" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--color-primary); margin-bottom: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    <span id="uploadText" style="display:none; font-size: 12px; font-weight: bold; color: var(--color-primary);">{% trans "Update Logo" %}</span>
+                                {% elif request.user.provider_profile.logo %}
+                                    <img src="{{ request.user.provider_profile.logo.url }}" id="logoPreview" class="preview-image has-image" alt="Default Provider Logo">
+                                    <svg id="uploadIcon" style="display:none;" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--color-primary); margin-bottom: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    <span id="uploadText" style="display:none; font-size: 12px; font-weight: bold; color: var(--color-primary);">{% trans "Update Logo" %}</span>
+                                {% else %}
+                                    <img src="" id="logoPreview" class="preview-image" alt="Logo Preview">
+                                    <svg id="uploadIcon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--color-primary); margin-bottom: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    <span id="uploadText" style="font-size: 12px; font-weight: bold; color: var(--color-primary);">{% trans "Branch Logo" %}</span>
+                                {% endif %}
+                            </label>
+                            <span style="font-size: 11px; color: var(--color-text-muted);">{% trans "Uses main logo by default" %}</span>
+                            {{ form.branch_logo }}
+                            {% if form.branch_logo.errors %}<div style="color:var(--color-error); font-size:11px;">{{ form.branch_logo.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; justify-content: center; gap: 16px;">
+                            <div class="float-group">
+                                {{ form.name }}
+                                <label class="float-label">{% trans "Branch Name" %} *</label>
+                            </div>
+                            <div class="float-group" style="margin-bottom: 0;">
+                                {{ form.phone_number }}
+                                <label class="float-label">{% trans "Phone Number" %}</label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="f-card">
+                    <div class="f-card-header">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--dash-color-3)" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <h3 class="f-card-title">{% trans "Location Intelligence" %}</h3>
+                    </div>
+                    
+                    <div class="f-card-body" style="padding-bottom: 0;">
+                        <div class="float-group" style="margin-bottom: var(--space-4);">
+                            {{ form.city }}
+                            <label class="float-label">{% trans "Select City" %} *</label>
+                        </div>
+                    </div>
+
+                    <div id="panoramicMap" class="map-panoramic"></div>
+                    
+                    <div class="f-card-body" style="padding-top: var(--space-4);">
+                        <div class="float-group" style="margin-bottom: 0;">
+                            {{ form.address }}
+                            <label class="float-label">{% trans "Full Address (Locked to Map)" %} *</label>
+                            {% if form.address.errors %}<div style="color:var(--color-error); font-size:11px;">{{ form.address.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="f-card">
+                    <div class="f-card-header">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--dash-color-5)" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <h3 class="f-card-title">{% trans "Operational Parameters" %}</h3>
+                    </div>
+                    <div class="f-card-body">
+                        
+                        <div class="float-row">
+                            <div class="float-group">
+                                {{ form.max_capacity }}
+                                <label class="float-label">{% trans "Max Capacity" %} *</label>
+                            </div>
+                            <div class="float-group">
+                                {{ form.estimated_stay_duration }}
+                                <label class="float-label">{% trans "Stay Duration (Min)" %} *</label>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 16px;">
+                            <label style="font-size: 15px; font-weight: var(--font-weight-black); color: var(--color-text-primary); display: block;">{% trans "Who is this branch for?" %} *</label>
+                            <p style="font-size: 12px; color: var(--color-text-muted); margin: 4px 0 16px;">{% trans "Your schedule will dynamically adapt to this choice." %}</p>
+                            
+                            <div class="radio-cards">
+                                {% for radio in form.gender %}
+                                <label class="radio-card">
+                                    {{ radio.tag }}
+                                    <div class="radio-card-content">
+                                        {% if 'female' in radio.data.value|stringformat:"s"|lower or 'women' in radio.choice_label|stringformat:"s"|lower %}
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><line x1="12" y1="14" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
+                                        {% elif 'male' in radio.data.value|stringformat:"s"|lower or 'men' in radio.choice_label|stringformat:"s"|lower %}
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="5"/><line x1="13.5" y1="10.5" x2="21" y2="3"/><polyline points="16 3 21 3 21 8"/></svg>
+                                        {% else %}
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                        {% endif %}
+                                        <span style="font-size: 14px;">{{ radio.choice_label }}</span>
+                                    </div>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="f-card">
+                    <div class="f-card-header">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--dash-color-4)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <h3 class="f-card-title">{% trans "Smart Working Hours" %}</h3>
+                    </div>
+                    <div class="f-card-body">
+                        
+                        <div class="schedule-builder" id="scheduleBuilder">
+                            
+                            <div class="day-pills-wrapper">
+                                <div class="day-pill" data-day="0">{% trans "Sun" %}</div>
+                                <div class="day-pill" data-day="1">{% trans "Mon" %}</div>
+                                <div class="day-pill" data-day="2">{% trans "Tue" %}</div>
+                                <div class="day-pill" data-day="3">{% trans "Wed" %}</div>
+                                <div class="day-pill" data-day="4">{% trans "Thu" %}</div>
+                                <div class="day-pill" data-day="5" style="color:var(--color-primary);">{% trans "Fri" %}</div>
+                                <div class="day-pill" data-day="6" style="color:var(--color-primary);">{% trans "Sat" %}</div>
+                            </div>
+
+                            <div class="schedule-builder-bar">
+                                
+                                <div class="builder-segment">
+                                    <span class="segment-label">{% trans "Opens At" %}</span>
+                                    <input type="time" id="schedStart" class="segment-input">
+                                </div>
+
+                                <div class="builder-segment">
+                                    <span class="segment-label">{% trans "Closes At" %}</span>
+                                    <input type="time" id="schedEnd" class="segment-input">
+                                </div>
+
+                                <div class="builder-segment" id="periodGenderBlock">
+                                    <span class="segment-label">{% trans "Reserved For" %}</span>
+                                    <select id="schedGender" class="segment-input">
+                                        <option value="both">{% trans "Mixed / Both" %}</option>
+                                        <option value="male">{% trans "Men Only" %}</option>
+                                        <option value="female">{% trans "Women Only" %}</option>
+                                    </select>
+                                </div>
+
+                                <div class="builder-action-zone">
+                                    <button type="button" id="btnAddPeriod" class="btn-add-period" disabled>
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="periods-container" id="periodsContainer"></div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="f-card">
+                    <div class="f-card-header">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--dash-color-2)" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                        <h3 class="f-card-title">{% trans "Services & Facilities" %}</h3>
+                    </div>
+                    <div class="f-card-body">
+                        
+                        <div style="margin-bottom: 24px;">
+                            <label style="font-size: 14px; font-weight: var(--font-weight-black); color: var(--color-text-primary); display: block; margin-bottom: 12px;">{% trans "Sports Categories" %}</label>
+                            {{ form.sports }}
+                        </div>
+
+                        <div style="margin-bottom: 24px;">
+                            <label style="font-size: 14px; font-weight: var(--font-weight-black); color: var(--color-text-primary); display: block; margin-bottom: 12px;">{% trans "Available Amenities" %}</label>
+                            {{ form.amenities }}
+                        </div>
+
+                        <div class="float-group" style="margin-bottom: 0;">
+                            {{ form.description }}
+                            <label class="float-label">{% trans "About the Branch (Optional)" %}</label>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <span style="font-weight:bold; color:var(--color-text-secondary); font-size: 14px;">{% trans "Minutes" %}</span>
-          </div>
-        </div>
 
-        <div style="background: var(--color-bg); padding: var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border); display: flex; flex-direction: column; justify-content: center;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <label class="form-label" style="margin-bottom: 2px; color: var(--color-success);">{% trans "Branch Visibility" %}</label>
-              <p dir="auto" style="font-size: 12px; color: var(--color-text-secondary); margin: 0;">{% trans "Show this branch on the app." %}</p>
+            <div class="sticky-column">
+                
+                <div class="f-card">
+                    <div class="f-card-header">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <h3 class="f-card-title">{% trans "Status" %}</h3>
+                    </div>
+                    
+                    <div class="status-box">
+                        <div class="status-info">
+                            <h4>{% trans "Live Status" %}</h4>
+                            <p>{% trans "Visible in consumer app" %}</p>
+                        </div>
+                        <label class="ui-switch">
+                            {{ form.is_active }}
+                            <span class="ui-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="status-box">
+                        <div class="status-info">
+                            <h4 style="color: var(--color-error);">{% trans "Maintenance" %}</h4>
+                            <p>{% trans "Mark branch as CLOSED" %}</p>
+                        </div>
+                        <label class="ui-switch">
+                            {{ form.is_temporarily_closed }}
+                            <span class="ui-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 8px;">
+                    <button type="submit" class="btn-mega-save">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        {% if is_edit %}{% trans "Update Branch" %}{% else %}{% trans "Create Branch" %}{% endif %}
+                    </button>
+                    
+                    <a href="{% url 'provider_portal:gym_branches' %}" style="text-align: center; color: var(--color-text-secondary); font-size: 13px; font-weight: var(--font-weight-bold); text-decoration: none; padding: 12px; border-radius: var(--radius-md); transition: var(--transition);">
+                        {% trans "Discard Changes" %}
+                    </a>
+                </div>
+
             </div>
-            <label class="ui-switch">
-              {{ form.is_active }}
-              <span class="ui-slider"></span>
-            </label>
-          </div>
         </div>
-
-      </div>
-
-      <div style="padding: var(--space-4); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-md); background: rgba(239, 68, 68, 0.03); margin-bottom: var(--space-8); display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <label style="font-weight: bold; color: var(--color-error); font-size: 15px; display: block; margin-bottom: 4px;">{% trans "Emergency / Temporary Close" %}</label>
-          <p dir="auto" style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">{% trans "Check this to override the schedule and show the gym as closed immediately." %}</p>
-        </div>
-        <label class="ui-switch">
-          {{ form.is_temporarily_closed }}
-          <span class="ui-slider"></span>
-        </label>
-      </div>
-      
-      <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden;">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--color-bg); padding: 16px 20px; border-bottom: 1px solid var(--color-border);">
-          <h4 style="margin: 0; font-size: 15px; display: flex; align-items: center; gap: 8px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            {% trans "Weekly Schedule" %}
-          </h4>
-          <button type="button" class="btn-secondary" onclick="copySundayHours()" style="font-size: 12px; padding: 6px 12px; background: var(--color-surface);">
-            {% trans "Copy Sunday to all" %}
-          </button>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 100px 1fr 1fr; gap: var(--space-4); padding: 12px 20px; border-bottom: 1px solid var(--color-border); background: rgba(0,0,0,0.02);">
-          <div style="font-weight:bold; font-size:13px; color: var(--color-text-secondary);">{% trans "Day" %}</div>
-          <div style="font-weight:bold; font-size:13px; color: var(--color-text-secondary);">{% trans "Opening Time" %}</div>
-          <div style="font-weight:bold; font-size:13px; color: var(--color-text-secondary);">{% trans "Closing Time" %}</div>
-        </div>
-        
-        <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: var(--space-2);">
-          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Sunday" %}</div><div>{{ form.sunday_open }}</div><div>{{ form.sunday_close }}</div></div>
-          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Monday" %}</div><div>{{ form.monday_open }}</div><div>{{ form.monday_close }}</div></div>
-          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Tuesday" %}</div><div>{{ form.tuesday_open }}</div><div>{{ form.tuesday_close }}</div></div>
-          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Wednesday" %}</div><div>{{ form.wednesday_open }}</div><div>{{ form.wednesday_close }}</div></div>
-          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Thursday" %}</div><div>{{ form.thursday_open }}</div><div>{{ form.thursday_close }}</div></div>
-          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Friday" %}</div><div>{{ form.friday_open }}</div><div>{{ form.friday_close }}</div></div>
-          <div class="schedule-grid"><div class="schedule-day-label">{% trans "Saturday" %}</div><div>{{ form.saturday_open }}</div><div>{{ form.saturday_close }}</div></div>
-        </div>
-
-      </div>
-
-      <div class="actions">
-        <button type="submit" class="btn-primary" style="background: var(--color-success);">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          {% trans "Save Branch" %}
-        </button>
-        <button type="button" class="btn-secondary" onclick="prevStep(3)">{% trans "Back" %}</button>
-      </div>
-    </div>
-
-  </form>
+    </form>
 </div>
 {% endblock content %}
 
@@ -344,149 +299,6 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-  // Add required attributes for JS validation
-  document.getElementById('{{ form.name.id_for_label }}').setAttribute('required', 'required');
-  document.getElementById('{{ form.city.id_for_label }}').setAttribute('required', 'required');
-  document.getElementById('{{ form.address.id_for_label }}').setAttribute('required', 'required');
 
-  // Apply form-control to standard inputs, excluding checkboxes and files
-  document.querySelectorAll('input, select, textarea').forEach(el => {
-    if (el.type !== 'checkbox' && el.type !== 'hidden' && el.type !== 'file') el.classList.add('form-control');
-  });
-  
-  // Explicitly set the danger class to the emergency checkbox for CSS
-  const emergencyClose = document.getElementById('{{ form.is_temporarily_closed.id_for_label }}');
-  if(emergencyClose) emergencyClose.classList.add('switch-danger');
-
-  // --- Wizard Logic ---
-  let currentStep = 1;
-  function showStep(step) {
-    document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.step-indicator').forEach(el => {
-      el.classList.remove('active');
-      if (parseInt(el.id.split('-')[1]) < step) el.classList.add('completed');
-      else el.classList.remove('completed');
-    });
-    const targetStep = document.getElementById('step-' + step);
-    if(targetStep) {
-        targetStep.classList.add('active');
-        document.getElementById('ind-' + step).classList.add('active');
-    }
-    if (step === 2 && typeof map !== 'undefined') { setTimeout(() => map.invalidateSize(), 100); }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-  function nextStep(step) { currentStep = step; showStep(currentStep); }
-  function prevStep(step) { currentStep = step; showStep(currentStep); }
-
-  function previewLogo(event) {
-    const reader = new FileReader();
-    reader.onload = function(){ document.getElementById('logoPreview').src = reader.result; };
-    if(event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
-  }
-
-  // --- Map Initialization ---
-  const cityCoords = {
-    "riyadh": [24.7136, 46.6753], "jeddah": [21.4858, 39.1925], "mecca": [21.3891, 39.8579], "makkah": [21.3891, 39.8579],
-    "medina": [24.5247, 39.5692], "madinah": [24.5247, 39.5692], "dammam": [26.4207, 50.0888], "khobar": [26.2172, 50.1971], 
-    "dhahran": [26.2695, 50.1089], "tabuk": [28.3835, 36.5662], "abha": [18.2164, 42.5053], "khamis mushait": [18.3000, 42.7333],
-    "hail": [27.5158, 41.6907], "najran": [17.5021, 44.1320], "jubail": [27.0146, 49.6416], "yanbu": [24.0891, 38.0637],
-    "taif": [21.2703, 40.4158], "buraidah": [26.3260, 43.9750], "qatif": [26.5615, 49.0060], "hofuf": [25.3800, 49.5888],
-    "jizan": [16.8892, 42.5511], "arar": [30.9753, 41.0381]
-  };
-  
-  const latInput = document.getElementById('{{ form.latitude.id_for_label }}');
-  const lngInput = document.getElementById('{{ form.longitude.id_for_label }}');
-  const addressInput = document.getElementById('{{ form.address.id_for_label }}');
-  const citySelect = document.getElementById('{{ form.city.id_for_label }}');
-
-  // Sync saved city on edit
-  const savedCity = "{% if branch %}{{ branch.city|escapejs|lower }}{% else %}{% endif %}";
-  if (savedCity && citySelect) {
-      for (let i = 0; i < citySelect.options.length; i++) {
-          if (citySelect.options[i].value.toLowerCase() === savedCity) {
-              citySelect.selectedIndex = i;
-              break;
-          }
-      }
-  }
-
-  let startLat = (latInput && latInput.value) ? parseFloat(latInput.value) : 24.7136;
-  let startLng = (lngInput && lngInput.value) ? parseFloat(lngInput.value) : 46.6753;
-
-  let map = L.map('branch-map').setView([startLat, startLng], 12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-  let marker = L.marker([startLat, startLng], {draggable: true}).addTo(map);
-
-  function fetchAddress(lat, lng) {
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`)
-      .then(response => response.json())
-      .then(data => { if(data && data.display_name) addressInput.value = data.display_name; });
-  }
-
-  marker.on('dragend', function(event) {
-      const pos = marker.getLatLng();
-      latInput.value = pos.lat.toFixed(6); lngInput.value = pos.lng.toFixed(6);
-      fetchAddress(pos.lat, pos.lng);
-  });
-
-  if(citySelect) {
-      citySelect.addEventListener('change', function(e) {
-          const selectedCity = e.target.value.toLowerCase(); 
-          if(cityCoords[selectedCity]) {
-              const coords = cityCoords[selectedCity];
-              map.flyTo(coords, 12);
-              marker.setLatLng(coords);
-              latInput.value = coords[0]; lngInput.value = coords[1];
-              fetchAddress(coords[0], coords[1]);
-          }
-      });
-  }
-
-  // --- UX: Copy Hours ---
-  function copySundayHours() {
-      const sunOpen = document.getElementById('{{ form.sunday_open.id_for_label }}').value;
-      const sunClose = document.getElementById('{{ form.sunday_close.id_for_label }}').value;
-      if (!sunOpen && !sunClose) { alert('{% trans "Please enter Sunday hours first." %}'); return; }
-      ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].forEach(day => {
-          const o = document.querySelector(`input[name="${day}_open"]`);
-          const c = document.querySelector(`input[name="${day}_close"]`);
-          if (o) o.value = sunOpen;
-          if (c) c.value = sunClose;
-      });
-  }
-
-  // --- Smart Error Catcher ---
-  const branchForm = document.getElementById('branchForm');
-  if (branchForm) {
-      branchForm.addEventListener('submit', function(e) {
-          let hasError = false;
-          const inputs = this.querySelectorAll('input[required], select[required]');
-          
-          for (let i = 0; i < inputs.length; i++) {
-              if (!inputs[i].value.trim()) {
-                  e.preventDefault(); 
-                  const stepDiv = inputs[i].closest('.wizard-step');
-                  if (stepDiv) {
-                      const stepNum = parseInt(stepDiv.id.split('-')[1]);
-                      showStep(stepNum);
-                      inputs[i].style.boxShadow = '0 0 0 2px var(--color-error)';
-                      setTimeout(() => inputs[i].focus(), 100);
-                  }
-                  hasError = true;
-                  break;
-              }
-          }
-      });
-  }
-
-  // Initialize Select2
-  $(document).ready(function() {
-      const isRtl = document.documentElement.dir === 'rtl';
-      $('.select2-multi').select2({
-          dir: isRtl ? "rtl" : "ltr",
-          width: '100%'
-      });
-  });
-</script>
+<script src="{% static 'provider_portal/js/branch_form.js' %}"></script>
 {% endblock extra_js %}

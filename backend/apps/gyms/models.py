@@ -44,8 +44,15 @@ class GymBranch(models.Model):
     description = models.TextField(blank=True, verbose_name=_("Branch Description"))
     
     phone_number = models.CharField(max_length=20, verbose_name=_("Branch Phone Number"))
-    opening_time = models.TimeField(null=True, blank=True, verbose_name=_("Opening Time"))
-    closing_time = models.TimeField(null=True, blank=True, verbose_name=_("Closing Time"))
+    
+    # --- SMART SCHEDULE SYSTEM ---
+    # Replaced opening_time and closing_time with a flexible JSONField
+    operating_hours = models.JSONField(
+        default=dict, 
+        blank=True, 
+        verbose_name=_("Operating Hours"),
+        help_text=_("JSON representation of flexible operating hours by day and gender.")
+    )
     
     city = models.CharField(max_length=100, verbose_name=_("City"))
     address = models.CharField(max_length=512, verbose_name=_("Full Address"))

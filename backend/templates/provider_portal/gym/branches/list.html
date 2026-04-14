@@ -6,394 +6,155 @@
 
 {% block extra_css %}
 {{ block.super }}
-<style>
-  /* --- Global Typography Fix --- */
-  /* Ensures all text elements inherit the Tajawal/Inter font from the body */
-  h1, h2, h3, h4, h5, h6, p, span, a, button, label {
-    font-family: inherit;
-  }
-
-  /* --- Page Layout --- */
-  .page-container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    margin-bottom: var(--space-8);
-  }
-
-  .header-text h2 {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
-    margin-bottom: 4px;
-  }
-
-  .header-text p {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
-  }
-
-  .btn-primary {
-    background-color: var(--color-primary);
-    color: var(--color-surface);
-    padding: var(--space-3) var(--space-6);
-    border-radius: var(--radius-md);
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-base);
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    transition: background-color var(--transition), transform var(--transition);
-    box-shadow: var(--shadow-sm);
-  }
-  .btn-primary:hover {
-    background-color: var(--color-accent);
-    transform: translateY(-2px);
-  }
-
-  /* --- Grid & Cards --- */
-  .branches-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: var(--space-6);
-  }
-
-  .branch-card {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
-  }
-  .branch-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--color-accent);
-  }
-
-  /* --- Card Header --- */
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    padding: var(--space-4);
-    border-bottom: 1px solid var(--color-border);
-    background-color: rgba(0, 0, 0, 0.01);
-    transition: background-color var(--transition);
-  }
-  .card-header:hover {
-    background-color: var(--color-bg);
-  }
-
-  .card-logo {
-    width: 56px;
-    height: 56px;
-    border-radius: var(--radius-md);
-    object-fit: cover;
-    border: 1px solid var(--color-border);
-    background-color: var(--color-surface);
-    flex-shrink: 0;
-  }
-
-  .card-meta {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .card-meta strong {
-    font-size: var(--font-size-lg);
-    color: var(--color-text-primary);
-    line-height: var(--line-height-heading);
-    margin-bottom: 2px;
-  }
-
-  .card-meta span {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  /* --- Card Body (Toggles) --- */
-  .card-body {
-    padding: var(--space-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .toggle-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-3);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
-    transition: border-color var(--transition);
-  }
-  
-  .toggle-row.danger {
-    background-color: rgba(239, 68, 68, 0.03);
-    border-color: rgba(239, 68, 68, 0.2);
-  }
-
-  .toggle-info {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .toggle-info .title {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
-  }
-
-  .toggle-row.danger .toggle-info .title {
-    color: var(--color-error);
-  }
-
-  .toggle-info .desc {
-    font-size: 11px;
-    color: var(--color-text-secondary);
-    margin-top: 2px;
-  }
-
-  /* --- Bi-Directional Switch (RTL/LTR Safe) --- */
-  .ui-switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 24px;
-    flex-shrink: 0;
-  }
-  .ui-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  .ui-slider {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background-color: var(--color-border);
-    border-radius: var(--radius-full);
-    transition: background-color var(--transition);
-  }
-  .ui-slider::before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    inset-inline-start: 3px; /* Logical start */
-    bottom: 3px;
-    background-color: var(--color-surface);
-    border-radius: 50%;
-    box-shadow: var(--shadow-sm);
-    transition: transform var(--transition);
-  }
-
-  /* Active states for LTR and RTL */
-  input:checked + .ui-slider { background-color: var(--color-success); }
-  [dir="ltr"] input:checked + .ui-slider::before { transform: translateX(20px); }
-  [dir="rtl"] input:checked + .ui-slider::before { transform: translateX(-20px); }
-
-  /* Danger Active state */
-  input.switch-danger:checked + .ui-slider { background-color: var(--color-error); }
-
-
-  /* --- Card Footer (Actions) --- */
-  .card-footer {
-    display: flex;
-    border-top: 1px solid var(--color-border);
-    background-color: var(--color-surface);
-  }
-
-  .action-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: var(--space-3);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text-secondary);
-    border-inline-end: 1px solid var(--color-border);
-    transition: background-color var(--transition), color var(--transition);
-  }
-  .action-btn:last-child {
-    border-inline-end: none;
-  }
-  .action-btn:hover {
-    background-color: var(--color-bg);
-    color: var(--color-primary);
-  }
-  .action-btn.delete-btn:hover {
-    background-color: rgba(239, 68, 68, 0.05);
-    color: var(--color-error);
-  }
-
-  /* --- Empty State --- */
-  .empty-state {
-    text-align: center;
-    padding: var(--space-16) var(--space-4);
-    background-color: var(--color-surface);
-    border: 2px dashed var(--color-border);
-    border-radius: var(--radius-lg);
-  }
-</style>
+<link rel="stylesheet" href="{% static 'provider_portal/css/branches.css' %}">
 {% endblock extra_css %}
 
 {% block content %}
-<div class="page-container">
+<div class="branches-page">
 
-  <div class="page-header">
-    <div class="header-text">
-      <h2>{% trans "Gym Branches Management" %}</h2>
-      <p>{% trans "Control your locations, visibility, and emergency status in real-time." %}</p>
+    <div class="branches-header">
+        <div class="header-text">
+            <h2>{% trans "Branches Management" %}</h2>
+            <p>{% trans "Control your locations, operational visibility, and emergency status." %}</p>
+        </div>
+        <a href="{% url 'provider_portal:gym_branch_add' %}" class="btn-add-branch">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            {% trans "Add New Branch" %}
+        </a>
     </div>
-    <a href="{% url 'provider_portal:gym_branch_add' %}" class="btn-primary">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      {% trans "Add New Branch" %}
-    </a>
-  </div>
 
-  {% if branches %}
+    {% if branches %}
     <div class="branches-grid">
-      {% for branch in branches %}
-        <div class="branch-card" id="branch-{{ branch.id }}">
-          
-          <a href="{% url 'provider_portal:gym_branch_detail' branch.id %}" class="card-header" aria-label="{% trans 'View details' %}">
-            {% if branch.branch_logo %}
-              <img src="{{ branch.branch_logo.url }}" class="card-logo" alt="Logo">
-            {% else %}
-              <div class="card-logo" style="display:flex; align-items:center; justify-content:center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-              </div>
-            {% endif %}
-            <div class="card-meta">
-              <strong>{{ branch.name }}</strong>
-              <span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                {{ branch.city|title }}
-              </span>
-            </div>
-          </a>
-
-          <div class="card-body">
+        {% for branch in branches %}
+        <div class="b-card" id="branch-{{ branch.id }}">
             
-            <div class="toggle-row">
-              <div class="toggle-info">
-                <span class="title">{% trans "Visible to Users" %}</span>
-                <span class="desc">{% trans "Appears on map and search" %}</span>
-              </div>
-              <label class="ui-switch">
-                <input type="checkbox" 
-                       {% if branch.is_active %}checked{% endif %}
-                       onchange="handleToggle(this, {{ branch.id }}, 'is_active', '{% trans 'Are you sure you want to change the visibility of this branch?' %}')">
-                <span class="ui-slider"></span>
-              </label>
+            <div class="b-hero">
+                {% with cover=branch.prefetched_images|first %}
+                    {% if cover %}
+                        <img src="{{ cover.image.url }}" class="b-cover" alt="Cover">
+                    {% else %}
+                        <div class="b-cover" style="background: linear-gradient(135deg, var(--color-border) 0%, rgba(99, 102, 241, 0.1) 100%);"></div>
+                    {% endif %}
+                {% endwith %}
+                
+                {% if branch.is_temporarily_closed %}
+                    <div class="b-badge closed" data-active="{% trans 'Active' %}" data-hidden="{% trans 'Hidden' %}" data-closed="{% trans 'Emergency Close' %}">{% trans "Emergency Close" %}</div>
+                {% elif branch.is_active %}
+                    <div class="b-badge active" data-active="{% trans 'Active' %}" data-hidden="{% trans 'Hidden' %}" data-closed="{% trans 'Emergency Close' %}">{% trans "Active" %}</div>
+                {% else %}
+                    <div class="b-badge" data-active="{% trans 'Active' %}" data-hidden="{% trans 'Hidden' %}" data-closed="{% trans 'Emergency Close' %}">{% trans "Hidden" %}</div>
+                {% endif %}
             </div>
 
-            <div class="toggle-row danger">
-              <div class="toggle-info">
-                <span class="title">{% trans "Emergency Close" %}</span>
-                <span class="desc">{% trans "Forces branch to show as CLOSED" %}</span>
-              </div>
-              <label class="ui-switch">
-                <input type="checkbox" class="switch-danger" 
-                       {% if branch.is_temporarily_closed %}checked{% endif %}
-                       onchange="handleToggle(this, {{ branch.id }}, 'is_temporarily_closed', '{% trans 'WARNING: This will immediately show the gym as CLOSED to all users. Proceed?' %}')">
-                <span class="ui-slider"></span>
-              </label>
+            <div class="b-body">
+                
+                <a href="{% url 'provider_portal:gym_branch_detail' branch.id %}" style="text-decoration: none; display: block;">
+                    {% if branch.branch_logo %}
+                        <img src="{{ branch.branch_logo.url }}" class="b-logo" alt="Branch Logo">
+                    {% elif request.user.provider_profile.logo %}
+                        <img src="{{ request.user.provider_profile.logo.url }}" class="b-logo" alt="Provider Logo">
+                    {% else %}
+                        <div class="b-logo">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="b-info" style="min-width: 0;">
+                        <h3 class="b-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ branch.name }}</h3>
+                        <span class="b-loc" style="display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span style="overflow: hidden; text-overflow: ellipsis;">{{ branch.city|title }} - {{ branch.address }}</span>
+                        </span>
+                    </div>
+                </a>
+
+                <div class="b-stats">
+                    <div class="stat-item">
+                        <span class="stat-val">{{ branch.max_capacity }}</span>
+                        <span class="stat-lbl">{% trans "Capacity" %}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-val">{{ branch.linked_plans_count }}</span>
+                        <span class="stat-lbl">{% trans "Plans" %}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-val">{{ branch.estimated_stay_duration }}<span style="font-size:12px;">m</span></span>
+                        <span class="stat-lbl">{% trans "Avg Stay" %}</span>
+                    </div>
+                </div>
+
+                <div class="b-toggles">
+                    <div class="t-row">
+                        <div class="t-info">
+                            <span class="t-title">{% trans "Visible to Users" %}</span>
+                            <span class="t-desc">{% trans "Appears on app map and search" %}</span>
+                        </div>
+                        <label class="ui-switch">
+                            <input type="checkbox" 
+                                   {% if branch.is_active %}checked{% endif %}
+                                   onchange="handleBranchToggle(this, {{ branch.id }}, 'is_active', '{% trans 'Are you sure you want to change the visibility of this branch?' %}')">
+                            <span class="ui-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="t-row">
+                        <div class="t-info">
+                            <span class="t-title danger">{% trans "Emergency Close" %}</span>
+                            <span class="t-desc">{% trans "Forces branch to show as CLOSED" %}</span>
+                        </div>
+                        <label class="ui-switch">
+                            <input type="checkbox" class="switch-danger" 
+                                   {% if branch.is_temporarily_closed %}checked{% endif %}
+                                   onchange="handleBranchToggle(this, {{ branch.id }}, 'is_temporarily_closed', '{% trans 'WARNING: This will immediately show the gym as CLOSED to all users. Proceed?' %}')">
+                            <span class="ui-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
             </div>
 
-          </div>
-
-          <div class="card-footer">
-            <a href="{% url 'provider_portal:gym_branch_photos' branch.id %}" class="action-btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              {% trans "Photos" %}
-            </a>
-            <a href="{% url 'provider_portal:gym_branch_edit' branch.id %}" class="action-btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              {% trans "Edit" %}
-            </a>
-            <form method="post" action="{% url 'provider_portal:gym_branch_delete' branch.id %}" onsubmit="return confirm('{% trans "Are you sure you want to completely delete this branch?" %}');" style="margin:0; display:flex; flex:1;">
-              {% csrf_token %}
-              <button type="submit" class="action-btn delete-btn" style="width: 100%;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                {% trans "Delete" %}
-              </button>
-            </form>
-          </div>
+            <div class="b-footer">
+                <a href="{% url 'provider_portal:gym_branch_photos' branch.id %}" class="b-action photos">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    {% trans "Photos" %}
+                </a>
+                
+                <a href="{% url 'provider_portal:gym_branch_edit' branch.id %}" class="b-action edit">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    {% trans "Edit" %}
+                </a>
+                
+                <form method="post" action="{% url 'provider_portal:gym_branch_delete' branch.id %}" onsubmit="return confirm('{% trans "CRITICAL: Are you sure you want to completely delete this branch?" %}');" style="margin:0; display:flex;">
+                    {% csrf_token %}
+                    <button type="submit" class="b-action delete" style="width: 100%;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        {% trans "Delete" %}
+                    </button>
+                </form>
+            </div>
 
         </div>
-      {% endfor %}
+        {% endfor %}
     </div>
 
-  {% else %}
+    {% else %}
     <div class="empty-state">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5" style="margin-bottom: var(--space-4);"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      <h3 style="margin-bottom: var(--space-2); color: var(--color-text-primary);">{% trans "No Branches Yet" %}</h3>
-      <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6); max-width: 400px; margin-inline: auto;">
-        {% trans "Start by adding your first physical gym location to manage its operations and subscriptions." %}
-      </p>
-      <a href="{% url 'provider_portal:gym_branch_add' %}" class="btn-primary">{% trans "Add First Branch" %}</a>
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1" style="margin-bottom: var(--space-4); opacity: 0.5;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <h3 style="margin: 0 0 var(--space-2) 0; color: var(--color-text-primary); font-size: var(--font-size-xl);">{% trans "No Branches Yet" %}</h3>
+        <p style="color: var(--color-text-secondary); margin: 0 0 var(--space-6) 0; max-width: 400px;">
+            {% trans "Start by adding your physical gym location to manage its operations." %}
+        </p>
+        <a href="{% url 'provider_portal:gym_branch_add' %}" class="btn-add-branch">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            {% trans "Add First Branch" %}
+        </a>
     </div>
-  {% endif %}
+    {% endif %}
 
 </div>
 {% endblock content %}
 
 {% block extra_js %}
 {{ block.super }}
-<script>
-  // --- AJAX Quick Toggle Logic ---
-  function handleToggle(checkbox, branchId, fieldName, confirmMsg) {
-    if (!confirm(confirmMsg)) {
-      checkbox.checked = !checkbox.checked; // Revert switch if cancelled
-      return;
-    }
-
-    const url = `/portal/gym/branches/${branchId}/quick-toggle/`;
-    const data = { field: fieldName };
-
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': '{{ csrf_token }}'
-      },
-      body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(result => {
-      if (result.status !== 'success') {
-        alert("{% trans 'Error:' %} " + result.message);
-        checkbox.checked = !checkbox.checked;
-      }
-      // If success, the switch naturally stays in its new position.
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert("{% trans 'A network error occurred.' %}");
-      checkbox.checked = !checkbox.checked;
-    });
-  }
-</script>
+<script src="{% static 'provider_portal/js/branches.js' %}"></script>
 {% endblock extra_js %}

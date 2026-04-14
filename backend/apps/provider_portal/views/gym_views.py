@@ -16,6 +16,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.gis.geos import Point
 from django.utils import timezone
 from django.core.signing import Signer, BadSignature
+from django.db.models import Count, Prefetch
 
 from apps.gyms.models import (
     GymBranch, BranchImage, SubscriptionPlan, PlanFeature, 
@@ -37,6 +38,12 @@ class BranchListView(GymProviderRequiredMixin, ListView):
     def get_queryset(self):
         return GymBranch.objects.filter(
             provider=self.request.user.provider_profile
+        ).prefetch_related(
+            # Fetch images efficiently to use the first one as a Cover Image
+            Prefetch('images', to_attr='prefetched_images')
+        ).annotate(
+            # Count how many plans are linked to this branch for the Stats Grid
+            linked_plans_count=Count('available_plans', distinct=True)
         ).order_by('-created_at')
 
 class BranchAddView(GymProviderRequiredMixin, FormView):
@@ -57,8 +64,14 @@ class BranchAddView(GymProviderRequiredMixin, FormView):
             except (ValueError, TypeError):
                 logger.error("Invalid coordinates provided.")
 
-        opening_time = data.get('sunday_open') or data.get('monday_open')
-        closing_time = data.get('sunday_close') or data.get('monday_close')
+        # --- SMART SCHEDULE JSON PARSING ---
+        schedule_data_str = data.get('schedule_data')
+        operating_hours = {}
+        if schedule_data_str:
+            try:
+                operating_hours = json.loads(schedule_data_str)
+            except json.JSONDecodeError:
+                logger.error("Failed to parse schedule JSON data.")
 
         is_active = data.get('is_active', True)
         if provider.status == 'pending':
@@ -76,8 +89,8 @@ class BranchAddView(GymProviderRequiredMixin, FormView):
             is_active=is_active,
             is_temporarily_closed=data.get('is_temporarily_closed', False),
             estimated_stay_duration=data.get('estimated_stay_duration', 120),
-            opening_time=opening_time,
-            closing_time=closing_time
+            max_capacity=data.get('max_capacity', 100),
+            operating_hours=operating_hours
         )
 
         if data.get('branch_logo'):
@@ -115,6 +128,15 @@ class BranchEditView(GymProviderRequiredMixin, FormView):
 
     def get_initial(self):
         branch = self.get_branch()
+        
+        # Pre-fill schedule JSON securely
+        schedule_json = '{}'
+        if branch.operating_hours:
+            try:
+                schedule_json = json.dumps(branch.operating_hours)
+            except Exception:
+                pass
+
         initial = {
             'name': branch.name,
             'city': branch.city,
@@ -125,13 +147,8 @@ class BranchEditView(GymProviderRequiredMixin, FormView):
             'is_active': branch.is_active,
             'is_temporarily_closed': branch.is_temporarily_closed,
             'estimated_stay_duration': branch.estimated_stay_duration,
-            'sunday_open': branch.opening_time, 'sunday_close': branch.closing_time,
-            'monday_open': branch.opening_time, 'monday_close': branch.closing_time,
-            'tuesday_open': branch.opening_time, 'tuesday_close': branch.closing_time,
-            'wednesday_open': branch.opening_time, 'wednesday_close': branch.closing_time,
-            'thursday_open': branch.opening_time, 'thursday_close': branch.closing_time,
-            'friday_open': branch.opening_time, 'friday_close': branch.closing_time,
-            'saturday_open': branch.opening_time, 'saturday_close': branch.closing_time,
+            'max_capacity': branch.max_capacity,
+            'schedule_data': schedule_json,
             'amenities': branch.amenities.all(),
             'sports': branch.sports.all(),
         }
@@ -154,8 +171,15 @@ class BranchEditView(GymProviderRequiredMixin, FormView):
             except (ValueError, TypeError):
                 pass
 
-        branch.opening_time = data.get('sunday_open') or data.get('monday_open')
-        branch.closing_time = data.get('sunday_close') or data.get('monday_close')
+        # --- SMART SCHEDULE JSON PARSING ---
+        schedule_data_str = data.get('schedule_data')
+        if schedule_data_str:
+            try:
+                branch.operating_hours = json.loads(schedule_data_str)
+            except json.JSONDecodeError:
+                branch.operating_hours = {}
+        else:
+            branch.operating_hours = {}
 
         branch.name = data['name']
         branch.city = data['city']
@@ -165,6 +189,7 @@ class BranchEditView(GymProviderRequiredMixin, FormView):
         branch.description = data.get('description', '')
         branch.is_temporarily_closed = data.get('is_temporarily_closed', False)
         branch.estimated_stay_duration = data.get('estimated_stay_duration', 120)
+        branch.max_capacity = data.get('max_capacity', 100)
         
         if self.request.user.provider_profile.status == 'pending':
             branch.is_active = False
@@ -409,8 +434,6 @@ class QRCodeScannerAPIView(GymProviderRequiredMixin, View):
             if not qr_code:
                 return JsonResponse({'status': 'ignore'}, status=200)
 
-            # 1. DECRYPT AND VERIFY SIGNATURE
-            # Using the exact same salt defined in GymSubscription.get_signed_qr_code()
             signer = Signer(salt="fitzone_gym_qr_auth")
             try:
                 raw_data = signer.unsign(qr_code)
@@ -418,13 +441,11 @@ class QRCodeScannerAPIView(GymProviderRequiredMixin, View):
                     raise ValueError("Invalid FitZone Prefix")
                 qr_uuid = raw_data.replace("FZ-SUB-", "")
             except (BadSignature, ValueError):
-                # Fake or forged QR code -> Ignore silently to prevent brute force
                 return JsonResponse({'status': 'ignore'}, status=200)
 
             provider = request.user.provider_profile
             now = timezone.now().date()
 
-            # 2. FETCH REAL SUBSCRIPTION DATA
             subscription = GymSubscription.objects.select_related('user', 'plan').prefetch_related('plan__branches').filter(
                 qr_code_id=qr_uuid,
                 plan__provider=provider
@@ -442,7 +463,6 @@ class QRCodeScannerAPIView(GymProviderRequiredMixin, View):
             plan = subscription.plan
             allowed_branches = list(plan.branches.values_list('name', flat=True))
 
-            # 3. VERIFY STATUS & EXPIRATION
             days_left = (subscription.end_date - now).days
 
             if subscription.status != 'active' or days_left < 0:
@@ -455,11 +475,9 @@ class QRCodeScannerAPIView(GymProviderRequiredMixin, View):
                     'avatar_url': request.build_absolute_uri(user.real_face_image.url) if user.real_face_image else None,
                 })
 
-            # Determine Warning vs Success
             scenario = 'warning' if days_left <= 3 else 'success'
             message = _("Subscription expires soon. Please remind the member.") if scenario == 'warning' else _("Check-in successful.")
             
-            # 4. LOG VISIT (Smart Logging)
             first_branch = plan.branches.first()
             if first_branch:
                 GymVisit.objects.create(
@@ -473,11 +491,9 @@ class QRCodeScannerAPIView(GymProviderRequiredMixin, View):
                 is_active=True
             ).count()
 
-# Fetch up to 10 recent visits to fill the bottom timeline area perfectly
             recent_visits = GymVisit.objects.filter(subscription=subscription).order_by('-check_in_time')[:10]
             logs_data = [{"time": v.check_in_time.strftime("%I:%M %p"), "date": v.check_in_time.strftime("%Y-%m-%d")} for v in recent_visits]
 
-            # BUILD RESPONSE
             response_data = {
                 'member_id': str(user.id),
                 'member_name': user.full_name,
@@ -489,7 +505,7 @@ class QRCodeScannerAPIView(GymProviderRequiredMixin, View):
                 'plan_price': str(plan.price), 
                 'allowed_branches': ", ".join(allowed_branches),
                 'branch_address': first_branch.address if first_branch else "متعدد الفروع",
-                'branch_logo_url': request.build_absolute_uri(first_branch.branch_logo.url) if first_branch and first_branch.branch_logo else None, # <-- ADDED BRANCH LOGO
+                'branch_logo_url': request.build_absolute_uri(first_branch.branch_logo.url) if first_branch and first_branch.branch_logo else None,
                 'total_days': plan.duration_days,
                 'days_left': max(0, days_left),
                 'visits_this_month': subscription.visits.count(),
@@ -514,17 +530,12 @@ class QRCodeScannerAPIView(GymProviderRequiredMixin, View):
         
         
 class SubscriberListView(GymProviderRequiredMixin, ListView): 
-    """
-    GET /portal/gym/subscribers/
-    Enterprise Grade CRM Dashboard for Subscribers.
-    """
     model = GymSubscription
     template_name = "provider_portal/gym/subscribers/list.html"
     context_object_name = "subscriptions"
 
     def get_queryset(self):
         provider = self.request.user.provider_profile
-        # Using prefetch_related for branches to avoid N+1 inside the template/JSON
         return GymSubscription.objects.select_related(
             'user', 'plan'
         ).prefetch_related(
@@ -537,12 +548,10 @@ class SubscriberListView(GymProviderRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         qs = self.get_queryset()
         
-        # KPIs
         context['total_active'] = qs.filter(status='active').count()
         context['total_expired'] = qs.filter(status='expired').count()
         context['total_suspended'] = qs.filter(status='suspended').count()
         
-        # Pass branches for the filter dropdown
         from apps.gyms.models import GymBranch
         context['branches'] = GymBranch.objects.filter(provider=self.request.user.provider_profile)
         

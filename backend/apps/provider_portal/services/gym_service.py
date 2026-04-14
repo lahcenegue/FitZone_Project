@@ -4,12 +4,13 @@ Handles branch and subscription plan management.
 All database operations for gym providers live here.
 """
 
+import json
 import logging
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 from apps.providers.models import Provider
-from apps.gyms.models import Branch, SubscriptionPlan
+from apps.gyms.models import GymBranch, SubscriptionPlan
 from apps.core.constants import PAGE_SIZE_DEFAULT
 
 logger = logging.getLogger(__name__)
@@ -35,7 +36,7 @@ def get_provider_branches(provider: Provider, page: int = 1):
     Returns:
         Django Page object containing Branch instances.
     """
-    branches = Branch.objects.filter(
+    branches = GymBranch.objects.filter(
         provider=provider
     ).order_by("-created_at")
 
@@ -43,7 +44,7 @@ def get_provider_branches(provider: Provider, page: int = 1):
     return paginator.get_page(page)
 
 
-def get_branch(provider: Provider, branch_id: int) -> Branch:
+def get_branch(provider: Provider, branch_id: int) -> GymBranch:
     """
     Return a single branch that belongs to the given provider.
 
@@ -58,14 +59,14 @@ def get_branch(provider: Provider, branch_id: int) -> Branch:
         GymServiceError: If branch does not exist or belongs to another provider.
     """
     try:
-        return Branch.objects.get(id=branch_id, provider=provider)
-    except Branch.DoesNotExist:
+        return GymBranch.objects.get(id=branch_id, provider=provider)
+    except GymBranch.DoesNotExist:
         raise GymServiceError(_("Branch not found."))
 
 
-def create_branch(provider: Provider, form_data: dict) -> Branch:
+def create_branch(provider: Provider, form_data: dict) -> GymBranch:
     """
-    Create a new branch for the given provider.
+    Create a new branch for the given provider utilizing JSON for operating hours.
 
     Args:
         provider: The authenticated Provider instance.
@@ -78,7 +79,13 @@ def create_branch(provider: Provider, form_data: dict) -> Branch:
         GymServiceError: If creation fails.
     """
     try:
-        opening_hours = _extract_opening_hours(form_data)
+        schedule_data_str = form_data.get("schedule_data", "{}")
+        operating_hours = {}
+        if schedule_data_str:
+            try:
+                operating_hours = json.loads(schedule_data_str)
+            except json.JSONDecodeError:
+                pass
 
         location = None
         latitude  = form_data.get("latitude")
@@ -87,15 +94,18 @@ def create_branch(provider: Provider, form_data: dict) -> Branch:
             from django.contrib.gis.geos import Point
             location = Point(float(longitude), float(latitude), srid=4326)
 
-        branch = Branch.objects.create(
+        branch = GymBranch.objects.create(
             provider=provider,
             name=form_data["name"],
             city=form_data["city"],
             address=form_data["address"],
             phone_number=form_data.get("phone_number", ""),
             location=location,
-            opening_hours=opening_hours,
+            operating_hours=operating_hours,
             is_active=form_data.get("is_active", True),
+            max_capacity=form_data.get('max_capacity', 100),
+            estimated_stay_duration=form_data.get('estimated_stay_duration', 120),
+            gender=form_data.get('gender', 'mixed'),
         )
 
         logger.info(
@@ -111,7 +121,7 @@ def create_branch(provider: Provider, form_data: dict) -> Branch:
         raise GymServiceError(_("Failed to create branch. Please try again.")) from exc
 
 
-def update_branch(provider: Provider, branch_id: int, form_data: dict) -> Branch:
+def update_branch(provider: Provider, branch_id: int, form_data: dict) -> GymBranch:
     """
     Update an existing branch.
 
@@ -129,7 +139,12 @@ def update_branch(provider: Provider, branch_id: int, form_data: dict) -> Branch
     branch = get_branch(provider, branch_id)
 
     try:
-        opening_hours = _extract_opening_hours(form_data)
+        schedule_data_str = form_data.get("schedule_data", "{}")
+        if schedule_data_str:
+            try:
+                branch.operating_hours = json.loads(schedule_data_str)
+            except json.JSONDecodeError:
+                branch.operating_hours = {}
 
         latitude  = form_data.get("latitude")
         longitude = form_data.get("longitude")
@@ -141,8 +156,11 @@ def update_branch(provider: Provider, branch_id: int, form_data: dict) -> Branch
         branch.city          = form_data["city"]
         branch.address       = form_data["address"]
         branch.phone_number  = form_data.get("phone_number", "")
-        branch.opening_hours = opening_hours
         branch.is_active     = form_data.get("is_active", True)
+        branch.max_capacity  = form_data.get('max_capacity', 100)
+        branch.estimated_stay_duration = form_data.get('estimated_stay_duration', 120)
+        branch.gender        = form_data.get('gender', 'mixed')
+        
         branch.save()
 
         logger.info(
@@ -183,29 +201,6 @@ def delete_branch(provider: Provider, branch_id: int) -> None:
     except Exception as exc:
         logger.error("Branch deletion failed | branch_id: %s | error: %s", branch_id, str(exc))
         raise GymServiceError(_("Failed to delete branch. Please try again.")) from exc
-
-
-def _extract_opening_hours(form_data: dict) -> dict:
-    """
-    Extract opening hours from flat form data into a structured dict.
-
-    Args:
-        form_data: Cleaned form data containing {day}_open and {day}_close fields.
-
-    Returns:
-        Dict mapping day names to {open, close} time strings.
-    """
-    from apps.core.constants import WEEK_DAYS
-    hours = {}
-    for day_key, _ in WEEK_DAYS:
-        open_time  = form_data.get(f"{day_key}_open")
-        close_time = form_data.get(f"{day_key}_close")
-        if open_time and close_time:
-            hours[day_key] = {
-                "open":  open_time.strftime("%H:%M"),
-                "close": close_time.strftime("%H:%M"),
-            }
-    return hours
 
 
 # ---------------------------------------------------------------------------

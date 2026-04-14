@@ -4,118 +4,155 @@
 {% block title %}{% trans "Provider Portal" %} — FitZone{% endblock %}
 
 {% block extra_css %}
+<script>
+  (function() {
+    const savedTheme = localStorage.getItem('fitzone-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  })();
+</script>
+
 <style>
     /* -----------------------------------------------------------------------
-       Portal Layout — Sidebar + Topbar + Content 
-       Utilizes CSS Logical Properties for automatic LTR/RTL switching
+       Enterprise Floating Layout (FinSet Inspired)
     ----------------------------------------------------------------------- */
     .portal-layout { 
         display: flex; 
-        min-height: 100vh; 
+        min-height: 100vh;
+        background-color: var(--color-bg);
     }
 
-    /* --- Sidebar --- */
+    /* --- Floating Sidebar --- */
     .portal-sidebar {
-        width: 260px; 
-        min-height: 100vh;
-        background-color: var(--color-primary);
+        width: 280px; 
+        height: calc(100vh - 32px);
+        margin: 16px;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
         display: flex; 
         flex-direction: column;
         position: fixed; 
         top: 0;
-        inset-inline-start: 0; /* Logical property: dynamically adapts to left/right */
+        inset-inline-start: 0; 
         z-index: 100; 
-        transition: transform var(--transition);
+        transition: transform var(--transition), background-color var(--transition), border-color var(--transition);
+        overflow: hidden;
     }
 
     .sidebar-logo {
         padding: var(--space-6); 
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px dashed var(--color-border);
         display: flex; 
         align-items: center; 
+        justify-content: center;
         gap: var(--space-3);
     }
 
     .sidebar-logo-text {
-        color: var(--color-accent); 
+        color: var(--color-text-primary); 
         font-size: var(--font-size-xl);
-        font-weight: var(--font-weight-bold); 
+        font-weight: var(--font-weight-black); 
         letter-spacing: -0.5px;
     }
 
     .sidebar-nav { 
         flex: 1; 
-        padding: var(--space-4) 0; 
+        padding: var(--space-4) var(--space-3); 
         overflow-y: auto; 
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
     }
 
     .sidebar-section-label {
-        font-size: var(--font-size-sm); 
-        color: rgba(255, 255, 255, 0.35);
-        font-weight: var(--font-weight-medium); 
+        font-size: 11px; 
+        color: var(--color-text-muted);
+        font-weight: var(--font-weight-bold); 
         text-transform: uppercase;
-        letter-spacing: 0.08em; 
-        padding: var(--space-4) var(--space-6) var(--space-2);
+        letter-spacing: 0.5px; 
+        padding: var(--space-4) var(--space-4) var(--space-2);
+        margin-top: var(--space-2);
     }
 
     .sidebar-link {
         display: flex; 
         align-items: center; 
         gap: var(--space-3);
-        padding: var(--space-3) var(--space-6); 
-        color: rgba(255, 255, 255, 0.65);
+        padding: 12px 16px; 
+        color: var(--color-text-secondary);
         font-size: var(--font-size-base); 
-        font-weight: var(--font-weight-regular);
-        transition: color var(--transition), background-color var(--transition);
-        min-height: var(--touch-target); 
+        font-weight: var(--font-weight-medium);
+        border-radius: var(--radius-md);
+        transition: all var(--transition);
         text-decoration: none;
     }
 
     .sidebar-link:hover { 
-        color: #ffffff; 
-        background-color: rgba(255, 255, 255, 0.06); 
+        color: var(--color-text-primary); 
+        background-color: var(--color-bg); 
     }
 
     .sidebar-link.active {
-        color: var(--color-accent); 
-        background-color: rgba(245, 158, 11, 0.10);
-        font-weight: var(--font-weight-medium);
+        color: var(--color-primary); 
+        background-color: var(--color-primary-light);
+        font-weight: var(--font-weight-bold);
     }
 
     .sidebar-link svg { 
         flex-shrink: 0; 
-        opacity: 0.7; 
-    }
-
-    .sidebar-link.active svg { 
-        opacity: 1; 
+        stroke-width: 2.5;
+        transition: stroke var(--transition);
     }
 
     .sidebar-footer {
-        padding: var(--space-4) var(--space-6);
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: var(--space-4);
+        border-top: 1px dashed var(--color-border);
     }
 
-    /* --- Topbar --- */
+    .btn-logout {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        padding: 12px;
+        border-radius: var(--radius-md);
+        color: var(--color-error);
+        background: var(--color-error-light);
+        font-weight: var(--font-weight-bold);
+        transition: var(--transition);
+    }
+    
+    .btn-logout:hover {
+        background: var(--color-error);
+        color: var(--color-surface);
+    }
+
+    /* --- Glassmorphism Topbar --- */
     .portal-topbar {
         position: fixed; 
         top: 0;
-        inset-inline-start: 260px; /* Offset by sidebar width */
+        inset-inline-start: 312px;
         inset-inline-end: 0;
-        height: 64px; 
-        background-color: var(--color-surface);
-        border-bottom: 1px solid var(--color-border);
+        height: 80px; 
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--glass-border);
         display: flex; 
         align-items: center; 
         justify-content: space-between;
-        padding: 0 var(--space-6); 
+        padding: 0 var(--space-8); 
         z-index: 99;
+        transition: background var(--transition), border-color var(--transition);
     }
 
     .topbar-title {
-        font-size: var(--font-size-lg); 
-        font-weight: var(--font-weight-medium);
+        font-size: var(--font-size-xl); 
+        font-weight: var(--font-weight-black);
         color: var(--color-text-primary);
+        margin: 0;
     }
 
     .topbar-actions { 
@@ -124,59 +161,69 @@
         gap: var(--space-4); 
     }
 
-    /* Notification Bell */
-    .notif-btn {
+    /* General Topbar Buttons (Notif & Theme) */
+    .topbar-icon-btn {
         position: relative; 
-        width: var(--touch-target); 
-        height: var(--touch-target);
+        width: 44px; 
+        height: 44px;
         display: flex; 
         align-items: center; 
         justify-content: center;
         color: var(--color-text-secondary); 
-        border-radius: var(--radius-md);
-        transition: background-color var(--transition), color var(--transition);
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-full);
+        box-shadow: var(--shadow-sm);
+        transition: all var(--transition);
     }
 
-    .notif-btn:hover { 
-        background-color: var(--color-bg); 
-        color: var(--color-text-primary); 
+    .topbar-icon-btn:hover { 
+        color: var(--color-primary); 
+        border-color: var(--color-primary);
+        box-shadow: var(--shadow-md);
     }
 
     .notif-badge {
         position: absolute; 
-        top: 8px;
-        inset-inline-end: 8px; /* Logical positioning for the badge */
-        width: 8px; 
-        height: 8px; 
+        top: -2px;
+        inset-inline-end: -2px; 
+        width: 12px; 
+        height: 12px; 
         background-color: var(--color-error);
         border-radius: var(--radius-full); 
         border: 2px solid var(--color-surface);
     }
 
+    /* Theme Toggle Specific */
+    .icon-sun { display: none; }
+    .icon-moon { display: block; }
+    
+    [data-theme="dark"] .icon-sun { display: block; }
+    [data-theme="dark"] .icon-moon { display: none; }
+
     /* Language Switcher */
-    .lang-switcher-portal { 
-        position: relative; 
-    }
+    .lang-switcher-portal { position: relative; }
 
     .lang-switcher-btn {
         display: flex; 
         align-items: center; 
         gap: var(--space-2);
-        padding: 0 var(--space-3); 
-        height: 36px;
+        padding: 0 var(--space-4); 
+        height: 44px;
         border: 1px solid var(--color-border); 
-        border-radius: var(--radius-md);
+        border-radius: var(--radius-full);
         background: var(--color-surface); 
-        color: var(--color-text-secondary);
+        color: var(--color-text-primary);
         font-size: var(--font-size-sm); 
-        font-weight: var(--font-weight-medium);
-        cursor: pointer; 
-        transition: border-color var(--transition), color var(--transition);
+        font-weight: var(--font-weight-bold);
+        box-shadow: var(--shadow-sm);
+        transition: all var(--transition);
     }
 
     .lang-switcher-btn:hover { 
-        border-color: var(--color-accent); 
-        color: var(--color-text-primary); 
+        border-color: var(--color-primary); 
+        color: var(--color-primary); 
+        box-shadow: var(--shadow-md);
     }
 
     .lang-dropdown {
@@ -186,22 +233,17 @@
         background: var(--color-surface); 
         border: 1px solid var(--color-border);
         border-radius: var(--radius-md); 
-        box-shadow: var(--shadow-md);
+        box-shadow: var(--shadow-lg);
         min-width: 140px; 
         overflow: hidden; 
         display: none; 
         z-index: 200;
     }
 
-    .lang-dropdown.open { 
-        display: block; 
-    }
+    .lang-dropdown.open { display: block; animation: dropIn 0.2s ease-out; }
+    @keyframes dropIn { from {opacity:0; transform:translateY(-10px);} to {opacity:1; transform:translateY(0);} }
 
-    .lang-dropdown form { 
-        display: block; 
-        margin: 0; 
-        padding: 0; 
-    }
+    .lang-dropdown form { display: block; margin: 0; padding: 0; }
 
     .lang-option {
         display: block; 
@@ -211,10 +253,8 @@
         color: var(--color-text-secondary);
         background: none; 
         border: none; 
-        font-family: inherit;
-        text-align: start; /* Logical text alignment */
-        cursor: pointer; 
-        transition: background-color var(--transition), color var(--transition);
+        text-align: start; 
+        transition: all var(--transition);
     }
 
     .lang-option:hover { 
@@ -223,54 +263,50 @@
     }
 
     .lang-option.current { 
-        color: var(--color-accent); 
-        font-weight: var(--font-weight-medium); 
+        color: var(--color-primary); 
+        font-weight: var(--font-weight-bold); 
+        background-color: var(--color-primary-light);
     }
 
     /* --- Content Area --- */
     .portal-content {
         flex: 1;
-        margin-inline-start: 260px; /* Ensure content is pushed next to the sidebar */
-        margin-top: 64px; 
-        padding: var(--space-8) var(--space-6);
-        min-height: calc(100vh - 64px); 
-        background-color: var(--color-bg);
+        margin-inline-start: 312px; 
+        margin-top: 80px; 
+        padding: var(--space-8);
+        min-height: calc(100vh - 80px); 
     }
 
     /* Alerts */
     .alert {
-        display: flex; 
-        align-items: flex-start; 
-        gap: var(--space-3);
-        padding: var(--space-4); 
-        border-radius: var(--radius-md);
-        margin-bottom: var(--space-4); 
-        font-size: var(--font-size-base);
+        display: flex; align-items: flex-start; gap: var(--space-3);
+        padding: var(--space-4); border-radius: var(--radius-md);
+        margin-bottom: var(--space-6); font-size: var(--font-size-base);
+        font-weight: var(--font-weight-medium);
     }
-    .alert--success { background-color: rgba(16, 185, 129, 0.08); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.2); }
-    .alert--error   { background-color: rgba(239, 68, 68, 0.08); color: var(--color-error); border: 1px solid rgba(239, 68, 68, 0.2); }
-    .alert--warning { background-color: rgba(245, 158, 11, 0.08); color: var(--color-warning); border: 1px solid rgba(245, 158, 11, 0.2); }
-    .alert--info    { background-color: rgba(59, 130, 246, 0.08); color: var(--color-info); border: 1px solid rgba(59, 130, 246, 0.2); }
+    .alert--success { background-color: var(--color-success-light); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.2); }
+    .alert--error   { background-color: var(--color-error-light); color: var(--color-error); border: 1px solid rgba(239, 68, 68, 0.2); }
+    .alert--warning { background-color: var(--color-warning-light); color: var(--color-warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+    .alert--info    { background-color: var(--color-info-light); color: var(--color-info); border: 1px solid rgba(59, 130, 246, 0.2); }
 
     /* --- Responsive Mobile Layout --- */
     .sidebar-toggle {
         display: none; 
-        width: var(--touch-target); 
-        height: var(--touch-target);
-        align-items: center; 
-        justify-content: center; 
-        color: var(--color-text-secondary); 
-        cursor: pointer;
+        width: 44px; height: 44px;
+        align-items: center; justify-content: center; 
+        color: var(--color-text-primary); 
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
     }
 
-    @media (max-width: 768px) {
-        [dir="ltr"] .portal-sidebar { transform: translateX(-100%); }
-        [dir="rtl"] .portal-sidebar { transform: translateX(100%); }
-        
+    @media (max-width: 992px) {
+        [dir="ltr"] .portal-sidebar { transform: translateX(-120%); }
+        [dir="rtl"] .portal-sidebar { transform: translateX(120%); }
         .portal-sidebar.open { transform: translateX(0) !important; }
         
         .portal-content { margin-inline-start: 0; padding: var(--space-4); }
-        .portal-topbar { inset-inline-start: 0; }
+        .portal-topbar { inset-inline-start: 0; padding: 0 var(--space-4); }
         .sidebar-toggle { display: flex; }
     }
 </style>
@@ -288,76 +324,34 @@
       {% block sidebar_nav %}
       
       <a href="{% url 'provider_portal:dashboard' %}" class="sidebar-link {% block nav_dashboard %}{% endblock %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg>
         {% trans "Dashboard" %}
       </a>
 
       {% if is_gym %}
-      <div class="sidebar-section-label">{% trans "Gym" %}</div>
+      <div class="sidebar-section-label">{% trans "Gym Management" %}</div>
       <a href="{% url 'provider_portal:gym_branches' %}" class="sidebar-link {% block nav_branches %}{% endblock %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         {% trans "Branches" %}
       </a>
       <a href="{% url 'provider_portal:gym_plans' %}" class="sidebar-link {% block nav_plans %}{% endblock %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
         {% trans "Subscription Plans" %}
       </a>
       <a href="{% url 'provider_portal:gym_subscribers' %}" class="sidebar-link {% block nav_subscribers %}{% endblock %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         {% trans "Subscribers" %}
       </a>
       {% endif %}
 
-      {% if is_trainer %}
-      <div class="sidebar-section-label">{% trans "Trainer" %}</div>
-      <a href="{% url 'provider_portal:trainer_profile' %}" class="sidebar-link {% block nav_trainer_profile %}{% endblock %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        {% trans "Professional Profile" %}
-      </a>
-      <a href="{% url 'provider_portal:trainer_availability' %}" class="sidebar-link {% block nav_availability %}{% endblock %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        {% trans "Availability" %}
-      </a>
-      <a href="{% url 'provider_portal:trainer_bookings' %}" class="sidebar-link {% block nav_bookings %}{% endblock %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        {% trans "Bookings" %}
-      </a>
-      {% endif %}
-
-      {% if is_restaurant %}
-      <div class="sidebar-section-label">{% trans "Restaurant" %}</div>
-      <a href="{% url 'provider_portal:restaurant_menu' %}" class="sidebar-link {% block nav_menu %}{% endblock %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
-        {% trans "Menu" %}
-      </a>
-      <a href="{% url 'provider_portal:restaurant_orders' %}" class="sidebar-link {% block nav_restaurant_orders %}{% endblock %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        {% trans "Orders" %}
-      </a>
-      {% endif %}
-
-      {% if is_store %}
-      <div class="sidebar-section-label">{% trans "Store" %}</div>
-      <a href="{% url 'provider_portal:store_products' %}" class="sidebar-link {% block nav_products %}{% endblock %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        {% trans "Products" %}
-      </a>
-      <a href="{% url 'provider_portal:store_orders' %}" class="sidebar-link {% block nav_store_orders %}{% endblock %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-        {% trans "Orders" %}
-      </a>
-      {% endif %}
-
-      <div class="sidebar-section-label">{% trans "Finance" %}</div>
+      <div class="sidebar-section-label">{% trans "Finance & Account" %}</div>
       <a href="{% url 'provider_portal:earnings' %}" class="sidebar-link {% block nav_earnings %}{% endblock %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
         {% trans "Earnings" %}
       </a>
-
-      <div class="sidebar-section-label">{% trans "Account" %}</div>
       <a href="{% url 'provider_portal:profile' %}" class="sidebar-link {% block nav_profile %}{% endblock %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        {% trans "Profile" %}
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        {% trans "Profile Settings" %}
       </a>
 
       {% endblock sidebar_nav %}
@@ -366,8 +360,8 @@
     <div class="sidebar-footer">
       <form method="post" action="{% url 'provider_portal:logout' %}">
         {% csrf_token %}
-        <button type="submit" class="sidebar-link" style="width:100%; background:none; border:none; cursor:pointer;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <button type="submit" class="btn-logout">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           {% trans "Logout" %}
         </button>
       </form>
@@ -375,18 +369,24 @@
   </aside>
 
   <header class="portal-topbar">
-    <div style="display:flex; align-items:center; gap:var(--space-3);">
+    <div style="display:flex; align-items:center; gap:var(--space-4);">
       <button class="sidebar-toggle" id="sidebarToggle" aria-label="{% trans 'Toggle menu' %}">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
       <h1 class="topbar-title">{% block page_title %}{% endblock %}</h1>
     </div>
 
     <div class="topbar-actions">
-      <a href="{% url 'provider_portal:notifications' %}" class="notif-btn" aria-label="{% trans 'Notifications' %}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        
+      <button class="topbar-icon-btn" id="themeToggleBtn" aria-label="{% trans 'Toggle Theme' %}">
+        <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+
+      <a href="{% url 'provider_portal:notifications' %}" class="topbar-icon-btn" aria-label="{% trans 'Notifications' %}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         {% if unread_count > 0 %}
-        <span class="notif-badge" aria-label="{{ unread_count }} {% trans 'unread notifications' %}"></span>
+        <span class="notif-badge"></span>
         {% endif %}
       </a>
 
@@ -397,16 +397,16 @@
         {% for language in languages %}
           {% if language.code == LANGUAGE_CODE %}
           <button class="lang-switcher-btn" id="langBtn" aria-haspopup="true" aria-expanded="false" type="button">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
             {{ language.name_local }}
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           {% endif %}
         {% endfor %}
 
         <div class="lang-dropdown" id="langDropdown" role="menu">
           {% for language in languages %}
-          <form action="{% url 'set_language' %}" method="post" class="lang-switch-form" style="display: block; margin: 0; padding: 0;">
+          <form action="{% url 'set_language' %}" method="post" class="lang-switch-form">
             {% csrf_token %}
             <input name="next" type="hidden" class="lang-next" value="" />
             <button type="submit" name="language" value="{{ language.code }}" class="lang-option {% if language.code == LANGUAGE_CODE %}current{% endif %}" role="menuitem">
@@ -442,16 +442,27 @@
 <script>
   'use strict';
 
+  // --- Theme Toggle Logic ---
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', function() {
+          const currentTheme = document.documentElement.getAttribute('data-theme');
+          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', newTheme);
+          localStorage.setItem('fitzone-theme', newTheme);
+      });
+  }
+
   // --- Mobile Sidebar Toggle Logic ---
   const sidebarToggle = document.getElementById('sidebarToggle');
   const portalSidebar = document.getElementById('portalSidebar');
   
   if (sidebarToggle && portalSidebar) {
-    sidebarToggle.addEventListener('click', function () { 
+    sidebarToggle.addEventListener('click', function (e) { 
+      e.stopPropagation();
       portalSidebar.classList.toggle('open'); 
     });
     
-    // Close sidebar when clicking outside of it
     document.addEventListener('click', function (e) {
       if (!portalSidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
         portalSidebar.classList.remove('open');
@@ -464,27 +475,23 @@
   const langDropdown = document.getElementById('langDropdown');
   
   if (langBtn && langDropdown) {
-    // Toggle dropdown visibility
     langBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       const isOpen = langDropdown.classList.toggle('open');
       langBtn.setAttribute('aria-expanded', isOpen.toString());
     });
 
-    // Prevent closing when interacting inside the dropdown
     langDropdown.addEventListener('click', function(e) {
       e.stopPropagation();
     });
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function () {
       langDropdown.classList.remove('open');
       if (langBtn) langBtn.setAttribute('aria-expanded', 'false');
     });
   }
 
-  // --- Bulletproof fix for Django i18n URL routing ---
-  // Ensuring the redirection removes or injects language prefixes accurately based on user choice
+  // --- Language Routing Fix ---
   document.querySelectorAll('.lang-switch-form').forEach(function(form) {
     form.addEventListener('submit', function(e) {
       const selectedLanguage = this.querySelector('button[name="language"]').value;
@@ -492,25 +499,21 @@
       const currentQuery = window.location.search;
 
       if (selectedLanguage === 'ar') {
-        // If Arabic is selected, remove the /en/ prefix if it exists
         if (currentPath.startsWith('/en/')) {
           currentPath = currentPath.substring(3);
         } else if (currentPath === '/en') {
           currentPath = '/';
         }
       } else if (selectedLanguage === 'en') {
-        // If English is selected, ensure the /en/ prefix is added
         if (!currentPath.startsWith('/en/')) {
           currentPath = '/en' + (currentPath.startsWith('/') ? currentPath : '/' + currentPath);
         }
       }
       
-      // Safety check to ensure the resulting path is always absolute
       if (!currentPath.startsWith('/')) {
         currentPath = '/' + currentPath;
       }
 
-      // Inject the computed URL path + query string before the form submits
       this.querySelector('.lang-next').value = currentPath + currentQuery;
     });
   });

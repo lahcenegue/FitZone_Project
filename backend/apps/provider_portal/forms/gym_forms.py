@@ -7,19 +7,14 @@ import logging
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from apps.gyms.models import GymBranch, GymAmenity, GymSport
+from apps.core.constants import WEEK_DAYS, SAUDI_CITIES, BRANCH_GENDER_CHOICES
 
 logger = logging.getLogger(__name__)
-
-
-from django import forms
-from django.utils.translation import gettext_lazy as _
-from apps.gyms.models import GymAmenity, GymSport
-from apps.core.constants import WEEK_DAYS, SAUDI_CITIES, BRANCH_GENDER_CHOICES
 
 class BranchForm(forms.Form):
     """
     Add or edit a gym branch.
-    Captures location, address, amenities, sports, and operating hours.
+    Captures location, address, amenities, sports, and operating hours via JSON.
     """
     name = forms.CharField(
         label=_("Branch name"),
@@ -67,6 +62,12 @@ class BranchForm(forms.Form):
         initial="mixed"
     )
     
+    max_capacity = forms.IntegerField(
+        label=_("Maximum Capacity"), 
+        required=False, 
+        initial=100
+    )
+    
     estimated_stay_duration = forms.IntegerField(
         label=_("Estimated Stay Duration"), required=False, initial=120
     )
@@ -93,21 +94,12 @@ class BranchForm(forms.Form):
     
     branch_logo = forms.ImageField(label=_("Branch Logo (Optional)"), required=False)
 
-    # Opening hours
-    sunday_open    = forms.TimeField(label=_("Sunday open"),    required=False, widget=forms.TimeInput(attrs={"type": "time"}))
-    sunday_close   = forms.TimeField(label=_("Sunday close"),   required=False, widget=forms.TimeInput(attrs={"type": "time"}))
-    monday_open    = forms.TimeField(label=_("Monday open"),    required=False, widget=forms.TimeInput(attrs={"type": "time"}))
-    monday_close   = forms.TimeField(label=_("Monday close"),   required=False, widget=forms.TimeInput(attrs={"type": "time"}))
-    tuesday_open   = forms.TimeField(label=_("Tuesday open"),   required=False, widget=forms.TimeInput(attrs={"type": "time"}))
-    tuesday_close  = forms.TimeField(label=_("Tuesday close"),  required=False, widget=forms.TimeInput(attrs={"type": "time"}))
-    wednesday_open = forms.TimeField(label=_("Wednesday open"), required=False, widget=forms.TimeInput(attrs={"type": "time"}))
-    wednesday_close= forms.TimeField(label=_("Wednesday close"),required=False, widget=forms.TimeInput(attrs={"type": "time"}))
-    thursday_open  = forms.TimeField(label=_("Thursday open"),  required=False, widget=forms.TimeInput(attrs={"type": "time"}))
-    thursday_close = forms.TimeField(label=_("Thursday close"), required=False, widget=forms.TimeInput(attrs={"type": "time"}))
-    friday_open    = forms.TimeField(label=_("Friday open"),    required=False, widget=forms.TimeInput(attrs={"type": "time"}))
-    friday_close   = forms.TimeField(label=_("Friday close"),   required=False, widget=forms.TimeInput(attrs={"type": "time"}))
-    saturday_open  = forms.TimeField(label=_("Saturday open"),  required=False, widget=forms.TimeInput(attrs={"type": "time"}))
-    saturday_close = forms.TimeField(label=_("Saturday close"), required=False, widget=forms.TimeInput(attrs={"type": "time"}))
+    # --- SMART SCHEDULE DATA ---
+    # Receives the JSON string from the advanced UI
+    schedule_data = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False
+    )
 
     def clean_city(self):
         city = self.cleaned_data["city"]
@@ -117,14 +109,7 @@ class BranchForm(forms.Form):
 
     def clean(self):
         cleaned = super().clean()
-        for day, _ in WEEK_DAYS:
-            open_time  = cleaned.get(f"{day}_open")
-            close_time = cleaned.get(f"{day}_close")
-            if open_time and close_time and open_time >= close_time:
-                self.add_error(
-                    f"{day}_close",
-                    _("Closing time must be after opening time."),
-                )
+        # Removed the old static time validation since we now use JSON
         return cleaned
 
 
@@ -183,5 +168,4 @@ class SubscriptionPlanForm(forms.Form):
         super().__init__(*args, **kwargs)
         
         if provider:
-            # FIX: Removed is_active=True so pending providers can see their branches
             self.fields['branches'].queryset = GymBranch.objects.filter(provider=provider)
