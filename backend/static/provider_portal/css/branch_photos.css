@@ -1,0 +1,202 @@
+/* ==========================================================================
+   ENTERPRISE BRANCH PHOTOS GALLERY
+   ========================================================================== */
+
+.photos-page-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding-bottom: var(--space-12);
+    width: 100%;
+}
+
+/* --- Header Section --- */
+.gallery-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.gallery-header h2 {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    margin: 0 0 8px 0;
+}
+
+.gallery-header p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    margin: 0;
+    font-weight: var(--font-weight-medium);
+}
+
+.header-actions { display: flex; gap: var(--space-3); }
+
+/* Unified Action Button (Go Back) */
+.btn-action {
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: var(--font-weight-bold);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all var(--transition);
+}
+
+.btn-outline {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-outline:hover {
+    background: var(--color-bg);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    transform: translateY(-2px);
+}
+
+/* --- Upload Zone (Bento Style) --- */
+.upload-zone {
+    background: var(--color-surface);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-12) var(--space-8);
+    text-align: center;
+    transition: all var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.upload-zone:hover {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.upload-btn-wrapper {
+    position: relative;
+    overflow: hidden;
+    margin-top: var(--space-6);
+}
+
+.upload-btn-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.btn-upload {
+    background: var(--color-primary);
+    color: var(--color-surface);
+    padding: 16px 32px;
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-black);
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.btn-upload:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+/* --- Photos Grid --- */
+.photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-6);
+}
+
+.photo-card {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    aspect-ratio: 4 / 3;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+}
+
+.photo-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition);
+    cursor: zoom-in;
+}
+
+.photo-card:hover img {
+    transform: scale(1.05);
+}
+
+/* Delete Overlay & Button */
+.delete-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 40%, transparent 100%);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 16px;
+    opacity: 0;
+    transition: opacity var(--transition);
+    pointer-events: none; /* Allow clicks to pass through to the image */
+}
+
+.photo-card:hover .delete-overlay {
+    opacity: 1;
+    /* Removed pointer-events: auto; to prevent blocking the image click */
+}
+
+.btn-delete-photo {
+    background: var(--color-error);
+    color: var(--color-surface);
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform var(--transition), box-shadow var(--transition);
+    box-shadow: var(--shadow-md);
+    pointer-events: auto; /* CRITICAL: Re-enable clicks ONLY for the button itself */
+}
+
+.btn-delete-photo:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-lg);
+}
+
+/* --- Empty State --- */
+.empty-gallery {
+    text-align: center;
+    padding: var(--space-12) var(--space-4);
+    background-color: var(--color-surface);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: var(--color-text-muted);
+}

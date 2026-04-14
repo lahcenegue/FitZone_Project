@@ -1,4 +1,4 @@
-{% extends "provider_portal/base.html" %}
+{% extends "provider_portal/provider_base.html" %}
 {% load i18n static %}
 
 {% block page_title %}{% trans "Branch Details" %}: {{ branch.name }}{% endblock %}
@@ -265,11 +265,6 @@
 
         </div>
     </div>
-</div>
-
-<div id="lightboxModal" class="lightbox-modal" onclick="closeLightbox()">
-    <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
-    <img class="lightbox-content" id="lightboxImg">
 </div>
 
 {% endblock content %}

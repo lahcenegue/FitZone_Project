@@ -111,3 +111,28 @@ async function fetchWithCsrf(url, options = {}) {
   };
   return fetch(url, { ...options, headers });
 }
+
+/* ====================================================================
+   GLOBAL LIGHTBOX ENGINE
+   ==================================================================== */
+window.openLightbox = function(imageSrc) {
+  const modal = document.getElementById("lightboxModal");
+  const img = document.getElementById("lightboxImg");
+  if (modal && img) {
+      img.src = imageSrc;
+      modal.style.display = "flex";
+  }
+};
+
+window.closeLightbox = function() {
+  const modal = document.getElementById("lightboxModal");
+  if (modal) {
+      modal.style.display = "none";
+  }
+};
+
+document.addEventListener('keydown', function(event) {
+  if (event.key === "Escape") {
+      closeLightbox();
+  }
+});
