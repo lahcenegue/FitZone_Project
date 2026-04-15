@@ -314,6 +314,21 @@ class PlanAddView(GymProviderRequiredMixin, FormView):
         kwargs['provider'] = self.request.user.provider_profile
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # --- UX LOGIC: Pass Branch Amenities & Sports to Frontend ---
+        provider = self.request.user.provider_profile
+        branches = GymBranch.objects.filter(provider=provider).prefetch_related('amenities', 'sports')
+        
+        branch_map = {}
+        for branch in branches:
+            branch_map[str(branch.id)] = {
+                'amenities': list(branch.amenities.values_list('id', flat=True)),
+                'sports': list(branch.sports.values_list('id', flat=True))
+            }
+        context['branch_features_map'] = branch_map
+        return context
+
     def form_valid(self, form):
         data = form.cleaned_data
         
@@ -328,6 +343,12 @@ class PlanAddView(GymProviderRequiredMixin, FormView):
         
         plan.branches.set(data['branches'])
         
+        if data.get('amenities'):
+            plan.amenities.set(data['amenities'])
+            
+        if data.get('sports'):
+            plan.sports.set(data['sports'])
+        
         features_str = data.get('custom_features', '')
         if features_str:
             for feature_text in features_str.split(','):
@@ -337,6 +358,7 @@ class PlanAddView(GymProviderRequiredMixin, FormView):
             
         messages.success(self.request, _("Subscription plan added successfully."))
         return super().form_valid(form)
+
 
 class PlanEditView(GymProviderRequiredMixin, FormView):
     form_class = SubscriptionPlanForm
@@ -359,6 +381,18 @@ class PlanEditView(GymProviderRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         context['is_edit'] = True
         context['plan'] = self.get_plan()
+        
+        # --- UX LOGIC: Pass Branch Amenities & Sports to Frontend ---
+        provider = self.request.user.provider_profile
+        branches = GymBranch.objects.filter(provider=provider).prefetch_related('amenities', 'sports')
+        
+        branch_map = {}
+        for branch in branches:
+            branch_map[str(branch.id)] = {
+                'amenities': list(branch.amenities.values_list('id', flat=True)),
+                'sports': list(branch.sports.values_list('id', flat=True))
+            }
+        context['branch_features_map'] = branch_map
         return context
 
     def get_initial(self):
@@ -373,6 +407,8 @@ class PlanEditView(GymProviderRequiredMixin, FormView):
             'price': plan.price,
             'is_active': plan.is_active,
             'branches': plan.branches.all(),
+            'amenities': plan.amenities.all(),
+            'sports': plan.sports.all(),
             'custom_features': features_text,
         }
 
@@ -388,6 +424,9 @@ class PlanEditView(GymProviderRequiredMixin, FormView):
         plan.save()
         
         plan.branches.set(data['branches'])
+        
+        plan.amenities.set(data.get('amenities', []))
+        plan.sports.set(data.get('sports', []))
 
         if hasattr(plan, 'features'):
             plan.features.all().delete()

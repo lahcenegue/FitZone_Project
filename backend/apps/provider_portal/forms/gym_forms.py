@@ -95,7 +95,6 @@ class BranchForm(forms.Form):
     branch_logo = forms.ImageField(label=_("Branch Logo (Optional)"), required=False)
 
     # --- SMART SCHEDULE DATA ---
-    # Receives the JSON string from the advanced UI
     schedule_data = forms.CharField(
         widget=forms.HiddenInput(),
         required=False
@@ -109,7 +108,6 @@ class BranchForm(forms.Form):
 
     def clean(self):
         cleaned = super().clean()
-        # Removed the old static time validation since we now use JSON
         return cleaned
 
 
@@ -142,15 +140,36 @@ class SubscriptionPlanForm(forms.Form):
         widget=forms.NumberInput(attrs={"placeholder": "0.00", "step": "0.01"}),
     )
     
-    # Branch assignment (ModelMultipleChoiceField)
+    # Branch assignment
     branches = forms.ModelMultipleChoiceField(
-        queryset=GymBranch.objects.none(), # Populated dynamically in __init__
+        queryset=GymBranch.objects.none(),
         widget=forms.CheckboxSelectMultiple,
         required=True,
         label=_("Available Branches")
     )
 
-    # Hidden field to capture dynamic tags for features
+    # --- NEW FIELDS FOR FACILITIES & SPORTS ---
+    amenities = forms.ModelMultipleChoiceField(
+        queryset=GymAmenity.objects.all(),
+        widget=forms.SelectMultiple(attrs={
+            'class': 'select2-multi form-control', 
+            'data-placeholder': _('Select amenities included...')
+        }),
+        required=False,
+        label=_("Included Amenities")
+    )
+    
+    sports = forms.ModelMultipleChoiceField(
+        queryset=GymSport.objects.all(),
+        widget=forms.SelectMultiple(attrs={
+            'class': 'select2-multi form-control', 
+            'data-placeholder': _('Select sports included...')
+        }),
+        required=False,
+        label=_("Included Sports")
+    )
+
+    # Hidden field to capture dynamic tags (Legacy, kept for safety)
     custom_features = forms.CharField(
         required=False,
         widget=forms.HiddenInput(attrs={"id": "hidden_features"})
@@ -163,9 +182,7 @@ class SubscriptionPlanForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        # Extract provider from kwargs before initializing the superclass
         provider = kwargs.pop('provider', None)
         super().__init__(*args, **kwargs)
-        
         if provider:
             self.fields['branches'].queryset = GymBranch.objects.filter(provider=provider)

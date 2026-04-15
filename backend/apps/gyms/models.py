@@ -175,12 +175,16 @@ class GymReview(models.Model):
 
 class SubscriptionPlan(models.Model):
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, related_name="gym_plans")
-    branches = models.ManyToManyField(GymBranch, related_name="available_plans")
+    branches = models.ManyToManyField('GymBranch', related_name="available_plans")
     
     name = models.CharField(max_length=255, verbose_name=_("Plan Name"))
     description = models.TextField(blank=True, verbose_name=_("Plan Description"))
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Price"))
     duration_days = models.PositiveIntegerField(verbose_name=_("Duration in Days"))
+    
+    # --- NEW FIELDS FOR FACILITIES & SPORTS ---
+    amenities = models.ManyToManyField('GymAmenity', blank=True, related_name="plans")
+    sports = models.ManyToManyField('GymSport', blank=True, related_name="plans")
     
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

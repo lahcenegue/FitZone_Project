@@ -1,0 +1,269 @@
+/* ==========================================================================
+   SUBSCRIPTION PLANS MANAGEMENT (ENTERPRISE BENTO CARDS)
+   ========================================================================== */
+
+.plans-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding-bottom: var(--space-8);
+}
+
+/* --- Header Section --- */
+.plans-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: var(--space-4);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    padding-bottom: var(--space-4);
+}
+
+[data-theme="dark"] .plans-header {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.header-text h2 {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+}
+
+.header-text p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    margin: 0;
+    font-weight: var(--font-weight-medium);
+}
+
+.btn-add-plan {
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    text-decoration: none;
+    border: none;
+}
+
+.btn-add-plan:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+}
+
+/* --- Grid Layout --- */
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: var(--space-6);
+}
+
+/* --- The Bento Card (Matches Branch Card Style) --- */
+.p-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    position: relative;
+}
+
+.p-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.p-card.inactive {
+    opacity: 0.75;
+    filter: grayscale(80%);
+}
+
+/* --- Card Top Accent & Badge --- */
+.p-card-top {
+    height: 8px;
+    width: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-info));
+}
+
+.p-card.inactive .p-card-top {
+    background: var(--color-border);
+}
+
+.p-badge {
+    position: absolute;
+    top: 24px;
+    inset-inline-end: 24px;
+    background: var(--color-bg);
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: var(--font-weight-black);
+    text-transform: uppercase;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+}
+
+.p-badge.active { color: var(--color-success); border-color: rgba(16, 185, 129, 0.2); background: rgba(16, 185, 129, 0.05); }
+.p-badge.inactive { color: var(--color-error); border-color: rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); }
+
+/* --- Card Body --- */
+.p-body {
+    padding: 24px var(--space-6) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.p-name {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    margin: 0 0 16px 0;
+    padding-inline-end: 70px;
+}
+
+/* --- Stats Grid (Exactly like Branches) --- */
+.p-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 24px;
+    background: var(--color-bg);
+    padding: 16px 12px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-inline-end: 1px solid rgba(0,0,0,0.05);
+}
+
+[data-theme="dark"] .stat-item { border-inline-end-color: rgba(255,255,255,0.05); }
+.stat-item:last-child { border-inline-end: none; }
+
+.stat-val {
+    font-size: 18px;
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stat-val svg {
+    color: var(--color-text-muted);
+}
+
+.stat-lbl {
+    font-size: 11px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+/* --- Features List --- */
+.p-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.f-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+}
+
+.f-icon {
+    color: var(--color-success);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.f-more {
+    font-size: 12px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    padding-top: 4px;
+    cursor: pointer;
+}
+
+/* --- Card Footer Actions (Matches Branches UI Perfectly) --- */
+.p-footer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+    margin-top: auto;
+}
+
+.p-action {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    outline: none;
+}
+
+/* Only add border to the first action (Edit link) */
+.p-footer > a.p-action {
+    border-inline-end: 1px solid var(--color-border);
+}
+
+.p-footer form {
+    display: flex;
+    width: 100%;
+    margin: 0;
+}
+
+.p-action:hover { background-color: var(--color-bg); color: var(--color-text-primary); }
+.p-action.delete:hover { background-color: rgba(239, 68, 68, 0.05); color: var(--color-error); }
+.p-action.activate:hover { background-color: rgba(16, 185, 129, 0.05); color: var(--color-success); }
+
+/* --- Empty State --- */
+.empty-state {
+    text-align: center;
+    padding: var(--space-12) var(--space-4);
+    background-color: var(--color-surface);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

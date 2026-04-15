@@ -1,0 +1,258 @@
+/* ==========================================================================
+   ENTERPRISE PLAN FORM (COMMANDER LAYOUT & FLOATING LABELS)
+   ========================================================================== */
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding-bottom: var(--space-12);
+}
+
+.page-header {
+    margin-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--space-4);
+}
+
+.page-header h2 {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+}
+
+.page-header p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    margin: 0;
+}
+
+/* --- The Commander Grid --- */
+.commander-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: var(--space-6);
+    align-items: start;
+}
+
+@media (max-width: 1100px) {
+    .commander-layout { grid-template-columns: 1fr; }
+}
+
+.main-column { display: flex; flex-direction: column; gap: var(--space-6); }
+.sticky-column { position: sticky; top: 100px; display: flex; flex-direction: column; gap: var(--space-6); }
+
+/* --- Bento Cards --- */
+.f-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    /* Removed overflow: hidden; to allow dropdowns to pop out */
+}
+
+.f-card-header {
+    padding: var(--space-4) var(--space-6);
+    border-bottom: 1px dashed var(--color-border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: rgba(0,0,0,0.01);
+    border-top-left-radius: calc(var(--radius-xl) - 1px);
+    border-top-right-radius: calc(var(--radius-xl) - 1px);
+}
+
+[data-theme="dark"] .f-card-header { background-color: rgba(255,255,255,0.02); }
+
+.f-card-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.f-card-body {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* --- Floating Labels --- */
+.float-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+}
+@media (max-width: 768px) { .float-row { grid-template-columns: 1fr; } }
+
+.float-group { position: relative; width: 100%; margin-bottom: 8px;}
+
+.float-input {
+    width: 100%;
+    padding: 24px 16px 8px;
+    font-size: 15px;
+    font-weight: var(--font-weight-medium);
+    font-family: inherit;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    transition: all var(--transition);
+}
+
+.float-input::placeholder { color: transparent; }
+.float-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    outline: none;
+    background-color: var(--color-surface);
+}
+
+.float-label {
+    position: absolute;
+    top: 16px;
+    inset-inline-start: 16px;
+    font-size: 15px;
+    color: var(--color-text-muted);
+    pointer-events: none;
+    transition: all 0.2s ease-out;
+    transform-origin: start top;
+    margin: 0;
+}
+
+.float-input:focus ~ .float-label,
+.float-input:not(:placeholder-shown) ~ .float-label {
+    transform: translateY(-10px) scale(0.75);
+    color: var(--color-primary);
+    font-weight: var(--font-weight-bold);
+}
+
+textarea.float-input { resize: vertical; min-height: 120px; }
+
+/* Hide Number Input Spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }
+
+/* Currency Input Fix */
+.currency-group { position: relative; display: flex; align-items: center; }
+.currency-group .float-input { padding-inline-end: 48px; }
+.currency-icon-wrapper { position: absolute; inset-inline-end: 16px; display: flex; color: var(--color-text-muted); pointer-events: none; width: 18px; }
+
+/* --- Custom Dropdown (Branches) --- */
+.custom-dropdown-header {
+    padding: 16px; border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    background: var(--color-bg); display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; font-size: 15px; font-weight: var(--font-weight-medium); transition: all var(--transition);
+}
+.custom-dropdown-header:hover, .custom-dropdown-header.active { border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+.custom-dropdown-content {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--color-surface);
+    border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
+    z-index: 100; display: none; max-height: 250px; overflow-y: auto; padding: var(--space-2);
+}
+.custom-dropdown-content.show { display: block; animation: dropIn 0.2s ease-out; }
+@keyframes dropIn { from {opacity:0; transform:translateY(-10px);} to {opacity:1; transform:translateY(0);} }
+
+.dropdown-actions {
+    display: flex; justify-content: flex-end; padding-bottom: 8px; margin-bottom: 8px;
+    border-bottom: 1px dashed var(--color-border);
+}
+.btn-text { background: none; border: none; color: var(--color-primary); font-size: 12px; font-weight: bold; cursor: pointer; padding: 0 8px; }
+
+.branch-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-sm);
+    cursor: pointer; transition: background var(--transition); font-size: 14px; font-weight: var(--font-weight-medium);
+}
+.branch-item:hover { background: var(--color-bg); }
+.branch-item input[type="checkbox"] { cursor: pointer; width: 16px; height: 16px; }
+.branch-item label { cursor: pointer; margin: 0; flex: 1; }
+
+/* --- Select2 Overrides (For Features Field) --- */
+.select2-container--default .select2-selection--multiple {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg);
+    min-height: 54px;
+    padding: 6px 12px;
+    transition: all var(--transition);
+}
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+[data-theme="dark"] .select2-container--default .select2-selection--multiple {
+    background-color: var(--color-surface);
+}
+.select2-dropdown {
+    border-color: var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    background-color: var(--color-surface);
+    z-index: 105;
+}
+
+/* --- Mega Save Button --- */
+.btn-mega-save {
+    width: 100%; padding: 18px; font-size: 16px; font-weight: var(--font-weight-black);
+    color: var(--color-surface); background-color: var(--color-primary);
+    border: none; border-radius: var(--radius-lg); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    transition: all var(--transition); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+.btn-mega-save:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
+
+.error-message { color: var(--color-error); font-size: 12px; font-weight: var(--font-weight-bold); margin-top: 4px; display: block; }
+
+/* --- Features Mask (UX Logic) --- */
+.features-mask {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-6);
+    transition: opacity var(--transition), visibility var(--transition);
+    border-radius: calc(var(--radius-xl) - 1px);
+}
+
+[data-theme="dark"] .features-mask {
+    background: rgba(15, 23, 42, 0.85);
+}
+
+.features-mask.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.mask-icon {
+    color: var(--color-warning);
+    margin-bottom: var(--space-3);
+}
+
+.mask-title {
+    font-size: 16px;
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    margin: 0 0 8px 0;
+}
+
+.mask-desc {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin: 0;
+    max-width: 250px;
+    line-height: 1.5;
+}
