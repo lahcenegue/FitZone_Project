@@ -83,7 +83,17 @@ urlpatterns = [
     path('gym/plans/<int:plan_id>/delete/', gym_views.PlanDeleteView.as_view(), name='gym_plan_delete'),
     path('gym/plans/<int:plan_id>/restore/', gym_views.PlanRestoreView.as_view(), name='gym_plan_restore'),
     path("gym/plans/<int:plan_id>/toggle/", gym_views.PlanToggleView.as_view(), name="gym_plan_toggle"),
+
+    # Subscribers & CRM
     path("gym/subscribers/", gym_views.SubscriberListView.as_view(), name="gym_subscribers"),
+    path("gym/subscribers/<int:sub_id>/", gym_views.SubscriberDetailView.as_view(), name="gym_subscriber_detail"),
+    path("gym/subscribers/<int:sub_id>/suspend/", gym_views.SubscriberSuspendView.as_view(), name="gym_subscriber_suspend"),
+    path("gym/subscribers/<int:sub_id>/unsuspend/", gym_views.SubscriberUnsuspendView.as_view(), name="gym_subscriber_unsuspend"),
+    
+    # API Endpoints
+    path("api/gym/scan-qr/", gym_views.QRScanEndpoint.as_view(), name="api_scan_qr"),
+    path("api/gym/search-qr/", gym_views.QRSearchEndpoint.as_view(), name="api_search_qr"),
+
 
     # ==========================================================
     # TRAINER MODULE
@@ -120,5 +130,4 @@ urlpatterns = [
     path("earnings/withdraw/", earnings_views.WithdrawView.as_view(), name="withdraw"),
     path("earnings/bank-update/", earnings_views.BankUpdateView.as_view(), name="bank_update"),
 
-    path('api/scan-qr/', gym_views.QRCodeScannerAPIView.as_view(), name='api_scan_qr'),
 ]

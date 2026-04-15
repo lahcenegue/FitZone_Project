@@ -16,6 +16,8 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.gis.geos import Point
 from django.utils import timezone
 from django.core.signing import Signer, BadSignature
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from django.db.models import Count, Prefetch, Q
 
 from apps.gyms.models import (
@@ -650,3 +652,139 @@ class SubscriberListView(GymProviderRequiredMixin, ListView):
         context['branches'] = GymBranch.objects.filter(provider=self.request.user.provider_profile)
         
         return context
+    
+# ==========================================
+# SUBSCRIBER MANAGEMENT & CRM VIEWS
+# ==========================================
+
+class SubscriberDetailView(GymProviderRequiredMixin, DetailView):
+    """
+    Rich CRM Detail View for a specific subscriber.
+    Displays personal info, documents, plan details, and visit history.
+    """
+    model = GymSubscription
+    template_name = "provider_portal/gym/subscribers/detail.html"
+    context_object_name = "subscription"
+    pk_url_kwarg = "sub_id"
+
+    def get_queryset(self):
+        return GymSubscription.objects.select_related(
+            'user', 'plan'
+        ).prefetch_related(
+            'visits__branch', 'disputes', 'plan__branches'
+        ).filter(plan__provider=self.request.user.provider_profile)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['recent_visits'] = self.object.visits.all().order_by('-check_in_time')[:50]
+        context['disputes'] = self.object.disputes.all().order_by('-created_at')
+        return context
+
+class SubscriberSuspendView(GymProviderRequiredMixin, View):
+    """
+    Blocks a subscriber and logs the reason as a dispute.
+    """
+    def post(self, request, sub_id, *args, **kwargs):
+        sub = get_object_or_404(GymSubscription, id=sub_id, plan__provider=request.user.provider_profile)
+        reason = request.POST.get('suspend_reason', '').strip()
+        
+        if not reason:
+            messages.error(request, _("A reason is required to block a subscriber."))
+            return redirect(request.META.get('HTTP_REFERER', 'provider_portal:gym_subscribers'))
+
+        sub.status = 'suspended'
+        sub.save(update_fields=['status'])
+        
+        from apps.gyms.models import GymSubscriptionDispute
+        GymSubscriptionDispute.objects.create(
+            subscription=sub,
+            opened_by=request.user,
+            reason=reason,
+            status='open'
+        )
+        messages.success(request, _("Subscriber has been blocked successfully."))
+        return redirect(request.META.get('HTTP_REFERER', 'provider_portal:gym_subscribers'))
+
+class SubscriberUnsuspendView(GymProviderRequiredMixin, View):
+    """
+    Unblocks a suspended subscriber and requires a resolution note.
+    """
+    def post(self, request, sub_id, *args, **kwargs):
+        sub = get_object_or_404(GymSubscription, id=sub_id, plan__provider=request.user.provider_profile)
+        resolution = request.POST.get('resolution_note', '').strip()
+        
+        if not resolution:
+            messages.error(request, _("A resolution note is required to unblock a subscriber."))
+            return redirect(request.META.get('HTTP_REFERER', 'provider_portal:gym_subscribers'))
+            
+        sub.status = 'active'
+        sub.save(update_fields=['status'])
+        
+        # Resolve open disputes with the provided note
+        sub.disputes.filter(status='open').update(
+            status='resolved', 
+            resolution_note=resolution
+        )
+        messages.success(request, _("Subscriber access has been restored successfully."))
+        return redirect(request.META.get('HTTP_REFERER', 'provider_portal:gym_subscribers'))
+
+class QRScanEndpoint(GymProviderRequiredMixin, View):
+    """
+    Secure API Endpoint for QR Code CHECK-IN (Logs a visit).
+    """
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+            token = data.get('token')
+            if not token: return JsonResponse({'status': 'error', 'message': _("No QR token provided.")})
+
+            signer = Signer(salt="fitzone_gym_qr_auth")
+            raw_data = signer.unsign(token)
+            parts = raw_data.split('-')
+            if len(parts) != 7: raise ValueError("Invalid Format")
+            
+            qr_uuid = "-".join(parts[2:])
+            sub = GymSubscription.objects.select_related('user', 'plan').get(qr_code_id=qr_uuid)
+            
+            if sub.plan.provider != request.user.provider_profile:
+                return JsonResponse({'status': 'error', 'message': _("Access Denied: Wrong Gym.")})
+            if sub.status != 'active':
+                return JsonResponse({'status': 'error', 'message': _("Access Denied: ") + str(sub.get_status_display())})
+
+            branch = sub.plan.branches.first()
+            if branch:
+                GymVisit.objects.create(subscription=sub, branch=branch)
+
+            return JsonResponse({'status': 'success', 'status_color': 'success', 'title': _("Access Granted"), 'message': _("Welcome, {}").format(sub.user.display_name)})
+
+        except Exception as e:
+            logger.error(f"QR Scan Check-in Error: {str(e)}")
+            return JsonResponse({'status': 'error', 'message': _("Invalid or Forged QR Code.")})
+
+class QRSearchEndpoint(GymProviderRequiredMixin, View):
+    """
+    Secure API Endpoint for QR Code SEARCH (Redirects to profile without logging visit).
+    """
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+            token = data.get('token')
+            if not token: return JsonResponse({'status': 'error', 'message': _("No QR token provided.")})
+
+            signer = Signer(salt="fitzone_gym_qr_auth")
+            raw_data = signer.unsign(token)
+            parts = raw_data.split('-')
+            if len(parts) != 7: raise ValueError("Invalid Format")
+            
+            qr_uuid = "-".join(parts[2:])
+            sub = GymSubscription.objects.get(qr_code_id=qr_uuid, plan__provider=request.user.provider_profile)
+            
+            # Generate the URL for the detail page
+            from django.urls import reverse
+            detail_url = reverse('provider_portal:gym_subscriber_detail', args=[sub.id])
+            
+            return JsonResponse({'status': 'success', 'redirect_url': detail_url})
+
+        except Exception as e:
+            logger.error(f"QR Scan Search Error: {str(e)}")
+            return JsonResponse({'status': 'error', 'message': _("Subscriber not found or invalid QR.")})
