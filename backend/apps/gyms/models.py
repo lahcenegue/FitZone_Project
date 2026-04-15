@@ -182,15 +182,29 @@ class SubscriptionPlan(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Price"))
     duration_days = models.PositiveIntegerField(verbose_name=_("Duration in Days"))
     
-    # --- NEW FIELDS FOR FACILITIES & SPORTS ---
+    # --- FIELDS FOR FACILITIES & SPORTS ---
     amenities = models.ManyToManyField('GymAmenity', blank=True, related_name="plans")
     sports = models.ManyToManyField('GymSport', blank=True, related_name="plans")
     
     is_active = models.BooleanField(default=True)
+    is_archived = models.BooleanField(default=False, verbose_name=_("Archived Status"))
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.name} - {self.provider.business_name}"
+    
+    def has_active_subscribers(self):
+        """
+        Check if there are any active or suspended subscriptions linked to this plan.
+        """
+        return self.subscribers.filter(status__in=['active', 'suspended']).exists()
+        
+    def get_latest_expiration_date(self):
+        """
+        Get the expiration date of the last remaining subscription for this plan.
+        """
+        latest_sub = self.subscribers.filter(status__in=['active', 'suspended']).order_by('-end_date').first()
+        return latest_sub.end_date if latest_sub else None
 
 class PlanFeature(models.Model):
     plan = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE, related_name="features")

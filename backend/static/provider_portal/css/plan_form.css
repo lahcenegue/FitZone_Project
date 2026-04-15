@@ -44,94 +44,6 @@
 .main-column { display: flex; flex-direction: column; gap: var(--space-6); }
 .sticky-column { position: sticky; top: 100px; display: flex; flex-direction: column; gap: var(--space-6); }
 
-/* --- Bento Cards --- */
-.f-card {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-sm);
-    /* Removed overflow: hidden; to allow dropdowns to pop out */
-}
-
-.f-card-header {
-    padding: var(--space-4) var(--space-6);
-    border-bottom: 1px dashed var(--color-border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background-color: rgba(0,0,0,0.01);
-    border-top-left-radius: calc(var(--radius-xl) - 1px);
-    border-top-right-radius: calc(var(--radius-xl) - 1px);
-}
-
-[data-theme="dark"] .f-card-header { background-color: rgba(255,255,255,0.02); }
-
-.f-card-title {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
-    margin: 0;
-}
-
-.f-card-body {
-    padding: var(--space-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-}
-
-/* --- Floating Labels --- */
-.float-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-4);
-}
-@media (max-width: 768px) { .float-row { grid-template-columns: 1fr; } }
-
-.float-group { position: relative; width: 100%; margin-bottom: 8px;}
-
-.float-input {
-    width: 100%;
-    padding: 24px 16px 8px;
-    font-size: 15px;
-    font-weight: var(--font-weight-medium);
-    font-family: inherit;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-bg);
-    color: var(--color-text-primary);
-    transition: all var(--transition);
-}
-
-.float-input::placeholder { color: transparent; }
-.float-input:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-    outline: none;
-    background-color: var(--color-surface);
-}
-
-.float-label {
-    position: absolute;
-    top: 16px;
-    inset-inline-start: 16px;
-    font-size: 15px;
-    color: var(--color-text-muted);
-    pointer-events: none;
-    transition: all 0.2s ease-out;
-    transform-origin: start top;
-    margin: 0;
-}
-
-.float-input:focus ~ .float-label,
-.float-input:not(:placeholder-shown) ~ .float-label {
-    transform: translateY(-10px) scale(0.75);
-    color: var(--color-primary);
-    font-weight: var(--font-weight-bold);
-}
-
-textarea.float-input { resize: vertical; min-height: 120px; }
-
 /* Hide Number Input Spinners */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
@@ -139,11 +51,6 @@ input[type="number"]::-webkit-outer-spin-button {
     margin: 0;
 }
 input[type="number"] { -moz-appearance: textfield; }
-
-/* Currency Input Fix */
-.currency-group { position: relative; display: flex; align-items: center; }
-.currency-group .float-input { padding-inline-end: 48px; }
-.currency-icon-wrapper { position: absolute; inset-inline-end: 16px; display: flex; color: var(--color-text-muted); pointer-events: none; width: 18px; }
 
 /* --- Custom Dropdown (Branches) --- */
 .custom-dropdown-header {
@@ -197,18 +104,6 @@ input[type="number"] { -moz-appearance: textfield; }
     background-color: var(--color-surface);
     z-index: 105;
 }
-
-/* --- Mega Save Button --- */
-.btn-mega-save {
-    width: 100%; padding: 18px; font-size: 16px; font-weight: var(--font-weight-black);
-    color: var(--color-surface); background-color: var(--color-primary);
-    border: none; border-radius: var(--radius-lg); cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-    transition: all var(--transition); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-}
-.btn-mega-save:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
-
-.error-message { color: var(--color-error); font-size: 12px; font-weight: var(--font-weight-bold); margin-top: 4px; display: block; }
 
 /* --- Features Mask (UX Logic) --- */
 .features-mask {

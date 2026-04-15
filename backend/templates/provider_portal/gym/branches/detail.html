@@ -127,8 +127,8 @@
             </div>
 
             {{ branch.operating_hours|json_script:"branch-schedule-data" }}
-            <div id="branch-target-gender" class="django-hidden">{{ branch.gender }}</div>
-
+            <div id="branch-target-gender" class="django-hidden" style="display:none;">{{ branch.gender }}</div>
+            
             <div class="b-card">
                 <div class="b-card-header">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--dash-color-4)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>

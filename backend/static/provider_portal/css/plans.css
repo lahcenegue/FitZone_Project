@@ -68,7 +68,7 @@
     gap: var(--space-6);
 }
 
-/* --- The Bento Card (Matches Branch Card Style) --- */
+/* --- The Bento Card --- */
 .p-card {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -87,26 +87,41 @@
     border-color: rgba(99, 102, 241, 0.3);
 }
 
+/* Status States */
 .p-card.inactive {
-    opacity: 0.75;
-    filter: grayscale(80%);
+    opacity: 0.85;
+}
+.p-card.archived {
+    opacity: 0.65;
+    filter: grayscale(100%);
+    border-style: dashed;
+}
+.p-card.archived:hover {
+    filter: grayscale(50%);
+    opacity: 1;
 }
 
-/* --- Card Top Accent & Badge --- */
+/* --- Card Top Accent & Badges --- */
 .p-card-top {
     height: 8px;
     width: 100%;
     background: linear-gradient(90deg, var(--color-primary), var(--color-info));
 }
 
-.p-card.inactive .p-card-top {
-    background: var(--color-border);
-}
+.p-card.inactive .p-card-top { background: var(--color-border); }
+.p-card.archived .p-card-top { background: var(--color-text-muted); }
 
-.p-badge {
+.p-badges-container {
     position: absolute;
     top: 24px;
     inset-inline-end: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.p-badge {
     background: var(--color-bg);
     padding: 6px 12px;
     border-radius: var(--radius-full);
@@ -119,6 +134,7 @@
 
 .p-badge.active { color: var(--color-success); border-color: rgba(16, 185, 129, 0.2); background: rgba(16, 185, 129, 0.05); }
 .p-badge.inactive { color: var(--color-error); border-color: rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); }
+.p-badge.archived { color: var(--color-text-secondary); border-color: var(--color-border); background: var(--color-bg); }
 
 /* --- Card Body --- */
 .p-body {
@@ -133,10 +149,59 @@
     font-weight: var(--font-weight-black);
     color: var(--color-text-primary);
     margin: 0 0 16px 0;
-    padding-inline-end: 70px;
+    padding-inline-end: 90px; /* Space for badges */
 }
 
-/* --- Stats Grid (Exactly like Branches) --- */
+/* --- Active Subscribers Metric Box --- */
+.p-subs-metric {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.1) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    transition: all var(--transition);
+}
+
+.p-card.inactive .p-subs-metric,
+.p-card.archived .p-subs-metric {
+    background: var(--color-bg);
+    border-color: var(--color-border);
+    filter: grayscale(100%);
+}
+
+.subs-icon-wrapper {
+    background: var(--color-surface);
+    width: 38px; 
+    height: 38px;
+    border-radius: var(--radius-sm);
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+}
+
+.subs-info { display: flex; flex-direction: column; }
+
+.subs-count { 
+    font-size: 18px; 
+    font-weight: var(--font-weight-black); 
+    color: var(--color-primary); 
+    line-height: 1.2; 
+}
+
+.subs-label { 
+    font-size: 12px; 
+    font-weight: var(--font-weight-bold); 
+    color: var(--color-text-secondary); 
+    text-transform: uppercase; 
+}
+
+/* --- Stats Grid --- */
 .p-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -169,17 +234,8 @@
     gap: 4px;
 }
 
-.stat-val svg {
-    color: var(--color-text-muted);
-}
-
-.stat-lbl {
-    font-size: 11px;
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    margin-top: 4px;
-}
+.stat-val svg { color: var(--color-text-muted); }
+.stat-lbl { font-size: 11px; font-weight: var(--font-weight-bold); color: var(--color-text-muted); text-transform: uppercase; margin-top: 4px; }
 
 /* --- Features List --- */
 .p-features {
@@ -200,27 +256,25 @@
     font-weight: var(--font-weight-medium);
 }
 
-.f-icon {
-    color: var(--color-success);
-    flex-shrink: 0;
-    margin-top: 2px;
-}
+.f-icon { color: var(--color-success); flex-shrink: 0; margin-top: 2px; }
+.f-more { font-size: 12px; font-weight: var(--font-weight-bold); color: var(--color-primary); padding-top: 4px; cursor: pointer; }
 
-.f-more {
-    font-size: 12px;
-    font-weight: var(--font-weight-bold);
-    color: var(--color-primary);
-    padding-top: 4px;
-    cursor: pointer;
-}
-
-/* --- Card Footer Actions (Matches Branches UI Perfectly) --- */
+/* --- Card Footer Actions (Flexible Grid) --- */
 .p-footer {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
     border-top: 1px solid var(--color-border);
     background-color: var(--color-surface);
     margin-top: auto;
+}
+
+.p-footer > * {
+    flex: 1;
+    display: flex;
+    border-inline-end: 1px solid var(--color-border);
+}
+
+.p-footer > *:last-child {
+    border-inline-end: none;
 }
 
 .p-action {
@@ -241,20 +295,12 @@
     outline: none;
 }
 
-/* Only add border to the first action (Edit link) */
-.p-footer > a.p-action {
-    border-inline-end: 1px solid var(--color-border);
-}
-
-.p-footer form {
-    display: flex;
-    width: 100%;
-    margin: 0;
-}
+.p-footer form { display: flex; width: 100%; margin: 0; }
 
 .p-action:hover { background-color: var(--color-bg); color: var(--color-text-primary); }
 .p-action.delete:hover { background-color: rgba(239, 68, 68, 0.05); color: var(--color-error); }
 .p-action.activate:hover { background-color: rgba(16, 185, 129, 0.05); color: var(--color-success); }
+.p-action.restore:hover { background-color: rgba(59, 130, 246, 0.05); color: #3B82F6; }
 
 /* --- Empty State --- */
 .empty-state {

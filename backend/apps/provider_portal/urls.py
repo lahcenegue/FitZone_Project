@@ -80,6 +80,8 @@ urlpatterns = [
     path("gym/plans/<int:plan_id>/", gym_views.PlanDetailView.as_view(), name="gym_plan_detail"),
     path("gym/plans/add/", gym_views.PlanAddView.as_view(), name="gym_plan_add"),
     path("gym/plans/<int:plan_id>/edit/", gym_views.PlanEditView.as_view(), name="gym_plan_edit"),
+    path('gym/plans/<int:plan_id>/delete/', gym_views.PlanDeleteView.as_view(), name='gym_plan_delete'),
+    path('gym/plans/<int:plan_id>/restore/', gym_views.PlanRestoreView.as_view(), name='gym_plan_restore'),
     path("gym/plans/<int:plan_id>/toggle/", gym_views.PlanToggleView.as_view(), name="gym_plan_toggle"),
     path("gym/subscribers/", gym_views.SubscriberListView.as_view(), name="gym_subscribers"),
 

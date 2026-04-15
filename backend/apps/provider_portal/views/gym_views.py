@@ -16,7 +16,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.gis.geos import Point
 from django.utils import timezone
 from django.core.signing import Signer, BadSignature
-from django.db.models import Count, Prefetch
+from django.db.models import Count, Prefetch, Q
 
 from apps.gyms.models import (
     GymBranch, BranchImage, SubscriptionPlan, PlanFeature, 
@@ -291,9 +291,14 @@ class PlanListView(GymProviderRequiredMixin, ListView):
     context_object_name = "plans"
 
     def get_queryset(self):
+        # Fetch both active and archived plans, but sort archived to the bottom
         return SubscriptionPlan.objects.filter(
             provider=self.request.user.provider_profile
-        ).order_by('price')
+        ).prefetch_related(
+            'features', 'branches'
+        ).annotate(
+            active_subs_count=Count('subscribers', filter=Q(subscribers__status__in=['active', 'suspended']))
+        ).order_by('is_archived', '-created_at')
     
 class PlanDetailView(GymProviderRequiredMixin, DetailView):
     model = SubscriptionPlan
@@ -440,6 +445,56 @@ class PlanEditView(GymProviderRequiredMixin, FormView):
 
         messages.success(self.request, _("Subscription plan updated successfully."))
         return super().form_valid(form)
+    
+class PlanDeleteView(GymProviderRequiredMixin, View):
+    """
+    Handles the deletion of a subscription plan.
+    Implements a Soft-Delete (Archive) pattern if active subscribers exist.
+    """
+    def post(self, request, plan_id, *args, **kwargs):
+        plan = get_object_or_404(
+            SubscriptionPlan, 
+            id=plan_id, 
+            provider=request.user.provider_profile
+        )
+        
+        plan_name = plan.name
+        
+        # Check if there are active subscribers
+        if plan.has_active_subscribers():
+            # Soft Delete (Archive)
+            plan.is_archived = True
+            plan.is_active = False # Ensure it doesn't show to new users
+            plan.save()
+            messages.warning(
+                request, 
+                _("Plan '{}' was archived because it has active subscribers. It is hidden from new users but will remain active for current subscribers.").format(plan_name)
+            )
+        else:
+            # Hard Delete (Safe to remove)
+            plan.delete()
+            messages.success(request, _("Subscription plan '{}' was successfully deleted.").format(plan_name))
+            
+        return redirect("provider_portal:gym_plans")
+    
+class PlanRestoreView(GymProviderRequiredMixin, View):
+    """
+    Handles the restoration of an archived subscription plan.
+    """
+    def post(self, request, plan_id, *args, **kwargs):
+        plan = get_object_or_404(
+            SubscriptionPlan, 
+            id=plan_id, 
+            provider=request.user.provider_profile
+        )
+        
+        if plan.is_archived:
+            plan.is_archived = False
+            plan.is_active = True
+            plan.save()
+            messages.success(request, _("Subscription plan '{}' has been restored and is active again.").format(plan.name))
+            
+        return redirect("provider_portal:gym_plans")
 
 class PlanToggleView(GymProviderRequiredMixin, View):
     def post(self, request, plan_id):

@@ -136,3 +136,57 @@ document.addEventListener('keydown', function(event) {
       closeLightbox();
   }
 });
+
+/* ====================================================================
+   GLOBAL FLOATING LABELS INIT
+   ==================================================================== */
+window.initFloatingLabels = function() {
+    const floatContainers = document.querySelectorAll('.float-group');
+    floatContainers.forEach(group => {
+        const input = group.querySelector('input:not([type="hidden"]):not([type="checkbox"]), select:not([multiple]), textarea');
+        if (input) {
+            input.classList.add('float-input');
+            if (!input.getAttribute('placeholder')) {
+                input.setAttribute('placeholder', ' ');
+            }
+        }
+    });
+};
+
+/* ==========================================================================
+   GLOBAL CSV EXPORT UTILITY (WITH ARABIC UTF-8 BOM SUPPORT)
+   ========================================================================== */
+window.exportDataToCSV = function(tableId, filename) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+
+    let csvArray = [];
+    const rows = table.querySelectorAll("tr");
+    
+    for (let i = 0; i < rows.length; i++) {
+        let rowData = [];
+        const cols = rows[i].querySelectorAll("td, th");
+        
+        for (let j = 0; j < cols.length; j++) {
+            let text = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, " ").trim();
+            text = text.replace(/"/g, '""');
+            rowData.push('"' + text + '"');
+        }
+        csvArray.push(rowData.join(","));
+    }
+    
+    const csvContent = "\uFEFF" + csvArray.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    
+    if (navigator.msSaveBlob) {
+        navigator.msSaveBlob(blob, filename);
+    } else {
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+};

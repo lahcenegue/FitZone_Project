@@ -3,18 +3,11 @@
 document.addEventListener("DOMContentLoaded", function() {
 
     /* ====================================================================
-       1. FLOATING LABELS INIT
+       1. FLOATING LABELS (From Global)
        ==================================================================== */
-    const floatContainers = document.querySelectorAll('.float-group');
-    floatContainers.forEach(group => {
-        const input = group.querySelector('input:not([type="hidden"]):not([type="checkbox"]), select:not([multiple]), textarea');
-        if (input) {
-            input.classList.add('float-input');
-            if (!input.getAttribute('placeholder')) {
-                input.setAttribute('placeholder', ' ');
-            }
-        }
-    });
+    if (typeof window.initFloatingLabels === 'function') {
+        window.initFloatingLabels();
+    }
 
     /* ====================================================================
        2. DYNAMIC FEATURES LOGIC (Based on Selected Branches)
@@ -47,7 +40,6 @@ document.addEventListener("DOMContentLoaded", function() {
         
         if (checkedBoxes.length === 0) {
             if (mask) mask.classList.remove('hidden');
-            // Clear selections if no branch is selected
             if (typeof jQuery !== 'undefined' && $.fn.select2) {
                 if (amenitiesSelect) $(amenitiesSelect).val(null).trigger('change');
                 if (sportsSelect) $(sportsSelect).val(null).trigger('change');
@@ -57,7 +49,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (mask) mask.classList.add('hidden');
 
-        // Build a Set of all available features across selected branches
         let allowedAmenities = new Set();
         let allowedSports = new Set();
 
@@ -69,24 +60,22 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
 
-        // Filter Amenities Options
         if (amenitiesSelect) {
             Array.from(amenitiesSelect.options).forEach(opt => {
-                if (!opt.value) return; // Skip placeholder
+                if (!opt.value) return; 
                 if (allowedAmenities.has(opt.value)) {
                     opt.disabled = false;
                 } else {
                     opt.disabled = true;
-                    opt.selected = false; // Unselect if it was selected previously
+                    opt.selected = false; 
                 }
             });
             refreshSelect2(amenitiesSelect);
         }
 
-        // Filter Sports Options
         if (sportsSelect) {
             Array.from(sportsSelect.options).forEach(opt => {
-                if (!opt.value) return; // Skip placeholder
+                if (!opt.value) return; 
                 if (allowedSports.has(opt.value)) {
                     opt.disabled = false;
                 } else {
@@ -125,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if(event.target.tagName !== 'INPUT') {
             const checkbox = rowElement.querySelector('input[type="checkbox"]');
             checkbox.checked = !checkbox.checked;
-            checkbox.dispatchEvent(new Event('change')); // Trigger features update
+            checkbox.dispatchEvent(new Event('change'));
         }
         updateDropdownTitle();
     };
@@ -149,28 +138,25 @@ document.addEventListener("DOMContentLoaded", function() {
             const allChecked = Array.from(checkboxes).every(cb => cb.checked);
             checkboxes.forEach(cb => {
                 cb.checked = !allChecked;
-                cb.dispatchEvent(new Event('change')); // Trigger features update
+                cb.dispatchEvent(new Event('change'));
             });
             this.textContent = allChecked ? this.getAttribute('data-select') : this.getAttribute('data-deselect');
             updateDropdownTitle();
         });
     }
     
-    // Bind change event to all checkboxes to trigger updateAvailableFeatures
     const allCheckboxes = document.querySelectorAll('#dropdownContent input[type="checkbox"]');
     allCheckboxes.forEach(cb => {
         cb.addEventListener('change', updateAvailableFeatures);
     });
 
-    if(dropdownTitle) updateDropdownTitle(); // Init on load
+    if(dropdownTitle) updateDropdownTitle();
 
     /* ====================================================================
        4. SELECT2 INITIALIZATION
        ==================================================================== */
     refreshSelect2(amenitiesSelect);
     refreshSelect2(sportsSelect);
-    
-    // Initial evaluation of mask and available features
     updateAvailableFeatures();
 
     /* ====================================================================

@@ -1,27 +1,6 @@
 'use strict';
 
 /* ====================================================================
-   LIGHTBOX ENGINE
-   ==================================================================== */
-window.openLightbox = function(imageSrc) {
-    const modal = document.getElementById("lightboxModal");
-    const img = document.getElementById("lightboxImg");
-    if(modal && img) {
-        img.src = imageSrc;
-        modal.style.display = "flex";
-    }
-};
-
-window.closeLightbox = function() {
-    const modal = document.getElementById("lightboxModal");
-    if(modal) modal.style.display = "none";
-};
-
-document.addEventListener('keydown', function(event) {
-    if (event.key === "Escape") closeLightbox();
-});
-
-/* ====================================================================
    SMART SCHEDULE RENDERER (Matches Form Output Exactly)
    ==================================================================== */
 document.addEventListener("DOMContentLoaded", function() {
@@ -39,47 +18,36 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if(!schedule || schedule.length === 0) {
-        container.innerHTML = `
-            <div style="text-align:center; padding: 32px; background: var(--color-bg); border: 1px dashed var(--color-border); border-radius: var(--radius-md); color: var(--color-text-muted); font-size: 15px; font-weight: bold;">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom: 12px; opacity: 0.5;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><br>
-                No working hours specified.
-            </div>`;
+        container.innerHTML = `<div style="text-align:center; color:var(--color-text-muted); font-size:13px; font-style:italic;">No schedule configured.</div>`;
         return;
     }
 
-    const daysMapping = {
-        '0': 'Sun', '1': 'Mon', '2': 'Tue', '3': 'Wed', 
-        '4': 'Thu', '5': 'Fri', '6': 'Sat'
-    };
+    const dayOrder = { "Monday":1, "Tuesday":2, "Wednesday":3, "Thursday":4, "Friday":5, "Saturday":6, "Sunday":7 };
+    
+    let sortedPeriods = schedule.sort((a, b) => {
+        const daysA = a.days.sort((d1, d2) => dayOrder[d1] - dayOrder[d2]);
+        const daysB = b.days.sort((d1, d2) => dayOrder[d1] - dayOrder[d2]);
+        return dayOrder[daysA[0]] - dayOrder[daysB[0]];
+    });
 
-    const sortedPeriods = [...schedule].sort((a, b) => Math.min(...a.days) - Math.min(...b.days));
-    const branchGender = targetGenderNode ? targetGenderNode.textContent.trim().toLowerCase() : 'mixed';
-    const isMixed = branchGender === 'mixed' || branchGender === 'both';
+    const targetGender = targetGenderNode ? targetGenderNode.textContent.trim().toLowerCase() : 'both';
+    const isMixed = (targetGender === 'mixed' || targetGender === 'both');
 
     let html = '';
 
     function buildBox(periods, title, themeClass) {
-        if(periods.length === 0) return '';
-        
-        let boxHtml = `<div class="split-col ${themeClass}">`;
-        
-        if (title) {
-            let icon = '';
-            if(themeClass === 'male-col') icon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="5"/><line x1="13.5" y1="10.5" x2="21" y2="3"/><polyline points="16 3 21 3 21 8"/></svg>';
-            if(themeClass === 'female-col') icon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><line x1="12" y1="14" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>';
-            if(themeClass === 'both-col') icon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
-            
-            boxHtml += `<h4 class="col-header">${icon} ${title}</h4>`;
-        }
-
-        boxHtml += `<div style="display: flex; flex-direction: column; gap: 12px;">`;
+        let boxHtml = `
+            <div class="schedule-col ${themeClass}">
+                <div class="col-header">${title}</div>
+                <div class="col-body">
+        `;
         periods.forEach(p => {
-            const daysText = p.days.map(d => daysMapping[d] || d).join(', ');
             boxHtml += `
-                <div class="period-card">
-                    <div style="display:flex; flex-direction:column; gap:4px;">
-                        <span class="period-days-text">${daysText}</span>
-                        <span class="time-text">
+                <div class="schedule-item">
+                    <div class="schedule-days">${p.days.join(', ')}</div>
+                    <div class="schedule-time">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span style="display:flex; align-items:center; gap:6px;">
                             ${p.start} 
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-border)" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> 
                             ${p.end}
@@ -108,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function() {
             html += `</div>`;
         }
     } else {
-        html += buildBox(sortedPeriods, '', 'none', false);
+        html += buildBox(sortedPeriods, 'Branch Schedule', 'both-col');
     }
 
     container.innerHTML = html;
