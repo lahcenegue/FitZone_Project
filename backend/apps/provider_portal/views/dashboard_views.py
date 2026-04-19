@@ -12,11 +12,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.utils import timezone
-from django.db.models import Count, Sum
-from django.db.models.functions import TruncDate, ExtractHour
+from django.db.models import Count, Sum, Avg, Q, F
+from django.db.models.functions import TruncDate, TruncMonth, ExtractHour
 
-from apps.gyms.models import GymSubscription, GymBranch, GymVisit
-from apps.payments.models import ProviderWallet
+from apps.gyms.models import GymSubscription, GymBranch, GymVisit, GymReview, SubscriptionPlan
+from apps.payments.models import ProviderWallet, WalletTransaction
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 CHURN_WARNING_DAYS = 7
 TREND_DAYS = 7
 PEAK_HOURS_DAYS = 30
+REVENUE_MONTHS = 6
 DEFAULT_STAY_DURATION_MINS = 120
 
 
@@ -67,6 +68,17 @@ class DashboardView(LoginRequiredMixin, View):
             return wallet.available_balance + wallet.pending_balance + wallet.total_withdrawn
         return Decimal('0.00')
 
+    def _get_wallet_data(self, provider):
+        """Returns the provider's wallet object for financial summary."""
+        wallet = ProviderWallet.objects.filter(provider=provider).first()
+        if not wallet:
+            return {
+                'available_balance': Decimal('0.00'),
+                'pending_balance': Decimal('0.00'),
+                'total_withdrawn': Decimal('0.00'),
+            }
+        return wallet
+
     def _get_demographics_data(self, active_subscriptions):
         """Extracts gender distribution for business intelligence."""
         demo_qs = active_subscriptions.values('user__gender').annotate(count=Count('id'))
@@ -101,6 +113,77 @@ class DashboardView(LoginRequiredMixin, View):
         
         return {'labels': labels, 'data': data}
 
+    def _get_revenue_trend(self, provider, now):
+        """Monthly revenue trend for the last 6 months from wallet transactions."""
+        six_months_ago = now - timedelta(days=REVENUE_MONTHS * 30)
+        
+        revenue_qs = WalletTransaction.objects.filter(
+            wallet__provider=provider,
+            transaction_type__in=['earning_pending', 'earning_cleared'],
+            created_at__gte=six_months_ago
+        ).annotate(
+            month=TruncMonth('created_at')
+        ).values('month').annotate(
+            total=Sum('amount')
+        ).order_by('month')
+
+        revenue_dict = {}
+        for item in revenue_qs:
+            if item['month']:
+                key = item['month'].strftime('%Y-%m')
+                revenue_dict[key] = float(item['total'] or 0)
+
+        labels = []
+        data = []
+        for i in range(REVENUE_MONTHS - 1, -1, -1):
+            target = (now - timedelta(days=i * 30))
+            key = target.strftime('%Y-%m')
+            labels.append(target.strftime('%b %Y'))
+            data.append(revenue_dict.get(key, 0))
+
+        return {'labels': labels, 'data': data}
+
+    def _get_top_plans(self, provider):
+        """Returns the top performing plans ranked by active subscriber count."""
+        plans = SubscriptionPlan.objects.filter(
+            provider=provider,
+            is_archived=False
+        ).annotate(
+            active_subs=Count('subscribers', filter=Q(subscribers__status='active')),
+            total_revenue=Sum(
+                'subscribers__payment__amount',
+                filter=Q(subscribers__payment__status='success')
+            )
+        ).order_by('-active_subs')[:5]
+
+        return plans
+
+    def _get_branch_occupancy(self, provider):
+        """Returns live occupancy stats for each active branch."""
+        branches = GymBranch.objects.filter(
+            provider=provider,
+            is_active=True
+        ).annotate(
+            current_occupancy=Count(
+                'visits',
+                filter=Q(visits__is_active=True)
+            )
+        ).order_by('-current_occupancy')
+
+        result = []
+        for branch in branches:
+            capacity = branch.max_capacity or 100
+            occupancy = branch.current_occupancy or 0
+            percentage = min(round((occupancy / capacity) * 100), 100) if capacity > 0 else 0
+            result.append({
+                'name': branch.name,
+                'occupancy': occupancy,
+                'capacity': capacity,
+                'percentage': percentage,
+                'city': branch.city,
+            })
+        return result
+
     def get(self, request):
         if not hasattr(request.user, "provider_profile"):
             logger.warning(f"User {request.user.email} attempted portal access without a provider profile.")
@@ -128,6 +211,7 @@ class DashboardView(LoginRequiredMixin, View):
                 trend_start_date = now - timedelta(days=TREND_DAYS - 1)
 
                 active_subscriptions = GymSubscription.objects.filter(plan__provider=provider, status='active')
+                all_subscriptions = GymSubscription.objects.filter(plan__provider=provider)
 
                 # 2. Core KPIs
                 context['total_active_subs'] = active_subscriptions.count()
@@ -135,13 +219,28 @@ class DashboardView(LoginRequiredMixin, View):
                 context['total_revenue'] = self._get_financial_kpis(provider)
                 context['live_occupancy'] = GymVisit.objects.filter(branch__provider=provider, is_active=True).count()
 
-                # 3. Expiring Soon (Churn Prevention)
+                # 3. NEW KPIs
+                context['todays_visits'] = GymVisit.objects.filter(
+                    branch__provider=provider,
+                    check_in_time__date=today
+                ).count()
+
+                context['new_subs_month'] = GymSubscription.objects.filter(
+                    plan__provider=provider,
+                    purchased_at__year=now.year,
+                    purchased_at__month=now.month
+                ).count()
+
+                # 4. Financial Summary (wallet data)
+                context['wallet'] = self._get_wallet_data(provider)
+
+                # 5. Expiring Soon (Churn Prevention)
                 context['expiring_subs'] = active_subscriptions.filter(
                     end_date__gte=today,
                     end_date__lte=warning_date
                 ).select_related('user', 'plan').order_by('end_date')[:8]
 
-                # 4. Live Activity Feed (Includes real checkout times now)
+                # 6. Live Activity Feed (Includes real checkout times now)
                 context['recent_visits'] = GymVisit.objects.select_related(
                     'subscription__user', 
                     'branch',
@@ -150,7 +249,7 @@ class DashboardView(LoginRequiredMixin, View):
                     branch__provider=provider
                 ).order_by('-check_in_time')[:15]
 
-                # 5. Chart Data: Attendance Trend (Last 7 Days)
+                # 7. Chart Data: Attendance Trend (Last 7 Days)
                 visits_trend = GymVisit.objects.filter(
                     branch__provider=provider,
                     check_in_time__gte=trend_start_date
@@ -170,15 +269,34 @@ class DashboardView(LoginRequiredMixin, View):
                 context['chart_trend_labels'] = trend_labels
                 context['chart_trend_data'] = trend_data
 
-                # 6. Chart Data: Demographics
+                # 8. Chart Data: Demographics
                 demographics = self._get_demographics_data(active_subscriptions)
                 context['chart_demo_labels'] = demographics['labels']
                 context['chart_demo_data'] = demographics['data']
 
-                # 7. Chart Data: Peak Hours
+                # 9. Chart Data: Peak Hours
                 peak_hours = self._get_peak_hours_data(provider, now)
                 context['chart_peak_labels'] = peak_hours['labels']
                 context['chart_peak_data'] = peak_hours['data']
+
+                # 10. NEW: Revenue Trend (6 Months)
+                revenue_trend = self._get_revenue_trend(provider, now)
+                context['chart_revenue_labels'] = revenue_trend['labels']
+                context['chart_revenue_data'] = revenue_trend['data']
+
+                # 11. NEW: Top Plans Performance
+                context['top_plans'] = self._get_top_plans(provider)
+
+                # 12. NEW: Branch Capacity Utilization
+                context['branch_occupancy'] = self._get_branch_occupancy(provider)
+
+                # 13. NEW: Total visits count (all time)
+                context['total_visits'] = GymVisit.objects.filter(branch__provider=provider).count()
+
+                # 14. NEW: Review stats
+                reviews = GymReview.objects.filter(branch__provider=provider)
+                context['avg_rating'] = reviews.aggregate(avg=Avg('rating'))['avg']
+                context['total_reviews'] = reviews.count()
 
             except Exception as e:
                 logger.error(f"Dashboard data aggregation failed for provider {provider.id}: {str(e)}", exc_info=True)

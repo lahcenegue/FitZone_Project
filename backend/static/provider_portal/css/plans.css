@@ -23,44 +23,6 @@
     border-bottom-color: rgba(255, 255, 255, 0.05);
 }
 
-.header-text h2 {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-black);
-    color: var(--color-text-primary);
-    margin: 0 0 8px 0;
-    letter-spacing: -0.5px;
-}
-
-.header-text p {
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-base);
-    margin: 0;
-    font-weight: var(--font-weight-medium);
-}
-
-.btn-add-plan {
-    background-color: var(--color-primary);
-    color: var(--color-surface);
-    padding: 12px 24px;
-    border-radius: var(--radius-md);
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-sm);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all var(--transition);
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-    text-decoration: none;
-    border: none;
-}
-
-.btn-add-plan:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-    background-color: var(--color-primary);
-    color: var(--color-surface);
-}
-
 /* --- Grid Layout --- */
 .plans-grid {
     display: grid;
@@ -132,10 +94,6 @@
     border: 1px solid var(--color-border);
 }
 
-.p-badge.active { color: var(--color-success); border-color: rgba(16, 185, 129, 0.2); background: rgba(16, 185, 129, 0.05); }
-.p-badge.inactive { color: var(--color-error); border-color: rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); }
-.p-badge.archived { color: var(--color-text-secondary); border-color: var(--color-border); background: var(--color-bg); }
-
 /* --- Card Body --- */
 .p-body {
     padding: 24px var(--space-6) var(--space-6);
@@ -201,42 +159,6 @@
     text-transform: uppercase; 
 }
 
-/* --- Stats Grid --- */
-.p-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 24px;
-    background: var(--color-bg);
-    padding: 16px 12px;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--color-border);
-}
-
-.stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    border-inline-end: 1px solid rgba(0,0,0,0.05);
-}
-
-[data-theme="dark"] .stat-item { border-inline-end-color: rgba(255,255,255,0.05); }
-.stat-item:last-child { border-inline-end: none; }
-
-.stat-val {
-    font-size: 18px;
-    font-weight: var(--font-weight-black);
-    color: var(--color-text-primary);
-    line-height: 1.2;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.stat-val svg { color: var(--color-text-muted); }
-.stat-lbl { font-size: 11px; font-weight: var(--font-weight-bold); color: var(--color-text-muted); text-transform: uppercase; margin-top: 4px; }
-
 /* --- Features List --- */
 .p-features {
     list-style: none;
@@ -301,15 +223,3 @@
 .p-action.delete:hover { background-color: rgba(239, 68, 68, 0.05); color: var(--color-error); }
 .p-action.activate:hover { background-color: rgba(16, 185, 129, 0.05); color: var(--color-success); }
 .p-action.restore:hover { background-color: rgba(59, 130, 246, 0.05); color: #3B82F6; }
-
-/* --- Empty State --- */
-.empty-state {
-    text-align: center;
-    padding: var(--space-12) var(--space-4);
-    background-color: var(--color-surface);
-    border: 2px dashed var(--color-border);
-    border-radius: var(--radius-xl);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}

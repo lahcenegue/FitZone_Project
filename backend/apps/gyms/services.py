@@ -5,13 +5,13 @@ Handles QR scanning, live occupancy, auto-checkout, and subscription validation.
 
 import logging
 from datetime import timedelta
+from decimal import Decimal
 from django.utils import timezone
 from django.db import transaction
 
-from .models import GymVisit, GymBranch
 from apps.gyms.models import GymVisit, GymBranch, SubscriptionPlan, GymSubscription, GymGlobalSetting
 from apps.payments.services import PaymentService
-
+from apps.payments.models import ProviderWallet, WalletTransaction, WalletTransactionType
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,6 @@ class GymAccessService:
         if checked_out_count > 0:
             logger.info("Auto-checked out %s visitors.", checked_out_count)
 
-
     @staticmethod
     def get_live_occupancy(branch_id: int) -> int:
         """
@@ -52,7 +51,6 @@ class GymAccessService:
         
         # 2. Return accurate count
         return GymVisit.objects.filter(branch_id=branch_id, is_active=True).count()
-
 
     @staticmethod
     @transaction.atomic
@@ -110,7 +108,8 @@ class GymAccessService:
             "end_date": subscription.end_date.strftime("%Y-%m-%d"),
             "days_remaining": (subscription.end_date - today).days
         }
-    
+
+
 class GymSubscriptionService:
     """
     Business logic for purchasing and managing Gym Subscriptions.
@@ -164,7 +163,37 @@ class GymSubscriptionService:
             status="active"
         )
 
-        # 6. Calculate and Add Loyalty Points
+        # 6. Allocate Net Revenue to Provider Wallet (Ledger Integration)
+        provider = plan.provider
+        gross_amount = plan.price
+        
+        commission_type = getattr(provider, 'commission_type', 'percentage')
+        commission_value = getattr(provider, 'commission_value', Decimal('0.00'))
+
+        if commission_type == 'percentage':
+            commission = gross_amount * (commission_value / Decimal('100.00'))
+        else:
+            commission = commission_value
+
+        net_revenue = max(Decimal('0.00'), gross_amount - commission)
+
+        if net_revenue > 0:
+            # select_for_update() locks the row to prevent race conditions during concurrent checkouts
+            wallet, _ = ProviderWallet.objects.select_for_update().get_or_create(provider=provider)
+            
+            wallet.pending_balance += net_revenue
+            wallet.save(update_fields=['pending_balance', 'updated_at'])
+
+            WalletTransaction.objects.create(
+                wallet=wallet,
+                transaction_type=WalletTransactionType.EARNING_PENDING,
+                amount=net_revenue,
+                is_cleared=False,
+                source_payment=payment_txn,
+                description=f"Revenue from subscription: {plan.name}"
+            )
+
+        # 7. Calculate and Add Loyalty Points
         global_settings = GymGlobalSetting.load()
         points_rate = global_settings.points_conversion_rate
         

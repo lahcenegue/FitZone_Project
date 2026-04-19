@@ -22,7 +22,6 @@ def login_redirect_view(request):
     if not request.user.is_authenticated:
         return redirect("provider_portal:login")
 
-    # Enterprise Fix: Instantly log out Admins trying to access the portal root
     if request.user.is_superuser or not hasattr(request.user, "provider_profile"):
         logout(request)
         return redirect("provider_portal:login")
@@ -65,7 +64,6 @@ urlpatterns = [
     # ==========================================================
     # GYM MODULE
     # ==========================================================
-    # Smart routing: Catches /portal/gym/ and prevents 404
     path("gym/", RedirectView.as_view(pattern_name="provider_portal:gym_branches", permanent=False)),
     
     path("gym/branches/", gym_views.BranchListView.as_view(), name="gym_branches"),
@@ -74,14 +72,16 @@ urlpatterns = [
     path("gym/branches/<int:branch_id>/edit/", gym_views.BranchEditView.as_view(), name="gym_branch_edit"),
     path("gym/branches/<int:branch_id>/delete/", gym_views.BranchDeleteView.as_view(), name="gym_branch_delete"),
     path("gym/branches/<int:branch_id>/photos/", gym_views.BranchPhotosView.as_view(), name="gym_branch_photos"),
-    path('gym/branches/<int:branch_id>/quick-toggle/', gym_views.BranchQuickToggleView.as_view(), name='gym_branch_quick_toggle'),
+    path("gym/branches/<int:branch_id>/quick-toggle/", gym_views.BranchQuickToggleView.as_view(), name="gym_branch_quick_toggle"),
+    path("gym/branches/<int:branch_id>/link-plan/", gym_views.BranchLinkPlanAPIView.as_view(), name="gym_branch_link_plan"),
+    path("gym/branches/<int:branch_id>/unlink-plan/", gym_views.BranchUnlinkPlanAPIView.as_view(), name="gym_branch_unlink_plan"),
     
     path("gym/plans/", gym_views.PlanListView.as_view(), name="gym_plans"),
     path("gym/plans/<int:plan_id>/", gym_views.PlanDetailView.as_view(), name="gym_plan_detail"),
     path("gym/plans/add/", gym_views.PlanAddView.as_view(), name="gym_plan_add"),
     path("gym/plans/<int:plan_id>/edit/", gym_views.PlanEditView.as_view(), name="gym_plan_edit"),
-    path('gym/plans/<int:plan_id>/delete/', gym_views.PlanDeleteView.as_view(), name='gym_plan_delete'),
-    path('gym/plans/<int:plan_id>/restore/', gym_views.PlanRestoreView.as_view(), name='gym_plan_restore'),
+    path("gym/plans/<int:plan_id>/delete/", gym_views.PlanDeleteView.as_view(), name="gym_plan_delete"),
+    path("gym/plans/<int:plan_id>/restore/", gym_views.PlanRestoreView.as_view(), name="gym_plan_restore"),
     path("gym/plans/<int:plan_id>/toggle/", gym_views.PlanToggleView.as_view(), name="gym_plan_toggle"),
 
     # Subscribers & CRM
@@ -93,7 +93,6 @@ urlpatterns = [
     # API Endpoints
     path("api/gym/scan-qr/", gym_views.QRScanEndpoint.as_view(), name="api_scan_qr"),
     path("api/gym/search-qr/", gym_views.QRSearchEndpoint.as_view(), name="api_search_qr"),
-
 
     # ==========================================================
     # TRAINER MODULE
@@ -125,9 +124,8 @@ urlpatterns = [
     path("store/products/<int:product_id>/delete/", store_views.ProductDeleteView.as_view(), name="store_product_delete"),
     path("store/orders/", store_views.OrderListView.as_view(), name="store_orders"),
 
-# Earnings
+    # Earnings
     path("earnings/", earnings_views.EarningsView.as_view(), name="earnings"),
     path("earnings/withdraw/", earnings_views.WithdrawView.as_view(), name="withdraw"),
     path("earnings/bank-update/", earnings_views.BankUpdateView.as_view(), name="bank_update"),
-
 ]

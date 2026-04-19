@@ -43,15 +43,11 @@ document.addEventListener("DOMContentLoaded", function() {
         `;
         periods.forEach(p => {
             boxHtml += `
-                <div class="schedule-item">
-                    <div class="schedule-days">${p.days.join(', ')}</div>
-                    <div class="schedule-time">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        <span style="display:flex; align-items:center; gap:6px;">
-                            ${p.start} 
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-border)" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> 
-                            ${p.end}
-                        </span>
+                <div class="schedule-item" style="padding: 12px; background: var(--color-bg); border-radius: var(--radius-md); border: 1px solid var(--color-border); margin-bottom: 8px;">
+                    <div class="schedule-days" style="font-weight: var(--font-weight-bold); margin-bottom: 4px;">${p.days.join(', ')}</div>
+                    <div class="schedule-time" style="font-size: 13px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        ${p.start} - ${p.end}
                     </div>
                 </div>
             `;
@@ -81,3 +77,129 @@ document.addEventListener("DOMContentLoaded", function() {
 
     container.innerHTML = html;
 });
+
+/* ====================================================================
+   LINK & UNLINK PLAN AJAX FUNCTIONALITY
+   ==================================================================== */
+
+function linkPlanToBranch(planId, planName, durationDays, price) {
+    const branchId = window.location.pathname.split('/').filter(Boolean).pop(); 
+    const url = `/portal/gym/branches/${branchId}/link-plan/`; 
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ plan_id: planId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const unlinkedCard = document.getElementById(`unlinked-plan-${planId}`);
+            if (unlinkedCard) unlinkedCard.remove();
+
+            const emptyState = document.getElementById('emptyPlansState');
+            if (emptyState) emptyState.style.display = 'none';
+
+            const linkedList = document.getElementById('linkedPlansList');
+            if (linkedList) {
+                const newCard = document.createElement('div');
+                newCard.className = 'plan-card-mini';
+                newCard.id = `linked-plan-${planId}`;
+                newCard.innerHTML = `
+                    <a href="/portal/gym/plans/${planId}/" class="plan-mini-info" style="text-decoration: none; flex: 1;">
+                        <h4>${planName}</h4>
+                        <p>${durationDays} Days</p>
+                    </a>
+                    <div class="plan-mini-price">
+                        ${price}
+                        <span style="display:inline-flex; width:16px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </span>
+                    </div>
+                    <button type="button" class="btn-unlink-plan" onclick="unlinkPlanFromBranch(${planId}, '${planName.replace(/'/g, "\\'")}', ${durationDays}, ${price})" title="Unlink Plan">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                `;
+                linkedList.appendChild(newCard);
+            }
+
+            document.getElementById('linkPlanModal').classList.remove('show');
+            alert(data.message);
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error linking plan:', error);
+        alert('A network error occurred.');
+    });
+}
+
+function unlinkPlanFromBranch(planId, planName, durationDays, price) {
+    if (!confirm('Are you sure you want to remove this plan from the branch?')) return;
+    
+    const branchId = window.location.pathname.split('/').filter(Boolean).pop(); 
+    const url = `/portal/gym/branches/${branchId}/unlink-plan/`; 
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ plan_id: planId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const linkedCard = document.getElementById(`linked-plan-${planId}`);
+            if (linkedCard) linkedCard.remove();
+
+            const unlinkedList = document.querySelector('#linkPlanModal .plans-list');
+            if (unlinkedList) {
+                const newUnlinkedCard = document.createElement('div');
+                newUnlinkedCard.className = 'plan-card-mini';
+                newUnlinkedCard.style.borderColor = 'var(--color-border)';
+                newUnlinkedCard.id = `unlinked-plan-${planId}`;
+                newUnlinkedCard.innerHTML = `
+                    <div class="plan-mini-info">
+                        <h4>${planName}</h4>
+                        <p>${durationDays} Days • ${price} SAR</p>
+                    </div>
+                    <button type="button" class="btn-action btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="linkPlanToBranch(${planId}, '${planName.replace(/'/g, "\\'")}', ${durationDays}, ${price})">
+                        Link Plan
+                    </button>
+                `;
+                
+                const modalEmpty = unlinkedList.querySelector('div[style*="text-align:center"]');
+                if (modalEmpty && !modalEmpty.classList.contains('plan-card-mini')) {
+                    modalEmpty.remove();
+                }
+                unlinkedList.appendChild(newUnlinkedCard);
+            }
+
+            const linkedListContainer = document.getElementById('linkedPlansList');
+            if (linkedListContainer && linkedListContainer.querySelectorAll('.plan-card-mini').length === 0) {
+                linkedListContainer.innerHTML = `
+                    <div id="emptyPlansState" style="text-align:center; padding:32px 16px; color:var(--color-text-muted); border:1px dashed var(--color-border); border-radius:var(--radius-md); display:flex; flex-direction:column; align-items:center; gap:8px;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <span style="font-size:13px; font-weight:var(--font-weight-bold);">No active plans linked.</span>
+                    </div>
+                `;
+            }
+
+            alert(data.message);
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error unlinking plan:', error);
+        alert('A network error occurred.');
+    });
+}

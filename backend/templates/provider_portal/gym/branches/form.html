@@ -11,31 +11,6 @@
 <link rel="stylesheet" href="{% static 'provider_portal/css/branch_form.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
-<style>
-    /* Select2 Soft UI Overrides for consistent look */
-    .select2-container--default .select2-selection--multiple {
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-md);
-        background-color: var(--color-bg);
-        min-height: 54px;
-        padding: 6px 12px;
-        transition: all var(--transition);
-    }
-    .select2-container--default.select2-container--focus .select2-selection--multiple {
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-    }
-    [data-theme="dark"] .select2-container--default .select2-selection--multiple {
-        background-color: var(--color-surface);
-    }
-    .select2-dropdown {
-        border-color: var(--color-border);
-        border-radius: var(--radius-md);
-        box-shadow: var(--shadow-lg);
-        background-color: var(--color-surface);
-    }
-</style>
 {% endblock extra_css %}
 
 {% block content %}
@@ -106,9 +81,9 @@
                     </div>
                     
                     <div class="f-card-body" style="padding-bottom: 0;">
-                        <div class="float-group" style="margin-bottom: var(--space-4);">
+                        <div class="standard-select-group">
+                            <label class="standard-select-label">{% trans "Select City" %} *</label>
                             {{ form.city }}
-                            <label class="float-label">{% trans "Select City" %} *</label>
                         </div>
                     </div>
 
@@ -150,9 +125,9 @@
                                 <label class="radio-card">
                                     {{ radio.tag }}
                                     <div class="radio-card-content">
-                                        {% if 'female' in radio.data.value|stringformat:"s"|lower or 'women' in radio.choice_label|stringformat:"s"|lower %}
+                                        {% if 'women' in radio.data.value|stringformat:"s"|lower or 'female' in radio.data.value|stringformat:"s"|lower %}
                                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><line x1="12" y1="14" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
-                                        {% elif 'male' in radio.data.value|stringformat:"s"|lower or 'men' in radio.choice_label|stringformat:"s"|lower %}
+                                        {% elif 'men' in radio.data.value|stringformat:"s"|lower or 'male' in radio.data.value|stringformat:"s"|lower %}
                                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="5"/><line x1="13.5" y1="10.5" x2="21" y2="3"/><polyline points="16 3 21 3 21 8"/></svg>
                                         {% else %}
                                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -182,8 +157,8 @@
                                 <div class="day-pill" data-day="2">{% trans "Tue" %}</div>
                                 <div class="day-pill" data-day="3">{% trans "Wed" %}</div>
                                 <div class="day-pill" data-day="4">{% trans "Thu" %}</div>
-                                <div class="day-pill" data-day="5" style="color:var(--color-primary);">{% trans "Fri" %}</div>
-                                <div class="day-pill" data-day="6" style="color:var(--color-primary);">{% trans "Sat" %}</div>
+                                <div class="day-pill weekend" data-day="5">{% trans "Fri" %}</div>
+                                <div class="day-pill weekend" data-day="6">{% trans "Sat" %}</div>
                             </div>
 
                             <div class="schedule-builder-bar">
@@ -201,9 +176,9 @@
                                 <div class="builder-segment" id="periodGenderBlock">
                                     <span class="segment-label">{% trans "Reserved For" %}</span>
                                     <select id="schedGender" class="segment-input">
-                                        <option value="both">{% trans "Mixed / Both" %}</option>
-                                        <option value="male">{% trans "Men Only" %}</option>
-                                        <option value="female">{% trans "Women Only" %}</option>
+                                        <option value="mixed">{% trans "Mixed / Both" %}</option>
+                                        <option value="men">{% trans "Men Only" %}</option>
+                                        <option value="women">{% trans "Women Only" %}</option>
                                     </select>
                                 </div>
 
@@ -214,7 +189,31 @@
                                 </div>
                             </div>
 
-                            <div class="periods-container" id="periodsContainer"></div>
+                            <div class="schedule-split-layout" id="splitLayoutContainer" style="margin-top: 16px;">
+                                <div class="split-col male-col" id="colMale">
+                                    <h4 class="col-header">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="14" r="5"/><line x1="13.5" y1="10.5" x2="21" y2="3"/><polyline points="16 3 21 3 21 8"/></svg>
+                                        {% trans "Men's Schedule" %}
+                                    </h4>
+                                    <div class="periods-container" id="periodsContainerMale"></div>
+                                </div>
+                                <div class="split-col female-col" id="colFemale">
+                                    <h4 class="col-header">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="9" r="5"/><line x1="12" y1="14" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
+                                        {% trans "Women's Schedule" %}
+                                    </h4>
+                                    <div class="periods-container" id="periodsContainerFemale"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="split-col both-col" id="colMixed" style="margin-top: 8px;">
+                                <h4 class="col-header">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                    {% trans "Mixed / Both Schedule" %}
+                                </h4>
+                                <div class="periods-container" id="periodsContainerMixed"></div>
+                            </div>
+
                         </div>
 
                     </div>
@@ -299,6 +298,5 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script src="{% static 'provider_portal/js/branch_form.js' %}"></script>
 {% endblock extra_js %}

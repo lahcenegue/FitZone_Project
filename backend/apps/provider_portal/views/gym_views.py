@@ -41,10 +41,8 @@ class BranchListView(GymProviderRequiredMixin, ListView):
         return GymBranch.objects.filter(
             provider=self.request.user.provider_profile
         ).prefetch_related(
-            # Fetch images efficiently to use the first one as a Cover Image
             Prefetch('images', to_attr='prefetched_images')
         ).annotate(
-            # Count how many plans are linked to this branch for the Stats Grid
             linked_plans_count=Count('available_plans', distinct=True)
         ).order_by('-created_at')
 
@@ -66,7 +64,6 @@ class BranchAddView(GymProviderRequiredMixin, FormView):
             except (ValueError, TypeError):
                 logger.error("Invalid coordinates provided.")
 
-        # --- SMART SCHEDULE JSON PARSING ---
         schedule_data_str = data.get('schedule_data')
         operating_hours = {}
         if schedule_data_str:
@@ -131,7 +128,6 @@ class BranchEditView(GymProviderRequiredMixin, FormView):
     def get_initial(self):
         branch = self.get_branch()
         
-        # Pre-fill schedule JSON securely
         schedule_json = '{}'
         if branch.operating_hours:
             try:
@@ -173,7 +169,6 @@ class BranchEditView(GymProviderRequiredMixin, FormView):
             except (ValueError, TypeError):
                 pass
 
-        # --- SMART SCHEDULE JSON PARSING ---
         schedule_data_str = data.get('schedule_data')
         if schedule_data_str:
             try:
@@ -227,9 +222,67 @@ class BranchDetailView(GymProviderRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['photos'] = self.object.images.all()
-        context['plans'] = self.object.available_plans.filter(is_active=True)
+        branch = self.object
+        
+        context['plans'] = branch.available_plans.filter(is_active=True)
+        
+        context['unlinked_plans'] = SubscriptionPlan.objects.filter(
+            provider=self.request.user.provider_profile,
+            is_active=True,
+            is_archived=False
+        ).exclude(
+            branches=branch
+        )
+        
+        context['photos'] = branch.images.all()
         return context
+
+class BranchLinkPlanAPIView(GymProviderRequiredMixin, View):
+    """
+    API Endpoint to dynamically link an existing SubscriptionPlan to a GymBranch.
+    """
+    def post(self, request, branch_id):
+        try:
+            data = json.loads(request.body)
+            plan_id = data.get('plan_id')
+            
+            branch = get_object_or_404(GymBranch, id=branch_id, provider=request.user.provider_profile)
+            plan = get_object_or_404(SubscriptionPlan, id=plan_id, provider=request.user.provider_profile)
+            
+            plan.branches.add(branch)
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': str(_(f"Plan '{plan.name}' has been linked to this branch."))
+            })
+            
+        except Exception as e:
+            logger.error(f"Error linking plan to branch: {str(e)}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+class BranchUnlinkPlanAPIView(GymProviderRequiredMixin, View):
+    """
+    API Endpoint to dynamically UNLINK a SubscriptionPlan from a GymBranch.
+    """
+    def post(self, request, branch_id):
+        try:
+            data = json.loads(request.body)
+            plan_id = data.get('plan_id')
+            
+            branch = get_object_or_404(GymBranch, id=branch_id, provider=request.user.provider_profile)
+            plan = get_object_or_404(SubscriptionPlan, id=plan_id, provider=request.user.provider_profile)
+            
+            plan.branches.remove(branch)
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': str(_(f"Plan '{plan.name}' has been removed from this branch."))
+            })
+            
+        except Exception as e:
+            logger.error(f"Error unlinking plan from branch: {str(e)}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
 
 class BranchPhotosView(GymProviderRequiredMixin, View):
     template_name = "provider_portal/gym/branches/photos.html"
@@ -293,7 +346,6 @@ class PlanListView(GymProviderRequiredMixin, ListView):
     context_object_name = "plans"
 
     def get_queryset(self):
-        # Fetch both active and archived plans, but sort archived to the bottom
         return SubscriptionPlan.objects.filter(
             provider=self.request.user.provider_profile
         ).prefetch_related(
@@ -323,7 +375,6 @@ class PlanAddView(GymProviderRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # --- UX LOGIC: Pass Branch Amenities & Sports to Frontend ---
         provider = self.request.user.provider_profile
         branches = GymBranch.objects.filter(provider=provider).prefetch_related('amenities', 'sports')
         
@@ -389,7 +440,6 @@ class PlanEditView(GymProviderRequiredMixin, FormView):
         context['is_edit'] = True
         context['plan'] = self.get_plan()
         
-        # --- UX LOGIC: Pass Branch Amenities & Sports to Frontend ---
         provider = self.request.user.provider_profile
         branches = GymBranch.objects.filter(provider=provider).prefetch_related('amenities', 'sports')
         
@@ -449,10 +499,6 @@ class PlanEditView(GymProviderRequiredMixin, FormView):
         return super().form_valid(form)
     
 class PlanDeleteView(GymProviderRequiredMixin, View):
-    """
-    Handles the deletion of a subscription plan.
-    Implements a Soft-Delete (Archive) pattern if active subscribers exist.
-    """
     def post(self, request, plan_id, *args, **kwargs):
         plan = get_object_or_404(
             SubscriptionPlan, 
@@ -462,27 +508,21 @@ class PlanDeleteView(GymProviderRequiredMixin, View):
         
         plan_name = plan.name
         
-        # Check if there are active subscribers
         if plan.has_active_subscribers():
-            # Soft Delete (Archive)
             plan.is_archived = True
-            plan.is_active = False # Ensure it doesn't show to new users
+            plan.is_active = False 
             plan.save()
             messages.warning(
                 request, 
                 _("Plan '{}' was archived because it has active subscribers. It is hidden from new users but will remain active for current subscribers.").format(plan_name)
             )
         else:
-            # Hard Delete (Safe to remove)
             plan.delete()
             messages.success(request, _("Subscription plan '{}' was successfully deleted.").format(plan_name))
             
         return redirect("provider_portal:gym_plans")
     
 class PlanRestoreView(GymProviderRequiredMixin, View):
-    """
-    Handles the restoration of an archived subscription plan.
-    """
     def post(self, request, plan_id, *args, **kwargs):
         plan = get_object_or_404(
             SubscriptionPlan, 
@@ -516,16 +556,18 @@ class PlanToggleView(GymProviderRequiredMixin, View):
 # SECURE QR SCANNER API VIEW
 # ==========================================
 
-class QRCodeScannerAPIView(GymProviderRequiredMixin, View):
+class QRScanEndpoint(GymProviderRequiredMixin, View):
     """
-    POST /portal/api/scan-qr/
+    Secure API Endpoint for QR Code CHECK-IN (Logs a visit).
     Decodes the cryptographically signed QR code.
     Verifies subscription validity, extracts allowed branches, and creates a GymVisit.
+    Returns rich JSON data for the interactive scanner UI.
     """
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
-            qr_code = data.get('qr_code', '').strip()
+            qr_code = data.get('qr_code') or data.get('token')
+            qr_code = (qr_code or '').strip()
             
             if not qr_code:
                 return JsonResponse({'status': 'ignore'}, status=200)
@@ -558,24 +600,32 @@ class QRCodeScannerAPIView(GymProviderRequiredMixin, View):
             user = subscription.user
             plan = subscription.plan
             allowed_branches = list(plan.branches.values_list('name', flat=True))
+            first_branch = plan.branches.first()
 
             days_left = (subscription.end_date - now).days
 
+            is_denied = False
             if subscription.status != 'active' or days_left < 0:
-                return JsonResponse({
-                    'status': 'error',
-                    'status_color': 'error',
-                    'title': str(_("Access Denied")),
-                    'message': str(_("Subscription is expired or suspended.")),
-                    'member_name': user.full_name,
-                    'avatar_url': request.build_absolute_uri(user.real_face_image.url) if user.real_face_image else None,
-                })
+                is_denied = True
+                status_color = 'error'
+                title = str(_("Access Denied"))
+                if subscription.status == 'suspended':
+                    message = str(_("This subscription is currently suspended by administration."))
+                elif days_left < 0:
+                    message = str(_("This subscription has expired."))
+                else:
+                    message = str(_("Subscription is not active."))
+            elif days_left <= 3:
+                status_color = 'warning'
+                title = str(_("Expiring Soon!"))
+                message = str(_("Subscription expires soon. Please remind the member."))
+            else:
+                status_color = 'success'
+                title = str(_("Access Granted"))
+                message = str(_("Check-in successful."))
 
-            scenario = 'warning' if days_left <= 3 else 'success'
-            message = _("Subscription expires soon. Please remind the member.") if scenario == 'warning' else _("Check-in successful.")
-            
-            first_branch = plan.branches.first()
-            if first_branch:
+            current_capacity = 0
+            if not is_denied and first_branch:
                 GymVisit.objects.create(
                     subscription=subscription,
                     branch=first_branch,
@@ -591,6 +641,10 @@ class QRCodeScannerAPIView(GymProviderRequiredMixin, View):
             logs_data = [{"time": v.check_in_time.strftime("%I:%M %p"), "date": v.check_in_time.strftime("%Y-%m-%d")} for v in recent_visits]
 
             response_data = {
+                'status': 'success',
+                'status_color': status_color,
+                'title': title,
+                'message': message,
                 'member_id': str(user.id),
                 'member_name': user.full_name,
                 'gender': user.get_gender_display() if hasattr(user, 'get_gender_display') else user.gender,
@@ -605,26 +659,55 @@ class QRCodeScannerAPIView(GymProviderRequiredMixin, View):
                 'total_days': plan.duration_days,
                 'days_left': max(0, days_left),
                 'visits_this_month': subscription.visits.count(),
-                'message': str(message),
                 'current_capacity': current_capacity,
-                'estimated_exit': (timezone.now() + timedelta(hours=2)).strftime("%I:%M %p"),
+                'estimated_exit': (timezone.now() + timedelta(hours=2)).strftime("%I:%M %p") if not is_denied else "-",
                 'avatar_url': request.build_absolute_uri(user.real_face_image.url) if user.real_face_image else None,
                 'id_card_url': request.build_absolute_uri(user.id_card_image.url) if user.id_card_image else None,
                 'latest_logs': logs_data
             }
             
-            if scenario == 'success':
-                response_data.update({'status': 'success', 'status_color': 'success', 'title': str(_("Access Granted"))})
-            else:
-                response_data.update({'status': 'success', 'status_color': 'warning', 'title': str(_("Expiring Soon!"))})
-                
             return JsonResponse(response_data)
 
         except Exception as e:
-            logger.error(f"QR Scan Error: {str(e)}", exc_info=True)
+            logger.error(f"QR Scan Check-in Error: {str(e)}", exc_info=True)
             return JsonResponse({'status': 'ignore'}, status=200)
-        
-        
+
+class QRCodeScannerAPIView(QRScanEndpoint):
+    """Alias for robust routing compatibility."""
+    pass
+
+class QRSearchEndpoint(GymProviderRequiredMixin, View):
+    """
+    Secure API Endpoint for QR Code SEARCH (Redirects to profile without logging visit).
+    """
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+            token = data.get('token') or data.get('qr_code')
+            if not token: 
+                return JsonResponse({'status': 'error', 'message': _("No QR token provided.")})
+
+            signer = Signer(salt="fitzone_gym_qr_auth")
+            raw_data = signer.unsign(token)
+            parts = raw_data.split('-')
+            if len(parts) != 7: raise ValueError("Invalid Format")
+            
+            qr_uuid = "-".join(parts[2:])
+            sub = GymSubscription.objects.get(qr_code_id=qr_uuid, plan__provider=request.user.provider_profile)
+            
+            from django.urls import reverse
+            detail_url = reverse('provider_portal:gym_subscriber_detail', args=[sub.id])
+            
+            return JsonResponse({'status': 'success', 'redirect_url': detail_url})
+
+        except Exception as e:
+            logger.error(f"QR Scan Search Error: {str(e)}")
+            return JsonResponse({'status': 'error', 'message': _("Subscriber not found or invalid QR.")})
+
+# ==========================================
+# SUBSCRIBER MANAGEMENT & CRM VIEWS
+# ==========================================
+
 class SubscriberListView(GymProviderRequiredMixin, ListView): 
     model = GymSubscription
     template_name = "provider_portal/gym/subscribers/list.html"
@@ -632,36 +715,87 @@ class SubscriberListView(GymProviderRequiredMixin, ListView):
 
     def get_queryset(self):
         provider = self.request.user.provider_profile
-        return GymSubscription.objects.select_related(
+        queryset = GymSubscription.objects.select_related(
             'user', 'plan'
         ).prefetch_related(
             'visits', 'plan__branches'
         ).filter(
             plan__provider=provider
-        ).order_by('-start_date')
+        )
+
+        # --- SERVER-SIDE AJAX FILTRATION LOGIC ---
+        search_query = self.request.GET.get('search', '').strip()
+        branch_id = self.request.GET.get('branch', 'all')
+        status_filter = self.request.GET.get('status', 'all')
+        plan_id = self.request.GET.get('plan', 'all')
+        expiration_filter = self.request.GET.get('expiration', 'all')
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(user__full_name__icontains=search_query) | 
+                Q(user__phone_number__icontains=search_query)
+            )
+        
+        if branch_id != 'all':
+            queryset = queryset.filter(plan__branches__id=branch_id)
+        
+        if status_filter != 'all':
+            queryset = queryset.filter(status=status_filter)
+            
+        if plan_id != 'all':
+            queryset = queryset.filter(plan__id=plan_id)
+
+        now_date = timezone.now().date()
+        if expiration_filter == '7days':
+            queryset = queryset.filter(end_date__gte=now_date, end_date__lte=now_date + timedelta(days=7))
+        elif expiration_filter == '30days':
+            queryset = queryset.filter(end_date__gte=now_date, end_date__lte=now_date + timedelta(days=30))
+
+        return queryset.distinct().order_by('-start_date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         qs = self.get_queryset()
+        provider = self.request.user.provider_profile
         
-        context['total_active'] = qs.filter(status='active').count()
-        context['total_expired'] = qs.filter(status='expired').count()
-        context['total_suspended'] = qs.filter(status='suspended').count()
+        # Calculate top stats using overall provider scope (unfiltered)
+        all_provider_subs = GymSubscription.objects.filter(plan__provider=provider)
+        context['total_active'] = all_provider_subs.filter(status='active').count()
+        context['total_expired'] = all_provider_subs.filter(status='expired').count()
+        context['total_suspended'] = all_provider_subs.filter(status='suspended').count()
         
-        from apps.gyms.models import GymBranch
-        context['branches'] = GymBranch.objects.filter(provider=self.request.user.provider_profile)
+        context['branches'] = GymBranch.objects.filter(provider=provider)
+        context['all_plans'] = SubscriptionPlan.objects.filter(provider=provider, is_archived=False)
         
+        # --- MEMBER-CENTRIC GROUPING ---
+        grouped_data = {}
+        for sub in qs:
+            user_id = sub.user.id
+            if user_id not in grouped_data:
+                grouped_data[user_id] = {
+                    'user': sub.user,
+                    'current': [], 
+                    'history': [], 
+                    'active_count': 0,
+                    'has_suspended': False,
+                    'latest_date': sub.start_date
+                }
+
+            if sub.status == 'expired':
+                grouped_data[user_id]['history'].append(sub)
+            else:
+                grouped_data[user_id]['current'].append(sub)
+                if sub.status == 'active':
+                    grouped_data[user_id]['active_count'] += 1
+                elif sub.status == 'suspended':
+                    grouped_data[user_id]['has_suspended'] = True
+
+        sorted_users = sorted(grouped_data.values(), key=lambda x: x['latest_date'], reverse=True)
+        context['grouped_users'] = sorted_users
+
         return context
     
-# ==========================================
-# SUBSCRIBER MANAGEMENT & CRM VIEWS
-# ==========================================
-
 class SubscriberDetailView(GymProviderRequiredMixin, DetailView):
-    """
-    Rich CRM Detail View for a specific subscriber.
-    Displays personal info, documents, plan details, and visit history.
-    """
     model = GymSubscription
     template_name = "provider_portal/gym/subscribers/detail.html"
     context_object_name = "subscription"
@@ -681,9 +815,6 @@ class SubscriberDetailView(GymProviderRequiredMixin, DetailView):
         return context
 
 class SubscriberSuspendView(GymProviderRequiredMixin, View):
-    """
-    Blocks a subscriber and logs the reason as a dispute.
-    """
     def post(self, request, sub_id, *args, **kwargs):
         sub = get_object_or_404(GymSubscription, id=sub_id, plan__provider=request.user.provider_profile)
         reason = request.POST.get('suspend_reason', '').strip()
@@ -706,9 +837,6 @@ class SubscriberSuspendView(GymProviderRequiredMixin, View):
         return redirect(request.META.get('HTTP_REFERER', 'provider_portal:gym_subscribers'))
 
 class SubscriberUnsuspendView(GymProviderRequiredMixin, View):
-    """
-    Unblocks a suspended subscriber and requires a resolution note.
-    """
     def post(self, request, sub_id, *args, **kwargs):
         sub = get_object_or_404(GymSubscription, id=sub_id, plan__provider=request.user.provider_profile)
         resolution = request.POST.get('resolution_note', '').strip()
@@ -720,71 +848,9 @@ class SubscriberUnsuspendView(GymProviderRequiredMixin, View):
         sub.status = 'active'
         sub.save(update_fields=['status'])
         
-        # Resolve open disputes with the provided note
         sub.disputes.filter(status='open').update(
             status='resolved', 
             resolution_note=resolution
         )
         messages.success(request, _("Subscriber access has been restored successfully."))
         return redirect(request.META.get('HTTP_REFERER', 'provider_portal:gym_subscribers'))
-
-class QRScanEndpoint(GymProviderRequiredMixin, View):
-    """
-    Secure API Endpoint for QR Code CHECK-IN (Logs a visit).
-    """
-    def post(self, request, *args, **kwargs):
-        try:
-            data = json.loads(request.body)
-            token = data.get('token')
-            if not token: return JsonResponse({'status': 'error', 'message': _("No QR token provided.")})
-
-            signer = Signer(salt="fitzone_gym_qr_auth")
-            raw_data = signer.unsign(token)
-            parts = raw_data.split('-')
-            if len(parts) != 7: raise ValueError("Invalid Format")
-            
-            qr_uuid = "-".join(parts[2:])
-            sub = GymSubscription.objects.select_related('user', 'plan').get(qr_code_id=qr_uuid)
-            
-            if sub.plan.provider != request.user.provider_profile:
-                return JsonResponse({'status': 'error', 'message': _("Access Denied: Wrong Gym.")})
-            if sub.status != 'active':
-                return JsonResponse({'status': 'error', 'message': _("Access Denied: ") + str(sub.get_status_display())})
-
-            branch = sub.plan.branches.first()
-            if branch:
-                GymVisit.objects.create(subscription=sub, branch=branch)
-
-            return JsonResponse({'status': 'success', 'status_color': 'success', 'title': _("Access Granted"), 'message': _("Welcome, {}").format(sub.user.display_name)})
-
-        except Exception as e:
-            logger.error(f"QR Scan Check-in Error: {str(e)}")
-            return JsonResponse({'status': 'error', 'message': _("Invalid or Forged QR Code.")})
-
-class QRSearchEndpoint(GymProviderRequiredMixin, View):
-    """
-    Secure API Endpoint for QR Code SEARCH (Redirects to profile without logging visit).
-    """
-    def post(self, request, *args, **kwargs):
-        try:
-            data = json.loads(request.body)
-            token = data.get('token')
-            if not token: return JsonResponse({'status': 'error', 'message': _("No QR token provided.")})
-
-            signer = Signer(salt="fitzone_gym_qr_auth")
-            raw_data = signer.unsign(token)
-            parts = raw_data.split('-')
-            if len(parts) != 7: raise ValueError("Invalid Format")
-            
-            qr_uuid = "-".join(parts[2:])
-            sub = GymSubscription.objects.get(qr_code_id=qr_uuid, plan__provider=request.user.provider_profile)
-            
-            # Generate the URL for the detail page
-            from django.urls import reverse
-            detail_url = reverse('provider_portal:gym_subscriber_detail', args=[sub.id])
-            
-            return JsonResponse({'status': 'success', 'redirect_url': detail_url})
-
-        except Exception as e:
-            logger.error(f"QR Scan Search Error: {str(e)}")
-            return JsonResponse({'status': 'error', 'message': _("Subscriber not found or invalid QR.")})

@@ -35,30 +35,11 @@
     background: var(--color-bg);
 }
 
-.header-info h2 {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-black);
-    color: var(--color-text-primary);
-    margin: 0 0 8px 0;
-}
-
 .header-badges {
     display: flex;
     align-items: center;
     gap: var(--space-3);
 }
-
-.status-badge {
-    padding: 6px 14px;
-    border-radius: var(--radius-full);
-    font-size: 12px;
-    font-weight: var(--font-weight-black);
-    text-transform: uppercase;
-}
-
-.status-active { background: rgba(16, 185, 129, 0.1); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.2); }
-.status-closed { background: rgba(239, 68, 68, 0.1); color: var(--color-error); border: 1px solid rgba(239, 68, 68, 0.2); }
-.status-hidden { background: rgba(100, 116, 139, 0.1); color: var(--color-text-muted); border: 1px solid rgba(100, 116, 139, 0.2); }
 
 .city-badge {
     display: flex;
@@ -99,6 +80,8 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    cursor: pointer;
+    border: none;
 }
 .btn-card-action:hover {
     background: var(--color-primary);
@@ -106,49 +89,12 @@
     transform: translateY(-2px);
 }
 
-/* --- Smart Schedule Rendered Classes (Matched with Form UI) --- */
-.schedule-split-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-6);
-    align-items: start;
-}
-
-@media (max-width: 992px) {
-    .schedule-split-layout { grid-template-columns: 1fr; }
-}
-
-.split-col { display: flex; flex-direction: column; gap: var(--space-4); }
-
-.col-header {
-    font-size: 15px; font-weight: var(--font-weight-black); margin: 0; padding-bottom: 8px;
-    border-bottom: 2px solid var(--color-border); display: flex; align-items: center; gap: 8px;
-}
-
-.male-col .col-header { color: #3B82F6; border-bottom-color: rgba(59, 130, 246, 0.2); }
-.female-col .col-header { color: #EC4899; border-bottom-color: rgba(236, 72, 153, 0.2); }
-.both-col .col-header { color: var(--color-text-primary); border-bottom-color: var(--color-border); }
-
-.period-card {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 20px; background-color: var(--color-surface);
-    border: 1px solid var(--color-border); border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-}
-
-.period-days-text { font-size: 15px; font-weight: var(--font-weight-black); color: var(--color-text-primary); display: block; margin-bottom: 4px; }
-.time-text { font-size: 14px; color: var(--color-text-secondary); font-weight: var(--font-weight-bold); display: flex; align-items: center; gap: 8px; }
-
 /* --- Info Lists (Contact, Desc) --- */
 .info-list { display: flex; flex-direction: column; gap: var(--space-4); }
 .info-item { display: flex; align-items: flex-start; gap: 16px; background: var(--color-bg); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--color-border); }
 .info-icon { color: var(--color-primary); background: var(--color-primary-light); padding: 8px; border-radius: 50%; display: flex; flex-shrink: 0;}
 .info-content strong { display: block; font-size: 14px; font-weight: var(--font-weight-black); color: var(--color-text-primary); margin-bottom: 4px; }
 .info-content span { font-size: 14px; color: var(--color-text-secondary); line-height: 1.5; }
-
-/* --- Tags (Amenities & Sports) --- */
-.tag-container { display: flex; flex-wrap: wrap; gap: 10px; }
-.tag-item { background: var(--color-bg); border: 1px solid var(--color-border); padding: 8px 16px; border-radius: var(--radius-full); font-size: 13px; font-weight: var(--font-weight-bold); color: var(--color-text-primary); box-shadow: var(--shadow-sm); }
 
 /* --- Mini Gallery --- */
 .mini-gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -164,3 +110,23 @@
 .plan-mini-info h4 { margin: 0 0 4px 0; font-size: 15px; font-weight: var(--font-weight-black); color: var(--color-text-primary); }
 .plan-mini-info p { margin: 0; font-size: 12px; font-weight: var(--font-weight-bold); color: var(--color-text-secondary); }
 .plan-mini-price { font-size: 18px; font-weight: var(--font-weight-black); color: var(--color-primary); display: flex; align-items: center; gap: 4px; }
+
+/* Unlink Button */
+.btn-unlink-plan {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-error);
+    border: none;
+    border-radius: var(--radius-sm);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition);
+    margin-inline-start: 12px;
+}
+.btn-unlink-plan:hover {
+    background: var(--color-error);
+    color: white;
+}

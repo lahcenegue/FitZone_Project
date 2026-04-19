@@ -46,7 +46,6 @@ class GymBranch(models.Model):
     phone_number = models.CharField(max_length=20, verbose_name=_("Branch Phone Number"))
     
     # --- SMART SCHEDULE SYSTEM ---
-    # Replaced opening_time and closing_time with a flexible JSONField
     operating_hours = models.JSONField(
         default=dict, 
         blank=True, 
@@ -324,6 +323,12 @@ class GymGlobalSetting(models.Model):
         default=10.00,
         verbose_name=_("Points Conversion Rate (SAR)"),
         help_text=_("How many Riyals equal 1 reward point for Gyms. (e.g., 10 means 1 point for every 10 SAR).")
+    )
+
+    earnings_hold_days = models.PositiveIntegerField(
+        default=3,
+        verbose_name=_("Earnings Hold Period (Days)"),
+        help_text=_("Number of days before gym earnings become available for withdrawal.")
     )
 
     class Meta:

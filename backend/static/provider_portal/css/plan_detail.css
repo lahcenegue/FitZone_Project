@@ -38,29 +38,11 @@
     box-shadow: var(--shadow-sm);
 }
 
-.header-info h2 {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-black);
-    color: var(--color-text-primary);
-    margin: 0 0 8px 0;
-}
-
 .header-badges {
     display: flex;
     align-items: center;
     gap: var(--space-3);
 }
-
-.status-badge {
-    padding: 6px 14px;
-    border-radius: var(--radius-full);
-    font-size: 12px;
-    font-weight: var(--font-weight-black);
-    text-transform: uppercase;
-}
-
-.status-active { background: rgba(16, 185, 129, 0.1); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.2); }
-.status-inactive { background: rgba(239, 68, 68, 0.1); color: var(--color-error); border: 1px solid rgba(239, 68, 68, 0.2); }
 
 .header-actions { display: flex; gap: var(--space-3); }
 
@@ -78,33 +60,6 @@
 
 .grid-col-main { display: flex; flex-direction: column; gap: var(--space-6); }
 .grid-col-side { display: flex; flex-direction: column; gap: var(--space-6); }
-
-/* --- Tags (Amenities, Sports, Features) --- */
-.tag-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.tag-item {
-    background: var(--color-bg);
-    border: 1px solid var(--color-border);
-    padding: 8px 16px;
-    border-radius: var(--radius-full);
-    font-size: 13px;
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: var(--shadow-sm);
-}
-
-.tag-item.feature {
-    border-color: rgba(16, 185, 129, 0.3);
-    background: rgba(16, 185, 129, 0.05);
-    color: var(--color-success);
-}
 
 /* --- Linked Branches List --- */
 .linked-branches-list {

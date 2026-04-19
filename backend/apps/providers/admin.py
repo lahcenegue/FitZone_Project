@@ -34,14 +34,14 @@ class EmailVerificationTokenInline(admin.TabularInline):
 @admin.register(Provider)
 class ProviderAdmin(admin.ModelAdmin):
     """
-    Provider admin with coloured status badge and bulk approve/reject actions.
+    Provider admin with coloured status badge, commission control, and bulk approve/reject actions.
     """
 
     list_display  = [
         "business_name", "provider_type", "owner_email",
-        "city", "status_badge", "email_verified", "created_at",
+        "city", "status_badge", "commission_type", "commission_value", "created_at",
     ]
-    list_filter   = ["status", "provider_type", "email_verified", "city"]
+    list_filter   = ["status", "provider_type", "commission_type", "city"]
     search_fields = ["business_name", "user__email", "user__full_name", "city"]
     ordering      = ["-created_at"]
     readonly_fields = [
@@ -65,6 +65,7 @@ class ProviderAdmin(admin.ModelAdmin):
             {
                 "fields": [
                     "commercial_registration", "tax_id",
+                    "commission_type", "commission_value",
                     "bank_name", "iban", "bank_account_number",
                 ],
                 "classes": ["collapse"],
@@ -83,7 +84,7 @@ class ProviderAdmin(admin.ModelAdmin):
         ),
     ]
 
-    # ── Custom columns ─────────────────────────────────────────────────────
+    # --- Custom columns ---
 
     @admin.display(description=_("Owner email"), ordering="user__email")
     def owner_email(self, obj):
@@ -106,7 +107,7 @@ class ProviderAdmin(admin.ModelAdmin):
             l=obj.get_status_display(),
         )
 
-    # ── Bulk actions ───────────────────────────────────────────────────────
+    # --- Bulk actions ---
 
     @admin.action(description=_("Approve selected providers"))
     def action_approve(self, request, queryset):

@@ -19,20 +19,6 @@
     border-bottom: 1px solid var(--color-border);
 }
 
-.gallery-header h2 {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-black);
-    color: var(--color-text-primary);
-    margin: 0 0 8px 0;
-}
-
-.gallery-header p {
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-base);
-    margin: 0;
-    font-weight: var(--font-weight-medium);
-}
-
 .header-actions { display: flex; gap: var(--space-3); }
 
 /* --- Upload Zone (Bento Style) --- */
@@ -158,18 +144,4 @@
 .btn-delete-photo:hover {
     transform: scale(1.1);
     box-shadow: var(--shadow-lg);
-}
-
-/* --- Empty State --- */
-.empty-gallery {
-    text-align: center;
-    padding: var(--space-12) var(--space-4);
-    background-color: var(--color-surface);
-    border: 2px dashed var(--color-border);
-    border-radius: var(--radius-xl);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    color: var(--color-text-muted);
 }

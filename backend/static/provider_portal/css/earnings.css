@@ -1,0 +1,139 @@
+/* ==========================================================================
+   ENTERPRISE FINANCIAL DASHBOARD (BENTO DESIGN SYSTEM)
+   ========================================================================== */
+
+.finance-page-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding-bottom: var(--space-12);
+    width: 100%;
+}
+
+/* --- Header Section --- */
+.finance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+/* --- Quick Action Banner (Bank Status) --- */
+.bank-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-6);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition);
+}
+
+.bank-banner.missing {
+    background: rgba(239, 68, 68, 0.05);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.bank-info { display: flex; align-items: center; gap: 16px; }
+.bank-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--color-bg); display: flex; align-items: center; justify-content: center; color: var(--color-text-secondary); }
+.bank-banner.missing .bank-icon { color: var(--color-error); background: var(--color-surface); }
+.bank-details h4 { font-size: 15px; font-weight: var(--font-weight-black); color: var(--color-text-primary); margin: 0 0 4px 0; }
+.bank-details p { font-size: 13px; color: var(--color-text-secondary); margin: 0; font-family: monospace; }
+
+/* --- Financial KPI Cards --- */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-4);
+}
+
+.fin-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--transition);
+}
+
+.fin-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+.fin-card::before {
+    content: ''; position: absolute; top: 0; inset-inline: 0; height: 4px;
+}
+
+.fin-card.total::before { background: var(--dash-color-4); }
+.fin-card.available::before { background: var(--color-success); }
+.fin-card.pending::before { background: var(--color-warning); }
+
+.fin-lbl {
+    font-size: 12px; font-weight: var(--font-weight-black); color: var(--color-text-muted);
+    text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+}
+
+.fin-val {
+    font-size: 28px; font-weight: var(--font-weight-black); color: var(--color-text-primary);
+    line-height: 1; display: flex; align-items: baseline; gap: 8px;
+}
+
+/* --- Bento Layout Section (Charts & Breakdown) --- */
+.bento-finance-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: var(--space-6);
+}
+
+@media (max-width: 1200px) { .bento-finance-grid { grid-template-columns: 1fr; } }
+
+.fin-chart-card {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-sm);
+}
+
+.chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.chart-title { font-size: 16px; font-weight: var(--font-weight-black); color: var(--color-text-primary); margin: 0; }
+.chart-body { height: 280px; width: 100%; position: relative; }
+
+/* --- Financial Tables (Ledgers) --- */
+.fin-section-card {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); overflow: hidden;
+}
+
+.section-header {
+    padding: 16px 24px; border-bottom: 1px solid var(--color-border);
+    background: rgba(0,0,0,0.01); display: flex; justify-content: space-between; align-items: center;
+}
+[data-theme=\"dark\"] .section-header { background: rgba(255,255,255,0.02); }
+.section-title { font-size: 15px; font-weight: var(--font-weight-black); color: var(--color-text-primary); margin: 0; }
+
+.table-wrapper { width: 100%; overflow-x: auto; }
+.fin-table { width: 100%; border-collapse: collapse; text-align: start; }
+.fin-table th { 
+    padding: 14px 24px; font-size: 11px; font-weight: var(--font-weight-black); 
+    color: var(--color-text-muted); text-transform: uppercase; 
+    border-bottom: 1px solid var(--color-border); background: var(--color-bg);
+}
+.fin-table td { 
+    padding: 16px 24px; font-size: 14px; color: var(--color-text-primary); 
+    border-bottom: 1px dashed var(--color-border); vertical-align: middle;
+}
+.fin-table tr:last-child td { border-bottom: none; }
+.fin-table tr:hover td { background: var(--color-bg); }
+
+.amt-up { color: var(--color-success); font-weight: var(--font-weight-black); }
+.amt-down { color: var(--color-text-primary); font-weight: var(--font-weight-black); }
+
+/* Countdown text */
+.release-countdown { font-size: 11px; font-weight: var(--font-weight-black); display: flex; align-items: center; gap: 4px; }
+.count-yellow { color: var(--color-warning); }
+.count-green { color: var(--color-success); }

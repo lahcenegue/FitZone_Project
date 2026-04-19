@@ -1,13 +1,31 @@
 'use strict';
 
+const SAUDI_CITIES_COORDS = {
+    "riyadh": { lat: 24.7136, lng: 46.6753 },
+    "jeddah": { lat: 21.4858, lng: 39.1925 },
+    "mecca": { lat: 21.3891, lng: 39.8579 },
+    "medina": { lat: 24.5247, lng: 39.5692 },
+    "dammam": { lat: 26.4207, lng: 50.0888 },
+    "khobar": { lat: 26.2172, lng: 50.1971 },
+    "dhahran": { lat: 26.2361, lng: 50.1324 },
+    "tabuk": { lat: 28.3835, lng: 36.5662 },
+    "abha": { lat: 18.2164, lng: 42.5053 },
+    "khamis_mushait": { lat: 18.3061, lng: 42.7392 },
+    "hail": { lat: 27.5114, lng: 41.6907 },
+    "najran": { lat: 17.5026, lng: 44.1322 },
+    "jubail": { lat: 27.0051, lng: 49.6583 },
+    "yanbu": { lat: 24.0244, lng: 38.1882 },
+    "taif": { lat: 21.2643, lng: 40.4022 },
+    "buraidah": { lat: 26.3259, lng: 43.9749 },
+    "qatif": { lat: 26.5568, lng: 49.9959 },
+    "hofuf": { lat: 25.3789, lng: 49.5855 },
+    "jizan": { lat: 16.8892, lng: 42.5511 },
+    "arar": { lat: 30.9753, lng: 41.0381 }
+};
+
 document.addEventListener("DOMContentLoaded", function() {
 
-    /* ====================================================================
-       1. FLOATING LABELS (From Global)
-       ==================================================================== */
-    if (typeof window.initFloatingLabels === 'function') {
-        window.initFloatingLabels();
-    }
+    if (typeof window.initFloatingLabels === 'function') window.initFloatingLabels();
 
     const fileInput = document.querySelector('input[type="file"]');
     if(fileInput) fileInput.classList.add('django-hidden');
@@ -15,16 +33,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const emergencySwitch = document.querySelector('input[name="is_temporarily_closed"]');
     if(emergencySwitch) emergencySwitch.classList.add('switch-danger');
 
-    // Clean up "Mixed / Both" text from Django labels automatically
     document.querySelectorAll('.radio-card-content span').forEach(span => {
         if(span.textContent.includes('Mixed') || span.textContent.includes('Both')) {
             span.textContent = 'Both';
         }
     });
 
-    /* ====================================================================
-       2. LOGO PREVIEW
-       ==================================================================== */
     if(fileInput) {
         fileInput.addEventListener('change', function(e) {
             const previewImg = document.getElementById('logoPreviewImg');
@@ -34,28 +48,31 @@ document.addEventListener("DOMContentLoaded", function() {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    previewImg.src = e.target.result;
-                    previewImg.classList.remove('django-hidden');
-                    placeholder.classList.add('django-hidden');
+                    if (previewImg) {
+                        previewImg.src = e.target.result;
+                        previewImg.classList.remove('django-hidden');
+                        previewImg.classList.add('has-image');
+                    }
+                    if (placeholder) placeholder.classList.add('django-hidden');
                 }
                 reader.readAsDataURL(file);
             } else {
-                previewImg.src = '';
-                previewImg.classList.add('django-hidden');
-                placeholder.classList.remove('django-hidden');
+                if (previewImg) {
+                    previewImg.src = '';
+                    previewImg.classList.add('django-hidden');
+                    previewImg.classList.remove('has-image');
+                }
+                if (placeholder) placeholder.classList.remove('django-hidden');
             }
         });
     }
 
     /* ====================================================================
-       3. SMART SCHEDULE ENGINE
+       SMART SCHEDULE ENGINE
        ==================================================================== */
     const scheduleDataInput = document.querySelector('input[name="schedule_data"]');
-    const scheduleList = document.getElementById('scheduleList');
+    const scheduleBuilder = document.getElementById('scheduleBuilder'); 
     const btnAddPeriod = document.getElementById('btnAddPeriod');
-    const periodModal = document.getElementById('periodModal');
-    const btnCloseModal = document.getElementById('btnCloseModal');
-    const btnSavePeriod = document.getElementById('btnSavePeriod');
     
     let periods = [];
     let editingId = null;
@@ -72,12 +89,17 @@ document.addEventListener("DOMContentLoaded", function() {
     function generateId() { return Math.random().toString(36).substr(2, 9); }
 
     function renderPeriods() {
-        if (!scheduleList) return;
-        scheduleList.innerHTML = '';
-        
-        if (periods.length === 0) {
-            scheduleList.innerHTML = `<div style="color: var(--color-text-muted); font-size: 13px; text-align: center; padding: 20px; border: 1px dashed var(--color-border); border-radius: var(--radius-md);">No working hours defined yet. The branch will be considered closed.</div>`;
-        } else {
+        const cMale = document.getElementById('periodsContainerMale');
+        const cFemale = document.getElementById('periodsContainerFemale');
+        const cMixed = document.getElementById('periodsContainerMixed');
+
+        if(cMale) cMale.innerHTML = '';
+        if(cFemale) cFemale.innerHTML = '';
+        if(cMixed) cMixed.innerHTML = '';
+
+        let hasMixed = false;
+
+        if (periods.length > 0) {
             periods.forEach(p => {
                 const div = document.createElement('div');
                 div.className = 'period-card';
@@ -87,7 +109,6 @@ document.addEventListener("DOMContentLoaded", function() {
                         <div class="time-text">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                             ${p.start} - ${p.end}
-                            <span style="background: var(--color-bg); padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-inline-start: 8px;">${p.gender.toUpperCase()}</span>
                         </div>
                     </div>
                     <div class="period-action-right">
@@ -99,8 +120,31 @@ document.addEventListener("DOMContentLoaded", function() {
                         </button>
                     </div>
                 `;
-                scheduleList.appendChild(div);
+                
+                if (p.gender === 'men') {
+                    if(cMale) cMale.appendChild(div);
+                } else if (p.gender === 'women') {
+                    if(cFemale) cFemale.appendChild(div);
+                } else {
+                    hasMixed = true;
+                    if(cMixed) cMixed.appendChild(div);
+                }
             });
+        }
+        
+        if(cMale && cMale.innerHTML === '') cMale.innerHTML = `<div class="empty-state-small">No hours defined.</div>`;
+        if(cFemale && cFemale.innerHTML === '') cFemale.innerHTML = `<div class="empty-state-small">No hours defined.</div>`;
+        if(cMixed && cMixed.innerHTML === '') cMixed.innerHTML = `<div class="empty-state-small">No hours defined.</div>`;
+
+        // CORE FIX: Only show Mixed Container if there are actual periods for it OR if gender is specifically set to Mixed
+        const colMixed = document.getElementById('colMixed');
+        const checkedRadio = document.querySelector('input[name="gender"]:checked');
+        if (colMixed && checkedRadio) {
+            if (checkedRadio.value === 'mixed') {
+                colMixed.style.display = hasMixed ? 'flex' : 'none';
+            } else {
+                colMixed.style.display = 'none';
+            }
         }
         
         if (scheduleDataInput) {
@@ -108,9 +152,9 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    if (scheduleList) {
-        scheduleList.addEventListener('click', function(e) {
-            const btn = e.target.closest('button');
+    if (scheduleBuilder) {
+        scheduleBuilder.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-action-period');
             if (!btn) return;
             const id = btn.getAttribute('data-id');
             if (btn.classList.contains('delete')) {
@@ -118,70 +162,126 @@ document.addEventListener("DOMContentLoaded", function() {
                 renderPeriods();
             } else if (btn.classList.contains('edit')) {
                 const p = periods.find(x => x.id === id);
-                if (p) openModal(p);
+                if (p) populateBuilder(p);
             }
         });
     }
 
-    function openModal(period = null) {
-        document.querySelectorAll('.day-chip').forEach(c => c.classList.remove('selected'));
-        document.getElementById('timeStart').value = '';
-        document.getElementById('timeEnd').value = '';
+    // --- CORE FIX: Sync target gender exactly with HTML name ---
+    function toggleScheduleGenderVisibility() {
+        const checkedRadio = document.querySelector('input[name="gender"]:checked');
+        const periodGenderBlock = document.getElementById('periodGenderBlock');
+        const schedGenderSelect = document.getElementById('schedGender');
         
-        // Auto-select gender based on branch target gender radio
-        const selectedBranchGender = document.querySelector('input[name="gender"]:checked');
-        const defaultGender = selectedBranchGender ? selectedBranchGender.value : 'both';
-        
-        let genderSelect = document.getElementById('periodGender');
-        if (genderSelect) {
-            genderSelect.value = defaultGender;
+        const colMale = document.getElementById('colMale');
+        const colFemale = document.getElementById('colFemale');
+        const colMixed = document.getElementById('colMixed');
+        const splitLayoutContainer = document.getElementById('splitLayoutContainer');
+
+        if (!checkedRadio) return;
+        const val = checkedRadio.value;
+
+        if (val !== 'mixed') {
+            if (periodGenderBlock) periodGenderBlock.style.display = 'none';
+            if (schedGenderSelect) schedGenderSelect.value = val;
+            
+            if (val === 'men') {
+                if(colMale) colMale.style.display = 'flex';
+                if(colFemale) colFemale.style.display = 'none';
+                if(colMixed) colMixed.style.display = 'none';
+                if(splitLayoutContainer) splitLayoutContainer.style.gridTemplateColumns = '1fr';
+            } else if (val === 'women') {
+                if(colMale) colMale.style.display = 'none';
+                if(colFemale) colFemale.style.display = 'flex';
+                if(colMixed) colMixed.style.display = 'none';
+                if(splitLayoutContainer) splitLayoutContainer.style.gridTemplateColumns = '1fr';
+            }
+        } else {
+            if (periodGenderBlock) periodGenderBlock.style.display = 'flex';
+            if(colMale) colMale.style.display = 'flex';
+            if(colFemale) colFemale.style.display = 'flex';
+            if(splitLayoutContainer) splitLayoutContainer.style.gridTemplateColumns = '1fr 1fr';
         }
+        
+        renderPeriods(); 
+    }
+
+    toggleScheduleGenderVisibility();
+
+    document.querySelectorAll('input[name="gender"]').forEach(radio => {
+        radio.addEventListener('change', toggleScheduleGenderVisibility);
+    });
+
+    function populateBuilder(period = null) {
+        document.querySelectorAll('.day-pill').forEach(c => c.classList.remove('active'));
+        const timeStart = document.getElementById('schedStart');
+        const timeEnd = document.getElementById('schedEnd');
+        if (timeStart) timeStart.value = '';
+        if (timeEnd) timeEnd.value = '';
+        
+        toggleScheduleGenderVisibility(); 
 
         if (period) {
             editingId = period.id;
-            period.days.forEach(d => {
-                const chip = document.querySelector(`.day-chip[data-val="${d}"]`);
-                if(chip) chip.classList.add('selected');
+            const daysArr = period.days_values || period.days; 
+            daysArr.forEach(d => {
+                const chip = document.querySelector(`.day-pill[data-day="${d}"]`);
+                if(chip) chip.classList.add('active');
             });
-            document.getElementById('timeStart').value = period.start;
-            document.getElementById('timeEnd').value = period.end;
+            if (timeStart) timeStart.value = period.start;
+            if (timeEnd) timeEnd.value = period.end;
+            
+            const genderSelect = document.getElementById('schedGender');
             if (genderSelect && period.gender) {
                 genderSelect.value = period.gender;
             }
         } else {
             editingId = null;
         }
-        periodModal.style.display = 'flex';
+        checkFormValidity();
     }
 
-    function closeModal() {
-        periodModal.style.display = 'none';
-    }
-
-    if (btnAddPeriod) btnAddPeriod.addEventListener('click', () => openModal());
-    if (btnCloseModal) btnCloseModal.addEventListener('click', closeModal);
-    
-    document.querySelectorAll('.day-chip').forEach(chip => {
+    document.querySelectorAll('.day-pill').forEach(chip => {
         chip.addEventListener('click', function() {
-            this.classList.toggle('selected');
+            this.classList.toggle('active');
+            checkFormValidity();
         });
     });
 
-    if (btnSavePeriod) {
-        btnSavePeriod.addEventListener('click', function() {
-            const selectedDays = Array.from(document.querySelectorAll('.day-chip.selected')).map(c => c.getAttribute('data-val'));
-            const tStart = document.getElementById('timeStart').value;
-            const tEnd = document.getElementById('timeEnd').value;
-            const pGender = document.getElementById('periodGender').value;
-
-            if (selectedDays.length === 0 || !tStart || !tEnd) {
-                alert("Please select at least one day and specify start and end times.");
-                return;
+    function checkFormValidity() {
+        const timeStart = document.getElementById('schedStart');
+        const timeEnd = document.getElementById('schedEnd');
+        const hasSelectedDays = document.querySelectorAll('.day-pill.active').length > 0;
+        
+        if (btnAddPeriod) {
+            if (hasSelectedDays && timeStart && timeStart.value && timeEnd && timeEnd.value) {
+                btnAddPeriod.removeAttribute('disabled');
+            } else {
+                btnAddPeriod.setAttribute('disabled', 'disabled');
             }
+        }
+    }
+
+    if (document.getElementById('schedStart')) document.getElementById('schedStart').addEventListener('input', checkFormValidity);
+    if (document.getElementById('schedEnd')) document.getElementById('schedEnd').addEventListener('input', checkFormValidity);
+
+    if (btnAddPeriod) {
+        btnAddPeriod.addEventListener('click', function(e) {
+            e.preventDefault(); 
+            if (this.hasAttribute('disabled')) return; 
+
+            const selectedDaysElements = Array.from(document.querySelectorAll('.day-pill.active'));
+            const selectedDaysText = selectedDaysElements.map(c => c.textContent.trim());
+            const selectedDaysVals = selectedDaysElements.map(c => c.getAttribute('data-day'));
+            
+            const tStart = document.getElementById('schedStart').value;
+            const tEnd = document.getElementById('schedEnd').value;
+            const pGender = document.getElementById('schedGender') ? document.getElementById('schedGender').value : 'mixed';
 
             const newPeriod = {
                 id: editingId || generateId(),
-                days: selectedDays,
+                days: selectedDaysText, 
+                days_values: selectedDaysVals, 
                 start: tStart,
                 end: tEnd,
                 gender: pGender
@@ -195,98 +295,104 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             renderPeriods();
-            closeModal();
+            
+            document.querySelectorAll('.day-pill').forEach(c => c.classList.remove('active'));
+            if (document.getElementById('schedStart')) document.getElementById('schedStart').value = '';
+            if (document.getElementById('schedEnd')) document.getElementById('schedEnd').value = '';
+            checkFormValidity();
+            editingId = null;
         });
     }
 
-    // Auto-update modal gender if branch gender changes
-    document.querySelectorAll('input[name="gender"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            const pGender = document.getElementById('periodGender');
-            if (pGender) pGender.value = this.value;
-        });
-    });
-
     /* ====================================================================
-       4. MAP AND LOCATION LOGIC
+       MAP AND LOCATION LOGIC
        ==================================================================== */
-    let map;
-    let marker;
-
-    window.initMap = function() {
+    const mapContainer = document.getElementById("panoramicMap");
+    if (mapContainer) {
         const latInput = document.querySelector('input[name="latitude"]');
         const lngInput = document.querySelector('input[name="longitude"]');
         const addressInput = document.querySelector('input[name="address"]');
         const citySelect = document.querySelector('select[name="city"]');
         
-        if (!latInput || !lngInput) return;
+        if (latInput && lngInput) {
+            let initialLat = 24.7136;
+            let initialLng = 46.6753;
 
-        let initialLat = 24.7136;
-        let initialLng = 46.6753;
+            if (latInput.value && lngInput.value) {
+                initialLat = parseFloat(latInput.value);
+                initialLng = parseFloat(lngInput.value);
+            }
 
-        if (latInput.value && lngInput.value) {
-            initialLat = parseFloat(latInput.value);
-            initialLng = parseFloat(lngInput.value);
-        }
+            const map = L.map('panoramicMap').setView([initialLat, initialLng], 13);
 
-        const mapOptions = {
-            center: { lat: initialLat, lng: initialLng },
-            zoom: 13,
-            mapTypeControl: false,
-            streetViewControl: false,
-        };
+            L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                attribution: '&copy; Google Maps'
+            }).addTo(map);
 
-        map = new google.maps.Map(document.getElementById("map"), mapOptions);
+            const marker = L.marker([initialLat, initialLng], {
+                draggable: true
+            }).addTo(map);
 
-        marker = new google.maps.Marker({
-            position: { lat: initialLat, lng: initialLng },
-            map: map,
-            draggable: true,
-            animation: google.maps.Animation.DROP,
-        });
+            async function updateLocation(lat, lng) {
+                latInput.value = lat.toFixed(6);
+                lngInput.value = lng.toFixed(6);
 
-        const geocoder = new google.maps.Geocoder();
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+                    const data = await response.json();
 
-        function updateLocation(latLng) {
-            latInput.value = latLng.lat().toFixed(6);
-            lngInput.value = latLng.lng().toFixed(6);
-
-            geocoder.geocode({ location: latLng }, (results, status) => {
-                if (status === "OK" && results[0]) {
-                    addressInput.value = results[0].formatted_address;
-                    let foundCity = false;
-                    
-                    for (let component of results[0].address_components) {
-                        if (component.types.includes("locality") || component.types.includes("administrative_area_level_1")) {
-                            const detectedCity = component.long_name;
-                            for (let option of citySelect.options) {
-                                if (detectedCity.includes(option.value) || option.value.includes(detectedCity)) {
-                                    citySelect.value = option.value;
-                                    foundCity = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if(foundCity) break;
+                    if (data && data.display_name && addressInput) {
+                        addressInput.value = data.display_name;
                     }
+                } catch (error) {
+                    console.error("Reverse geocoding failed:", error);
                 }
+            }
+
+            map.on('click', function(e) {
+                marker.setLatLng(e.latlng);
+                updateLocation(e.latlng.lat, e.latlng.lng);
             });
+
+            marker.on('dragend', function(e) {
+                const position = marker.getLatLng();
+                updateLocation(position.lat, position.lng);
+            });
+            
+            if (citySelect) {
+                $(citySelect).on('select2:select', function(e) {
+                    const cityKey = e.target.value; 
+                    if (!cityKey || !SAUDI_CITIES_COORDS[cityKey]) return;
+
+                    const coords = SAUDI_CITIES_COORDS[cityKey];
+                    map.flyTo([coords.lat, coords.lng], 13);
+                    marker.setLatLng([coords.lat, coords.lng]);
+                    
+                    latInput.value = coords.lat.toFixed(6);
+                    lngInput.value = coords.lng.toFixed(6);
+                    updateLocation(coords.lat, coords.lng);
+                });
+            }
         }
+    }
 
-        map.addListener("click", (e) => {
-            marker.setPosition(e.latLng);
-            updateLocation(e.latLng);
-        });
-
-        marker.addListener("dragend", (e) => {
-            updateLocation(e.latLng);
-        });
-    };
-
+    /* ====================================================================
+       SELECT2 INITIALIZATION
+       ==================================================================== */
     if (typeof jQuery !== 'undefined' && $.fn.select2) {
-        $('.select2-multi').select2({
+        $('select[name="city"]').select2({
             width: '100%',
-            placeholder: ' '
+            placeholder: ' ',
+            allowClear: false, 
+            theme: "default"
+        });
+        
+        $('select[name="sports"], select[name="amenities"], select[name="branches"]').select2({
+            width: '100%',
+            placeholder: ' ',
+            allowClear: true,
+            theme: "default" 
         });
     }
 });

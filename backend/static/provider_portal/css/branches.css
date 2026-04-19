@@ -23,44 +23,6 @@
     border-bottom-color: rgba(255, 255, 255, 0.05);
 }
 
-.header-text h2 {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-black);
-    color: var(--color-text-primary);
-    margin: 0 0 8px 0;
-    letter-spacing: -0.5px;
-}
-
-.header-text p {
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-base);
-    margin: 0;
-    font-weight: var(--font-weight-medium);
-}
-
-.btn-add-branch {
-    background-color: var(--color-primary);
-    color: var(--color-surface);
-    padding: 12px 24px;
-    border-radius: var(--radius-md);
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-sm);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all var(--transition);
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-    text-decoration: none;
-    border: none;
-}
-
-.btn-add-branch:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-    background-color: var(--color-primary);
-    color: var(--color-surface);
-}
-
 /* --- Grid Layout --- */
 .branches-grid {
     display: grid;
@@ -70,7 +32,7 @@
 }
 
 /* --- The Bento Card --- */
-.b-card {
+.branch-card {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-xl);
@@ -82,7 +44,7 @@
     position: relative;
 }
 
-.b-card:hover {
+.branch-card:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-md);
     border-color: rgba(99, 102, 241, 0.3);
@@ -164,44 +126,6 @@
     align-items: center;
     gap: 4px;
     margin-bottom: 20px;
-}
-
-/* --- Stats Grid (The Secret Sauce) --- */
-.b-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 24px;
-    background: var(--color-bg);
-    padding: 16px 12px;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--color-border);
-}
-
-.stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    border-inline-end: 1px solid rgba(0,0,0,0.05);
-}
-
-[data-theme="dark"] .stat-item { border-inline-end-color: rgba(255,255,255,0.05); }
-.stat-item:last-child { border-inline-end: none; }
-
-.stat-val {
-    font-size: 18px;
-    font-weight: var(--font-weight-black);
-    color: var(--color-text-primary);
-    line-height: 1.2;
-}
-
-.stat-lbl {
-    font-size: 11px;
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    margin-top: 4px;
 }
 
 /* --- Toggles Section --- */

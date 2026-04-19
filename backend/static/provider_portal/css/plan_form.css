@@ -2,33 +2,6 @@
    ENTERPRISE PLAN FORM (COMMANDER LAYOUT & FLOATING LABELS)
    ========================================================================== */
 
-.page-container {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-    padding-bottom: var(--space-12);
-}
-
-.page-header {
-    margin-bottom: var(--space-4);
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: var(--space-4);
-}
-
-.page-header h2 {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-black);
-    color: var(--color-text-primary);
-    margin: 0 0 8px 0;
-    letter-spacing: -0.5px;
-}
-
-.page-header p {
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-base);
-    margin: 0;
-}
-
 /* --- The Commander Grid --- */
 .commander-layout {
     display: grid;

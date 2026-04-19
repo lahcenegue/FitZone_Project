@@ -9,27 +9,6 @@
     padding-bottom: var(--space-12);
 }
 
-.page-header {
-    margin-bottom: var(--space-4);
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: var(--space-4);
-}
-
-.page-header h2 {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-black);
-    color: var(--color-text-primary);
-    margin: 0 0 8px 0;
-    letter-spacing: -0.5px;
-}
-
-.page-header p {
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-base);
-    margin: 0;
-}
-
-/* --- The Commander Grid --- */
 .commander-layout {
     display: grid;
     grid-template-columns: 1fr 300px;
@@ -55,7 +34,6 @@
     gap: var(--space-6);
 }
 
-/* --- Basic Info & Logo Grid --- */
 .basic-info-grid {
     display: grid;
     grid-template-columns: 160px 1fr;
@@ -100,15 +78,14 @@
 }
 .preview-image.has-image { display: block; }
 
-/* --- Panoramic Map (Increased Height) --- */
 .map-panoramic {
     width: 100%;
     height: 600px;
     background-color: var(--color-border);
     z-index: 1;
+    border-radius: var(--radius-md);
 }
 
-/* --- Target Gender Cards --- */
 .radio-cards { display: flex; gap: var(--space-4); }
 .radio-card { flex: 1; position: relative; cursor: pointer; }
 .radio-card input { position: absolute; opacity: 0; }
@@ -122,16 +99,12 @@
     border-color: var(--color-primary); background-color: var(--color-primary-light); color: var(--color-primary);
 }
 
-/* ==========================================================================
-   SMART SCHEDULE BUILDER (THE BOOKING BAR STYLE)
-   ========================================================================== */
 .schedule-builder {
     display: flex;
     flex-direction: column;
     gap: var(--space-6);
 }
 
-/* Day Pills */
 .day-pills-wrapper {
     display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
     padding: var(--space-4); background: var(--color-bg);
@@ -145,13 +118,14 @@
     transition: all var(--transition); user-select: none; box-shadow: var(--shadow-sm);
 }
 
+.day-pill.weekend { color: var(--color-primary); }
+
 .day-pill:hover { border-color: var(--color-primary); color: var(--color-primary); transform: translateY(-2px); }
 .day-pill.active {
     background-color: var(--color-primary); color: var(--color-surface);
     border-color: var(--color-primary); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
 }
 
-/* The Unified Builder Bar */
 .schedule-builder-bar {
     display: flex;
     align-items: stretch;
@@ -221,57 +195,10 @@
 .btn-add-period:hover { background-color: #059669; transform: scale(1.05); }
 .btn-add-period:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; background-color: var(--color-text-muted); }
 
-/* --- Rendered Periods (Split 2-Column Layout) --- */
 .periods-container {
     display: flex;
     flex-direction: column;
-    gap: var(--space-6);
-}
-
-.schedule-split-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-6);
-    align-items: start;
-}
-
-@media (max-width: 992px) {
-    .schedule-split-layout { grid-template-columns: 1fr; }
-}
-
-.split-col {
-    display: flex;
-    flex-direction: column;
     gap: var(--space-4);
-}
-
-.col-header {
-    font-size: 15px;
-    font-weight: var(--font-weight-black);
-    margin: 0;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--color-border);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.male-col .col-header { color: #3B82F6; border-bottom-color: rgba(59, 130, 246, 0.2); }
-.female-col .col-header { color: #EC4899; border-bottom-color: rgba(236, 72, 153, 0.2); }
-.both-col .col-header { color: var(--color-success); border-bottom-color: rgba(16, 185, 129, 0.2); }
-
-.period-card {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 20px; background-color: var(--color-surface);
-    border: 1px solid var(--color-border); border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm); transition: var(--transition);
-}
-.period-card:hover { border-color: var(--color-primary); }
-
-.period-days-text { font-size: 15px; font-weight: var(--font-weight-black); color: var(--color-text-primary); display: block; margin-bottom: 4px; }
-.time-text {
-    font-size: 14px; color: var(--color-text-secondary); font-weight: var(--font-weight-bold);
-    display: flex; align-items: center; gap: 8px;
 }
 
 .period-action-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -284,3 +211,24 @@
 .btn-action-period.edit:hover { color: var(--color-info); border-color: var(--color-info); background-color: var(--color-info-light); }
 .btn-action-period.delete { color: var(--color-text-primary); }
 .btn-action-period.delete:hover { color: var(--color-error); border-color: var(--color-error); background-color: var(--color-error-light); }
+
+.empty-state-small {
+    color: var(--color-text-muted); 
+    font-size: 13px; 
+    text-align: center; 
+    padding: 20px; 
+    border: 1px dashed var(--color-border); 
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+}
+
+/* Fix HTML5 validation for hidden select2 elements */
+select[required].select2-hidden-accessible {
+    display: block !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    position: absolute !important;
+    z-index: -1 !important;
+    bottom: 0 !important;
+}

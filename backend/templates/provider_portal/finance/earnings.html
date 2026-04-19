@@ -1,501 +1,289 @@
 {% extends "provider_portal/provider_base.html" %}
 {% load i18n static %}
 
-{% block page_title %}{% trans "Financial Analytics & Earnings" %}{% endblock %}
+{% block page_title %}{% trans "Financial Intelligence" %}{% endblock %}
 {% block nav_earnings %}active{% endblock %}
 
 {% block extra_css %}
 {{ block.super }}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-    /* --- ENTERPRISE FINANCE VARIABLES --- */
-    :root {
-        --fin-radius-xl: 24px;
-        --fin-radius-lg: 16px;
-        --fin-radius-md: 12px;
-        --fin-shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
-        --fin-shadow-hover: 0 15px 50px -10px rgba(0, 0, 0, 0.08);
-        --fin-primary: #6366F1; /* Primary Indigo */
-        --fin-primary-light: #EEF2FF;
-        --fin-success: #10B981;
-        --fin-success-light: #D1FAE5;
-        --fin-warning: #F59E0B;
-        --fin-warning-light: #FEF3C7;
-        --fin-dark: #0F172A;
-    }
-
-    .finance-dashboard {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-6);
-        padding-bottom: var(--space-8);
-    }
-
-    /* --- 1. KPI CARDS ROW --- */
-    .kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: var(--space-6);
-    }
-
-    .kpi-card {
-        background: var(--color-surface); border-radius: var(--fin-radius-xl);
-        padding: var(--space-6); box-shadow: var(--fin-shadow-soft);
-        border: 1px solid rgba(0,0,0,0.02); display: flex; flex-direction: column;
-        position: relative; overflow: hidden; transition: var(--transition);
-    }
-    .kpi-card:hover { box-shadow: var(--fin-shadow-hover); transform: translateY(-2px); }
-    
-    .kpi-card.highlight { background: linear-gradient(135deg, var(--fin-primary) 0%, #4338CA 100%); color: white; border: none; box-shadow: 0 15px 30px rgba(99, 102, 241, 0.2); }
-    .kpi-card.highlight::after { content: ''; position: absolute; top: -30%; right: -10%; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
-
-    .kpi-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-4); z-index: 1; }
-    .kpi-title { font-size: var(--font-size-base); font-weight: var(--font-weight-bold); color: var(--color-text-secondary); }
-    .kpi-card.highlight .kpi-title { color: rgba(255,255,255,0.8); }
-    
-    .kpi-icon { width: 44px; height: 44px; border-radius: var(--fin-radius-md); display: flex; align-items: center; justify-content: center; background: var(--color-bg); color: var(--color-text-primary); }
-    .kpi-card.highlight .kpi-icon { background: rgba(255,255,255,0.2); color: white; }
-
-    /* Currency formatting (LTR enforcement for alignment) */
-    .money-display { display: inline-flex; align-items: baseline; gap: 6px; direction: ltr; z-index: 1; margin-bottom: var(--space-2); }
-    .money-amount { font-size: 36px; font-weight: 900; line-height: 1; color: var(--color-text-primary); }
-    .kpi-card.highlight .money-amount { color: white; }
-    .money-currency { font-size: var(--font-size-base); font-weight: var(--font-weight-medium); opacity: 0.7; }
-
-    .kpi-footer { z-index: 1; display: flex; flex-direction: column; gap: var(--space-2); margin-top: auto; }
-    .kpi-note { font-size: 12px; color: var(--color-text-muted); font-weight: var(--font-weight-medium); display: flex; align-items: center; gap: 6px; }
-    .kpi-card.highlight .kpi-note { color: rgba(255,255,255,0.7); }
-
-    .btn-primary-action {
-        background: var(--fin-success); color: white; border: none; padding: 10px 16px;
-        border-radius: var(--fin-radius-md); font-weight: var(--font-weight-bold); font-size: var(--font-size-sm);
-        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-        transition: var(--transition); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); margin-top: var(--space-2);
-    }
-    .btn-primary-action:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4); filter: brightness(1.1); }
-    .btn-primary-action:disabled { background: rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); cursor: not-allowed; box-shadow: none; transform: none; }
-
-    /* --- 2. MIDDLE ROW (AREA CHART & DOUGHNUT) --- */
-    .charts-grid-top { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-6); }
-    
-    .panel-card {
-        background: var(--color-surface); border-radius: var(--fin-radius-xl); padding: var(--space-6);
-        box-shadow: var(--fin-shadow-soft); border: 1px solid rgba(0,0,0,0.02); display: flex; flex-direction: column;
-    }
-    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); }
-    .panel-title { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0; }
-    .panel-subtitle { font-size: 12px; color: var(--color-text-muted); font-weight: normal; margin-inline-start: 8px; }
-
-    .chart-container { position: relative; width: 100%; flex: 1; min-height: 280px; }
-
-    /* --- 3. BOTTOM ROW (LEDGER & BAR CHART & BANK) --- */
-    .charts-grid-bottom { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-6); align-items: start; }
-
-    /* Ledger Table */
-    .table-wrapper { width: 100%; overflow-x: auto; margin-top: var(--space-2); }
-    .fin-table { width: 100%; border-collapse: collapse; text-align: start; }
-    .fin-table th { padding: var(--space-3) var(--space-2); font-size: 11px; font-weight: var(--font-weight-bold); color: var(--color-text-muted); text-transform: uppercase; border-bottom: 1px solid var(--color-border); }
-    .fin-table td { padding: var(--space-3) var(--space-2); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); border-bottom: 1px solid var(--color-border); color: var(--color-text-primary); }
-    .fin-table tr:last-child td { border-bottom: none; }
-    
-    .status-badge { padding: 4px 10px; border-radius: var(--fin-radius-md); font-size: 10px; font-weight: var(--font-weight-bold); text-transform: uppercase; letter-spacing: 0.5px; }
-    .status-badge.cleared { background: var(--fin-success-light); color: var(--fin-success); }
-    .status-badge.pending { background: var(--fin-warning-light); color: var(--fin-warning); }
-
-    /* Side Info Panel */
-    .side-stack { display: flex; flex-direction: column; gap: var(--space-6); }
-    
-    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--color-border); }
-    .info-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .info-label { font-size: 12px; color: var(--color-text-muted); font-weight: var(--font-weight-bold); }
-    .info-value { font-size: 13px; font-weight: var(--font-weight-bold); color: var(--color-text-primary); }
-    
-    .btn-text-action { background: none; border: none; color: var(--fin-primary); font-size: 12px; font-weight: bold; cursor: pointer; padding: 0; transition: 0.2s; display: flex; align-items: center; gap: 4px; }
-    .btn-text-action:hover { color: var(--fin-dark); }
-
-    /* --- MODALS --- */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-    .modal-overlay.show { display: flex; animation: fadeIn 0.2s; }
-    @keyframes fadeIn { from {opacity:0; transform: scale(0.98);} to {opacity:1; transform: scale(1);} }
-    .action-modal { background: var(--color-surface); width: 100%; max-width: 450px; border-radius: var(--fin-radius-xl); padding: var(--space-8); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
-    .action-modal h3 { margin: 0 0 var(--space-2) 0; font-size: var(--font-size-xl); color: var(--color-text-primary); }
-    .form-group { margin-bottom: var(--space-4); }
-    .form-group label { display: block; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); margin-bottom: 8px; color: var(--color-text-secondary); }
-    .form-control { width: 100%; padding: 12px 16px; border: 1px solid var(--color-border); border-radius: var(--fin-radius-md); font-size: var(--font-size-base); font-family: inherit; transition: 0.2s; }
-    .form-control:focus { border-color: var(--fin-primary); outline: none; box-shadow: 0 0 0 3px var(--fin-primary-light); }
-    
-    .amount-input-wrapper { position: relative; display: flex; align-items: center; direction: ltr; }
-    .amount-input-wrapper span { position: absolute; left: 16px; font-weight: var(--font-weight-bold); color: var(--color-text-muted); }
-    .amount-input { width: 100%; padding: 16px 16px 16px 50px; border: 2px solid var(--color-border); border-radius: var(--fin-radius-md); font-size: 24px; font-weight: 900; color: var(--color-text-primary); transition: var(--transition); text-align: left; }
-    .amount-input:focus { border-color: var(--fin-primary); outline: none; }
-    
-    .modal-actions { display: flex; gap: var(--space-3); margin-top: var(--space-6); }
-    .btn-cancel { flex: 1; padding: 12px; border: 1px solid var(--color-border); background: var(--color-surface); border-radius: var(--fin-radius-md); cursor: pointer; font-weight: var(--font-weight-bold); color: var(--color-text-secondary); }
-    .btn-confirm { flex: 1; padding: 12px; border: none; background: var(--fin-primary); color: white; border-radius: var(--fin-radius-md); font-weight: var(--font-weight-bold); cursor: pointer; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); transition: 0.2s;}
-    .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
-</style>
+<link rel="stylesheet" href="{% static 'provider_portal/css/earnings.css' %}">
 {% endblock extra_css %}
 
 {% block content %}
-<div class="finance-dashboard">
+<div class="finance-page-container">
+
+    <div class="finance-header">
+        <div class="header-text">
+            <h2 class="page-title">{% trans "Earnings & Financial Growth" %}</h2>
+            <p class="page-subtitle">{% trans "Monitor your revenue streams, pending clearance, and withdrawal history." %}</p>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="btn-action btn-outline" onclick="exportDataToCSV('fullLedgerTable', 'FitZone_Ledger.csv')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                {% trans "Export Ledger" %}
+            </button>
+            <button type="button" class="btn-action btn-primary" onclick="openWithdraw()" style="background: var(--color-success); border-color: var(--color-success);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                {% trans "Withdraw Funds" %}
+            </button>
+        </div>
+    </div>
+
+    {% if not request.user.provider_profile.iban %}
+        <div class="bank-banner missing">
+            <div class="bank-info">
+                <div class="bank-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <div class="bank-details">
+                    <h4>{% trans "Immediate Action: Bank Details Required" %}</h4>
+                    <p class="page-subtitle">{% trans "Payouts are disabled until you provide a valid bank account for transfers." %}</p>
+                </div>
+            </div>
+            <button type="button" class="btn-action btn-outline" onclick="openBank()" style="color: var(--color-error); border-color: var(--color-error);">
+                {% trans "Add Bank Account" %}
+            </button>
+        </div>
+    {% else %}
+        <div class="bank-banner">
+            <div class="bank-info">
+                <div class="bank-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <div class="bank-details">
+                    <h4>{{ request.user.provider_profile.bank_name }}</h4>
+                    <p class="page-subtitle">{{ request.user.provider_profile.iban }}</p>
+                </div>
+            </div>
+            <button type="button" class="btn-action btn-outline" onclick="openBank()">
+                {% trans "Update Details" %}
+            </button>
+        </div>
+    {% endif %}
 
     <div class="kpi-grid">
-        
-        <div class="kpi-card highlight">
-            <div class="kpi-header">
-                <span class="kpi-title">{% trans "Available to Withdraw" %}</span>
-                <div class="kpi-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-            </div>
-            <div class="money-display">
-                <span class="money-amount">{{ wallet.available_balance|floatformat:2 }}</span>
-                <span class="money-currency">{% include "components/currency_icon.html" %}</span>
-            </div>
-            <div class="kpi-footer">
-                {% if has_bank_info %}
-                    {% if wallet.available_balance > 0 %}
-                    <button class="btn-primary-action" id="btnOpenWithdraw">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        {% trans "Request Payout" %}
-                    </button>
-                    {% else %}
-                    <button class="btn-primary-action" disabled>{% trans "Insufficient Funds" %}</button>
-                    {% endif %}
-                {% else %}
-                    <button class="btn-primary-action" id="btnOpenBank" style="background:var(--fin-warning); color:var(--fin-dark); box-shadow:none;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                        {% trans "Link Bank Account" %}
-                    </button>
-                {% endif %}
-            </div>
+        <div class="fin-card total">
+            <span class="fin-lbl">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--dash-color-4)" stroke-width="3"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                {% trans "Lifetime Platform Earnings" %}
+            </span>
+            <span class="fin-val">{{ total_earnings|floatformat:2 }} <span style="width: 18px; display: inline-flex;">{% include "components/currency_icon.html" %}</span></span>
         </div>
-
-        <div class="kpi-card">
-            <div class="kpi-header">
-                <span class="kpi-title">{% trans "Pending Clearance" %}</span>
-                <div class="kpi-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-            </div>
-            <div class="money-display">
-                <span class="money-amount">{{ wallet.pending_balance|floatformat:2 }}</span>
-                <span class="money-currency">{% include "components/currency_icon.html" %}</span>
-            </div>
-            <div class="kpi-footer">
-                {% if next_clearance_date %}
-                <span class="kpi-note">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fin-warning)" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/></svg>
-                    {% trans "Next release:" %} {{ next_clearance_amount }} {% include "components/currency_icon.html" %} {% trans "on" %} {{ next_clearance_date|date:"M d" }}
-                </span>
-                {% else %}
-                <span class="kpi-note">{% trans "No pending funds currently held." %}</span>
-                {% endif %}
-            </div>
+        <div class="fin-card available">
+            <span class="fin-lbl">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                {% trans "Current Available Balance" %}
+            </span>
+            <span class="fin-val">{{ wallet.available_balance|floatformat:2 }} <span style="width: 18px; display: inline-flex;">{% include "components/currency_icon.html" %}</span></span>
         </div>
-
-        <div class="kpi-card">
-            <div class="kpi-header">
-                <span class="kpi-title">{% trans "Net Revenue" %}</span>
-                <div class="kpi-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-            </div>
-            <div class="money-display">
-                <span class="money-amount">{{ net_revenue|floatformat:2 }}</span>
-                <span class="money-currency">{% include "components/currency_icon.html" %}</span>
-            </div>
-            <div class="kpi-footer">
-                <span class="kpi-note">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                    {% trans "Gross Volume:" %} <span style="direction: ltr; display: inline-flex; gap: 4px;">{{ gross_volume|floatformat:2 }} {% include "components/currency_icon.html" %}</span>
-                </span>
-            </div>
+        <div class="fin-card pending">
+            <span class="fin-lbl" title="{% trans 'Holding for clearance security period' %}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-warning)" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                {% trans "Pending Clearance" %}
+            </span>
+            <span class="fin-val">{{ wallet.pending_balance|floatformat:2 }} <span style="width: 18px; display: inline-flex;">{% include "components/currency_icon.html" %}</span></span>
         </div>
-
     </div>
 
-    <div class="charts-grid-top">
-        
-        <div class="panel-card">
-            <div class="panel-header">
-                <h3 class="panel-title">{% trans "Revenue Flow" %} <span class="panel-subtitle">{% trans "Last 6 Months" %}</span></h3>
+    <div class="bento-finance-grid">
+        <div class="fin-chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title">{% trans "Revenue Trend (6 Months)" %}</h3>
             </div>
-            <div class="chart-container">
-                <canvas id="revenueChart"></canvas>
-            </div>
-        </div>
-
-        <div class="panel-card">
-            <div class="panel-header">
-                <h3 class="panel-title">{% trans "Sales by Plan" %}</h3>
-            </div>
-            <div class="chart-container">
-                <canvas id="plansChart"></canvas>
+            <div class="chart-body">
+                <canvas id="revenueTrendChart"></canvas>
             </div>
         </div>
 
+        <div class="fin-chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title">{% trans "Service/Branch Performance" %}</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="performanceBarChart"></canvas>
+            </div>
+        </div>
     </div>
 
-    <div class="charts-grid-bottom">
+    <div class="bento-finance-grid">
         
-        <div class="panel-card" style="padding: 0;">
-            <div class="panel-header" style="padding: var(--space-4) var(--space-6); margin: 0; border-bottom: 1px solid var(--color-border); background: var(--color-bg);">
-                <h3 class="panel-title">{% trans "Transaction Ledger" %}</h3>
+        <div class="fin-section-card">
+            <div class="section-header" style="border-top: 4px solid var(--color-success);">
+                <h3 class="section-title">{% trans "Recent Payouts & Requests" %}</h3>
             </div>
             <div class="table-wrapper">
                 <table class="fin-table">
                     <thead>
                         <tr>
-                            <th>{% trans "Date" %}</th>
-                            <th>{% trans "Description" %}</th>
-                            <th>{% trans "Status" %}</th>
-                            <th style="text-align: end; padding-inline-end: var(--space-6);">{% trans "Amount" %}</th>
+                            <th>{% trans "Requested Date" %}</th>
+                            <th>{% trans "Amount" %}</th>
+                            <th style="text-align: center;">{% trans "Status" %}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for txn in transactions_ledger|slice:":8" %}
+                        {% for req in withdrawals %}
                         <tr>
-                            <td>
-                                <strong style="display:block;">{{ txn.created_at|date:"M d, Y" }}</strong>
-                                <span style="font-size:11px; color:var(--color-text-muted);">{{ txn.created_at|time:"H:i A" }}</span>
-                            </td>
-                            <td>{{ txn.description|truncatechars:35 }}</td>
-                            <td>
-                                {% if txn.is_cleared %}
-                                    <span class="status-badge cleared">{% trans "Cleared" %}</span>
-                                {% else %}
-                                    <span class="status-badge pending">{% trans "Hold" %}</span>
-                                {% endif %}
-                            </td>
-                            <td style="text-align: end; padding-inline-end: var(--space-6);">
-                                <div style="display: inline-flex; align-items: baseline; gap: 4px; direction: ltr;" class="{% if txn.amount > 0 %}amt-positive{% endif %}">
-                                    {% if txn.amount > 0 %}+{% endif %}{{ txn.amount|floatformat:2 }}
-                                    <span style="font-size: 10px; opacity: 0.7; font-weight: normal; color: var(--color-text-muted);">{% include "components/currency_icon.html" %}</span>
-                                </div>
+                            <td style="font-size: 13px;">{{ req.created_at|date:"Y-m-d" }}</td>
+                            <td class="amt-down">{{ req.amount|floatformat:2 }}</td>
+                            <td style="text-align: center;">
+                                <span class="status-badge status-{{ req.status }}">{{ req.get_status_display }}</span>
                             </td>
                         </tr>
                         {% empty %}
-                        <tr>
-                            <td colspan="4" style="text-align: center; padding: var(--space-8); color: var(--color-text-muted);">
-                                {% trans "No transactions recorded yet." %}
-                            </td>
-                        </tr>
+                        <tr><td colspan="3" style="text-align: center; padding: 30px; color: var(--color-text-muted);">{% trans "No withdrawals requested yet." %}</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            {% if transactions_ledger.count > 8 %}
-            <div style="padding: var(--space-3); text-align: center; border-top: 1px solid var(--color-border);">
-                <button class="btn-text-action" style="margin: 0 auto;">{% trans "View Full Ledger" %} &rarr;</button>
-            </div>
-            {% endif %}
         </div>
 
-        <div class="side-stack">
-            
-            <div class="panel-card">
-                <div class="panel-header" style="margin-bottom: var(--space-2);">
-                    <h3 class="panel-title" style="font-size: var(--font-size-base);">{% trans "Top Branches" %}</h3>
-                </div>
-                <div class="chart-container" style="min-height: 200px;">
-                    <canvas id="branchesChart"></canvas>
-                </div>
+        <div class="fin-section-card">
+            <div class="section-header" style="border-top: 4px solid var(--color-warning);">
+                <h3 class="section-title">{% trans "Pending Release Schedule" %}</h3>
+                <span style="font-size: 11px; font-weight: bold; color: var(--color-text-muted);">{% trans "Policy" %}: {{ hold_days }} {% trans "Days" %}</span>
             </div>
-
-            <div class="panel-card">
-                <div class="panel-header" style="margin-bottom: var(--space-2);">
-                    <h3 class="panel-title" style="font-size: var(--font-size-base);">{% trans "Payout Details" %}</h3>
-                    <button class="btn-text-action" id="btnOpenBank">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="16 3 21 8 8 21 3 21 3 16 16 3"/></svg>
-                        {% trans "Edit" %}
-                    </button>
-                </div>
-                {% if has_bank_info %}
-                    <div class="info-row">
-                        <span class="info-label">{% trans "Bank" %}</span>
-                        <span class="info-value">{{ provider.bank_name }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">{% trans "IBAN" %}</span>
-                        <span class="info-value" dir="ltr">**** {{ provider.iban|slice:"-4:" }}</span>
-                    </div>
-                {% else %}
-                    <div style="text-align:center; padding:var(--space-4) 0; color:var(--color-text-muted); font-size:13px;">
-                        {% trans "No bank account linked." %}
-                    </div>
-                {% endif %}
+            <div class="table-wrapper">
+                <table class="fin-table">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Amount" %}</th>
+                            <th>{% trans "Clearance Date" %}</th>
+                            <th style="text-align: end;">{% trans "Time Left" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in pending_breakdown %}
+                        <tr>
+                            <td class="amt-up">{{ item.amount|floatformat:2 }}</td>
+                            <td style="font-size: 13px;">{{ item.release_date|date:"Y-m-d" }}</td>
+                            <td style="text-align: end;">
+                                <div class="release-countdown {% if item.days_left == 0 %}count-green{% else %}count-yellow{% endif %}">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    {% if item.days_left == 0 %}{% trans "Available Today" %}{% else %}{{ item.days_left }} {% trans "Days left" %}{% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" style="text-align: center; padding: 30px; color: var(--color-text-muted);">{% trans "No funds currently on hold." %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-
         </div>
     </div>
+
+    <div class="fin-section-card">
+        <div class="section-header">
+            <h3 class="section-title">{% trans "Master Wallet Ledger" %}</h3>
+        </div>
+        <div class="table-wrapper">
+            <table class="fin-table">
+                <thead>
+                    <tr>
+                        <th>{% trans "Transaction Date" %}</th>
+                        <th>{% trans "Classification" %}</th>
+                        <th>{% trans "Description" %}</th>
+                        <th style="text-align: end;">{% trans "Net Amount" %}</th>
+                        <th style="text-align: center;">{% trans "Funds Status" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for txn in transactions %}
+                    <tr>
+                        <td style="font-size: 13px;">{{ txn.created_at|date:"Y-m-d | H:i" }}</td>
+                        <td>{{ txn.get_transaction_type_display }}</td>
+                        <td style="font-size: 13px; color: var(--color-text-secondary);">{{ txn.description }}</td>
+                        <td style="text-align: end;">
+                            {% if txn.amount > 0 %}
+                                <span class="amt-up">+{{ txn.amount|floatformat:2 }}</span>
+                            {% else %}
+                                <span class="amt-down">{{ txn.amount|floatformat:2 }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if txn.is_cleared %}
+                                <span class="status-badge status-completed">{% trans "Cleared" %}</span>
+                            {% else %}
+                                <span class="status-badge status-pending">{% trans "On Hold" %}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--color-text-muted);">{% trans "No transaction history found." %}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <table id="fullLedgerTable" style="display: none;">
+        <thead><tr><th>Date</th><th>Type</th><th>Desc</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody>
+            {% for txn in transactions %}
+            <tr><td>{{ txn.created_at }}</td><td>{{ txn.transaction_type }}</td><td>{{ txn.description }}</td><td>{{ txn.amount }}</td><td>{{ txn.is_cleared }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
 </div>
 
-<div class="modal-overlay" id="withdrawModal">
-    <div class="action-modal">
-        <h3>{% trans "Request Payout" %}</h3>
-        <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-6);">
-            {% trans "Funds will be transferred to your linked bank account (" %}{{ provider.bank_name }}{% trans "). Processing takes 2-3 business days." %}
-        </p>
-        <form action="{% url 'provider_portal:withdraw' %}" method="POST">
+<div id="withdrawModal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3 class="modal-title">{% trans "Secure Payout Request" %}</h3>
+            <button type="button" class="modal-close" onclick="closeWithdraw()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <form method="POST" action="{% url 'provider_portal:withdraw' %}">
             {% csrf_token %}
-            <div class="form-group">
-                <label>{% trans "Amount to Withdraw" %}</label>
-                <div class="amount-input-wrapper">
-                    <span>{% include "components/currency_icon.html" %}</span>
-                    <input type="number" name="amount" class="amount-input" step="0.01" min="1" max="{{ wallet.available_balance }}" value="{{ wallet.available_balance }}" required>
-                </div>
+            <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 24px;">
+                {% trans "Available Balance" %}: <strong style="color: var(--color-success);">{{ wallet.available_balance|floatformat:2 }} {% trans "SAR" %}</strong>
+            </p>
+            <div class="float-group currency-group">
+                <input type="number" name="amount" class="float-input" step="0.01" min="100" max="{{ wallet.available_balance }}" placeholder=" " required>
+                <label class="float-label">{% trans "Enter Amount" %}</label>
+                <div class="currency-icon-wrapper">{% include "components/currency_icon.html" %}</div>
             </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="document.getElementById('withdrawModal').classList.remove('show')">{% trans "Cancel" %}</button>
-                <button type="submit" class="btn-confirm">{% trans "Confirm Transfer" %}</button>
-            </div>
+            <button type="submit" class="btn-mega-save" style="margin-top: 32px; background: var(--color-success); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+                {% trans "Request Instant Payout" %}
+            </button>
         </form>
     </div>
 </div>
 
-<div class="modal-overlay" id="bankModal">
-    <div class="action-modal">
-        <h3>{% trans "Link Bank Account" %}</h3>
-        <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-6);">
-            {% trans "Please ensure the bank account name matches your registered business name to avoid payout delays." %}
-        </p>
-        <form action="{% url 'provider_portal:bank_update' %}" method="POST">
+<div id="bankModal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3 class="modal-title">{% trans "Settlement Bank Account" %}</h3>
+            <button type="button" class="modal-close" onclick="closeBank()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <form method="POST" action="{% url 'provider_portal:bank_update' %}">
             {% csrf_token %}
-            <div class="form-group">
-                <label>{% trans "Bank Name" %}</label>
-                <input type="text" name="bank_name" class="form-control" value="{{ provider.bank_name }}" required placeholder="{% trans 'e.g., Al Rajhi Bank' %}">
+            <div class="float-group">
+                <input type="text" name="bank_name" class="float-input" value="{{ request.user.provider_profile.bank_name }}" placeholder=" " required>
+                <label class="float-label">{% trans "Bank Name" %}</label>
             </div>
-            <div class="form-group">
-                <label>{% trans "IBAN" %}</label>
-                <input type="text" name="iban" class="form-control" value="{{ provider.iban }}" required placeholder="SA..." dir="ltr" style="text-align: left;">
+            <div class="float-group" style="margin-top: 16px;">
+                <input type="text" name="iban" class="float-input" value="{{ request.user.provider_profile.iban }}" style="text-transform: uppercase; font-family: monospace;" placeholder=" " required>
+                <label class="float-label">{% trans "IBAN Number (SA...)" %}</label>
             </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="document.getElementById('bankModal').classList.remove('show')">{% trans "Cancel" %}</button>
-                <button type="submit" class="btn-confirm">{% trans "Save Details" %}</button>
-            </div>
+            <button type="submit" class="btn-mega-save" style="margin-top: 32px;">{% trans "Secure Save Details" %}</button>
         </form>
     </div>
 </div>
+
+<script id="js_chart_labels" type="application/json">{{ chart_labels|safe }}</script>
+<script id="js_chart_data" type="application/json">{{ chart_data|safe }}</script>
+<script id="js_bar_labels" type="application/json">{{ bar_labels|safe }}</script>
+<script id="js_bar_data" type="application/json">{{ bar_data|safe }}</script>
 
 {% endblock content %}
 
 {% block extra_js %}
 {{ block.super }}
-
-{{ chart_timeline_labels|json_script:"tlLabels" }}
-{{ chart_timeline_data|json_script:"tlData" }}
-{{ chart_pie_labels|json_script:"pieLabels" }}
-{{ chart_pie_data|json_script:"pieData" }}
-{{ chart_bar_labels|json_script:"barLabels" }}
-{{ chart_bar_data|json_script:"barData" }}
-
-<script>
-    'use strict';
-
-    document.addEventListener("DOMContentLoaded", function() {
-        
-        // --- Modal Triggers ---
-        const btnOpenWithdraw = document.getElementById('btnOpenWithdraw');
-        if (btnOpenWithdraw) btnOpenWithdraw.addEventListener('click', () => document.getElementById('withdrawModal').classList.add('show'));
-        
-        const btnOpenBank = document.getElementById('btnOpenBank');
-        if (btnOpenBank) btnOpenBank.addEventListener('click', () => document.getElementById('bankModal').classList.add('show'));
-
-        // --- Common Chart Options ---
-        Chart.defaults.font.family = 'Inter, Tajawal, sans-serif';
-        Chart.defaults.color = '#94A3B8';
-        const primaryColor = '#6366F1';
-        const successColor = '#10B981';
-
-        // --- 1. Area Chart (Revenue Timeline) ---
-        const ctxRev = document.getElementById('revenueChart');
-        if (ctxRev) {
-            const labels = JSON.parse(document.getElementById('tlLabels').textContent);
-            const data = JSON.parse(document.getElementById('tlData').textContent);
-            
-            let gradient = ctxRev.getContext('2d').createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)');
-            gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
-
-            new Chart(ctxRev, {
-                type: 'line',
-                data: {
-                    labels: labels.length ? labels : ['Jan', 'Feb', 'Mar'],
-                    datasets: [{
-                        data: data.length ? data : [0, 0, 0],
-                        borderColor: primaryColor,
-                        backgroundColor: gradient,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: primaryColor,
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { display: false, drawBorder: false } },
-                        y: { grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false, borderDash: [5, 5] }, beginAtZero: true }
-                    }
-                }
-            });
-        }
-
-        // --- 2. Doughnut Chart (Top Plans) ---
-        const ctxPie = document.getElementById('plansChart');
-        if (ctxPie) {
-            const labels = JSON.parse(document.getElementById('pieLabels').textContent);
-            const data = JSON.parse(document.getElementById('pieData').textContent);
-            
-            new Chart(ctxPie, {
-                type: 'doughnut',
-                data: {
-                    labels: labels.length ? labels : ['{% trans "No Data" %}'],
-                    datasets: [{
-                        data: data.length ? data : [1],
-                        backgroundColor: [primaryColor, successColor, '#F59E0B', '#3B82F6', '#8B5CF6'],
-                        borderWidth: 0,
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    cutout: '75%',
-                    plugins: {
-                        legend: { position: 'right', labels: { usePointStyle: true, padding: 20 } }
-                    }
-                }
-            });
-        }
-
-        // --- 3. Bar Chart (Top Branches) ---
-        const ctxBar = document.getElementById('branchesChart');
-        if (ctxBar) {
-            const labels = JSON.parse(document.getElementById('barLabels').textContent);
-            const data = JSON.parse(document.getElementById('barData').textContent);
-            
-            new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: labels.length ? labels : ['-'],
-                    datasets: [{
-                        data: data.length ? data : [0],
-                        backgroundColor: successColor,
-                        borderRadius: 6,
-                        barThickness: 20
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    indexAxis: 'y', // Horizontal Bar Chart
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { display: false, beginAtZero: true },
-                        y: { grid: { display: false, drawBorder: false } }
-                    }
-                }
-            });
-        }
-    });
-</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'provider_portal/js/earnings.js' %}"></script>
 {% endblock extra_js %}

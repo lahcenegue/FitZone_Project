@@ -50,13 +50,7 @@
 }
 
 .profile-info { display: flex; flex-direction: column; gap: 6px; }
-.profile-info h2 { font-size: var(--font-size-2xl); font-weight: var(--font-weight-black); color: var(--color-text-primary); margin: 0; }
 .profile-info p { font-size: 14px; font-weight: var(--font-weight-bold); color: var(--color-text-secondary); margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-
-.status-badge { padding: 6px 14px; border-radius: var(--radius-full); font-size: 12px; font-weight: var(--font-weight-black); text-transform: uppercase; }
-.status-badge.active { background: rgba(16, 185, 129, 0.1); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.2); }
-.status-badge.suspended { background: rgba(239, 68, 68, 0.1); color: var(--color-error); border: 1px solid rgba(239, 68, 68, 0.2); }
-.status-badge.expired { background: rgba(100, 116, 139, 0.1); color: var(--color-text-secondary); border: 1px solid rgba(100, 116, 139, 0.2); }
 
 /* --- Bento Grid --- */
 .detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-6); align-items: start; }

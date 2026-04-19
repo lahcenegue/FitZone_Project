@@ -16,10 +16,12 @@
 <div class="page-container">
 
     <div class="page-header">
-        <h2>{% if is_edit %}{% trans "Edit Plan:" %} {{ plan.name }}{% else %}{% trans "Create New Plan" %}{% endif %}</h2>
-        <p>{% trans "Define your pricing, duration, and link this plan to specific branches." %}</p>
+        <div>
+            <h2 class="page-title">{% if is_edit %}{% trans "Edit Plan:" %} {{ plan.name }}{% else %}{% trans "Create New Plan" %}{% endif %}</h2>
+            <p class="page-subtitle">{% trans "Define your pricing, duration, and link this plan to specific branches." %}</p>
+    
+        </div>
     </div>
-
     {{ branch_features_map|json_script:"branchFeaturesMap" }}
 
     <form method="post" id="planForm" novalidate data-error-msg="{% trans 'Please fill in all required fields and select at least one branch.' %}">

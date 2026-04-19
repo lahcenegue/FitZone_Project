@@ -6,18 +6,21 @@
 
 {% block extra_css %}
 {{ block.super }}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="{% static 'provider_portal/css/dashboard.css' %}">
 {% endblock extra_css %}
 
 {% block content %}
 <div class="dashboard-wrapper">
 
-    <div class="dashboard-header-text">
-        <h1>{% trans "Command Center" %}</h1>
-        <p>{% trans "Real-time operational insights and financial analytics." %}</p>
+    {# ── Page Header ── #}
+    <div class="page-header" style="border-bottom: none; padding-bottom: 0;">
+        <div>
+            <h1 class="page-title">{% trans "Command Center" %}</h1>
+            <p class="page-subtitle">{% trans "Real-time operational insights and financial analytics." %}</p>
+        </div>
     </div>
 
+    {# ── Onboarding Banner ── #}
     {% if provider.status == 'pending' %}
         {% if not has_documents %}
         <div class="onboarding-banner">
@@ -40,12 +43,13 @@
         {% endif %}
     {% endif %}
 
+    {# ═══════ ROW 1: KPI CARDS (6 cards) ═════════ #}
     <div class="kpi-grid">
         <div class="kpi-card live">
             <div class="kpi-data-wrapper">
                 <div class="kpi-title">{% trans "Live Occupancy" %}</div>
                 <div class="kpi-value-row">
-                    <span class="kpi-value">{{ live_occupancy }}</span>
+                    <span class="kpi-value">{{ live_occupancy|default:"0" }}</span>
                     <span class="kpi-unit">{% trans "Members" %}</span>
                 </div>
             </div>
@@ -59,7 +63,7 @@
             <div class="kpi-data-wrapper">
                 <div class="kpi-title">{% trans "Active Subscriptions" %}</div>
                 <div class="kpi-value-row">
-                    <span class="kpi-value">{{ total_active_subs }}</span>
+                    <span class="kpi-value">{{ total_active_subs|default:"0" }}</span>
                     <span class="kpi-unit">{% trans "Plans" %}</span>
                 </div>
             </div>
@@ -72,7 +76,7 @@
             <div class="kpi-data-wrapper">
                 <div class="kpi-title">{% trans "Total Revenue" %}</div>
                 <div class="kpi-value-row">
-                    <span class="kpi-value">{{ total_revenue|floatformat:2 }}</span>
+                    <span class="kpi-value">{{ total_revenue|default:"0.00"|floatformat:2 }}</span>
                     <span class="kpi-currency">{% include "components/currency_icon.html" %}</span>
                 </div>
             </div>
@@ -85,7 +89,7 @@
             <div class="kpi-data-wrapper">
                 <div class="kpi-title">{% trans "Active Branches" %}</div>
                 <div class="kpi-value-row">
-                    <span class="kpi-value">{{ total_branches }}</span>
+                    <span class="kpi-value">{{ total_branches|default:"0" }}</span>
                     <span class="kpi-unit">{% trans "Locations" %}</span>
                 </div>
             </div>
@@ -93,14 +97,84 @@
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </div>
         </div>
+
+        <div class="kpi-card visits">
+            <div class="kpi-data-wrapper">
+                <div class="kpi-title">{% trans "Today's Check-ins" %}</div>
+                <div class="kpi-value-row">
+                    <span class="kpi-value">{{ todays_visits|default:"0" }}</span>
+                    <span class="kpi-unit">{% trans "Visits" %}</span>
+                </div>
+            </div>
+            <div class="kpi-icon visits">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+        </div>
+
+        <div class="kpi-card growth">
+            <div class="kpi-data-wrapper">
+                <div class="kpi-title">{% trans "New Subs (This Month)" %}</div>
+                <div class="kpi-value-row">
+                    <span class="kpi-value">{{ new_subs_month|default:"0" }}</span>
+                    <span class="kpi-unit">{% trans "Members" %}</span>
+                </div>
+            </div>
+            <div class="kpi-icon growth">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+        </div>
     </div>
 
-    <div class="bento-row-full">
+    {# ════════ ROW 2: FINANCIAL SUMMARY STRIP ════════ #}
+    <div class="finance-strip">
+        <div class="fin-strip-card available">
+            <div class="fin-strip-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="fin-strip-data">
+                <span class="fin-strip-label">{% trans "Available Balance" %}</span>
+                <span class="fin-strip-value">{{ wallet.available_balance|default:"0.00"|floatformat:2 }} <span style="width:14px; display:inline-flex;">{% include "components/currency_icon.html" %}</span></span>
+            </div>
+        </div>
+        <div class="fin-strip-card pending-fin">
+            <div class="fin-strip-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="fin-strip-data">
+                <span class="fin-strip-label">{% trans "Pending Clearance" %}</span>
+                <span class="fin-strip-value">{{ wallet.pending_balance|default:"0.00"|floatformat:2 }} <span style="width:14px; display:inline-flex;">{% include "components/currency_icon.html" %}</span></span>
+            </div>
+        </div>
+        <div class="fin-strip-card withdrawn">
+            <div class="fin-strip-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
+            <div class="fin-strip-data">
+                <span class="fin-strip-label">{% trans "Total Withdrawn" %}</span>
+                <span class="fin-strip-value">{{ wallet.total_withdrawn|default:"0.00"|floatformat:2 }} <span style="width:14px; display:inline-flex;">{% include "components/currency_icon.html" %}</span></span>
+            </div>
+        </div>
+    </div>
+
+    {# ═══════════ ROW 3: REVENUE TREND + ATTENDANCE TREND ═══════════ #}
+    <div class="bento-row-split-2-1">
+        <div class="bento-card">
+            <div class="bento-header">
+                <h3 class="bento-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    {% trans "Revenue Trend (6 Months)" %}
+                </h3>
+            </div>
+            <div class="chart-box">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
         <div class="bento-card">
             <div class="bento-header">
                 <h3 class="bento-title">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--dash-color-1)" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                    {% trans "Attendance Trend (Last 7 Days)" %}
+                    {% trans "Attendance (Last 7 Days)" %}
                 </h3>
             </div>
             <div class="chart-box">
@@ -109,6 +183,7 @@
         </div>
     </div>
 
+    {# ═════════ ROW 4: PEAK HOURS + DEMOGRAPHICS ═══════════════ #}
     <div class="bento-row-split-2-1">
         <div class="bento-card">
             <div class="bento-header">
@@ -135,6 +210,76 @@
         </div>
     </div>
 
+    {# ════════ ROW 5: TOP PLANS + BRANCH CAPACITY ════════════ #}
+    <div class="bento-row-split-2-1">
+        <div class="bento-card">
+            <div class="bento-header">
+                <h3 class="bento-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-warning)" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    {% trans "Top Plans Performance" %}
+                </h3>
+            </div>
+            <div class="plans-performance-list">
+                {% for plan in top_plans %}
+                <div class="plan-perf-item">
+                    <div class="plan-perf-rank">#{{ forloop.counter }}</div>
+                    <div class="plan-perf-info">
+                        <h4>{{ plan.name }}</h4>
+                        <div class="plan-perf-meta">
+                            <span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                                {{ plan.active_subs|default:"0" }} {% trans "subscribers" %}
+                            </span>
+                            <span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                {{ plan.price|floatformat:0 }} {% include "components/currency_icon.html" %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="plan-perf-revenue">
+                        {{ plan.total_revenue|default:"0"|floatformat:0 }}
+                        <span style="width:14px; display:inline-flex;">{% include "components/currency_icon.html" %}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="text-align: center; padding: 48px 16px; color: var(--color-text-muted); font-size: 14px;">
+                    {% trans "No active plans yet. Create your first subscription plan." %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bento-card">
+            <div class="bento-header">
+                <h3 class="bento-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-info)" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    {% trans "Branch Capacity" %}
+                </h3>
+            </div>
+            <div class="capacity-list">
+                {% for branch in branch_occupancy %}
+                <div class="capacity-item">
+                    <div class="capacity-info">
+                        <h4>{{ branch.name }}</h4>
+                        <span class="capacity-meta">{{ branch.city }} &bull; {{ branch.occupancy }}/{{ branch.capacity }}</span>
+                    </div>
+                    <div class="capacity-bar-wrapper">
+                        <div class="capacity-bar" style="width: {{ branch.percentage }}%;"
+                             data-level="{% if branch.percentage >= 85 %}high{% elif branch.percentage >= 50 %}medium{% else %}low{% endif %}">
+                        </div>
+                    </div>
+                    <span class="capacity-pct">{{ branch.percentage }}%</span>
+                </div>
+                {% empty %}
+                <div style="text-align: center; padding: 48px 16px; color: var(--color-text-muted); font-size: 14px;">
+                    {% trans "No active branches yet." %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# ═════════ ROW 6: LIVE ACTIVITY FEED + EXPIRING SOON ═══════════ #}
     <div class="bento-row-split-2-1">
         <div class="bento-card">
             <div class="bento-header">
@@ -184,9 +329,9 @@
                             </td>
                             <td>
                                 {% if visit.is_active %}
-                                <span class="status-pill active">{% trans "Inside Gym" %}</span>
+                                <span class="status-badge status-active">{% trans "Inside Gym" %}</span>
                                 {% else %}
-                                <span class="status-pill inactive">{% trans "Checked Out" %}</span>
+                                <span class="status-badge status-inactive">{% trans "Checked Out" %}</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -235,6 +380,10 @@
 {% block extra_js %}
 {{ block.super }}
 
+{# Chart.js library #}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{# Django-injected JSON data for all charts #}
 {{ chart_trend_labels|json_script:"js_trend_labels" }}
 {{ chart_trend_data|json_script:"js_trend_data" }}
 
@@ -244,6 +393,10 @@
 {{ chart_peak_labels|json_script:"js_peak_labels" }}
 {{ chart_peak_data|json_script:"js_peak_data" }}
 
+{{ chart_revenue_labels|json_script:"js_revenue_labels" }}
+{{ chart_revenue_data|json_script:"js_revenue_data" }}
+
+{# Dashboard chart engine #}
 <script src="{% static 'provider_portal/js/dashboard.js' %}"></script>
 
 {% endblock extra_js %}
