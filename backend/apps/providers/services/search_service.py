@@ -1,4 +1,6 @@
+import json
 import logging
+from datetime import datetime
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
@@ -46,10 +48,14 @@ class UnifiedSearchService:
                 Q(provider__business_name__icontains=q)
             )
 
-        # 2. Gender Filter (Gym Specific)
+        # 2. Gender Filter (Gym Specific - Smart Inclusion)
         gender = params.get('gender')
-        if gender in ['men', 'women', 'mixed']:
-            queryset = queryset.filter(gender=gender)
+        if gender == 'men':
+            queryset = queryset.filter(Q(gender='men') | Q(gender='mixed'))
+        elif gender == 'women':
+            queryset = queryset.filter(Q(gender='women') | Q(gender='mixed'))
+        elif gender == 'mixed':
+            queryset = queryset.filter(gender='mixed')
 
         # 3. City Filter (Supports 'city_id' or legacy 'city')
         city_id = params.get('city_id') or params.get('city')
@@ -79,13 +85,53 @@ class UnifiedSearchService:
             if max_price and max_price.replace('.', '', 1).isdigit():
                 queryset = queryset.filter(min_plan_price__lte=float(max_price))
 
-        # 6. Open Now Status
+        # 6. Open Now Status (Adapted for JSON operating_hours)
         is_open = params.get('is_open')
         if is_open and str(is_open).lower() == 'true':
-            now_time = timezone.localtime().time()
-            standard_hours = Q(opening_time__lte=now_time, closing_time__gte=now_time, opening_time__lt=F('closing_time'))
-            overnight_hours = Q(opening_time__gt=F('closing_time')) & (Q(opening_time__lte=now_time) | Q(closing_time__gte=now_time))
-            queryset = queryset.filter(is_temporarily_closed=False).filter(standard_hours | overnight_hours)
+            open_gym_ids = []
+            now_dt = timezone.localtime()
+            current_day = now_dt.strftime('%w') # 0=Sunday, 1=Monday
+            current_time = now_dt.time()
+
+            for gym in queryset:
+                if gym.is_temporarily_closed:
+                    continue
+                
+                is_gym_open = False
+                schedule = getattr(gym, 'operating_hours', [])
+                
+                if isinstance(schedule, str):
+                    try:
+                        schedule = json.loads(schedule)
+                    except json.JSONDecodeError:
+                        schedule = []
+                
+                if isinstance(schedule, list):
+                    for period in schedule:
+                        days_values = [str(val) for val in period.get('days_values', [])]
+                        if current_day in days_values:
+                            try:
+                                start_str = period.get('start')
+                                end_str = period.get('end')
+                                if start_str and end_str:
+                                    start_t = datetime.strptime(start_str, '%H:%M').time()
+                                    end_t = datetime.strptime(end_str, '%H:%M').time()
+                                    
+                                    if start_t <= end_t:
+                                        if start_t <= current_time <= end_t:
+                                            is_gym_open = True
+                                            break
+                                    else:
+                                        if current_time >= start_t or current_time <= end_t:
+                                            is_gym_open = True
+                                            break
+                            except (ValueError, TypeError):
+                                continue
+                
+                if is_gym_open:
+                    open_gym_ids.append(gym.id)
+            
+            queryset = queryset.filter(id__in=open_gym_ids)
 
         # 7. Map Bounding Box Filtering
         min_lat = params.get('min_lat')

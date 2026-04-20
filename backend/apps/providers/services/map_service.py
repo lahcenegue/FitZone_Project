@@ -2,7 +2,9 @@
 Service for handling unified geospatial discovery across all provider types.
 Uses PostGIS Bounding Box queries to fetch map points efficiently.
 """
+import json
 import logging
+from datetime import datetime
 from django.contrib.gis.geos import Polygon
 from django.db.models import Prefetch, Avg
 from django.utils import timezone
@@ -20,7 +22,9 @@ class MapDiscoveryService:
         Includes optimized real-time calculations for crowd levels and ratings.
         """
         results = []
-        now = timezone.localtime().time()
+        now_dt = timezone.localtime()
+        current_time = now_dt.time()
+        current_day = now_dt.strftime('%A')
         
         try:
             # 1. Create a PostGIS Polygon from the Bounding Box (Viewport)
@@ -54,28 +58,53 @@ class MapDiscoveryService:
                 # --- 1. Calculate Rating ---
                 rating = round(gym.avg_rating, 1) if gym.avg_rating else 0.0
 
-                # --- 2. Calculate Open Status (With Emergency Close Check) ---
-                if gym.is_temporarily_closed:
-                    is_open_now = False
-                else:
-                    is_open_now = True
-                    if gym.opening_time and gym.closing_time:
-                        if gym.opening_time <= gym.closing_time:
-                            is_open_now = gym.opening_time <= now <= gym.closing_time
-                        else:
-                            is_open_now = now >= gym.opening_time or now <= gym.closing_time
+                # --- 2. Calculate Open Status (Adapted for JSON operating_hours) ---
+                is_open_now = False
+                if not gym.is_temporarily_closed:
+                    schedule = getattr(gym, 'operating_hours', [])
+                    if isinstance(schedule, str):
+                        try:
+                            schedule = json.loads(schedule)
+                        except json.JSONDecodeError:
+                            schedule = []
+                    
+                    if isinstance(schedule, list):
+                        for period in schedule:
+                            days = period.get('days', [])
+                            if current_day in days:
+                                try:
+                                    start_str = period.get('start')
+                                    end_str = period.get('end')
+                                    if start_str and end_str:
+                                        start_t = datetime.strptime(start_str, '%H:%M').time()
+                                        end_t = datetime.strptime(end_str, '%H:%M').time()
+                                        
+                                        if start_t <= end_t:
+                                            if start_t <= current_time <= end_t:
+                                                is_open_now = True
+                                                break
+                                        else:
+                                            if current_time >= start_t or current_time <= end_t:
+                                                is_open_now = True
+                                                break
+                                except (ValueError, TypeError):
+                                    continue
 
                 # --- 3. Calculate Live Crowd Level ---
                 capacity = gym.max_capacity if gym.max_capacity and gym.max_capacity > 0 else 100
-                # Access the pre-filtered list in memory
                 active_visits_count = len(gym.live_visits) 
                 occupancy_rate = (active_visits_count / capacity) * 100
 
-                if occupancy_rate <= gym.crowd_level_low:
+                # Secure fallback if crowd levels are not strictly defined
+                lvl_low = getattr(gym, 'crowd_level_low', 30)
+                lvl_medium = getattr(gym, 'crowd_level_medium', 60)
+                lvl_high = getattr(gym, 'crowd_level_high', 90)
+
+                if occupancy_rate <= lvl_low:
                     crowd_level = "low"
-                elif occupancy_rate <= gym.crowd_level_medium:
+                elif occupancy_rate <= lvl_medium:
                     crowd_level = "medium"
-                elif occupancy_rate <= gym.crowd_level_high:
+                elif occupancy_rate <= lvl_high:
                     crowd_level = "high"
                 else:
                     crowd_level = "full"
@@ -118,6 +147,6 @@ class MapDiscoveryService:
             # stores = StoreBranch.objects.filter(...)
 
         except Exception as e:
-            logger.error(f"Error fetching map points: {str(e)}")
+            logger.error(f"Error fetching map points: {str(e)}", exc_info=True)
         
         return results

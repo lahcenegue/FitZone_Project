@@ -3,8 +3,11 @@ Serializers for the Gyms app API.
 Includes logic for real-time crowd calculation, dynamic schedules, and reviews.
 """
 
-from rest_framework import serializers
+import json
+import logging
+from datetime import datetime
 from django.utils import timezone
+from rest_framework import serializers
 from django.db.models import Avg
 
 from apps.payments.models import PaymentGateway
@@ -12,6 +15,8 @@ from apps.gyms.models import (
     GymBranch, GymAmenity, GymSport, SubscriptionPlan, 
     PlanFeature, GymReview, GymSubscription
 )
+
+logger = logging.getLogger(__name__)
 
 
 def get_localized_name(obj, request):
@@ -22,10 +27,10 @@ def get_localized_name(obj, request):
     lang = request.META.get('HTTP_ACCEPT_LANGUAGE', 'en').lower() if request else 'en'
     primary_lang = 'ar' if 'ar' in lang else 'en'
     
-    # Return translated name if exists, otherwise fallback to default name
     if obj.translations and isinstance(obj.translations, dict):
         return obj.translations.get(primary_lang, obj.name)
     return obj.name
+
 
 class GymAmenitySerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
@@ -43,6 +48,7 @@ class GymAmenitySerializer(serializers.ModelSerializer):
         if obj.icon_image and request:
             return request.build_absolute_uri(obj.icon_image.url)
         return None
+
 
 class GymSportSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
@@ -79,7 +85,6 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
     def get_reward_points(self, obj):
         """
         Dynamically calculate reward points: (Plan Price / Conversion Rate).
-        Conversion rate is set by the Admin in GymGlobalSetting.
         """
         setting = self.context.get('gym_setting')
         if setting and setting.points_conversion_rate > 0:
@@ -104,6 +109,7 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     lat = serializers.FloatField(source='location.y', read_only=True)
     lng = serializers.FloatField(source='location.x', read_only=True)
+    branch_logo = serializers.SerializerMethodField()
     
     # Computed Dynamic Fields
     rating = serializers.SerializerMethodField()
@@ -115,84 +121,104 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GymBranch
+        # Note: 'operating_hours' has been completely removed from the output
         fields = [
-            'id', 'provider_name', 'name', 'description', 'phone_number',
-            'opening_time', 'closing_time', 'city', 'address', 'lat', 'lng',
-            'branch_logo', 'images', 'amenities', 'sports',
-            'is_temporarily_closed',
-            'rating', 'total_reviews', 'is_open_now', 'crowd_level', 'weekly_hours', 'reviews',
-            'plans'
+            'id', 'provider_name', 'name', 'description', 'phone_number', 'city', 'address', 
+            'lat', 'lng', 'branch_logo', 'images', 'amenities', 'sports', 'gender',
+            'is_temporarily_closed', 'rating', 'total_reviews', 'is_open_now', 
+            'crowd_level', 'weekly_hours', 'reviews', 'plans'
         ]
 
+    def get_branch_logo(self, obj):
+        logo = obj.branch_logo
+        if not logo and hasattr(obj, 'provider') and obj.provider.logo:
+            logo = obj.provider.logo
+
+        if not logo:
+            return None
+            
+        try:
+            if not logo.name:
+                return None
+                
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(logo.url)
+            
+            from django.conf import settings
+            return f"{settings.SITE_URL}{logo.url}"
+        except Exception as e:
+            logger.error(f"Error resolving logo for GymBranch {obj.id}: {str(e)}")
+            return None
+
     def get_images(self, obj):
-        """Retrieve absolute URLs for all images related to this branch."""
         request = self.context.get('request')
         if not request:
             return []
         return [request.build_absolute_uri(img.image.url) for img in obj.images.all() if img.image]
 
     def get_plans(self, obj):
-        """Retrieve all active subscription plans available at this specific branch."""
         active_plans = obj.available_plans.all() 
         return SubscriptionPlanSerializer(active_plans, many=True, context=self.context).data
 
     def get_rating(self, obj):
-        """Calculate the average rating dynamically."""
         avg = obj.reviews.aggregate(Avg('rating'))['rating__avg']
         return round(avg, 1) if avg else 0.0
 
     def get_total_reviews(self, obj):
-        """Count total reviews."""
         return obj.reviews.count()
 
     def get_is_open_now(self, obj):
         """
-        Smart check if the gym is open right now.
-        Prioritizes Emergency Close, then today's schedule, then general times.
+        Smart check using `days_values` to avoid language mismatch.
+        0=Sunday, 1=Monday, ..., 6=Saturday.
         """
-        # 1. التحقق من الإغلاق الطارئ أولاً
         if getattr(obj, 'is_temporarily_closed', False):
             return False
 
-        from django.utils import timezone
-        local_now = timezone.localtime()
-        current_time = local_now.time()
-        current_weekday = local_now.weekday()
+        schedule = obj.operating_hours
+        if not schedule:
+            return False
 
-        # 2. التحقق من جدول اليوم المخصص
-        if hasattr(obj, 'schedules'):
-            today_schedules = [s for s in obj.schedules.all() if s.day == current_weekday]
-            if today_schedules:
-                today_schedule = today_schedules[0]
-                if today_schedule.is_closed:
-                    return False
-                if today_schedule.opening_time and today_schedule.closing_time:
-                    open_t = today_schedule.opening_time
-                    close_t = today_schedule.closing_time
-                    if open_t <= close_t:
-                        return open_t <= current_time <= close_t
-                    else:
-                        return current_time >= open_t or current_time <= close_t
+        if isinstance(schedule, str):
+            try:
+                schedule = json.loads(schedule)
+            except json.JSONDecodeError:
+                return False
 
-        # 3. الاعتماد على الأوقات العامة
-        if not obj.opening_time or not obj.closing_time:
-            return True
+        if not isinstance(schedule, list):
+            return False
+
+        now_dt = timezone.localtime()
+        current_time = now_dt.time()
+        current_day_val = now_dt.strftime('%w')
+
+        for period in schedule:
+            days_values = [str(val) for val in period.get('days_values', [])]
             
-        if obj.opening_time <= obj.closing_time:
-            return obj.opening_time <= current_time <= obj.closing_time
-        else:
-            return current_time >= obj.opening_time or current_time <= obj.closing_time
+            if current_day_val in days_values:
+                try:
+                    start_str = period.get('start')
+                    end_str = period.get('end')
+                    
+                    if start_str and end_str:
+                        start_t = datetime.strptime(start_str, '%H:%M').time()
+                        end_t = datetime.strptime(end_str, '%H:%M').time()
+                        
+                        if start_t <= end_t:
+                            if start_t <= current_time <= end_t:
+                                return True
+                        else: # Overnight shift handling
+                            if current_time >= start_t or current_time <= end_t:
+                                return True
+                except (ValueError, TypeError):
+                    continue
+
+        return False
 
     def get_crowd_level(self, obj):
-        """
-        Calculate live crowd level based on active visits and branch maximum capacity.
-        Uses the dynamic thresholds defined by the gym provider for this specific branch.
-        """
         capacity = obj.max_capacity if obj.max_capacity and obj.max_capacity > 0 else 100 
-        
-        # FIXED: Using the explicitly defined related_name 'visits' instead of 'gymvisit_set'
         active_visits = obj.visits.filter(is_active=True).count() if hasattr(obj, 'visits') else 0
-        
         occupancy_rate = (active_visits / capacity) * 100
 
         if occupancy_rate <= obj.crowd_level_low:
@@ -205,32 +231,84 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
             return "full"
 
     def get_weekly_hours(self, obj):
-        """Format weekly schedule into a clean dictionary for the frontend."""
-        days_map = {
-            0: "Monday", 1: "Tuesday", 2: "Wednesday",
-            3: "Thursday", 4: "Friday", 5: "Saturday", 6: "Sunday"
+        """
+        Smart merging algorithm:
+        1. Reads raw JSON schedule.
+        2. Maps mixed shifts into both men and women schedules secretly.
+        3. Returns a clean grouped response based on the branch's actual gender.
+        """
+        DAY_MAP = {
+            '0': 'Sunday', '1': 'Monday', '2': 'Tuesday', '3': 'Wednesday', 
+            '4': 'Thursday', '5': 'Friday', '6': 'Saturday'
         }
-        schedules = obj.schedules.all()
         
-        if not schedules:
-            open_str = obj.opening_time.strftime("%H:%M") if obj.opening_time else "00:00"
-            close_str = obj.closing_time.strftime("%H:%M") if obj.closing_time else "23:59"
-            return {day_name: f"{open_str} - {close_str}" for day_name in days_map.values()}
+        men_sched = {day: "Closed" for day in DAY_MAP.values()}
+        women_sched = {day: "Closed" for day in DAY_MAP.values()}
+        mixed_sched = {day: "Closed" for day in DAY_MAP.values()}
 
-        weekly = {}
-        for schedule in schedules:
-            day_name = days_map[schedule.day]
-            if schedule.is_closed:
-                weekly[day_name] = "Closed"
-            else:
-                open_str = schedule.opening_time.strftime("%H:%M") if schedule.opening_time else "00:00"
-                close_str = schedule.closing_time.strftime("%H:%M") if schedule.closing_time else "23:59"
-                weekly[day_name] = f"{open_str} - {close_str}"
+        schedule = obj.operating_hours
+        if not schedule:
+            return {"men": men_sched, "women": women_sched} if obj.gender == 'mixed' else {obj.gender: men_sched}
+
+        if isinstance(schedule, str):
+            try:
+                schedule = json.loads(schedule)
+            except json.JSONDecodeError:
+                return {"men": men_sched, "women": women_sched} if obj.gender == 'mixed' else {obj.gender: men_sched}
+
+        if isinstance(schedule, list):
+            for period in schedule:
+                gender_shift = period.get('gender', 'mixed').lower()
+                start_str = period.get('start', '00:00')
+                end_str = period.get('end', '23:59')
+                days_vals = period.get('days_values', [])
                 
-        return weekly
+                for val in days_vals:
+                    day_name = DAY_MAP.get(str(val))
+                    if day_name:
+                        time_str = f"{start_str} - {end_str}"
+                        
+                        if gender_shift == 'men':
+                            if men_sched[day_name] == "Closed":
+                                men_sched[day_name] = time_str
+                            else:
+                                men_sched[day_name] += f" & {time_str}"
+                        elif gender_shift == 'women':
+                            if women_sched[day_name] == "Closed":
+                                women_sched[day_name] = time_str
+                            else:
+                                women_sched[day_name] += f" & {time_str}"
+                        else:
+                            if mixed_sched[day_name] == "Closed":
+                                mixed_sched[day_name] = time_str
+                            else:
+                                mixed_sched[day_name] += f" & {time_str}"
+                                
+        # MERGE LOGIC: Inject 'mixed' shifts into 'men' and 'women'
+        for day in DAY_MAP.values():
+            if mixed_sched[day] != "Closed":
+                if men_sched[day] == "Closed":
+                    men_sched[day] = mixed_sched[day]
+                else:
+                    men_sched[day] += f" & {mixed_sched[day]}"
+                    
+                if women_sched[day] == "Closed":
+                    women_sched[day] = mixed_sched[day]
+                else:
+                    women_sched[day] += f" & {mixed_sched[day]}"
+
+        # Format output based on the Branch's main gender flag
+        if obj.gender == 'men':
+            return {"men": men_sched}
+        elif obj.gender == 'women':
+            return {"women": women_sched}
+        else: # mixed
+            return {
+                "men": men_sched,
+                "women": women_sched
+            }
 
     def get_reviews(self, obj):
-        """Fetch the top 5 most recent reviews for preview."""
         latest_reviews = obj.reviews.all()[:5]
         return GymReviewSerializer(latest_reviews, many=True).data
     
@@ -238,7 +316,6 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
 class GymBranchSearchSerializer(serializers.ModelSerializer):
     """
     Lightweight serializer specifically optimized for search and discovery lists.
-    Includes all necessary UI fields (rating, open status, crowd level, etc.).
     """
     provider_id = serializers.IntegerField(source='provider.id', read_only=True)
     provider_name = serializers.CharField(source='provider.business_name', read_only=True)
@@ -250,7 +327,6 @@ class GymBranchSearchSerializer(serializers.ModelSerializer):
     lat = serializers.SerializerMethodField()
     lng = serializers.SerializerMethodField()
     
-    # UI Required Fields
     type = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
     is_open_now = serializers.SerializerMethodField()
@@ -265,36 +341,79 @@ class GymBranchSearchSerializer(serializers.ModelSerializer):
             'type', 'rating', 'is_open_now', 'crowd_level'
         ]
 
+    def get_branch_logo(self, obj):
+        logo = obj.branch_logo
+        if not logo and hasattr(obj, 'provider') and obj.provider.logo:
+            logo = obj.provider.logo
+
+        if not logo:
+            return None
+            
+        try:
+            if not logo.name:
+                return None
+                
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(logo.url)
+            
+            from django.conf import settings
+            return f"{settings.SITE_URL}{logo.url}"
+        except Exception as e:
+            logger.error(f"Error resolving logo for GymBranch {obj.id}: {str(e)}")
+            return None
+
     def get_type(self, obj):
         return "gym"
 
     def get_rating(self, obj):
-        # Placeholder (e.g., 4.5) until the actual Rating system is fully implemented
         return 4.5
 
     def get_crowd_level(self, obj):
-        # Placeholder ('low', 'medium', 'high') until real-time attendance is linked
         return "low"
 
     def get_is_open_now(self, obj):
-        if obj.is_temporarily_closed:
+        if getattr(obj, 'is_temporarily_closed', False):
             return False
-            
-        if obj.opening_time and obj.closing_time:
-            now_time = timezone.localtime().time()
-            # Standard hours (e.g., 08:00 to 22:00)
-            if obj.opening_time < obj.closing_time:
-                return obj.opening_time <= now_time <= obj.closing_time
-            # Overnight hours (e.g., 20:00 to 08:00)
-            else:
-                return now_time >= obj.opening_time or now_time <= obj.closing_time
-        return True # Default to True if no hours are set
 
-    def get_branch_logo(self, obj):
-        request = self.context.get('request')
-        if obj.branch_logo and request:
-            return request.build_absolute_uri(obj.branch_logo.url)
-        return None
+        schedule = obj.operating_hours
+        if not schedule:
+            return False
+
+        if isinstance(schedule, str):
+            try:
+                schedule = json.loads(schedule)
+            except json.JSONDecodeError:
+                return False
+
+        if not isinstance(schedule, list):
+            return False
+
+        now_dt = timezone.localtime()
+        current_time = now_dt.time()
+        current_day_val = now_dt.strftime('%w')
+
+        for period in schedule:
+            days_values = [str(val) for val in period.get('days_values', [])]
+            if current_day_val in days_values:
+                try:
+                    start_str = period.get('start')
+                    end_str = period.get('end')
+                    
+                    if start_str and end_str:
+                        start_t = datetime.strptime(start_str, '%H:%M').time()
+                        end_t = datetime.strptime(end_str, '%H:%M').time()
+                        
+                        if start_t <= end_t:
+                            if start_t <= current_time <= end_t:
+                                return True
+                        else:
+                            if current_time >= start_t or current_time <= end_t:
+                                return True
+                except (ValueError, TypeError):
+                    continue
+
+        return False
 
     def get_distance_km(self, obj):
         if hasattr(obj, 'distance') and obj.distance is not None:
@@ -308,11 +427,16 @@ class GymBranchSearchSerializer(serializers.ModelSerializer):
         return [amenity.name for amenity in obj.amenities.all()]
 
     def get_lat(self, obj):
-        return obj.location.y if obj.location else None
+        if obj.location:
+            return obj.location.y
+        return None
 
     def get_lng(self, obj):
-        return obj.location.x if obj.location else None
-    
+        if obj.location:
+            return obj.location.x
+        return None
+
+
 class GymCheckoutSerializer(serializers.Serializer):
     """Payload for initiating a subscription checkout."""
     plan_id = serializers.IntegerField(required=True)
@@ -336,5 +460,4 @@ class GymSubscriptionSerializer(serializers.ModelSerializer):
         ]
 
     def get_qr_code_signature(self, obj):
-        # This is the encrypted token that the physical scanner will read
         return obj.get_signed_qr_code()
