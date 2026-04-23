@@ -529,7 +529,7 @@ class _ExploreFiltersScreenState extends ConsumerState<ExploreFiltersScreen> {
     return Row(
       children: [
         _buildSelectableButton(
-          l10n.male,
+          l10n.men,
           _localState.gender == 'male',
           () => setState(
             () => _localState = _localState.copyWith(gender: 'male'),
@@ -538,7 +538,7 @@ class _ExploreFiltersScreenState extends ConsumerState<ExploreFiltersScreen> {
         ),
         SizedBox(width: Dimensions.spacingMedium),
         _buildSelectableButton(
-          l10n.female,
+          l10n.women,
           _localState.gender == 'female',
           () => setState(
             () => _localState = _localState.copyWith(gender: 'female'),

@@ -23,9 +23,9 @@ class ExploreFilterState {
 
   const ExploreFilterState({
     this.query,
-    this.category = 'gym',
+    this.category = 'gym', // Default category
     this.cityId,
-    this.radiusKm = 200.0,
+    this.radiusKm = 200.0, // Default radius
     this.sortBy,
     this.bounds,
     this.isOpen = false,
@@ -39,11 +39,13 @@ class ExploreFilterState {
   });
 
   /// Returns the number of currently active filters
+  /// (Does not count 'category' or 'bounds' as user-selected filters for the badge)
   int get activeFilterCount {
     int count = 0;
-    if (cityId != null) count++;
-    if (radiusKm < 200.0) count++;
-    if (gender != null) count++;
+    if (query != null && query!.isNotEmpty) count++;
+    if (cityId != null && cityId!.isNotEmpty) count++;
+    if (radiusKm < 200.0) count++; // Only counts if restricted from default
+    if (gender != null && gender!.isNotEmpty) count++;
     if (minPrice != null) count++;
     if (maxPrice != null) count++;
     if (isOpen) count++;
@@ -51,19 +53,26 @@ class ExploreFilterState {
     if (selectedAmenities.isNotEmpty) count++;
     if (selectedDietary.isNotEmpty) count++;
     if (selectedEquipmentCategories.isNotEmpty) count++;
-    if (sortBy != null) count++;
+    if (sortBy != null && sortBy!.isNotEmpty) count++;
     return count;
   }
 
+  /// Creates a new state with updated fields.
+  /// ARCHITECTURE FIX: Added clear flags for all nullable fields to ensure precise resetting.
   ExploreFilterState copyWith({
     String? query,
+    bool clearQuery = false,
     String? category,
     String? cityId,
+    bool clearCity = false,
     double? radiusKm,
     String? sortBy,
+    bool clearSortBy = false,
     LatLngBounds? bounds,
+    bool clearBounds = false,
     bool? isOpen,
     String? gender,
+    bool clearGender = false,
     double? minPrice,
     bool clearMinPrice = false,
     double? maxPrice,
@@ -74,14 +83,14 @@ class ExploreFilterState {
     List<int>? selectedEquipmentCategories,
   }) {
     return ExploreFilterState(
-      query: query ?? this.query,
+      query: clearQuery ? null : (query ?? this.query),
       category: category ?? this.category,
-      cityId: cityId ?? this.cityId,
+      cityId: clearCity ? null : (cityId ?? this.cityId),
       radiusKm: radiusKm ?? this.radiusKm,
-      sortBy: sortBy ?? this.sortBy,
-      bounds: bounds ?? this.bounds,
+      sortBy: clearSortBy ? null : (sortBy ?? this.sortBy),
+      bounds: clearBounds ? null : (bounds ?? this.bounds),
       isOpen: isOpen ?? this.isOpen,
-      gender: gender ?? this.gender,
+      gender: clearGender ? null : (gender ?? this.gender),
       minPrice: clearMinPrice ? null : (minPrice ?? this.minPrice),
       maxPrice: clearMaxPrice ? null : (maxPrice ?? this.maxPrice),
       selectedSports: selectedSports ?? this.selectedSports,

@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logging/logging.dart';
@@ -13,28 +12,28 @@ part 'explore_provider.g.dart';
 
 final Logger _logger = Logger('ExploreProvider');
 
-/// Provider for ExploreApiService using standard Ref for modern Riverpod Generator compatibility
 @riverpod
 ExploreApiService exploreApiService(Ref ref) {
   final dio = ref.watch(dioClientProvider);
   return ExploreApiService(dio: dio);
 }
 
-/// StateNotifier replacing the legacy ExploreFilterNotifier
 @riverpod
 class ExploreFilter extends _$ExploreFilter {
   @override
   ExploreFilterState build() => const ExploreFilterState();
 
   void updateFilters(ExploreFilterState newState) {
-    // Prevent server errors by validating price constraints before state update
+    // ARCHITECTURE FIX: Mathematical Swap for logical price ranges.
+    // If the user accidentally inputs min > max, we swap them silently instead of zeroing the range.
     if (newState.minPrice != null &&
         newState.maxPrice != null &&
         newState.minPrice! > newState.maxPrice!) {
-      _logger.warning(
-        'Validation failed: minPrice cannot be greater than maxPrice. Adjusting minPrice.',
-      );
-      state = newState.copyWith(minPrice: newState.maxPrice);
+      _logger.info('Auto-correcting inverted price range (Swap Strategy).');
+      final double tempMin = newState.maxPrice!;
+      final double tempMax = newState.minPrice!;
+
+      state = newState.copyWith(minPrice: tempMin, maxPrice: tempMax);
       return;
     }
 
@@ -54,7 +53,6 @@ class ExploreFilter extends _$ExploreFilter {
   }
 }
 
-/// Provider for managing the currently selected map place
 @riverpod
 class SelectedPlace extends _$SelectedPlace {
   @override
@@ -65,7 +63,6 @@ class SelectedPlace extends _$SelectedPlace {
   }
 }
 
-/// FutureProvider for fetching nearby places using standard Ref
 @riverpod
 Future<List<GymModel>> nearbyPlaces(Ref ref) async {
   final filters = ref.watch(exploreFilterProvider);

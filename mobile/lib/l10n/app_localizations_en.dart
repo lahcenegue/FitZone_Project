@@ -123,15 +123,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gender => 'Gender';
 
   @override
-  String get male => 'Male';
-
-  @override
-  String get female => 'Female';
-
-  @override
-  String get mixed => 'Mixed';
-
-  @override
   String get sortBy => 'Sort By';
 
   @override
@@ -762,4 +753,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subscriptionProgress => 'Subscription Progress';
+
+  @override
+  String get men => 'Men';
+
+  @override
+  String get women => 'Women';
+
+  @override
+  String get menSchedule => 'Men Schedule';
+
+  @override
+  String get womenSchedule => 'Women Schdule';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get noReviewsYet => 'No Reviews Yet';
+
+  @override
+  String get beFirstToReview => 'Be first to review';
+
+  @override
+  String get otherBranches => 'Other Branches';
+
+  @override
+  String get nearbyGyms => 'Nearby Gyms';
+
+  @override
+  String get navigate => 'Navigate';
+
+  @override
+  String get menOnly => 'Men Only';
+
+  @override
+  String get womenOnly => 'Women Only';
+
+  @override
+  String get menAndWomen => 'Men & Women';
+
+  @override
+  String get reviewsCount => 'Reviews';
+
+  @override
+  String get distanceFromYou => 'From you';
+
+  @override
+  String get gymAllocation => 'Allocation';
 }

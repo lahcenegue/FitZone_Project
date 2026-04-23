@@ -123,15 +123,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get gender => 'القسم';
 
   @override
-  String get male => 'رجالي';
-
-  @override
-  String get female => 'نسائي';
-
-  @override
-  String get mixed => 'مختلط';
-
-  @override
   String get sortBy => 'ترتيب حسب';
 
   @override
@@ -759,4 +750,52 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get subscriptionProgress => 'تقدم الاشتراك';
+
+  @override
+  String get men => 'رجال';
+
+  @override
+  String get women => 'نساء';
+
+  @override
+  String get menSchedule => 'أوقات الرجال';
+
+  @override
+  String get womenSchedule => 'أوقات النساء';
+
+  @override
+  String get today => 'اليوم';
+
+  @override
+  String get noReviewsYet => 'لا توجد تقييمات بعد';
+
+  @override
+  String get beFirstToReview => 'كن أول من يقيّم هذه الصالة!';
+
+  @override
+  String get otherBranches => 'فروع أخرى';
+
+  @override
+  String get nearbyGyms => 'صالات قريبة منك';
+
+  @override
+  String get navigate => 'الاتجاهات';
+
+  @override
+  String get menOnly => 'للرجال فقط';
+
+  @override
+  String get womenOnly => 'للنساء فقط';
+
+  @override
+  String get menAndWomen => 'للرجال والنساء';
+
+  @override
+  String get reviewsCount => 'مراجعة';
+
+  @override
+  String get distanceFromYou => 'عن موقعك';
+
+  @override
+  String get gymAllocation => 'التخصيص';
 }

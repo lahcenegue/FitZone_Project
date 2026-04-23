@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 
-/// A premium image gallery with glassmorphic buttons and full-screen zoom support.
 class GymImageGallery extends StatefulWidget {
   final List<String> images;
   final String fallbackLogo;
@@ -24,7 +23,7 @@ class GymImageGallery extends StatefulWidget {
 class _GymImageGalleryState extends State<GymImageGallery> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
-  bool _isFavorite = false; // Mock state for favorite toggle
+  bool _isFavorite = false;
 
   @override
   void dispose() {
@@ -32,11 +31,10 @@ class _GymImageGalleryState extends State<GymImageGallery> {
     super.dispose();
   }
 
-  /// Opens a full-screen overlay to view and zoom the image.
   void _openFullScreenImage(BuildContext context, String imageUrl) {
     showGeneralDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.95),
+      barrierColor: Colors.black.withValues(alpha: 0.95),
       barrierDismissible: true,
       barrierLabel: 'Dismiss',
       transitionDuration: const Duration(milliseconds: 300),
@@ -84,11 +82,10 @@ class _GymImageGalleryState extends State<GymImageGallery> {
       backgroundColor: widget.colors.background,
       automaticallyImplyLeading: false,
 
-      // Glassmorphic Back Button
       leading: Padding(
         padding: EdgeInsets.all(Dimensions.spacingSmall),
         child: CircleAvatar(
-          backgroundColor: Colors.black.withOpacity(0.3),
+          backgroundColor: Colors.black.withValues(alpha: 0.3),
           child: IconButton(
             icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
             onPressed: () {
@@ -102,10 +99,9 @@ class _GymImageGalleryState extends State<GymImageGallery> {
         ),
       ),
 
-      // Glassmorphic Favorite & Share Actions
       actions: [
         CircleAvatar(
-          backgroundColor: Colors.black.withOpacity(0.3),
+          backgroundColor: Colors.black.withValues(alpha: 0.3),
           child: IconButton(
             icon: Icon(
               _isFavorite ? Icons.favorite : Icons.favorite_border,
@@ -116,10 +112,10 @@ class _GymImageGalleryState extends State<GymImageGallery> {
         ),
         SizedBox(width: Dimensions.spacingSmall),
         CircleAvatar(
-          backgroundColor: Colors.black.withOpacity(0.3),
+          backgroundColor: Colors.black.withValues(alpha: 0.3),
           child: IconButton(
             icon: const Icon(Icons.share_rounded, color: Colors.white),
-            onPressed: () {}, // TODO: Implement Share logic
+            onPressed: () {},
           ),
         ),
         SizedBox(width: Dimensions.spacingMedium),
@@ -163,7 +159,6 @@ class _GymImageGalleryState extends State<GymImageGallery> {
                 },
               ),
 
-            // CORRECTED: Positioned must be the direct child of Stack
             Positioned.fill(
               child: IgnorePointer(
                 child: DecoratedBox(
@@ -174,7 +169,7 @@ class _GymImageGalleryState extends State<GymImageGallery> {
                       colors: [
                         Colors.transparent,
                         Colors.transparent,
-                        Colors.black.withOpacity(0.6),
+                        Colors.black.withValues(alpha: 0.6),
                       ],
                     ),
                   ),
@@ -193,12 +188,12 @@ class _GymImageGalleryState extends State<GymImageGallery> {
                       vertical: Dimensions.spacingTiny,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.4),
+                      color: Colors.black.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(
                         Dimensions.radiusPill,
                       ),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 0.5,
                       ),
                     ),
@@ -218,7 +213,6 @@ class _GymImageGalleryState extends State<GymImageGallery> {
         ),
       ),
 
-      // The overlapping rounded corner effect
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(30.0),
         child: Container(

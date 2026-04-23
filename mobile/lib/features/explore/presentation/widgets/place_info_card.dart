@@ -19,11 +19,16 @@ class PlaceInfoCard extends ConsumerWidget {
     required this.onTap,
   });
 
+  String _getLocalizedGender(String gender, AppLocalizations l10n) {
+    if (gender.toLowerCase() == 'men') return l10n.men ?? 'رجال';
+    if (gender.toLowerCase() == 'women') return l10n.women ?? 'نساء';
+    return 'متاح للجنسين';
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
 
-    // Extract LatLng from LocationState
     final locationState = ref.watch(userLocationProvider);
     final userLocation = locationState.location;
     final LocationService locationService = ref.read(locationServiceProvider);
@@ -33,20 +38,11 @@ class PlaceInfoCard extends ConsumerWidget {
       subtitleText = l10n.healthyFood;
     if (place.category == PlaceCategory.trainer)
       subtitleText = l10n.personalTrainer;
+    if (place.sports.isNotEmpty) subtitleText = place.sports.join(' • ');
 
-    if (place.sports.isNotEmpty) {
-      subtitleText = place.sports.join(' • ');
-    }
-
-    final String dynamicDistance = userLocation != null
-        ? locationService.formatDistance(
-            locationService.calculateDistanceInMeters(
-              userLocation,
-              place.location,
-            ),
-            kmLabel: l10n.km,
-            mLabel: 'm',
-          )
+    final String dynamicDistance =
+        userLocation != null && place.distanceKm != null
+        ? '${place.distanceKm!.toStringAsFixed(1)} ${l10n.km}'
         : '-- ${l10n.km}';
 
     final bool isClosed = place.isTemporarilyClosed || !place.isOpenNow;
@@ -57,7 +53,7 @@ class PlaceInfoCard extends ConsumerWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: Dimensions.widthPercent(65.0, max: 280.0),
+        width: Dimensions.widthPercent(70.0, max: 280.0),
         margin: EdgeInsets.only(
           left: Dimensions.spacingMedium,
           bottom: Dimensions.spacingMedium,
@@ -68,7 +64,7 @@ class PlaceInfoCard extends ConsumerWidget {
           borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           boxShadow: [
             BoxShadow(
-              color: colors.shadow.withOpacity(0.08),
+              color: colors.shadow.withValues(alpha: 0.08),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),
@@ -77,8 +73,9 @@ class PlaceInfoCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ARCHITECTURE FIX: Changed flex ratio to 4:6 to give text more breathing room, preventing Overflow
             Expanded(
-              flex: 5,
+              flex: 4,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -86,9 +83,10 @@ class PlaceInfoCard extends ConsumerWidget {
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(Dimensions.borderRadiusLarge),
                     ),
-                    child: place.imageUrl.isNotEmpty
+                    child:
+                        place.branchLogo != null && place.branchLogo!.isNotEmpty
                         ? Image.network(
-                            place.imageUrl,
+                            place.branchLogo!,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
                                 _buildPremiumPlaceholder(),
@@ -101,11 +99,11 @@ class PlaceInfoCard extends ConsumerWidget {
                       left: Dimensions.spacingSmall,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: Dimensions.spacingMedium,
-                          vertical: Dimensions.spacingTiny,
+                          horizontal: 8,
+                          vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: colors.error.withOpacity(0.95),
+                          color: colors.error.withValues(alpha: 0.95),
                           borderRadius: BorderRadius.circular(
                             Dimensions.radiusPill,
                           ),
@@ -116,14 +114,14 @@ class PlaceInfoCard extends ConsumerWidget {
                             Icon(
                               Icons.lock_rounded,
                               color: colors.surface,
-                              size: Dimensions.iconSmall,
+                              size: 12,
                             ),
-                            SizedBox(width: Dimensions.spacingTiny),
+                            const SizedBox(width: 4),
                             Text(
                               closedText,
                               style: TextStyle(
                                 color: colors.surface,
-                                fontSize: Dimensions.fontBodySmall,
+                                fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -131,39 +129,86 @@ class PlaceInfoCard extends ConsumerWidget {
                         ),
                       ),
                     ),
+                  Positioned(
+                    bottom: Dimensions.spacingSmall,
+                    right: Dimensions.spacingSmall,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: colors.surface.withValues(alpha: 0.95),
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.radiusPill,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            place.gender.toLowerCase() == 'women'
+                                ? Icons.female_rounded
+                                : (place.gender.toLowerCase() == 'men'
+                                      ? Icons.male_rounded
+                                      : Icons.people_alt_rounded),
+                            color: colors.primary,
+                            size: 12,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _getLocalizedGender(place.gender, l10n),
+                            style: TextStyle(
+                              color: colors.primary,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
             Expanded(
-              flex: 5,
+              flex: 6, // More space for text to prevent 8.4px overflow
               child: Padding(
-                padding: EdgeInsets.all(Dimensions.spacingMedium),
+                padding: EdgeInsets.symmetric(
+                  horizontal: Dimensions.spacingMedium,
+                  vertical: Dimensions.spacingSmall,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Text(
-                      place.name,
+                      place.name.toUpperCase(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: colors.textPrimary,
                         fontSize: Dimensions.fontTitleMedium,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
-                    SizedBox(height: Dimensions.spacingTiny),
                     Text(
-                      subtitleText,
+                      place.providerName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: colors.textSecondary,
                         fontSize: Dimensions.fontBodySmall,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      subtitleText,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: colors.primary.withValues(alpha: 0.8),
+                        fontSize: Dimensions.fontBodySmall,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const Spacer(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -174,38 +219,50 @@ class PlaceInfoCard extends ConsumerWidget {
                               Icon(
                                 Icons.star_rounded,
                                 color: colors.star,
-                                size: Dimensions.iconSmall * 1.2,
+                                size: 14,
                               ),
-                              SizedBox(width: Dimensions.spacingTiny),
+                              const SizedBox(width: 2),
                               Text(
                                 place.rating.toStringAsFixed(1),
                                 style: TextStyle(
                                   color: colors.textPrimary,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: Dimensions.fontBodyMedium,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 12,
                                 ),
                               ),
                             ],
                           )
                         else
                           const SizedBox.shrink(),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.location_on_rounded,
-                              color: colors.primary,
-                              size: Dimensions.iconSmall,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(
+                              Dimensions.radiusPill,
                             ),
-                            SizedBox(width: Dimensions.spacingTiny),
-                            Text(
-                              dynamicDistance,
-                              style: TextStyle(
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_rounded,
                                 color: colors.primary,
-                                fontSize: Dimensions.fontBodySmall,
-                                fontWeight: FontWeight.bold,
+                                size: 12,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 2),
+                              Text(
+                                dynamicDistance,
+                                style: TextStyle(
+                                  color: colors.primary,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -222,11 +279,11 @@ class PlaceInfoCard extends ConsumerWidget {
   Widget _buildPremiumPlaceholder() {
     return Container(
       width: double.infinity,
-      color: colors.primary.withOpacity(0.05),
+      color: colors.primary.withValues(alpha: 0.05),
       child: Center(
         child: Icon(
           Icons.fitness_center_rounded,
-          color: colors.primary.withOpacity(0.3),
+          color: colors.primary.withValues(alpha: 0.3),
           size: Dimensions.iconLarge,
         ),
       ),

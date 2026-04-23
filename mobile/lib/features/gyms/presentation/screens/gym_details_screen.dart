@@ -9,6 +9,7 @@ import '../providers/gym_details_provider.dart';
 
 import '../widgets/gym_image_gallery.dart';
 import '../widgets/gym_smart_header.dart';
+import '../widgets/gym_location_section.dart'; // NEW IMPORT
 import '../widgets/gym_live_status.dart';
 import '../widgets/gym_amenities_section.dart';
 import '../widgets/gym_sports_section.dart';
@@ -44,10 +45,9 @@ class GymDetailsScreen extends ConsumerWidget {
             slivers: [
               GymImageGallery(
                 images: gym.images,
-                fallbackLogo: gym.branchLogo,
+                fallbackLogo: gym.branchLogo ?? '',
                 colors: colors,
               ),
-
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.symmetric(
@@ -56,9 +56,15 @@ class GymDetailsScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // 1. Header (Name, Provider, Rating)
                       GymSmartHeader(gym: gym, colors: colors),
-                      SizedBox(height: Dimensions.spacingLarge),
+                      SizedBox(height: Dimensions.spacingExtraLarge),
 
+                      // 2. The Unified Location Section
+                      GymLocationSection(gym: gym, colors: colors),
+                      SizedBox(height: Dimensions.spacingExtraLarge),
+
+                      // 3. Live Status & Timings
                       GymLiveStatus(gym: gym, colors: colors),
                       SizedBox(height: Dimensions.spacingExtraLarge),
 
@@ -97,7 +103,6 @@ class GymDetailsScreen extends ConsumerWidget {
                       ],
 
                       if (gym.plans.isNotEmpty) ...[
-                        // ARCHITECTURE FIX: Pass the real gym name to the plans section
                         GymPlansSection(
                           plans: gym.plans,
                           colors: colors,
@@ -107,17 +112,15 @@ class GymDetailsScreen extends ConsumerWidget {
                         SizedBox(height: Dimensions.spacingExtraLarge),
                       ],
 
-                      if (gym.reviews.isNotEmpty) ...[
-                        GymReviewsSection(
-                          reviews: gym.reviews,
-                          averageRating: gym.rating,
-                          totalReviews: gym.totalReviews,
-                          colors: colors,
-                        ),
-                        SizedBox(height: Dimensions.spacingExtraLarge),
-                      ],
+                      GymReviewsSection(
+                        reviews: gym.reviews,
+                        averageRating: gym.rating,
+                        totalReviews: gym.totalReviews,
+                        colors: colors,
+                      ),
 
-                      SizedBox(height: Dimensions.spacingExtraLarge * 2),
+                      // TODO: Nearby Gyms Provider insertion point will be here.
+                      SizedBox(height: Dimensions.spacingExtraLarge * 3),
                     ],
                   ),
                 ),

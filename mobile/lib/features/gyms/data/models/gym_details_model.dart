@@ -8,19 +8,15 @@ enum CrowdLevel { low, medium, high }
 class GymAmenity {
   final int id;
   final String name;
-  final String iconImage;
+  final String? iconImage;
 
-  const GymAmenity({
-    required this.id,
-    required this.name,
-    required this.iconImage,
-  });
+  const GymAmenity({required this.id, required this.name, this.iconImage});
 
   factory GymAmenity.fromJson(Map<String, dynamic> json) {
     return GymAmenity(
       id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       name: json['name']?.toString() ?? '',
-      iconImage: json['icon_image']?.toString() ?? '',
+      iconImage: json['icon_image']?.toString(),
     );
   }
 }
@@ -28,19 +24,15 @@ class GymAmenity {
 class GymSport {
   final int id;
   final String name;
-  final String imageUrl;
+  final String? imageUrl;
 
-  const GymSport({
-    required this.id,
-    required this.name,
-    required this.imageUrl,
-  });
+  const GymSport({required this.id, required this.name, this.imageUrl});
 
   factory GymSport.fromJson(Map<String, dynamic> json) {
     return GymSport(
       id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       name: json['name']?.toString() ?? '',
-      imageUrl: json['image']?.toString() ?? '',
+      imageUrl: json['image']?.toString(),
     );
   }
 }
@@ -124,12 +116,11 @@ class GymDetailsModel {
   final String name;
   final String description;
   final String phoneNumber;
-  final String openingTime;
-  final String closingTime;
   final String city;
   final String address;
-  final LatLng location;
-  final String branchLogo;
+  final String gender;
+  final LatLng? location;
+  final String? branchLogo;
   final List<String> images;
   final List<GymAmenity> amenities;
   final List<GymSport> sports;
@@ -139,7 +130,7 @@ class GymDetailsModel {
   final bool isOpenNow;
   final bool isTemporarilyClosed;
   final CrowdLevel currentCrowdLevel;
-  final Map<String, String> weeklyHours;
+  final Map<String, Map<String, String>> weeklyHours;
   final List<GymReview> reviews;
 
   static final Logger _logger = Logger('GymDetailsModel');
@@ -150,12 +141,11 @@ class GymDetailsModel {
     required this.name,
     required this.description,
     required this.phoneNumber,
-    required this.openingTime,
-    required this.closingTime,
     required this.city,
     required this.address,
-    required this.location,
-    required this.branchLogo,
+    required this.gender,
+    this.location,
+    this.branchLogo,
     required this.images,
     required this.amenities,
     required this.sports,
@@ -183,21 +173,35 @@ class GymDetailsModel {
       if (crowdString == 'high') parsedCrowdLevel = CrowdLevel.high;
       if (crowdString == 'medium') parsedCrowdLevel = CrowdLevel.medium;
 
+      LatLng? parsedLocation;
+      if (json['lat'] != null && json['lng'] != null) {
+        final double lat = double.tryParse(json['lat'].toString()) ?? 0.0;
+        final double lng = double.tryParse(json['lng'].toString()) ?? 0.0;
+        parsedLocation = LatLng(lat, lng);
+      }
+
+      Map<String, Map<String, String>> parsedWeeklyHours = {};
+      if (json['weekly_hours'] is Map) {
+        final Map<String, dynamic> hoursMap =
+            json['weekly_hours'] as Map<String, dynamic>;
+        hoursMap.forEach((key, value) {
+          if (value is Map) {
+            parsedWeeklyHours[key] = Map<String, String>.from(value);
+          }
+        });
+      }
+
       return GymDetailsModel(
         id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
         providerName: json['provider_name']?.toString() ?? '',
         name: json['name']?.toString() ?? '',
         description: json['description']?.toString() ?? '',
         phoneNumber: json['phone_number']?.toString() ?? '',
-        openingTime: json['opening_time']?.toString() ?? '',
-        closingTime: json['closing_time']?.toString() ?? '',
         city: json['city']?.toString() ?? '',
         address: json['address']?.toString() ?? '',
-        location: LatLng(
-          double.tryParse(json['lat']?.toString() ?? '0.0') ?? 0.0,
-          double.tryParse(json['lng']?.toString() ?? '0.0') ?? 0.0,
-        ),
-        branchLogo: json['branch_logo']?.toString() ?? '',
+        gender: json['gender']?.toString() ?? 'mixed',
+        location: parsedLocation,
+        branchLogo: json['branch_logo']?.toString(),
         images: imagesList.map((img) => img.toString()).toList(),
         amenities: amenitiesList
             .map((a) => GymAmenity.fromJson(a as Map<String, dynamic>))
@@ -214,9 +218,7 @@ class GymDetailsModel {
         isOpenNow: json['is_open_now'] as bool? ?? false,
         isTemporarilyClosed: json['is_temporarily_closed'] as bool? ?? false,
         currentCrowdLevel: parsedCrowdLevel,
-        weeklyHours: json['weekly_hours'] != null
-            ? Map<String, String>.from(json['weekly_hours'])
-            : {},
+        weeklyHours: parsedWeeklyHours,
         reviews: reviewsList
             .map((r) => GymReview.fromJson(r as Map<String, dynamic>))
             .toList(),

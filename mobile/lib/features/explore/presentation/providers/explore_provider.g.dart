@@ -8,12 +8,9 @@ part of 'explore_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider for ExploreApiService using standard Ref for modern Riverpod Generator compatibility
 
 @ProviderFor(exploreApiService)
 final exploreApiServiceProvider = ExploreApiServiceProvider._();
-
-/// Provider for ExploreApiService using standard Ref for modern Riverpod Generator compatibility
 
 final class ExploreApiServiceProvider
     extends
@@ -23,7 +20,6 @@ final class ExploreApiServiceProvider
           ExploreApiService
         >
     with $Provider<ExploreApiService> {
-  /// Provider for ExploreApiService using standard Ref for modern Riverpod Generator compatibility
   ExploreApiServiceProvider._()
     : super(
         from: null,
@@ -60,15 +56,11 @@ final class ExploreApiServiceProvider
 
 String _$exploreApiServiceHash() => r'bd3829a6e84b2bfec5d33b648a353fd812d89e84';
 
-/// StateNotifier replacing the legacy ExploreFilterNotifier
-
 @ProviderFor(ExploreFilter)
 final exploreFilterProvider = ExploreFilterProvider._();
 
-/// StateNotifier replacing the legacy ExploreFilterNotifier
 final class ExploreFilterProvider
     extends $NotifierProvider<ExploreFilter, ExploreFilterState> {
-  /// StateNotifier replacing the legacy ExploreFilterNotifier
   ExploreFilterProvider._()
     : super(
         from: null,
@@ -96,9 +88,7 @@ final class ExploreFilterProvider
   }
 }
 
-String _$exploreFilterHash() => r'093f77978416b8a854670f0a01a3c17f5020163d';
-
-/// StateNotifier replacing the legacy ExploreFilterNotifier
+String _$exploreFilterHash() => r'fa6300fbb0effb645fc4c83b5a1b798355c64802';
 
 abstract class _$ExploreFilter extends $Notifier<ExploreFilterState> {
   ExploreFilterState build();
@@ -118,15 +108,11 @@ abstract class _$ExploreFilter extends $Notifier<ExploreFilterState> {
   }
 }
 
-/// Provider for managing the currently selected map place
-
 @ProviderFor(SelectedPlace)
 final selectedPlaceProvider = SelectedPlaceProvider._();
 
-/// Provider for managing the currently selected map place
 final class SelectedPlaceProvider
     extends $NotifierProvider<SelectedPlace, GymModel?> {
-  /// Provider for managing the currently selected map place
   SelectedPlaceProvider._()
     : super(
         from: null,
@@ -156,8 +142,6 @@ final class SelectedPlaceProvider
 
 String _$selectedPlaceHash() => r'039d4b3e922570a028c7a227a5ba6830ca9aa199';
 
-/// Provider for managing the currently selected map place
-
 abstract class _$SelectedPlace extends $Notifier<GymModel?> {
   GymModel? build();
   @$mustCallSuper
@@ -176,12 +160,8 @@ abstract class _$SelectedPlace extends $Notifier<GymModel?> {
   }
 }
 
-/// FutureProvider for fetching nearby places using standard Ref
-
 @ProviderFor(nearbyPlaces)
 final nearbyPlacesProvider = NearbyPlacesProvider._();
-
-/// FutureProvider for fetching nearby places using standard Ref
 
 final class NearbyPlacesProvider
     extends
@@ -191,7 +171,6 @@ final class NearbyPlacesProvider
           FutureOr<List<GymModel>>
         >
     with $FutureModifier<List<GymModel>>, $FutureProvider<List<GymModel>> {
-  /// FutureProvider for fetching nearby places using standard Ref
   NearbyPlacesProvider._()
     : super(
         from: null,

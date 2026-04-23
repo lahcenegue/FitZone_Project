@@ -91,26 +91,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     }
   }
 
-  Future<void> _applyMapStyle(bool isDarkMode) async {
-    if (_mapControllerCompleter.isCompleted) {
-      try {
-        final GoogleMapController controller =
-            await _mapControllerCompleter.future;
-        final String style = isDarkMode
-            ? AppConstants.darkMapStyle
-            : AppConstants.lightMapStyle;
-        await controller.setMapStyle(style);
-      } catch (e, stackTrace) {
-        _logger.warning('Failed to apply map style', e, stackTrace);
-      }
-    }
-  }
-
   void _onMapCreated(GoogleMapController controller) {
     if (!_mapControllerCompleter.isCompleted) {
       _mapControllerCompleter.complete(controller);
-      final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-      _applyMapStyle(isDarkMode);
     }
   }
 
@@ -120,7 +103,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           await _mapControllerCompleter.future;
       final LatLngBounds visibleRegion = await controller.getVisibleRegion();
 
-      if (visibleRegion.southwest.latitude == 0.0) return;
+      if (visibleRegion.southwest.latitude == 0.0) {
+        return;
+      }
 
       final currentState = ref.read(exploreFilterProvider);
       ref
@@ -143,7 +128,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       final BitmapDescriptor customIcon =
           await MapMarkerGenerator.createCustomMarker(
             markerColor: baseColor,
-            logoUrl: place.imageUrl,
+            logoUrl: place.branchLogo ?? '', // Using correct new field name
           );
 
       newMarkers.add(
@@ -159,12 +144,13 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
         ),
       );
 
+      // ARCHITECTURE FIX: Using withValues instead of deprecated withOpacity
       newCircles.add(
         Circle(
           circleId: CircleId('circle_outer_${place.id}'),
           center: place.location,
           radius: 80,
-          fillColor: baseColor.withOpacity(0.20),
+          fillColor: baseColor.withValues(alpha: 0.20),
           strokeWidth: 0,
         ),
       );
@@ -174,7 +160,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           circleId: CircleId('circle_inner_${place.id}'),
           center: place.location,
           radius: 25,
-          fillColor: baseColor.withOpacity(0.85),
+          fillColor: baseColor.withValues(alpha: 0.85),
           strokeColor: Colors.white,
           strokeWidth: 2,
         ),
@@ -207,8 +193,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final EdgeInsets safeArea = MediaQuery.of(context).padding;
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final AppColors colors = isDarkMode ? DarkColors() : LightColors();
-
-    _applyMapStyle(isDarkMode);
 
     final asyncPlaces = ref.watch(nearbyPlacesProvider);
     final selectedPlace = ref.watch(selectedPlaceProvider);
@@ -295,6 +279,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       body: Stack(
         children: [
           GoogleMap(
+            // ARCHITECTURE FIX: Inject Map Style directly using the style property
+            style: isDarkMode
+                ? AppConstants.darkMapStyle
+                : AppConstants.lightMapStyle,
             onMapCreated: _onMapCreated,
             onCameraIdle: _onCameraIdle,
             onTap: (_) =>
@@ -339,7 +327,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         horizontal: Dimensions.spacingMedium,
                         vertical: Dimensions.spacingSmall,
                       ),
-                      color: colors.surface.withOpacity(0.95),
+                      // ARCHITECTURE FIX: Replace withOpacity with withValues
+                      color: colors.surface.withValues(alpha: 0.95),
                       child: Row(
                         children: [
                           Icon(

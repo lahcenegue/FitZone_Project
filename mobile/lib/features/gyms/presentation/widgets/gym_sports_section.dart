@@ -47,19 +47,19 @@ class GymSportsSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
         boxShadow: [
           BoxShadow(
-            color: colors.shadow.withOpacity(0.04),
+            color: colors.shadow.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
-        border: Border.all(color: colors.iconGrey.withOpacity(0.1)),
+        border: Border.all(color: colors.iconGrey.withValues(alpha: 0.1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (sport.imageUrl.isNotEmpty)
+          if (sport.imageUrl != null && sport.imageUrl!.isNotEmpty)
             Image.network(
-              sport.imageUrl,
+              sport.imageUrl!,
               width: Dimensions.iconMedium,
               height: Dimensions.iconMedium,
               fit: BoxFit.contain,
@@ -68,7 +68,6 @@ class GymSportsSection extends StatelessWidget {
             )
           else
             _buildFallbackIcon(),
-
           SizedBox(width: Dimensions.spacingSmall),
           Text(
             sport.name,

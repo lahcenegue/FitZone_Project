@@ -29,6 +29,9 @@ import '../../features/subscriptions/presentation/screens/my_subscriptions_scree
 
 import '../l10n/l10n_extension.dart';
 
+// ARCHITECTURE FIX: Import AuthController to monitor login state
+import '../../features/auth/presentation/providers/auth_provider.dart';
+
 class RoutePaths {
   RoutePaths._();
 
@@ -47,7 +50,6 @@ class RoutePaths {
   static const String profile = '/profile';
   static const String personalInfo = '/personal-info';
 
-  // New Routes added
   static const String changePassword = '/change-password';
   static const String deleteAccount = '/delete-account';
 
@@ -66,10 +68,54 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
 );
 
 final goRouterProvider = Provider<GoRouter>((ref) {
+  // Listen to the auth state to trigger redirects instantly when user logs out or session dies
+  final authState = ref.watch(authControllerProvider);
+
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: RoutePaths.splash,
     debugLogDiagnostics: true,
+
+    // ARCHITECTURE FIX: Global Route Guard
+    redirect: (context, state) {
+      // Define routes that ANYONE can access
+      final isSplash = state.uri.path == RoutePaths.splash;
+      final isAuthRoute =
+          state.uri.path == RoutePaths.login ||
+          state.uri.path == RoutePaths.register ||
+          state.uri.path == RoutePaths.forgotPassword ||
+          state.uri.path == RoutePaths.resetPassword ||
+          state.uri.path == RoutePaths.verifyOtp;
+
+      // Let Explore and Gym Details be public too if your app allows guest browsing
+      final isPublicExploreRoute =
+          state.uri.path == RoutePaths.explore ||
+          state.uri.path.startsWith('/gym/') ||
+          state.uri.path == RoutePaths.filters;
+
+      // Check if user is logged in (has data)
+      final isLoggedIn = authState.value != null;
+
+      if (isSplash) return null; // Let splash handle its own logic
+
+      if (!isLoggedIn) {
+        // If they are not logged in and trying to access a PROTECTED route (like subscriptions)
+        if (!isAuthRoute && !isPublicExploreRoute) {
+          _routerLogger.warning(
+            'Unauthorized access attempt to ${state.uri.path}. Redirecting to Login.',
+          );
+          return RoutePaths.login;
+        }
+      } else {
+        // If they are logged in and trying to access login/register, send them to home
+        if (isAuthRoute) {
+          return RoutePaths.explore;
+        }
+      }
+
+      return null; // Let them proceed
+    },
+
     routes: [
       GoRoute(
         path: RoutePaths.splash,

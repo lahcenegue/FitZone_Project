@@ -326,24 +326,6 @@ abstract class AppLocalizations {
   /// **'Gender'**
   String get gender;
 
-  /// No description provided for @male.
-  ///
-  /// In en, this message translates to:
-  /// **'Male'**
-  String get male;
-
-  /// No description provided for @female.
-  ///
-  /// In en, this message translates to:
-  /// **'Female'**
-  String get female;
-
-  /// No description provided for @mixed.
-  ///
-  /// In en, this message translates to:
-  /// **'Mixed'**
-  String get mixed;
-
   /// No description provided for @sortBy.
   ///
   /// In en, this message translates to:
@@ -1543,6 +1525,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Subscription Progress'**
   String get subscriptionProgress;
+
+  /// No description provided for @men.
+  ///
+  /// In en, this message translates to:
+  /// **'Men'**
+  String get men;
+
+  /// No description provided for @women.
+  ///
+  /// In en, this message translates to:
+  /// **'Women'**
+  String get women;
+
+  /// No description provided for @menSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Men Schedule'**
+  String get menSchedule;
+
+  /// No description provided for @womenSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Women Schdule'**
+  String get womenSchedule;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @noReviewsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No Reviews Yet'**
+  String get noReviewsYet;
+
+  /// No description provided for @beFirstToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Be first to review'**
+  String get beFirstToReview;
+
+  /// No description provided for @otherBranches.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Branches'**
+  String get otherBranches;
+
+  /// No description provided for @nearbyGyms.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby Gyms'**
+  String get nearbyGyms;
+
+  /// No description provided for @navigate.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate'**
+  String get navigate;
+
+  /// No description provided for @menOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Men Only'**
+  String get menOnly;
+
+  /// No description provided for @womenOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Women Only'**
+  String get womenOnly;
+
+  /// No description provided for @menAndWomen.
+  ///
+  /// In en, this message translates to:
+  /// **'Men & Women'**
+  String get menAndWomen;
+
+  /// No description provided for @reviewsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get reviewsCount;
+
+  /// No description provided for @distanceFromYou.
+  ///
+  /// In en, this message translates to:
+  /// **'From you'**
+  String get distanceFromYou;
+
+  /// No description provided for @gymAllocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Allocation'**
+  String get gymAllocation;
 }
 
 class _AppLocalizationsDelegate

@@ -45,10 +45,10 @@ class GymAmenitiesSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        border: Border.all(color: colors.iconGrey.withOpacity(0.1)),
+        border: Border.all(color: colors.iconGrey.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: colors.shadow.withOpacity(0.02),
+            color: colors.shadow.withValues(alpha: 0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -60,13 +60,13 @@ class GymAmenitiesSection extends StatelessWidget {
             width: Dimensions.iconMedium,
             height: Dimensions.iconMedium,
             decoration: BoxDecoration(
-              color: colors.primary.withOpacity(0.05),
+              color: colors.primary.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
-            child: amenity.iconImage.isNotEmpty
+            child: amenity.iconImage != null && amenity.iconImage!.isNotEmpty
                 ? ClipOval(
                     child: Image.network(
-                      amenity.iconImage,
+                      amenity.iconImage!,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) =>
                           _buildFallbackIcon(),

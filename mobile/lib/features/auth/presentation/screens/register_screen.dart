@@ -280,7 +280,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Row(
       children: [
         _buildGenderOption(
-          l10n.male,
+          l10n.men,
           'male',
           Icons.male_rounded,
           formState,
@@ -289,7 +289,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         ),
         SizedBox(width: Dimensions.spacingMedium),
         _buildGenderOption(
-          l10n.female,
+          l10n.women,
           'female',
           Icons.female_rounded,
           formState,
