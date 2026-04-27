@@ -3,6 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import RegexValidator
 from apps.users.models import User, UserGender
+from apps.loyalty.models import CustomerWallet
 
 phone_regex = RegexValidator(
     regex=r'^\+?[0-9]{9,15}$',
@@ -44,6 +45,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     lat = serializers.SerializerMethodField()
     lng = serializers.SerializerMethodField()
     profile_is_complete = serializers.SerializerMethodField()
+    points_balance = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -63,6 +65,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def get_profile_is_complete(self, obj):
         """Helper for the mobile app to know if it should show the completion screen"""
         return bool(obj.phone_number and obj.real_face_image and obj.id_card_image)
+
+    def get_points_balance(self, obj):
+        """Dynamically fetch points from the CustomerWallet instead of the legacy User field."""
+        wallet, _ = CustomerWallet.objects.get_or_create(user=obj)
+        return wallet.points_balance
 
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -143,21 +150,20 @@ class UserLogoutSerializer(serializers.Serializer):
 class AggregatedSubscriptionSerializer(serializers.Serializer):
     """
     Serializer for the unified user subscriptions list.
-    Enhanced to include detailed branch information for UI cards.
+    Updated strictly to match the precise UI mapping requested.
     """
-    service_type = serializers.CharField()
     id = serializers.IntegerField()
-    plan_name = serializers.CharField(required=False)
-    provider_name = serializers.CharField(required=False)
-    
-    # Branch Details
-    branch_id = serializers.IntegerField(required=False)
+    service_type = serializers.CharField()
+    provider_id = serializers.IntegerField(required=False, allow_null=True)
+    provider_name = serializers.CharField(required=False, allow_null=True)
+    branch_id = serializers.IntegerField(required=False, allow_null=True)
+    branch_name = serializers.CharField(required=False, allow_null=True)
     branch_logo = serializers.URLField(required=False, allow_null=True)
-    address = serializers.CharField(required=False)
+    address = serializers.CharField(required=False, allow_null=True)
     lat = serializers.FloatField(required=False, allow_null=True)
     lng = serializers.FloatField(required=False, allow_null=True)
-    
+    type = serializers.CharField() 
     status = serializers.CharField()
-    qr_code_signature = serializers.CharField(required=False)
-    start_date = serializers.DateField(required=False)
-    end_date = serializers.DateField(required=False)
+    qr_code_signature = serializers.CharField(required=False, allow_null=True)
+    start_date = serializers.DateField(required=False, allow_null=True)
+    end_date = serializers.DateField(required=False, allow_null=True)

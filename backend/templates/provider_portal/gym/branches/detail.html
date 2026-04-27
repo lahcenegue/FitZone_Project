@@ -26,19 +26,23 @@
 
             <div class="header-info">
                 <h2>{{ branch.name }}</h2>
-                <div class="header-badges">
-                    <span class="status-badge {% if branch.is_temporarily_closed %}status-closed{% elif branch.is_active %}status-active{% else %}status-hidden{% endif %}">
+                <div class="branch-meta-clean">
+                    <span class="meta-city">
+                        {{ branch.city|title }}
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </span>
+                    <span class="meta-divider">•</span>
+                    <span class="meta-status {% if branch.is_temporarily_closed %}closed{% elif branch.is_active %}active{% else %}hidden{% endif %}">
                         {% if branch.is_temporarily_closed %}
                             {% trans "Emergency Closed" %}
+                            <span class="meta-dot closed"></span>
                         {% elif branch.is_active %}
                             {% trans "Active" %}
+                            <span class="meta-dot active"></span>
                         {% else %}
                             {% trans "Hidden" %}
+                            <span class="meta-dot hidden"></span>
                         {% endif %}
-                    </span>
-                    <span class="city-badge">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                        {{ branch.city|title }}
                     </span>
                 </div>
             </div>
@@ -62,64 +66,64 @@
 
             <div class="stats-row">
                 
-                <div class="stat-pill theme-blue">
-                    <div class="stat-icon-wrapper">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    </div>
+                <div class="stat-pill border-info">
                     <div class="stat-info">
                         <span class="stat-lbl">{% trans "Max Capacity" %}</span>
                         <span class="stat-val">{{ branch.max_capacity }} <span>{% trans "Users" %}</span></span>
                     </div>
+                    <div class="icon-box info">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
                 </div>
                 
-                <div class="stat-pill theme-purple">
-                    <div class="stat-icon-wrapper">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    </div>
+                <div class="stat-pill border-purple">
                     <div class="stat-info">
                         <span class="stat-lbl">{% trans "Avg Stay" %}</span>
                         <span class="stat-val">{{ branch.estimated_stay_duration }} <span>{% trans "Min" %}</span></span>
                     </div>
+                    <div class="icon-box purple">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 16 14"/></svg>
+                    </div>
                 </div>
                 
-                <div class="stat-pill theme-orange">
-                    <div class="stat-icon-wrapper">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    </div>
+                <div class="stat-pill border-warning">
                     <div class="stat-info">
                         <span class="stat-lbl">{% trans "Linked Plans" %}</span>
                         <span class="stat-val">{{ plans|length }} <span>{% trans "Plans" %}</span></span>
                     </div>
+                    <div class="icon-box warning">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
                 </div>
 
                 {% if branch.gender|lower == 'male' or branch.gender|lower == 'm' or 'men' in branch.gender|lower %}
-                    <div class="stat-pill theme-blue">
-                        <div class="stat-icon-wrapper">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="5"/><line x1="13.5" y1="10.5" x2="21" y2="3"/><polyline points="16 3 21 3 21 8"/></svg>
-                        </div>
+                    <div class="stat-pill border-success">
                         <div class="stat-info">
                             <span class="stat-lbl">{% trans "Audience" %}</span>
                             <span class="stat-val">{% trans "Men Only" %}</span>
                         </div>
+                        <div class="icon-box success">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="5"/><line x1="13.5" y1="10.5" x2="21" y2="3"/><polyline points="16 3 21 3 21 8"/></svg>
+                        </div>
                     </div>
                 {% elif branch.gender|lower == 'female' or branch.gender|lower == 'f' or 'women' in branch.gender|lower %}
-                    <div class="stat-pill theme-purple">
-                        <div class="stat-icon-wrapper">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><line x1="12" y1="14" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
-                        </div>
+                    <div class="stat-pill border-success">
                         <div class="stat-info">
                             <span class="stat-lbl">{% trans "Audience" %}</span>
                             <span class="stat-val">{% trans "Women Only" %}</span>
                         </div>
+                        <div class="icon-box success">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><line x1="12" y1="14" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
+                        </div>
                     </div>
                 {% else %}
-                    <div class="stat-pill theme-green">
-                        <div class="stat-icon-wrapper">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        </div>
+                    <div class="stat-pill border-success">
                         <div class="stat-info">
                             <span class="stat-lbl">{% trans "Audience" %}</span>
                             <span class="stat-val">{% trans "Both" %}</span>
+                        </div>
+                        <div class="icon-box success">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         </div>
                     </div>
                 {% endif %}
@@ -134,7 +138,7 @@
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--dash-color-4)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     <h3 class="b-card-title">{% trans "Working Hours" %}</h3>
                 </div>
-                <div class="b-card-body" id="scheduleRenderContainer"></div>
+                <div class="b-card-body" id="scheduleRenderContainer" style="min-height: 150px; display: flex; flex-direction: column; justify-content: center;"></div>
             </div>
 
             <div class="b-card">
@@ -186,7 +190,7 @@
                         {% for sport in branch.sports.all %}
                             <span class="tag-item">{{ sport.name }}</span>
                         {% empty %}
-                            <span style="color:var(--color-text-muted); font-size:13px;">{% trans "No sports listed." %}</span>
+                            <span class="tag-item" style="color:var(--color-text-muted); border-color:transparent; box-shadow:none;">{% trans "No sports listed." %}</span>
                         {% endfor %}
                     </div>
 
@@ -195,7 +199,7 @@
                         {% for amenity in branch.amenities.all %}
                             <span class="tag-item">{{ amenity.name }}</span>
                         {% empty %}
-                            <span style="color:var(--color-text-muted); font-size:13px;">{% trans "No amenities listed." %}</span>
+                            <span class="tag-item" style="color:var(--color-text-muted); border-color:transparent; box-shadow:none;">{% trans "No amenities listed." %}</span>
                         {% endfor %}
                     </div>
                 </div>
@@ -204,6 +208,61 @@
         </div>
 
         <div class="grid-col-side">
+
+            <div class="b-card">
+                <div class="b-card-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <h3 class="b-card-title">{% trans "Global Roaming Access" %}</h3>
+                </div>
+                <div class="b-card-body">
+                    
+                    <div class="network-list">
+                        <div class="network-row">
+                            <div class="network-text">
+                                <span class="network-lbl">{% trans "Current Tier" %}</span>
+                                <span class="network-val">{% if branch.tier %}{{ branch.tier.name }}{% else %}{% trans "Basic" %}{% endif %}</span>
+                            </div>
+                            <div class="icon-box purple" style="width: 40px; height: 40px; border-radius: 50%;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            </div>
+                        </div>
+                        
+                        <div class="network-row">
+                            <div class="network-text">
+                                <span class="network-lbl">{% trans "Roaming Status" %}</span>
+                                {% if branch.is_roaming_enabled %}
+                                    <span class="network-val success">{% trans "Active" %}</span>
+                                {% else %}
+                                    <span class="network-val" style="color: var(--color-text-muted);">{% trans "Disabled" %}</span>
+                                {% endif %}
+                            </div>
+                            <div class="icon-box {% if branch.is_roaming_enabled %}success{% else %}muted{% endif %}" style="width: 40px; height: 40px; border-radius: 50%;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if branch.is_roaming_enabled %}
+                    <div class="roaming-price-box">
+                        <div class="roaming-price-val">
+                            <span style="display:inline-flex; width:16px;">{% include "components/currency_icon.html" %}</span>
+                            {{ branch.roaming_visit_price|floatformat:0 }} 
+                        </div>
+                        <span class="roaming-price-lbl">{% trans "Roaming Visit Price" %}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if branch.requested_tier %}
+                    <div class="pending-tier-notice">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0; color: var(--color-warning);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <div>
+                            <span style="display:block; font-size:12px; font-weight:bold; color: var(--color-warning); margin-bottom:2px;">{% trans "Pending Upgrade" %}</span>
+                            <span style="font-size:12px; color: var(--color-text-secondary);">{% trans "Requested:" %} <strong>{{ branch.requested_tier.name }}</strong></span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
 
             <div class="b-card">
                 <div class="b-card-header">

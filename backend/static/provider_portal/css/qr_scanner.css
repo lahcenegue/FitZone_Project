@@ -42,7 +42,24 @@
    .live-badge { background: var(--color-error-light); color: var(--color-error); padding: 4px 10px; border-radius: var(--radius-md); font-size: 12px; font-weight: var(--font-weight-bold); border: 1px solid rgba(239, 68, 68, 0.2); animation: pulseRed 2s infinite; }
    @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
    
+   /* --- NEW: BRANCH SELECTOR --- */
    .header-actions { display: flex; align-items: center; gap: var(--space-6); }
+   .branch-selector-wrapper {
+       display: flex; align-items: center; gap: 8px;
+       background: var(--color-bg); border: 1px solid var(--color-border);
+       padding: 4px 12px; border-radius: var(--radius-md);
+       color: var(--color-text-primary);
+   }
+   .branch-selector-wrapper svg { color: var(--color-primary); }
+   .modern-select {
+       background: transparent; border: none; font-size: 14px; font-weight: 700;
+       color: var(--color-text-primary); outline: none; cursor: pointer; padding-right: 8px;
+   }
+   .modern-select:focus { outline: none; }
+   .occupancy-display { font-size: 14px; font-weight: 700; color: var(--color-text-muted); }
+   .occupancy-display span { color: var(--color-text-primary); font-size: 18px; font-weight: 900; margin-left: 4px; }
+   [dir="rtl"] .occupancy-display span { margin-left: 0; margin-right: 4px; }
+
    .btn-close { background: var(--color-bg); border: 1px solid var(--color-border); width: 44px; height: 44px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all var(--transition); color: var(--color-text-muted); }
    .btn-close:hover { background: var(--color-error-light); color: var(--color-error); border-color: var(--color-error); transform: rotate(90deg); }
    
@@ -171,3 +188,7 @@
    
    .guard-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-black); margin: 0; color: var(--color-text-primary); }
    .guard-message { font-size: var(--font-size-lg); font-weight: var(--font-weight-medium); color: var(--color-text-secondary); margin: 0 0 var(--space-4) 0; }
+
+   /* --- ROAMING BADGES --- */
+   .badge-roaming { background: var(--color-purple) !important; color: white; border: 1px solid rgba(139, 92, 246, 0.4); }
+   .badge-regular { background: var(--color-primary) !important; color: white; border: 1px solid rgba(99, 102, 241, 0.4); }

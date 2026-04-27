@@ -232,3 +232,81 @@ select[required].select2-hidden-accessible {
     z-index: -1 !important;
     bottom: 0 !important;
 }
+
+/* ==========================================================================
+   PREMIUM BOX & TIER UPGRADE SYSTEM (NEW)
+   ========================================================================== */
+.premium-box {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.15) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+.premium-box-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #059669;
+    font-weight: var(--font-weight-black);
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+.premium-box-desc {
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0;
+}
+.luxury-tier-wrapper {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+.tier-current-state {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+}
+.tier-label {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: 4px;
+    display: block;
+}
+.tier-badge-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-primary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: var(--font-weight-black);
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    box-shadow: var(--shadow-sm);
+}
+.tier-pending-alert {
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 4px solid #F59E0B;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.tier-pending-text {
+    color: #D97706;
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
+    margin: 0;
+}
+.tier-request-zone {
+    padding: 20px;
+}

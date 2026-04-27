@@ -36,7 +36,7 @@ class UnifiedSearchService:
         """
         Search logic specifically tailored and isolated for Gyms.
         """
-        queryset = GymBranch.objects.filter(is_active=True).select_related('provider')
+        queryset = GymBranch.objects.filter(is_active=True).select_related('provider', 'tier')
 
         # 1. Text Search
         q = params.get('q')
@@ -74,6 +74,20 @@ class UnifiedSearchService:
             amenity_ids = [int(a) for a in amenities.split(',') if a.isdigit()]
             if amenity_ids:
                 queryset = queryset.filter(amenities__id__in=amenity_ids).distinct()
+
+        # 4.5 Roaming & Tier Filters (Refactored to use Hierarchy Level)
+        is_roaming = params.get('is_roaming')
+        if is_roaming and str(is_roaming).lower() == 'true':
+            queryset = queryset.filter(is_roaming_enabled=True)
+
+        tier_level = params.get('tier_level')
+        if tier_level and str(tier_level).isdigit():
+            target_level = int(tier_level)
+            if target_level == 1:
+                # Level 1 (Basic) includes explicitly set level 1 branches AND branches with NULL tier
+                queryset = queryset.filter(Q(tier__level=target_level) | Q(tier__isnull=True))
+            else:
+                queryset = queryset.filter(tier__level=target_level)
 
         # 5. Price Range Filter
         min_price = params.get('min_price')

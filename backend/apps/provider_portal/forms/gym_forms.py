@@ -6,7 +6,7 @@ Branch management, subscription plans.
 import logging
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from apps.gyms.models import GymBranch, GymAmenity, GymSport
+from apps.gyms.models import GymBranch, GymAmenity, GymSport, GymTier
 from apps.core.constants import WEEK_DAYS, SAUDI_CITIES, BRANCH_GENDER_CHOICES
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class BranchForm(forms.Form):
     """
     Add or edit a gym branch.
-    Captures location, address, amenities, sports, and operating hours via JSON.
+    Captures location, address, amenities, sports, operating hours via JSON, and roaming settings.
     """
     name = forms.CharField(
         label=_("Branch name"),
@@ -94,6 +94,31 @@ class BranchForm(forms.Form):
     
     branch_logo = forms.ImageField(label=_("Branch Logo (Optional)"), required=False)
 
+    # --- TIER REQUEST FIELD ---
+    requested_tier = forms.ModelChoiceField(
+        queryset=GymTier.objects.all(),
+        required=False,
+        label=_("Request Tier Upgrade"),
+        empty_label=_("Keep Current Tier"),
+        widget=forms.Select(attrs={'class': 'modern-select'})
+    )
+
+    # --- ROAMING FIELDS ---
+    is_roaming_enabled = forms.BooleanField(
+        label=_("Enable Roaming"),
+        required=False,
+        initial=False,
+    )
+    roaming_visit_price = forms.DecimalField(
+        label=_("Roaming Visit Price (SAR)"),
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        initial=0.00,
+        min_value=0.00,
+        widget=forms.NumberInput(attrs={"placeholder": "0.00", "step": "0.50"}),
+    )
+
     # --- SMART SCHEDULE DATA ---
     schedule_data = forms.CharField(
         widget=forms.HiddenInput(),
@@ -107,14 +132,25 @@ class BranchForm(forms.Form):
         return city
 
     def clean(self):
-        cleaned = super().clean()
-        return cleaned
+        """
+        Strict backend validation for Roaming economy rules.
+        """
+        cleaned_data = super().clean()
+        is_roaming_enabled = cleaned_data.get('is_roaming_enabled')
+        roaming_visit_price = cleaned_data.get('roaming_visit_price')
+        
+        if is_roaming_enabled:
+            if not roaming_visit_price or roaming_visit_price <= 0:
+                self.add_error('roaming_visit_price', _("A valid visit price is required to enable roaming."))
+        else:
+            cleaned_data['roaming_visit_price'] = 0.00
+            
+        return cleaned_data
 
 
 class SubscriptionPlanForm(forms.Form):
     """
     Form for creating and editing subscription plans.
-    Injects the provider instance to filter available branches dynamically.
     """
     name = forms.CharField(
         label=_("Plan Name"),
@@ -140,7 +176,6 @@ class SubscriptionPlanForm(forms.Form):
         widget=forms.NumberInput(attrs={"placeholder": "0.00", "step": "0.01"}),
     )
     
-    # Branch assignment
     branches = forms.ModelMultipleChoiceField(
         queryset=GymBranch.objects.none(),
         widget=forms.CheckboxSelectMultiple,
@@ -148,7 +183,6 @@ class SubscriptionPlanForm(forms.Form):
         label=_("Available Branches")
     )
 
-    # --- NEW FIELDS FOR FACILITIES & SPORTS ---
     amenities = forms.ModelMultipleChoiceField(
         queryset=GymAmenity.objects.all(),
         widget=forms.SelectMultiple(attrs={
@@ -169,7 +203,6 @@ class SubscriptionPlanForm(forms.Form):
         label=_("Included Sports")
     )
 
-    # Hidden field to capture dynamic tags (Legacy, kept for safety)
     custom_features = forms.CharField(
         required=False,
         widget=forms.HiddenInput(attrs={"id": "hidden_features"})

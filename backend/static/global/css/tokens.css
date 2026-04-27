@@ -331,7 +331,7 @@ textarea.float-input { resize: vertical; min-height: 120px; }
 .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); }
 .stat-pill { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); transition: transform var(--transition), box-shadow var(--transition); border-top: 4px solid var(--color-primary); }
 .stat-pill:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-.stat-pill.theme-blue   { border-top-color: var(--color-info);    } .stat-pill.theme-blue   .stat-icon-wrapper { background-color: var(--color-info);    }
+.stat-pill.theme-blue    { border-top-color: var(--color-info);    } .stat-pill.theme-blue    .stat-icon-wrapper { background-color: var(--color-info);    }
 .stat-pill.theme-purple { border-top-color: var(--color-purple);  } .stat-pill.theme-purple .stat-icon-wrapper { background-color: var(--color-purple);  }
 .stat-pill.theme-orange { border-top-color: var(--color-accent);  } .stat-pill.theme-orange .stat-icon-wrapper { background-color: var(--color-accent);  }
 .stat-pill.theme-green  { border-top-color: var(--color-success); } .stat-pill.theme-green  .stat-icon-wrapper { background-color: var(--color-success); }
@@ -500,3 +500,22 @@ textarea.float-input { resize: vertical; min-height: 120px; }
 [data-theme="dark"] .select2-container--default .select2-selection--single {
     background-color: rgba(0,0,0,0.2) !important;
 }
+
+/* ==========================================================================
+   GLOBAL REUSABLE COMPONENTS (ICONS)
+   ========================================================================== */
+.icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.icon-box.primary { background-color: var(--color-primary-light); color: var(--color-primary); }
+.icon-box.success { background-color: var(--color-success-light); color: var(--color-success); }
+.icon-box.warning { background-color: var(--color-warning-light); color: var(--color-warning); }
+.icon-box.info    { background-color: var(--color-info-light); color: var(--color-info); }
+.icon-box.purple  { background-color: rgba(139, 92, 246, 0.15); color: var(--color-purple); }
+.icon-box.muted   { background-color: rgba(148, 163, 184, 0.15); color: var(--color-text-muted); }

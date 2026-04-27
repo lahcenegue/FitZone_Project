@@ -24,9 +24,20 @@
                 <span class="live-badge">LIVE CHECK-IN</span>
             </h2>
             <div class="header-actions">
-                <div style="font-size: 14px; font-weight: 700; color: var(--color-text-muted);">
-                    {% trans "Gym Occupancy:" %} <span id="resCapacity" style="color: var(--color-text-primary); font-size: 18px; font-weight: 900;">0</span>
+                
+                <div class="branch-selector-wrapper">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <select id="activeBranchSelector" class="modern-select" title="{% trans 'Select active branch for scanning' %}">
+                        {% for b in request.user.provider_profile.gym_branches.all %}
+                            <option value="{{ b.id }}">{{ b.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
+
+                <div class="occupancy-display">
+                    {% trans "Gym Occupancy:" %} <span id="resCapacity">0</span>
+                </div>
+                
                 <button class="btn-close" id="closeBtn">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
@@ -101,15 +112,18 @@
                             
                             <div class="data-card plan-flex">
                                 <div class="plan-details">
-                                    <span class="info-label">{% trans "Active Plan" %}</span>
-                                    <h3 id="resPlan">--</h3>
+                                    <span class="info-label">{% trans "Visit Type & Plan" %}</span>
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <h3 id="resPlan">--</h3>
+                                        <span id="resVisitTypeBadge" class="node-badge" style="display:none; font-size:11px; padding:4px 8px; border-radius:6px; margin-bottom:4px;"></span>
+                                    </div>
                                     <p id="resPlanPrice">-- SAR</p>
                                 </div>
                                 
                                 <div class="modern-chart" id="resChart" style="--progress: 0%;">
                                     <div class="modern-chart-inner">
                                         <span class="chart-val" id="resDaysLeft">0</span>
-                                        <span class="chart-lbl">{% trans "Days Left" %}</span>
+                                        <span class="chart-lbl" id="resChartLbl">{% trans "Days Left" %}</span>
                                     </div>
                                 </div>
                             </div>

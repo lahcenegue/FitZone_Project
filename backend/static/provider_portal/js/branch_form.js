@@ -68,6 +68,35 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     /* ====================================================================
+       ROAMING ECONOMY UI CONTROLLER
+       ==================================================================== */
+    const roamingToggle = document.getElementById("id_is_roaming_enabled");
+    const priceContainer = document.getElementById("roamingPriceContainer");
+    const priceInput = document.getElementById("id_roaming_visit_price");
+
+    function updateRoamingUI() {
+        if (!roamingToggle || !priceInput || !priceContainer) return;
+        
+        if (roamingToggle.checked) {
+            priceContainer.style.opacity = '1';
+            priceContainer.style.pointerEvents = 'auto';
+            priceInput.readOnly = false;
+            priceInput.required = true;
+        } else {
+            priceContainer.style.opacity = '0.5';
+            priceContainer.style.pointerEvents = 'none';
+            priceInput.readOnly = true;
+            priceInput.required = false;
+            priceInput.value = '0.00';
+        }
+    }
+
+    if (roamingToggle) {
+        roamingToggle.addEventListener("change", updateRoamingUI);
+        updateRoamingUI();
+    }
+
+    /* ====================================================================
        SMART SCHEDULE ENGINE
        ==================================================================== */
     const scheduleDataInput = document.querySelector('input[name="schedule_data"]');
@@ -136,7 +165,6 @@ document.addEventListener("DOMContentLoaded", function() {
         if(cFemale && cFemale.innerHTML === '') cFemale.innerHTML = `<div class="empty-state-small">No hours defined.</div>`;
         if(cMixed && cMixed.innerHTML === '') cMixed.innerHTML = `<div class="empty-state-small">No hours defined.</div>`;
 
-        // CORE FIX: Only show Mixed Container if there are actual periods for it OR if gender is specifically set to Mixed
         const colMixed = document.getElementById('colMixed');
         const checkedRadio = document.querySelector('input[name="gender"]:checked');
         if (colMixed && checkedRadio) {
@@ -167,7 +195,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // --- CORE FIX: Sync target gender exactly with HTML name ---
     function toggleScheduleGenderVisibility() {
         const checkedRadio = document.querySelector('input[name="gender"]:checked');
         const periodGenderBlock = document.getElementById('periodGenderBlock');
@@ -394,5 +421,16 @@ document.addEventListener("DOMContentLoaded", function() {
             allowClear: true,
             theme: "default" 
         });
+
+        // Initialize the requested_tier select to look modern
+        const tierSelect = document.getElementById("id_requested_tier");
+        if(tierSelect) {
+            $(tierSelect).select2({
+                width: '100%',
+                placeholder: ' ',
+                allowClear: true,
+                theme: "default"
+            });
+        }
     }
 });

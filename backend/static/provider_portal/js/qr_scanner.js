@@ -1,6 +1,7 @@
 /**
  * FitZone QR Scanner Logic
  * Separated for DRY compliance. Relies on window.FIT_ZONE_QR_CONFIG for translations/URLs.
+ * Implements Smart Branch Persistence via localStorage.
  */
 
 'use strict';
@@ -8,8 +9,9 @@
 document.addEventListener("DOMContentLoaded", function() {
     let scanner = null;
     let isProcessing = false; 
-    let isScannerLocked = false; // HARD LOCK: Prevents any scans during an Access Denied state
+    let isScannerLocked = false; 
     const cfg = window.FIT_ZONE_QR_CONFIG; 
+    const STORAGE_KEY = 'fitzone_active_scanner_branch_id';
 
     const overlay = document.getElementById('mainOverlay');
     const openBtn = document.getElementById('openBtn');
@@ -23,6 +25,23 @@ document.addEventListener("DOMContentLoaded", function() {
     const idThumb = document.getElementById('resIdCardThumb');
     const zoomModal = document.getElementById('zoomModal');
     const zoomedImg = document.getElementById('zoomedImg');
+    const branchSelector = document.getElementById('activeBranchSelector');
+
+    if (branchSelector) {
+        const savedBranch = localStorage.getItem(STORAGE_KEY);
+        if (savedBranch) {
+            const exists = Array.from(branchSelector.options).some(opt => opt.value === savedBranch);
+            if (exists) {
+                branchSelector.value = savedBranch;
+            }
+        } else {
+            localStorage.setItem(STORAGE_KEY, branchSelector.value);
+        }
+
+        branchSelector.addEventListener('change', function() {
+            localStorage.setItem(STORAGE_KEY, this.value);
+        });
+    }
 
     idThumb.addEventListener('click', function() {
         if (this.src && !this.src.includes('svg')) {
@@ -56,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function() {
         dataState.style.display = 'none';
         guardOverlay.classList.remove('show');
         isProcessing = false;
-        isScannerLocked = false; // Reset the physical lock when opening the scanner
+        isScannerLocked = false;
         
         if (!scanner) {
             scanner = new Html5Qrcode("reader");
@@ -88,19 +107,22 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function onScanSuccess(decodedText) {
-        // --- STRICT HARD LOCK CHECK ---
-        // If locked due to an error, absolutely ignore all incoming frames.
         if (isScannerLocked || isProcessing) return; 
         
         let cleanText = decodedText.trim();
-        if (!cleanText.startsWith("FZ-SUB-")) return; 
+        if (!cleanText.startsWith("FZ-SUB-") && !cleanText.startsWith("FZ-ROAM-")) return; 
 
         isProcessing = true;
+        
+        const activeBranchId = branchSelector ? parseInt(branchSelector.value) : null;
 
         fetch(cfg.apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json", "X-CSRFToken": cfg.csrfToken },
-            body: JSON.stringify({ qr_code: cleanText })
+            body: JSON.stringify({ 
+                qr_code_data: cleanText, 
+                branch_id: activeBranchId 
+            })
         })
         .then(res => res.json())
         .then(data => {
@@ -141,6 +163,19 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById('resPlan').textContent = data.plan_name || "-";
         document.getElementById('resPlanPrice').textContent = data.plan_price ? `${data.plan_price} SAR` : "-";
 
+        const visitBadge = document.getElementById('resVisitTypeBadge');
+        if (visitBadge) {
+            if (data.is_roaming) {
+                visitBadge.textContent = "ROAMING";
+                visitBadge.className = "node-badge badge-roaming";
+                visitBadge.style.display = "inline-block";
+            } else {
+                visitBadge.textContent = "REGULAR";
+                visitBadge.className = "node-badge badge-regular";
+                visitBadge.style.display = "inline-block";
+            }
+        }
+
         const statusBox = document.getElementById('statusBox');
         statusBox.className = `status-card ${data.status_color}`;
         document.getElementById('resTitle').textContent = data.title;
@@ -149,91 +184,101 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById('iconSuccess').style.display = data.status_color === 'success' ? 'block' : 'none';
         document.getElementById('iconError').style.display = (data.status_color === 'error' || data.status_color === 'warning') ? 'block' : 'none';
 
-        if (data.status_color !== 'error' && data.total_days) {
-            const left = data.days_left || 0;
-            const total = data.total_days || 1;
-            const pct = Math.max(0, Math.min(100, (left / total) * 100));
-            document.getElementById('resDaysLeft').textContent = left;
-            const chart = document.getElementById('resChart');
-            chart.style.setProperty('--progress', `${pct}%`);
-            chart.style.background = `conic-gradient(var(--color-${data.status_color === 'warning' ? 'warning' : 'primary'}) var(--progress), var(--color-bg) 0deg)`;
+        // ALWAYS UPDATE CHART (Even on error)
+        const left = data.days_left || 0;
+        const total = data.total_days || 1;
+        
+        let pct = 0;
+        if (data.is_roaming) {
+            pct = (data.status_color === 'error' && left === 0) ? 0 : 100;
+        } else {
+            pct = Math.max(0, Math.min(100, (left / total) * 100));
+        }
+        
+        document.getElementById('resDaysLeft').textContent = data.is_roaming ? (left > 0 ? "1" : "0") : left;
+        document.getElementById('resChartLbl').textContent = data.is_roaming ? "USE" : "Days Left";
+        
+        const chart = document.getElementById('resChart');
+        chart.style.setProperty('--progress', `${pct}%`);
+        
+        let ringColor = "primary";
+        if (data.is_roaming) ringColor = "purple";
+        else if (data.status_color === 'warning') ringColor = "warning";
+        else if (data.status_color === 'error') ringColor = "error";
+        
+        chart.style.background = `conic-gradient(var(--color-${ringColor}) var(--progress), var(--color-bg) 0deg)`;
+
+        // ALWAYS RENDER TIMELINE (Even on error)
+        document.getElementById('logsSection').style.display = 'flex';
+        document.getElementById('resCapacity').textContent = data.current_capacity || "0";
+        
+        const track = document.getElementById('resTimelineList');
+        track.innerHTML = ''; 
+        
+        if(data.latest_logs && data.latest_logs.length > 0) {
+            data.latest_logs.forEach((log, index) => {
+                const isLatest = index === 0 ? 'latest' : '';
+                const badgeHtml = index === 0 ? `<span class="node-badge">${cfg.textLatest}</span>` : '';
+                
+                track.innerHTML += `
+                    <div class="track-node ${isLatest}">
+                        <div class="node-point"></div>
+                        <div class="node-card">
+                            ${badgeHtml}
+                            <span class="node-time">${log.time}</span>
+                            <span class="node-date">${log.date}</span>
+                            <span class="node-branch" style="display:block; font-size:10px; font-weight:700; color:var(--color-primary); margin-top:4px;">${log.branch_name}</span>
+                        </div>
+                    </div>`;
+            });
+        } else {
+            track.innerHTML = `
+                <div class="track-node latest">
+                    <div class="node-point"></div>
+                    <div class="node-card">
+                        <span class="node-badge">${cfg.textLatest}</span>
+                        <span class="node-time">${cfg.textFirst}</span>
+                        <span class="node-date">${cfg.textJustNow}</span>
+                        <span class="node-branch" style="display:block; font-size:10px; font-weight:700; color:var(--color-primary); margin-top:4px;">-</span>
+                    </div>
+                </div>`;
         }
 
         if (data.status_color !== 'error') {
-            document.getElementById('logsSection').style.display = 'flex';
-            document.getElementById('resCapacity').textContent = data.current_capacity || "1";
-            
-            const track = document.getElementById('resTimelineList');
-            track.innerHTML = ''; 
-            
-            if(data.latest_logs && data.latest_logs.length > 0) {
-                data.latest_logs.forEach((log, index) => {
-                    const isLatest = index === 0 ? 'latest' : '';
-                    const badgeHtml = index === 0 ? `<span class="node-badge">${cfg.textLatest}</span>` : '';
-                    
-                    track.innerHTML += `
-                        <div class="track-node ${isLatest}">
-                            <div class="node-point"></div>
-                            <div class="node-card">
-                                ${badgeHtml}
-                                <span class="node-time">${log.time}</span>
-                                <span class="node-date">${log.date}</span>
-                            </div>
-                        </div>`;
-                });
-            } else {
-                track.innerHTML = `
-                    <div class="track-node latest">
-                        <div class="node-point"></div>
-                        <div class="node-card">
-                            <span class="node-badge">${cfg.textLatest}</span>
-                            <span class="node-time">${cfg.textFirst}</span>
-                            <span class="node-date">${cfg.textJustNow}</span>
-                        </div>
-                    </div>`;
-            }
-            
-            // If Success: Allow next scan automatically after 2.5s
             setTimeout(() => { isProcessing = false; }, 2500); 
-            
         } else {
-            // If Error: Hide timeline
-            document.getElementById('logsSection').style.display = 'none';
-        }
-
-        // --- THE GUARD OVERLAY LOGIC (For Denials/Warnings) ---
-        if (data.status_color === 'error' || data.status_color === 'warning') {
             document.getElementById('guardTitle').textContent = data.title;
             document.getElementById('guardMessage').textContent = data.message;
             guardOverlay.classList.add(data.status_color);
             guardOverlay.classList.add('show');
             
             const iconWrapper = document.getElementById('alertIconWrapper');
-            if(data.status_color === 'error') {
-                iconWrapper.innerHTML = `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
-            } else {
-                iconWrapper.innerHTML = `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
-            }
+            iconWrapper.innerHTML = `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
             
-            // CORE FIX: Apply Hard Lock preventing any new scans.
+            if (data.redirect_url) {
+                dismissGuardBtn.setAttribute('data-url', data.redirect_url);
+            }
+
             isScannerLocked = true; 
             
-            // Try to pause camera physically to save battery/processing
             if (scanner) {
                 try { scanner.pause(true); } catch(e) {}
             }
         }
     }
 
-    // Dismiss Guard to review ID
-    dismissGuardBtn.addEventListener('click', () => {
+    dismissGuardBtn.addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        if (url) {
+            window.location.href = url;
+            return;
+        }
+
         guardOverlay.classList.remove('show');
         if (scanner) {
             try { scanner.resume(); } catch(e) {}
         }
         
-        // Unlock processing completely after a 1-second delay 
-        // to prevent instantly re-scanning the same invalid QR code.
         setTimeout(() => { 
             isScannerLocked = false; 
             isProcessing = false; 
@@ -248,7 +293,6 @@ document.addEventListener("DOMContentLoaded", function() {
             scanner.stop(); 
         }
         
-        // Reset state completely
         document.getElementById('iconWait').style.display = 'block';
         document.getElementById('iconSuccess').style.display = 'none';
         document.getElementById('iconError').style.display = 'none';

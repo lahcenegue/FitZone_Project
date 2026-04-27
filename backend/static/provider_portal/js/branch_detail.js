@@ -18,7 +18,13 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if(!schedule || schedule.length === 0) {
-        container.innerHTML = `<div style="text-align:center; color:var(--color-text-muted); font-size:13px; font-style:italic;">No schedule configured.</div>`;
+        container.innerHTML = `
+            <div style="text-align:center; padding:32px 16px; color:var(--color-error); border:1px dashed var(--color-error); border-radius:var(--radius-md); background: var(--color-error-light);">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <strong style="display:block; margin-top:8px; font-size:15px;">Working hours are missing!</strong>
+                <span style="font-size:13px; margin-top:4px; display:block;">Please edit the branch to add operating hours. This is required for the app to function properly.</span>
+            </div>
+        `;
         return;
     }
 

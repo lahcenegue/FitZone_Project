@@ -10,14 +10,8 @@ class AppConfiguration(models.Model):
     sports_version = models.FloatField(default=1.0, verbose_name=_("Sports Data Version"))
     amenities_version = models.FloatField(default=1.0, verbose_name=_("Amenities Data Version"))
     cities_version = models.FloatField(default=1.0, verbose_name=_("Cities Data Version"))
-
-    # Version tracking for service types
     service_types_version = models.FloatField(default=1.0, verbose_name=_("Service Types Version"))
     
-    # NEW: Premium Membership configuration
-    premium_points_required = models.PositiveIntegerField(default=1000, verbose_name=_("Premium Points Required"))
-    points_config_version = models.FloatField(default=1.0, verbose_name=_("Points Config Version"))
-
     # App Update Management
     android_version = models.CharField(max_length=20, default="1.0.0", verbose_name=_("Android App Version"))
     ios_version = models.CharField(max_length=20, default="1.0.0", verbose_name=_("iOS App Version"))
@@ -38,16 +32,6 @@ class AppConfiguration(models.Model):
         if not self.pk and AppConfiguration.objects.exists():
             return
             
-        # Auto-increment points_config_version if premium_points_required changes
-        if self.pk:
-            try:
-                old_instance = AppConfiguration.objects.get(pk=self.pk)
-                if self.premium_points_required != old_instance.premium_points_required:
-                    # Increase version by 0.1 and round it to avoid floating point issues (e.g. 1.10000001)
-                    self.points_config_version = round(self.points_config_version + 0.1, 1)
-            except AppConfiguration.DoesNotExist:
-                pass
-
         super().save(*args, **kwargs)
 
     @classmethod
@@ -55,6 +39,7 @@ class AppConfiguration(models.Model):
         obj, created = cls.objects.get_or_create(id=1)
         return obj
     
+
 class City(models.Model):
     """
     Lookup table for supported cities with dynamic JSON-based translations.

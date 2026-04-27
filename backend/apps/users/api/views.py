@@ -299,7 +299,6 @@ class UserSubscriptionsAPIView(APIView):
 
     def get(self, request):
         try:
-            # Pass request object to service for URI building
             subs_data = UserDashboardService.get_all_subscriptions(request.user, request=request)
             serializer = AggregatedSubscriptionSerializer(subs_data, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)

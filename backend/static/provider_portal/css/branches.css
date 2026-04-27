@@ -174,3 +174,52 @@
 .b-action:last-child { border-inline-end: none; }
 .b-action:hover { background-color: var(--color-bg); color: var(--color-text-primary); }
 .b-action.delete:hover { background-color: rgba(239, 68, 68, 0.05); color: var(--color-error); }
+
+/* ==========================================================================
+   PREMIUM BADGES (NEW)
+   ========================================================================== */
+.premium-badges-layer {
+    position: absolute;
+    top: 12px;
+    inset-inline-start: 12px;
+    inset-inline-end: 12px;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    pointer-events: none;
+}
+.badge-group-left {
+    display: flex;
+    gap: 6px;
+}
+.badge-group-right {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+}
+.luxury-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.badge-tier {
+    background: rgba(15, 23, 42, 0.85);
+    color: #F8FAFC;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.badge-roaming {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.9) 100%);
+    color: white;
+    border: 1px solid rgba(16,185,129,0.4);
+}

@@ -6,10 +6,11 @@ Includes API view for the Cryptographically Secure QR Code Scanner.
 import json
 import logging
 from datetime import timedelta
+from decimal import Decimal
 from django.http import JsonResponse
 from django.views.generic import ListView, FormView, View, DetailView
 from apps.provider_portal.mixins import GymProviderRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import redirect, render, get_object_or_404
@@ -18,11 +19,11 @@ from django.utils import timezone
 from django.core.signing import Signer, BadSignature
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Count, Prefetch, Q, Max, Sum
 
 from apps.gyms.models import (
     GymBranch, BranchImage, SubscriptionPlan, PlanFeature, 
-    GymVisit, GymSubscription
+    GymVisit, GymSubscription, RoamingPass
 )
 from apps.provider_portal.forms.gym_forms import BranchForm, SubscriptionPlanForm
 
@@ -41,7 +42,8 @@ class BranchListView(GymProviderRequiredMixin, ListView):
         return GymBranch.objects.filter(
             provider=self.request.user.provider_profile
         ).prefetch_related(
-            Prefetch('images', to_attr='prefetched_images')
+            Prefetch('images', to_attr='prefetched_images'),
+            'tier', 'requested_tier'
         ).annotate(
             linked_plans_count=Count('available_plans', distinct=True)
         ).order_by('-created_at')
@@ -89,7 +91,10 @@ class BranchAddView(GymProviderRequiredMixin, FormView):
             is_temporarily_closed=data.get('is_temporarily_closed', False),
             estimated_stay_duration=data.get('estimated_stay_duration', 120),
             max_capacity=data.get('max_capacity', 100),
-            operating_hours=operating_hours
+            operating_hours=operating_hours,
+            is_roaming_enabled=data.get('is_roaming_enabled', False),
+            roaming_visit_price=data.get('roaming_visit_price', 0.00),
+            requested_tier=data.get('requested_tier')
         )
 
         if data.get('branch_logo'):
@@ -149,6 +154,9 @@ class BranchEditView(GymProviderRequiredMixin, FormView):
             'schedule_data': schedule_json,
             'amenities': branch.amenities.all(),
             'sports': branch.sports.all(),
+            'is_roaming_enabled': branch.is_roaming_enabled,
+            'roaming_visit_price': branch.roaming_visit_price,
+            'requested_tier': branch.requested_tier,
         }
         
         if branch.location:
@@ -187,6 +195,10 @@ class BranchEditView(GymProviderRequiredMixin, FormView):
         branch.is_temporarily_closed = data.get('is_temporarily_closed', False)
         branch.estimated_stay_duration = data.get('estimated_stay_duration', 120)
         branch.max_capacity = data.get('max_capacity', 100)
+        
+        branch.is_roaming_enabled = data.get('is_roaming_enabled', False)
+        branch.roaming_visit_price = data.get('roaming_visit_price', 0.00)
+        branch.requested_tier = data.get('requested_tier')
         
         if self.request.user.provider_profile.status == 'pending':
             branch.is_active = False
@@ -238,9 +250,6 @@ class BranchDetailView(GymProviderRequiredMixin, DetailView):
         return context
 
 class BranchLinkPlanAPIView(GymProviderRequiredMixin, View):
-    """
-    API Endpoint to dynamically link an existing SubscriptionPlan to a GymBranch.
-    """
     def post(self, request, branch_id):
         try:
             data = json.loads(request.body)
@@ -261,9 +270,6 @@ class BranchLinkPlanAPIView(GymProviderRequiredMixin, View):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
 class BranchUnlinkPlanAPIView(GymProviderRequiredMixin, View):
-    """
-    API Endpoint to dynamically UNLINK a SubscriptionPlan from a GymBranch.
-    """
     def post(self, request, branch_id):
         try:
             data = json.loads(request.body)
@@ -552,133 +558,222 @@ class PlanToggleView(GymProviderRequiredMixin, View):
         messages.success(request, _("Plan %(status)s successfully.") % {'status': status_text})
         return redirect("provider_portal:gym_plans")
 
+
 # ==========================================
-# SECURE QR SCANNER API VIEW
+# SECURE QR SCANNER API VIEW (REFACTORED - DRY)
 # ==========================================
 
 class QRScanEndpoint(GymProviderRequiredMixin, View):
     """
-    Secure API Endpoint for QR Code CHECK-IN (Logs a visit).
-    Decodes the cryptographically signed QR code.
-    Verifies subscription validity, extracts allowed branches, and creates a GymVisit.
+    Secure Web Endpoint for QR Code CHECK-IN (Logs a visit) via Session Auth.
+    Delegates all logic to the central GymAccessService.
     Returns rich JSON data for the interactive scanner UI.
     """
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
-            qr_code = data.get('qr_code') or data.get('token')
-            qr_code = (qr_code or '').strip()
-            
-            if not qr_code:
-                return JsonResponse({'status': 'ignore'}, status=200)
+            qr_code_data = data.get('qr_code_data') or data.get('qr_code')
+            qr_code_data = (qr_code_data or '').strip()
+            branch_id = data.get('branch_id')
 
-            signer = Signer(salt="fitzone_gym_qr_auth")
-            try:
-                raw_data = signer.unsign(qr_code)
-                if not raw_data.startswith("FZ-SUB-"):
-                    raise ValueError("Invalid FitZone Prefix")
-                qr_uuid = raw_data.replace("FZ-SUB-", "")
-            except (BadSignature, ValueError):
-                return JsonResponse({'status': 'ignore'}, status=200)
-
-            provider = request.user.provider_profile
-            now = timezone.now().date()
-
-            subscription = GymSubscription.objects.select_related('user', 'plan').prefetch_related('plan__branches').filter(
-                qr_code_id=qr_uuid,
-                plan__provider=provider
-            ).first()
-
-            if not subscription:
+            if not qr_code_data or not branch_id:
                 return JsonResponse({
+                    'status_color': 'error',
+                    'title': str(_("Invalid Data")),
+                    'message': str(_("QR Code or Branch ID missing."))
+                }, status=400)
+
+            if qr_code_data.startswith("FZ-SUB-"):
+                signer = Signer(salt="fitzone_gym_qr_auth")
+                prefix = "FZ-SUB-"
+            elif qr_code_data.startswith("FZ-ROAM-"):
+                signer = Signer(salt="fitzone_roaming_qr_auth")
+                prefix = "FZ-ROAM-"
+            else:
+                return JsonResponse({
+                    'status_color': 'error',
+                    'title': str(_("Invalid Format")),
+                    'message': str(_("Unrecognized QR Code prefix."))
+                }, status=400)
+
+            try:
+                raw_data = signer.unsign(qr_code_data)
+                qr_uuid = raw_data.replace(prefix, "")
+            except BadSignature:
+                return JsonResponse({
+                    'status_color': 'error',
+                    'title': str(_("Security Alert")),
+                    'message': str(_("QR code signature is invalid or tampered."))
+                }, status=400)
+
+            from apps.gyms.services import GymAccessService
+            
+            try:
+                scan_result = GymAccessService.process_qr_scan(
+                    qr_code_id=qr_uuid,
+                    branch_id=branch_id
+                )
+            except ValueError as exc:
+                sub_id = None
+                user = None
+                branch = None
+                plan_name = "-"
+                is_roaming = False
+                days_left = 0
+                total_days = 1
+                logs_data = []
+                plan_price = Decimal('0.00')
+
+                try:
+                    if prefix == "FZ-SUB-":
+                        subscription = GymSubscription.objects.filter(qr_code_id=qr_uuid).first()
+                        if subscription:
+                            user = subscription.user
+                            sub_id = subscription.id
+                            plan_name = subscription.plan.name
+                            plan_price = subscription.plan.price
+                            
+                            agg = GymSubscription.objects.filter(
+                                user=user,
+                                plan__provider=subscription.plan.provider,
+                                status="active"
+                            ).aggregate(latest_end=Max('end_date'), total_duration=Sum('plan__duration_days'))
+                            
+                            latest_end_date = agg['latest_end']
+                            if latest_end_date:
+                                days_left = max(0, (latest_end_date - timezone.now().date()).days)
+                            else:
+                                days_left = max(0, (subscription.end_date - timezone.now().date()).days)
+                            total_days = agg['total_duration'] or subscription.plan.duration_days
+
+                    elif prefix == "FZ-ROAM-":
+                        roaming = RoamingPass.objects.filter(qr_code_id=qr_uuid).first()
+                        if roaming:
+                            user = roaming.user
+                            branch = roaming.branch
+                            plan_name = "One-Time Roaming Pass"
+                            is_roaming = True
+                            plan_price = roaming.fiat_paid
+                            days_left = 0 if roaming.is_used else 1
+                            total_days = 1
+                            
+                    if user:
+                        recent_visits = GymVisit.objects.filter(
+                            Q(subscription__user=user) | Q(roaming_pass__user=user)
+                        ).select_related('branch').order_by('-check_in_time')[:5]
+                        
+                        logs_data = [
+                            {
+                                "time": timezone.localtime(v.check_in_time).strftime("%I:%M %p"),
+                                "date": timezone.localtime(v.check_in_time).strftime("%Y-%m-%d"),
+                                "branch_name": v.branch.name
+                            } for v in recent_visits
+                        ]
+                except Exception:
+                    pass
+
+                response_error = {
                     'status': 'error',
                     'status_color': 'error',
-                    'title': str(_("Subscription Not Found")),
-                    'message': str(_("This QR code belongs to another gym or is invalid."))
-                })
-
-            user = subscription.user
-            plan = subscription.plan
-            allowed_branches = list(plan.branches.values_list('name', flat=True))
-            first_branch = plan.branches.first()
-
-            days_left = (subscription.end_date - now).days
-
-            is_denied = False
-            if subscription.status != 'active' or days_left < 0:
-                is_denied = True
-                status_color = 'error'
-                title = str(_("Access Denied"))
-                if subscription.status == 'suspended':
-                    message = str(_("This subscription is currently suspended by administration."))
-                elif days_left < 0:
-                    message = str(_("This subscription has expired."))
-                else:
-                    message = str(_("Subscription is not active."))
-            elif days_left <= 3:
-                status_color = 'warning'
-                title = str(_("Expiring Soon!"))
-                message = str(_("Subscription expires soon. Please remind the member."))
-            else:
-                status_color = 'success'
-                title = str(_("Access Granted"))
-                message = str(_("Check-in successful."))
-
-            current_capacity = 0
-            if not is_denied and first_branch:
-                GymVisit.objects.create(
-                    subscription=subscription,
-                    branch=first_branch,
-                    is_active=True
-                )
+                    'title': str(_("Access Denied")),
+                    'message': str(exc),
+                    'redirect_url': reverse('provider_portal:gym_subscriber_detail', args=[sub_id]) if sub_id else "",
+                    "member_name": getattr(user, 'full_name', getattr(user, 'email', 'Unknown')) if user else 'Unknown',
+                    "member_id": str(user.id) if user else "-",
+                    "gender": user.get_gender_display() if hasattr(user, 'get_gender_display') else getattr(user, 'gender', '-') if user else '-',
+                    "phone_number": getattr(user, 'phone_number', '-') if user else '-',
+                    "city": getattr(user, 'city', '-') if user else '-',
+                    "address": getattr(user, 'address', '-') if user else '-',
+                    "avatar_url": request.build_absolute_uri(user.real_face_image.url) if user and getattr(user, 'real_face_image', None) else None,
+                    "id_card_url": request.build_absolute_uri(user.id_card_image.url) if user and getattr(user, 'id_card_image', None) else None,
+                    "allowed_branches": branch.name if branch else "-",
+                    "branch_address": branch.address if branch else "-",
+                    "branch_logo_url": request.build_absolute_uri(branch.branch_logo.url) if branch and getattr(branch, 'branch_logo', None) else None,
+                    "plan_name": plan_name,
+                    "plan_price": str(plan_price),
+                    "days_left": days_left,
+                    "total_days": total_days,
+                    "current_capacity": GymAccessService.get_live_occupancy(branch_id) if branch_id else 0,
+                    "latest_logs": logs_data,
+                    "is_roaming": is_roaming,
+                    "visit_type": "Roaming" if is_roaming else "Regular"
+                }
                 
-            current_capacity = GymVisit.objects.filter(
-                branch__in=plan.branches.all(),
-                is_active=True
-            ).count()
+                return JsonResponse(response_error, status=400)
 
-            recent_visits = GymVisit.objects.filter(subscription=subscription).order_by('-check_in_time')[:10]
-            logs_data = [{"time": v.check_in_time.strftime("%I:%M %p"), "date": v.check_in_time.strftime("%Y-%m-%d")} for v in recent_visits]
+            visit = GymVisit.objects.select_related(
+                'subscription__user', 'subscription__plan',
+                'roaming_pass__user', 'branch'
+            ).get(id=scan_result["visit_id"])
+
+            user = visit.subscription.user if visit.subscription else visit.roaming_pass.user
+            branch = visit.branch
+
+            is_roaming = scan_result.get("is_roaming", False)
+            plan_price = visit.subscription.plan.price if visit.subscription else visit.roaming_pass.fiat_paid
+            total_days = scan_result.get("total_days", 1)
+            days_left = scan_result.get("days_remaining", 0)
+            subscription_id = scan_result.get("subscription_id")
+
+            if visit.subscription:
+                recent_visits = GymVisit.objects.filter(subscription__user=user).select_related('branch').order_by('-check_in_time')[:5]
+            else:
+                recent_visits = GymVisit.objects.filter(roaming_pass__user=user).select_related('branch').order_by('-check_in_time')[:5]
+
+            logs_data = [
+                {
+                    "time": timezone.localtime(v.check_in_time).strftime("%I:%M %p"),
+                    "date": timezone.localtime(v.check_in_time).strftime("%Y-%m-%d"),
+                    "branch_name": v.branch.name
+                } for v in recent_visits
+            ]
 
             response_data = {
-                'status': 'success',
-                'status_color': status_color,
-                'title': title,
-                'message': message,
-                'member_id': str(user.id),
-                'member_name': user.full_name,
-                'gender': user.get_gender_display() if hasattr(user, 'get_gender_display') else user.gender,
-                'phone_number': user.phone_number,
-                'city': user.city,
-                'address': user.address,
-                'plan_name': plan.name,
-                'plan_price': str(plan.price), 
-                'allowed_branches': ", ".join(allowed_branches),
-                'branch_address': first_branch.address if first_branch else "متعدد الفروع",
-                'branch_logo_url': request.build_absolute_uri(first_branch.branch_logo.url) if first_branch and first_branch.branch_logo else None,
-                'total_days': plan.duration_days,
-                'days_left': max(0, days_left),
-                'visits_this_month': subscription.visits.count(),
-                'current_capacity': current_capacity,
-                'estimated_exit': (timezone.now() + timedelta(hours=2)).strftime("%I:%M %p") if not is_denied else "-",
-                'avatar_url': request.build_absolute_uri(user.real_face_image.url) if user.real_face_image else None,
-                'id_card_url': request.build_absolute_uri(user.id_card_image.url) if user.id_card_image else None,
-                'latest_logs': logs_data
+                "status": "success",
+                "status_color": "success",
+                "title": str(_("Access Granted")),
+                "message": str(_("Check-in successful")) if not is_roaming else str(_("Roaming Pass Consumed")),
+                "member_name": getattr(user, 'full_name', getattr(user, 'email', 'Unknown')),
+                "member_id": str(user.id),
+                "gender": user.get_gender_display() if hasattr(user, 'get_gender_display') else getattr(user, 'gender', '-'),
+                "phone_number": getattr(user, 'phone_number', '-'),
+                "city": getattr(user, 'city', '-'),
+                "address": getattr(user, 'address', '-'),
+                "avatar_url": request.build_absolute_uri(user.real_face_image.url) if getattr(user, 'real_face_image', None) else None,
+                "id_card_url": request.build_absolute_uri(user.id_card_image.url) if getattr(user, 'id_card_image', None) else None,
+                "allowed_branches": branch.name,
+                "branch_address": branch.address,
+                "branch_logo_url": request.build_absolute_uri(branch.branch_logo.url) if getattr(branch, 'branch_logo', None) else None,
+                "plan_name": scan_result.get("plan_name", "-"),
+                "plan_price": str(plan_price),
+                "days_left": days_left,
+                "total_days": total_days,
+                "current_capacity": GymAccessService.get_live_occupancy(branch.id),
+                "latest_logs": logs_data,
+                "is_roaming": is_roaming,
+                "visit_type": scan_result.get("visit_type", "Regular"),
+                "redirect_url": reverse('provider_portal:gym_subscriber_detail', args=[subscription_id]) if subscription_id else ""
             }
-            
-            return JsonResponse(response_data)
+            return JsonResponse(response_data, status=200)
 
         except Exception as e:
             logger.error(f"QR Scan Check-in Error: {str(e)}", exc_info=True)
-            return JsonResponse({'status': 'ignore'}, status=200)
+            return JsonResponse({
+                'status_color': 'error',
+                'title': str(_("System Error")),
+                'message': str(_("An internal server error occurred."))
+            }, status=500)
+
 
 class QRCodeScannerAPIView(QRScanEndpoint):
     """Alias for robust routing compatibility."""
     pass
 
+
 class QRSearchEndpoint(GymProviderRequiredMixin, View):
     """
     Secure API Endpoint for QR Code SEARCH (Redirects to profile without logging visit).
+    Updated to handle both regular subscriptions and roaming passes securely.
     """
     def post(self, request, *args, **kwargs):
         try:
@@ -687,18 +782,30 @@ class QRSearchEndpoint(GymProviderRequiredMixin, View):
             if not token: 
                 return JsonResponse({'status': 'error', 'message': _("No QR token provided.")})
 
-            signer = Signer(salt="fitzone_gym_qr_auth")
+            if token.startswith("FZ-SUB-"):
+                signer = Signer(salt="fitzone_gym_qr_auth")
+                prefix = "FZ-SUB-"
+                is_roaming = False
+            elif token.startswith("FZ-ROAM-"):
+                signer = Signer(salt="fitzone_roaming_qr_auth")
+                prefix = "FZ-ROAM-"
+                is_roaming = True
+            else:
+                raise ValueError("Invalid Format")
+
             raw_data = signer.unsign(token)
-            parts = raw_data.split('-')
-            if len(parts) != 7: raise ValueError("Invalid Format")
-            
-            qr_uuid = "-".join(parts[2:])
-            sub = GymSubscription.objects.get(qr_code_id=qr_uuid, plan__provider=request.user.provider_profile)
+            qr_uuid = raw_data.replace(prefix, "")
             
             from django.urls import reverse
-            detail_url = reverse('provider_portal:gym_subscriber_detail', args=[sub.id])
             
-            return JsonResponse({'status': 'success', 'redirect_url': detail_url})
+            if is_roaming:
+                detail_url = reverse('provider_portal:gym_branches')
+                message = _("Roaming pass verified.")
+                return JsonResponse({'status': 'success', 'redirect_url': detail_url, 'message': str(message)})
+            else:
+                sub = GymSubscription.objects.get(qr_code_id=qr_uuid, plan__provider=request.user.provider_profile)
+                detail_url = reverse('provider_portal:gym_subscriber_detail', args=[sub.id])
+                return JsonResponse({'status': 'success', 'redirect_url': detail_url})
 
         except Exception as e:
             logger.error(f"QR Scan Search Error: {str(e)}")
@@ -723,7 +830,6 @@ class SubscriberListView(GymProviderRequiredMixin, ListView):
             plan__provider=provider
         )
 
-        # --- SERVER-SIDE AJAX FILTRATION LOGIC ---
         search_query = self.request.GET.get('search', '').strip()
         branch_id = self.request.GET.get('branch', 'all')
         status_filter = self.request.GET.get('status', 'all')
@@ -758,7 +864,6 @@ class SubscriberListView(GymProviderRequiredMixin, ListView):
         qs = self.get_queryset()
         provider = self.request.user.provider_profile
         
-        # Calculate top stats using overall provider scope (unfiltered)
         all_provider_subs = GymSubscription.objects.filter(plan__provider=provider)
         context['total_active'] = all_provider_subs.filter(status='active').count()
         context['total_expired'] = all_provider_subs.filter(status='expired').count()
@@ -767,7 +872,6 @@ class SubscriberListView(GymProviderRequiredMixin, ListView):
         context['branches'] = GymBranch.objects.filter(provider=provider)
         context['all_plans'] = SubscriptionPlan.objects.filter(provider=provider, is_archived=False)
         
-        # --- MEMBER-CENTRIC GROUPING ---
         grouped_data = {}
         for sub in qs:
             user_id = sub.user.id

@@ -3,7 +3,8 @@ from .views import (
     GymBranchDetailView, 
     GymSportListAPIView, 
     GymAmenityListAPIView, 
-    GymCheckoutAPIView
+    GymCheckoutAPIView,
+    RoamingCheckoutAPIView
 )
 
 app_name = "gyms_api"
@@ -13,7 +14,7 @@ urlpatterns = [
     path("sports/", GymSportListAPIView.as_view(), name="sports-list"),
     path("amenities/", GymAmenityListAPIView.as_view(), name="amenities-list"),
 
-    # Payments
+    # Payments & Checkout
     path("checkout/", GymCheckoutAPIView.as_view(), name="gym-checkout"),
-
+    path("roaming/checkout/", RoamingCheckoutAPIView.as_view(), name="roaming-checkout"),
 ]

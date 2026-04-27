@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ENTERPRISE BENTO GRID FOR BRANCH DETAILS (VIBRANT & WIDE UX)
+   ENTERPRISE BENTO GRID FOR BRANCH DETAILS
    ========================================================================== */
 
 .detail-page-container {
@@ -10,7 +10,7 @@
     width: 100%;
 }
 
-/* --- Detail Header --- */
+/* --- Detail Header (Clean Meta Design) --- */
 .detail-header {
     display: flex;
     justify-content: space-between;
@@ -35,20 +35,49 @@
     background: var(--color-bg);
 }
 
-.header-badges {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
+.header-info h2 {
+    margin: 0 0 8px 0;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
 }
 
-.city-badge {
+.branch-meta-clean {
     display: flex;
     align-items: center;
-    gap: 4px;
-    font-size: 13px;
-    color: var(--color-text-secondary);
+    gap: 12px;
+    font-size: 14px;
     font-weight: var(--font-weight-bold);
 }
+
+.meta-city {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-text-primary);
+}
+.meta-city svg { color: var(--color-text-secondary); }
+
+.meta-divider { color: var(--color-border); }
+
+.meta-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-text-secondary);
+}
+.meta-status.active { color: var(--color-success); }
+.meta-status.closed { color: var(--color-error); }
+
+.meta-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.meta-dot.active { background-color: var(--color-success); box-shadow: 0 0 0 3px var(--color-success-light); }
+.meta-dot.closed { background-color: var(--color-error); box-shadow: 0 0 0 3px var(--color-error-light); }
+.meta-dot.hidden { background-color: var(--color-text-muted); }
 
 .header-actions { display: flex; gap: var(--space-3); }
 
@@ -89,6 +118,62 @@
     transform: translateY(-2px);
 }
 
+/* ==========================================================================
+   UNIFIED STATS ROW
+   ========================================================================== */
+.stats-row { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: var(--space-4); 
+}
+
+.stat-pill { 
+    background: var(--color-surface); 
+    border: 1px solid var(--color-border); 
+    border-radius: var(--radius-md); 
+    padding: 16px 20px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    box-shadow: var(--shadow-sm); 
+    transition: transform var(--transition), box-shadow var(--transition);
+    border-top: 3px solid transparent;
+}
+.stat-pill:hover { 
+    transform: translateY(-4px); 
+    box-shadow: var(--shadow-md); 
+}
+.stat-pill.border-info { border-top-color: var(--color-info); }
+.stat-pill.border-purple { border-top-color: var(--color-purple); }
+.stat-pill.border-warning { border-top-color: var(--color-warning); }
+.stat-pill.border-success { border-top-color: var(--color-success); }
+
+.stat-info { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-start;
+}
+.stat-lbl { 
+    font-size: 12px; 
+    font-weight: var(--font-weight-bold); 
+    color: var(--color-text-secondary); 
+    margin-bottom: 4px; 
+}
+.stat-val { 
+    font-size: 24px; 
+    font-weight: var(--font-weight-black); 
+    color: var(--color-text-primary); 
+    line-height: 1; 
+    display: flex; 
+    align-items: baseline; 
+    gap: 4px; 
+}
+.stat-val span { 
+    font-size: 12px; 
+    color: var(--color-text-muted); 
+    font-weight: var(--font-weight-medium); 
+}
+
 /* --- Info Lists (Contact, Desc) --- */
 .info-list { display: flex; flex-direction: column; gap: var(--space-4); }
 .info-item { display: flex; align-items: flex-start; gap: 16px; background: var(--color-bg); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--color-border); }
@@ -113,7 +198,7 @@
 
 /* Unlink Button */
 .btn-unlink-plan {
-    background: rgba(239, 68, 68, 0.1);
+    background: var(--color-error-light);
     color: var(--color-error);
     border: none;
     border-radius: var(--radius-sm);
@@ -129,4 +214,79 @@
 .btn-unlink-plan:hover {
     background: var(--color-error);
     color: white;
+}
+
+/* ==========================================================================
+   GLOBAL ROAMING ACCESS CARD
+   ========================================================================== */
+.network-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.network-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px dashed var(--color-border);
+}
+.network-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.network-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+.network-lbl {
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-secondary);
+}
+.network-val {
+    font-size: 14px;
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+}
+.network-val.success {
+    color: var(--color-success);
+}
+
+.roaming-price-box {
+    background: var(--color-success-light);
+    border: 1px dashed var(--color-success);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+}
+.roaming-price-val {
+    font-size: 18px;
+    font-weight: var(--font-weight-black);
+    color: var(--color-success);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.roaming-price-lbl {
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+.pending-tier-notice {
+    background: var(--color-warning-light);
+    border-left: 4px solid var(--color-warning);
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-top: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
 }

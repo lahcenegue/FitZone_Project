@@ -184,14 +184,12 @@ FitZone Team
         try:
             user = User.objects.get(email=email, role=UserRole.CUSTOMER)
             
-            # Remove any existing reset tokens
             PasswordResetToken.objects.filter(user=user).delete()
             
             token_obj = PasswordResetToken.objects.create(user=user)
             UserAuthService._send_password_reset_email(user, token_obj.otp)
             
         except User.DoesNotExist:
-            # Security best practice: Do not reveal whether the email is registered or not
             logger.warning(f"Password reset attempted for non-existent email: {email}")
             pass
 
@@ -214,11 +212,9 @@ FitZone Team
         if not token_obj.is_valid():
             raise ValueError("Reset code has expired.")
 
-        # Update password
         user.set_password(new_password)
         user.save(update_fields=['password', 'updated_at'])
         
-        # Invalidate token after successful use
         token_obj.delete()
 
 
@@ -264,7 +260,6 @@ FitZone Team
             user.is_verified = False
             email_changed = True
 
-        # Update fields only if they are present in the data
         user.full_name = data.get('full_name', user.full_name)
         user.gender = data.get('gender', user.gender)
         user.city = data.get('city', user.city)
@@ -279,7 +274,6 @@ FitZone Team
         user.save()
 
         if email_changed:
-            # Clear old tokens and send new verification OTP
             UserVerificationToken.objects.filter(user=user).delete()
             token_obj = UserVerificationToken.objects.create(user=user)
             UserAuthService._send_verification_email(user, token_obj.otp)
@@ -311,12 +305,14 @@ class UserDashboardService:
     @staticmethod
     def get_all_subscriptions(user, request=None):
         """
-        Fetches all active and historical subscriptions with full metadata.
-        Uses request object to build absolute URIs for branch logos.
+        Fetches all active and historical subscriptions (including Roaming Passes) 
+        with full metadata, unified into a single list.
         """
         unified_subscriptions = []
+        from django.utils import timezone
+        now_date = timezone.now().date()
 
-        # 1. Fetch Gym Subscriptions (Prefetching branches to avoid N+1 queries)
+        # 1. Fetch Regular Gym Subscriptions
         from apps.gyms.models import GymSubscription
         gym_subs = GymSubscription.objects.filter(user=user).select_related(
             'plan', 'plan__provider'
@@ -324,35 +320,71 @@ class UserDashboardService:
 
         for sub in gym_subs:
             plan = sub.plan
-            # Get primary branch (first associated branch)
             branch = plan.branches.first()
             
             sub_entry = {
-                "service_type": "gym",
                 "id": sub.id,
-                "plan_name": plan.name,
+                "service_type": "gym",
+                "type": "regular",
+                "provider_id": plan.provider.id,
                 "provider_name": plan.provider.business_name,
+                "branch_id": branch.id if branch else None,
+                "branch_name": branch.name if branch else plan.provider.business_name,
+                "address": branch.address if branch else plan.provider.business_name,
+                "lat": branch.location.y if branch and branch.location else None,
+                "lng": branch.location.x if branch and branch.location else None,
                 "status": sub.status,
                 "qr_code_signature": sub.get_signed_qr_code(),
                 "start_date": sub.start_date,
                 "end_date": sub.end_date,
-                
-                # Branch Context Metadata
-                "branch_id": branch.id if branch else None,
-                "address": branch.address if branch else plan.provider.business_name,
-                "lat": branch.location.y if branch and branch.location else None,
-                "lng": branch.location.x if branch and branch.location else None,
                 "branch_logo": None
             }
 
-            # Build absolute URI for branch logo if available
-            if branch and branch.branch_logo and request:
+            if branch and getattr(branch, 'branch_logo', None) and getattr(branch.branch_logo, 'url', None) and request:
                 sub_entry["branch_logo"] = request.build_absolute_uri(branch.branch_logo.url)
-            elif plan.provider.logo and request:
-                # Fallback to provider logo if branch logo is missing
+            elif plan.provider.logo and getattr(plan.provider.logo, 'url', None) and request:
                 sub_entry["branch_logo"] = request.build_absolute_uri(plan.provider.logo.url)
 
             unified_subscriptions.append(sub_entry)
+
+        # 2. Fetch Roaming Passes
+        from apps.gyms.models import RoamingPass
+        roaming_passes = RoamingPass.objects.filter(user=user).select_related(
+            'branch', 'branch__provider'
+        ).order_by('-purchased_at')
+
+        for rp in roaming_passes:
+            branch = rp.branch
+            provider = branch.provider
+            
+            # Determine status based on 'is_used'. Roaming passes don't technically "expire"
+            # but we treat them as active if not used.
+            status_val = "expired" if rp.is_used else "active"
+            
+            rp_entry = {
+                "id": rp.id,
+                "service_type": "gym",
+                "type": "roaming",
+                "provider_id": provider.id,
+                "provider_name": provider.business_name,
+                "branch_id": branch.id,
+                "branch_name": branch.name,
+                "address": branch.address,
+                "lat": branch.location.y if branch.location else None,
+                "lng": branch.location.x if branch.location else None,
+                "status": status_val,
+                "qr_code_signature": rp.get_signed_qr_code(),
+                "start_date": rp.purchased_at.date(),
+                "end_date": rp.purchased_at.date(), # Roaming pass is a 1-day pass technically
+                "branch_logo": None
+            }
+
+            if getattr(branch, 'branch_logo', None) and getattr(branch.branch_logo, 'url', None) and request:
+                rp_entry["branch_logo"] = request.build_absolute_uri(branch.branch_logo.url)
+            elif provider.logo and getattr(provider.logo, 'url', None) and request:
+                rp_entry["branch_logo"] = request.build_absolute_uri(provider.logo.url)
+
+            unified_subscriptions.append(rp_entry)
 
         # Sort the unified list by end_date (most recent first)
         unified_subscriptions.sort(key=lambda x: x["end_date"], reverse=True)

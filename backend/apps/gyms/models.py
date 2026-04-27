@@ -14,6 +14,56 @@ from django.core.signing import Signer
 from apps.providers.models import Provider
 from apps.core.constants import BRANCH_GENDER_CHOICES
 
+# ==========================================
+# ROAMING & TIER SYSTEM
+# ==========================================
+
+class GymTier(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name=_("Tier Name"))
+    level = models.PositiveIntegerField(
+        unique=True, 
+        verbose_name=_("Hierarchy Level"),
+        help_text=_("Higher integer means higher tier (e.g., 1=Basic, 4=VIP).")
+    )
+    description = models.TextField(blank=True, verbose_name=_("Tier Description"))
+    
+    class Meta:
+        verbose_name = _("Gym Tier")
+        verbose_name_plural = _("Gym Tiers")
+        ordering = ['level']
+
+    def __str__(self):
+        return f"{self.name} (Level {self.level})"
+
+
+class ProviderRoamingPool(models.Model):
+    provider = models.OneToOneField(
+        Provider, 
+        on_delete=models.CASCADE, 
+        related_name="roaming_pool",
+        verbose_name=_("Provider")
+    )
+    free_visits_balance = models.PositiveIntegerField(
+        default=0, 
+        verbose_name=_("Free Visits Balance"),
+        help_text=_("Available free visits to offset roaming entry costs.")
+    )
+    total_earned_visits = models.PositiveIntegerField(default=0, verbose_name=_("Total Earned Visits"))
+    total_consumed_visits = models.PositiveIntegerField(default=0, verbose_name=_("Total Consumed Visits"))
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _("Provider Roaming Pool")
+        verbose_name_plural = _("Provider Roaming Pools")
+
+    def __str__(self):
+        return f"{self.provider.business_name} - Balance: {self.free_visits_balance}"
+
+
+# ==========================================
+# CORE GYM MODELS
+# ==========================================
+
 class GymAmenity(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name=_("Default Name"))
     translations = models.JSONField(
@@ -45,7 +95,6 @@ class GymBranch(models.Model):
     
     phone_number = models.CharField(max_length=20, verbose_name=_("Branch Phone Number"))
     
-    # --- SMART SCHEDULE SYSTEM ---
     operating_hours = models.JSONField(
         default=dict, 
         blank=True, 
@@ -90,6 +139,39 @@ class GymBranch(models.Model):
         verbose_name=_("Temporarily Closed"),
         help_text=_("Check this to override the schedule and show the gym as closed immediately.")
     )
+    
+    # --- TIER UPGRADE SYSTEM ---
+    tier = models.ForeignKey(
+        GymTier, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name="approved_branches",
+        verbose_name=_("Approved Tier")
+    )
+    requested_tier = models.ForeignKey(
+        GymTier, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name="requested_branches",
+        verbose_name=_("Requested Tier (Pending Admin Approval)")
+    )
+
+    # --- ROAMING SYSTEM ---
+    is_roaming_enabled = models.BooleanField(
+        default=False, 
+        verbose_name=_("Enable Roaming"),
+        help_text=_("Check to allow users from other gyms to visit this branch using points.")
+    )
+    roaming_visit_price = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0.00,
+        verbose_name=_("Roaming Visit Price (SAR)"),
+        help_text=_("Fiat price for a single roaming visit. Converts to points dynamically.")
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -181,7 +263,6 @@ class SubscriptionPlan(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Price"))
     duration_days = models.PositiveIntegerField(verbose_name=_("Duration in Days"))
     
-    # --- FIELDS FOR FACILITIES & SPORTS ---
     amenities = models.ManyToManyField('GymAmenity', blank=True, related_name="plans")
     sports = models.ManyToManyField('GymSport', blank=True, related_name="plans")
     
@@ -193,15 +274,9 @@ class SubscriptionPlan(models.Model):
         return f"{self.name} - {self.provider.business_name}"
     
     def has_active_subscribers(self):
-        """
-        Check if there are any active or suspended subscriptions linked to this plan.
-        """
         return self.subscribers.filter(status__in=['active', 'suspended']).exists()
         
     def get_latest_expiration_date(self):
-        """
-        Get the expiration date of the last remaining subscription for this plan.
-        """
         latest_sub = self.subscribers.filter(status__in=['active', 'suspended']).order_by('-end_date').first()
         return latest_sub.end_date if latest_sub else None
 
@@ -213,9 +288,6 @@ class PlanFeature(models.Model):
         return self.name
 
 class GymSubscription(models.Model):
-    """
-    Tracks user subscriptions. Linked to a PaymentTransaction.
-    """
     SUBSCRIPTION_STATUS = [
         ("active", _("Active")),
         ("expired", _("Expired")),
@@ -227,7 +299,6 @@ class GymSubscription(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="gym_subscriptions")
     plan = models.ForeignKey(SubscriptionPlan, on_delete=models.PROTECT, related_name="subscribers")
     
-    # Linked to the payments app for financial tracking
     payment = models.OneToOneField(
         'payments.PaymentTransaction', 
         on_delete=models.PROTECT, 
@@ -258,20 +329,52 @@ class GymSubscription(models.Model):
         return f"{self.user.email} - {self.plan.name} ({self.status})"
 
     def get_signed_qr_code(self) -> str:
-        """
-        Generates a cryptographically signed string for the QR code.
-        Format: FZ-SUB-<uuid>:SignatureHash
-        Prevents forgery and brute-force guessing of active QR codes.
-        """
         signer = Signer(salt="fitzone_gym_qr_auth")
         raw_data = f"FZ-SUB-{self.qr_code_id}"
         return signer.sign(raw_data)
 
+
+# NEW: Dedicated model for one-time Roaming Passes
+class RoamingPass(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="roaming_passes")
+    branch = models.ForeignKey('GymBranch', on_delete=models.CASCADE, related_name="roaming_passes")
+    payment = models.OneToOneField(
+        'payments.PaymentTransaction', 
+        on_delete=models.PROTECT, 
+        null=True, 
+        blank=True, 
+        related_name="roaming_pass"
+    )
+    
+    points_used = models.PositiveIntegerField(default=0, verbose_name=_("Points Used"))
+    fiat_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name=_("Fiat Paid"))
+    
+    qr_code_id = models.UUIDField(
+        default=uuid.uuid4, 
+        editable=False, 
+        unique=True, 
+        verbose_name=_("QR Code Identifier")
+    )
+    is_used = models.BooleanField(default=False, verbose_name=_("Is Used"))
+    
+    purchased_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Purchased At"))
+    used_at = models.DateTimeField(null=True, blank=True, verbose_name=_("Used At"))
+
+    class Meta:
+        verbose_name = _("Roaming Pass")
+        verbose_name_plural = _("Roaming Passes")
+        ordering = ['-purchased_at']
+
+    def __str__(self):
+        return f"Roaming Pass: {self.user.email} at {self.branch.name}"
+
+    def get_signed_qr_code(self) -> str:
+        signer = Signer(salt="fitzone_roaming_qr_auth")
+        raw_data = f"FZ-ROAM-{self.qr_code_id}"
+        return signer.sign(raw_data)
+
+
 class GymSubscriptionDispute(models.Model):
-    """
-    Created when a Gym Owner/Staff suspends a user's subscription 
-    (e.g., identity mismatch at the door).
-    """
     class Status(models.TextChoices):
         OPEN = "open", _("Open (Pending Admin Review)")
         RESOLVED = "resolved", _("Resolved (Reinstated)")
@@ -302,14 +405,16 @@ class GymSubscriptionDispute(models.Model):
         return f"Dispute on {self.subscription} ({self.get_status_display()})"
 
 class GymVisit(models.Model):
-    subscription = models.ForeignKey(GymSubscription, on_delete=models.CASCADE, related_name="visits")
+    subscription = models.ForeignKey(GymSubscription, on_delete=models.CASCADE, null=True, blank=True, related_name="visits")
+    roaming_pass = models.ForeignKey(RoamingPass, on_delete=models.CASCADE, null=True, blank=True, related_name="visits")
     branch = models.ForeignKey(GymBranch, on_delete=models.CASCADE, related_name="visits")
     check_in_time = models.DateTimeField(auto_now_add=True, verbose_name=_("Check-in Time"))
     check_out_time = models.DateTimeField(null=True, blank=True, verbose_name=_("Check-out Time"))
     is_active = models.BooleanField(default=True, db_index=True)
 
     def __str__(self):
-        return f"Visit by {self.subscription.user.email} at {self.branch.name}"
+        source = self.subscription.user.email if self.subscription else self.roaming_pass.user.email
+        return f"Visit by {source} at {self.branch.name}"
 
 class GymGlobalSetting(models.Model):
     auto_checkout_hours = models.PositiveIntegerField(
@@ -329,6 +434,15 @@ class GymGlobalSetting(models.Model):
         default=3,
         verbose_name=_("Earnings Hold Period (Days)"),
         help_text=_("Number of days before gym earnings become available for withdrawal.")
+    )
+    
+    # --- ADMIN CONTROLLED ROAMING INCENTIVE ---
+    roaming_discount_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=5.00,
+        verbose_name=_("Roaming Commission Discount (%)"),
+        help_text=_("Percentage discount on the app's commission for branches that enable the roaming system.")
     )
 
     class Meta:

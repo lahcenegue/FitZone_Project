@@ -1,19 +1,21 @@
 """
 Serializers for the Gyms app API.
-Includes logic for real-time crowd calculation, dynamic schedules, and reviews.
+Includes logic for real-time crowd calculation, dynamic schedules, reviews, and Roaming Passes.
 """
 
 import json
 import logging
 from datetime import datetime
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from django.db.models import Avg
+from django.core.signing import Signer, BadSignature
 
 from apps.payments.models import PaymentGateway
 from apps.gyms.models import (
     GymBranch, GymAmenity, GymSport, SubscriptionPlan, 
-    PlanFeature, GymReview, GymSubscription
+    PlanFeature, GymReview, GymSubscription, GymTier, RoamingPass
 )
 
 logger = logging.getLogger(__name__)
@@ -30,6 +32,12 @@ def get_localized_name(obj, request):
     if obj.translations and isinstance(obj.translations, dict):
         return obj.translations.get(primary_lang, obj.name)
     return obj.name
+
+
+class GymTierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GymTier
+        fields = ['id', 'name', 'level']
 
 
 class GymAmenitySerializer(serializers.ModelSerializer):
@@ -83,9 +91,6 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'price', 'duration_days', 'reward_points', 'features']
     
     def get_reward_points(self, obj):
-        """
-        Dynamically calculate reward points: (Plan Price / Conversion Rate).
-        """
         setting = self.context.get('gym_setting')
         if setting and setting.points_conversion_rate > 0:
             return int(obj.price / setting.points_conversion_rate)
@@ -105,13 +110,13 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
     provider_name = serializers.CharField(source='provider.business_name', read_only=True)
     amenities = GymAmenitySerializer(many=True, read_only=True)
     sports = GymSportSerializer(many=True, read_only=True)
+    tier = GymTierSerializer(read_only=True)
     plans = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
     lat = serializers.FloatField(source='location.y', read_only=True)
     lng = serializers.FloatField(source='location.x', read_only=True)
     branch_logo = serializers.SerializerMethodField()
     
-    # Computed Dynamic Fields
     rating = serializers.SerializerMethodField()
     total_reviews = serializers.SerializerMethodField()
     is_open_now = serializers.SerializerMethodField()
@@ -121,30 +126,26 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GymBranch
-        # Note: 'operating_hours' has been completely removed from the output
         fields = [
             'id', 'provider_name', 'name', 'description', 'phone_number', 'city', 'address', 
             'lat', 'lng', 'branch_logo', 'images', 'amenities', 'sports', 'gender',
             'is_temporarily_closed', 'rating', 'total_reviews', 'is_open_now', 
-            'crowd_level', 'weekly_hours', 'reviews', 'plans'
+            'crowd_level', 'weekly_hours', 'reviews', 'plans',
+            'tier', 'is_roaming_enabled', 'roaming_visit_price'
         ]
 
     def get_branch_logo(self, obj):
         logo = obj.branch_logo
         if not logo and hasattr(obj, 'provider') and obj.provider.logo:
             logo = obj.provider.logo
-
         if not logo:
             return None
-            
         try:
             if not logo.name:
                 return None
-                
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(logo.url)
-            
             from django.conf import settings
             return f"{settings.SITE_URL}{logo.url}"
         except Exception as e:
@@ -169,23 +170,16 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
         return obj.reviews.count()
 
     def get_is_open_now(self, obj):
-        """
-        Smart check using `days_values` to avoid language mismatch.
-        0=Sunday, 1=Monday, ..., 6=Saturday.
-        """
         if getattr(obj, 'is_temporarily_closed', False):
             return False
-
         schedule = obj.operating_hours
         if not schedule:
             return False
-
         if isinstance(schedule, str):
             try:
                 schedule = json.loads(schedule)
             except json.JSONDecodeError:
                 return False
-
         if not isinstance(schedule, list):
             return False
 
@@ -195,25 +189,21 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
 
         for period in schedule:
             days_values = [str(val) for val in period.get('days_values', [])]
-            
             if current_day_val in days_values:
                 try:
                     start_str = period.get('start')
                     end_str = period.get('end')
-                    
                     if start_str and end_str:
                         start_t = datetime.strptime(start_str, '%H:%M').time()
                         end_t = datetime.strptime(end_str, '%H:%M').time()
-                        
                         if start_t <= end_t:
                             if start_t <= current_time <= end_t:
                                 return True
-                        else: # Overnight shift handling
+                        else:
                             if current_time >= start_t or current_time <= end_t:
                                 return True
                 except (ValueError, TypeError):
                     continue
-
         return False
 
     def get_crowd_level(self, obj):
@@ -231,17 +221,10 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
             return "full"
 
     def get_weekly_hours(self, obj):
-        """
-        Smart merging algorithm:
-        1. Reads raw JSON schedule.
-        2. Maps mixed shifts into both men and women schedules secretly.
-        3. Returns a clean grouped response based on the branch's actual gender.
-        """
         DAY_MAP = {
             '0': 'Sunday', '1': 'Monday', '2': 'Tuesday', '3': 'Wednesday', 
             '4': 'Thursday', '5': 'Friday', '6': 'Saturday'
         }
-        
         men_sched = {day: "Closed" for day in DAY_MAP.values()}
         women_sched = {day: "Closed" for day in DAY_MAP.values()}
         mixed_sched = {day: "Closed" for day in DAY_MAP.values()}
@@ -267,7 +250,6 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
                     day_name = DAY_MAP.get(str(val))
                     if day_name:
                         time_str = f"{start_str} - {end_str}"
-                        
                         if gender_shift == 'men':
                             if men_sched[day_name] == "Closed":
                                 men_sched[day_name] = time_str
@@ -284,29 +266,23 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
                             else:
                                 mixed_sched[day_name] += f" & {time_str}"
                                 
-        # MERGE LOGIC: Inject 'mixed' shifts into 'men' and 'women'
         for day in DAY_MAP.values():
             if mixed_sched[day] != "Closed":
                 if men_sched[day] == "Closed":
                     men_sched[day] = mixed_sched[day]
                 else:
                     men_sched[day] += f" & {mixed_sched[day]}"
-                    
                 if women_sched[day] == "Closed":
                     women_sched[day] = mixed_sched[day]
                 else:
                     women_sched[day] += f" & {mixed_sched[day]}"
 
-        # Format output based on the Branch's main gender flag
         if obj.gender == 'men':
             return {"men": men_sched}
         elif obj.gender == 'women':
             return {"women": women_sched}
-        else: # mixed
-            return {
-                "men": men_sched,
-                "women": women_sched
-            }
+        else:
+            return {"men": men_sched, "women": women_sched}
 
     def get_reviews(self, obj):
         latest_reviews = obj.reviews.all()[:5]
@@ -314,11 +290,9 @@ class GymBranchDetailSerializer(serializers.ModelSerializer):
     
 
 class GymBranchSearchSerializer(serializers.ModelSerializer):
-    """
-    Lightweight serializer specifically optimized for search and discovery lists.
-    """
     provider_id = serializers.IntegerField(source='provider.id', read_only=True)
     provider_name = serializers.CharField(source='provider.business_name', read_only=True)
+    tier = GymTierSerializer(read_only=True) 
     branch_logo = serializers.SerializerMethodField()
     distance_km = serializers.SerializerMethodField()
     min_price = serializers.FloatField(source='min_plan_price', read_only=True, default=None)
@@ -338,25 +312,22 @@ class GymBranchSearchSerializer(serializers.ModelSerializer):
             'id', 'provider_id', 'provider_name', 'name', 'city', 'address', 'gender',
             'lat', 'lng', 'branch_logo', 'is_active', 'is_temporarily_closed',
             'distance_km', 'min_price', 'sports', 'amenities',
-            'type', 'rating', 'is_open_now', 'crowd_level'
+            'type', 'rating', 'is_open_now', 'crowd_level',
+            'tier', 'is_roaming_enabled'
         ]
 
     def get_branch_logo(self, obj):
         logo = obj.branch_logo
         if not logo and hasattr(obj, 'provider') and obj.provider.logo:
             logo = obj.provider.logo
-
         if not logo:
             return None
-            
         try:
             if not logo.name:
                 return None
-                
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(logo.url)
-            
             from django.conf import settings
             return f"{settings.SITE_URL}{logo.url}"
         except Exception as e:
@@ -375,17 +346,14 @@ class GymBranchSearchSerializer(serializers.ModelSerializer):
     def get_is_open_now(self, obj):
         if getattr(obj, 'is_temporarily_closed', False):
             return False
-
         schedule = obj.operating_hours
         if not schedule:
             return False
-
         if isinstance(schedule, str):
             try:
                 schedule = json.loads(schedule)
             except json.JSONDecodeError:
                 return False
-
         if not isinstance(schedule, list):
             return False
 
@@ -399,11 +367,9 @@ class GymBranchSearchSerializer(serializers.ModelSerializer):
                 try:
                     start_str = period.get('start')
                     end_str = period.get('end')
-                    
                     if start_str and end_str:
                         start_t = datetime.strptime(start_str, '%H:%M').time()
                         end_t = datetime.strptime(end_str, '%H:%M').time()
-                        
                         if start_t <= end_t:
                             if start_t <= current_time <= end_t:
                                 return True
@@ -412,7 +378,6 @@ class GymBranchSearchSerializer(serializers.ModelSerializer):
                                 return True
                 except (ValueError, TypeError):
                     continue
-
         return False
 
     def get_distance_km(self, obj):
@@ -438,15 +403,20 @@ class GymBranchSearchSerializer(serializers.ModelSerializer):
 
 
 class GymCheckoutSerializer(serializers.Serializer):
-    """Payload for initiating a subscription checkout."""
     plan_id = serializers.IntegerField(required=True)
     gateway = serializers.ChoiceField(
         choices=PaymentGateway.choices, 
         default=PaymentGateway.MOCK
     )
+    points_to_use = serializers.IntegerField(
+        required=False, 
+        default=0,
+        min_value=0,
+        help_text=_("Number of loyalty points to redeem for a discount.")
+    )
+
 
 class GymSubscriptionSerializer(serializers.ModelSerializer):
-    """Returns the subscription details including the cryptographic QR signature."""
     plan_name = serializers.CharField(source='plan.name', read_only=True)
     provider_name = serializers.CharField(source='plan.provider.business_name', read_only=True)
     qr_code_signature = serializers.SerializerMethodField()
@@ -461,3 +431,73 @@ class GymSubscriptionSerializer(serializers.ModelSerializer):
 
     def get_qr_code_signature(self, obj):
         return obj.get_signed_qr_code()
+
+
+class RoamingCheckoutSerializer(serializers.Serializer):
+    branch_id = serializers.IntegerField(required=True)
+    payment_method = serializers.ChoiceField(
+        choices=[("points", "Points"), ("fiat", "Fiat")],
+        required=True,
+        help_text=_("Must pay entirely with points or entirely with fiat.")
+    )
+    gateway = serializers.ChoiceField(
+        choices=PaymentGateway.choices, 
+        required=False,
+        allow_null=True
+    )
+    
+    def validate(self, data):
+        if data.get('payment_method') == 'fiat' and not data.get('gateway'):
+            raise serializers.ValidationError({
+                "gateway": _("Gateway is required when paying with fiat.")
+            })
+        return data
+
+
+class RoamingPassSerializer(serializers.ModelSerializer):
+    branch_name = serializers.CharField(source='branch.name', read_only=True)
+    provider_name = serializers.CharField(source='branch.provider.business_name', read_only=True)
+    qr_code_signature = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RoamingPass
+        fields = [
+            'id', 'branch_name', 'provider_name', 'points_used', 'fiat_paid',
+            'is_used', 'purchased_at', 'used_at', 'qr_code_signature'
+        ]
+
+    def get_qr_code_signature(self, obj):
+        return obj.get_signed_qr_code()
+
+
+class QRScanSerializer(serializers.Serializer):
+    """
+    Validates and unsigns the QR code passed from the receptionist scanner.
+    Dynamically identifies if it's a subscription or a roaming pass based on the prefix.
+    """
+    qr_code_data = serializers.CharField(
+        required=True, 
+        help_text=_("The full signed QR string scanned from the user app.")
+    )
+    branch_id = serializers.IntegerField(required=True)
+
+    def validate(self, data):
+        qr_string = data.get('qr_code_data', '')
+        
+        if qr_string.startswith("FZ-SUB-"):
+            signer = Signer(salt="fitzone_gym_qr_auth")
+            prefix = "FZ-SUB-"
+        elif qr_string.startswith("FZ-ROAM-"):
+            signer = Signer(salt="fitzone_roaming_qr_auth")
+            prefix = "FZ-ROAM-"
+        else:
+            raise serializers.ValidationError({"qr_code_data": _("Invalid QR code format. Unrecognized prefix.")})
+            
+        try:
+            raw_data = signer.unsign(qr_string)
+        except BadSignature:
+            raise serializers.ValidationError({"qr_code_data": _("QR code signature is invalid or tampered.")})
+            
+        uuid_str = raw_data.replace(prefix, "")
+        data['qr_code_id'] = uuid_str
+        return data

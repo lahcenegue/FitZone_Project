@@ -23,6 +23,7 @@ urlpatterns = [
     path("api/v1/providers/", include("apps.providers.api.urls")),
     path("api/v1/gyms/", include("apps.gyms.api.urls")),
     path("api/v1/users/", include("apps.users.api.urls")),
+    path("api/v1/loyalty/", include("apps.loyalty.api.urls")),
 
     # Core Endpoints (/api/v1/init/ and /api/v1/cities/)
     path("api/v1/", include("apps.core.api.urls")),
