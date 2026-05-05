@@ -16,7 +16,6 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 
 import '../widgets/profile_hero_card.dart';
 import '../widgets/profile_action_grid.dart';
-import '../widgets/profile_gamification_card.dart';
 import '../widgets/profile_settings_item.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -92,11 +91,8 @@ class ProfileScreen extends ConsumerWidget {
                       ProfileActionGrid(colors: colors, l10n: l10n),
                       SizedBox(height: Dimensions.spacingExtraLarge),
 
-                      ProfileGamificationCard(
-                        user: user,
-                        colors: colors,
-                        l10n: l10n,
-                      ),
+                      // PREMIUM DASHBOARD ENTRY CARD
+                      _buildDashboardEntryCard(context, colors, l10n),
                       SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
                       _buildSectionLabel(l10n.accountSettings, colors),
@@ -202,6 +198,81 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildDashboardEntryCard(
+    BuildContext context,
+    AppColors colors,
+    AppLocalizations l10n,
+  ) {
+    return GestureDetector(
+      onTap: () {
+        _logger.info('User navigating to Loyalty Dashboard.');
+        context.push(RoutePaths.loyalty);
+      },
+      child: Container(
+        padding: EdgeInsets.all(Dimensions.spacingLarge),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+          border: Border.all(color: colors.iconGrey.withValues(alpha: 0.15)),
+          boxShadow: [
+            BoxShadow(
+              color: colors.shadow.withValues(alpha: 0.04),
+              blurRadius: Dimensions.spacingExtraLarge,
+              offset: Offset(0, Dimensions.spacingMedium),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(Dimensions.spacingMedium),
+              decoration: BoxDecoration(
+                color: colors.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.dashboard_customize_rounded,
+                color: colors.primary,
+                size: Dimensions.iconLarge,
+              ),
+            ),
+            SizedBox(width: Dimensions.spacingMedium),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.walletAndRewards,
+                    style: TextStyle(
+                      fontSize: Dimensions.fontHeading2,
+                      fontWeight: FontWeight.w900,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: Dimensions.spacingTiny),
+                  Text(
+                    l10n.dashboardDesc,
+                    style: TextStyle(
+                      fontSize: Dimensions.fontBodySmall,
+                      color: colors.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: Dimensions.spacingSmall),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: colors.iconGrey,
+              size: Dimensions.iconMedium,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSectionLabel(String text, AppColors colors) {
     return Padding(
       padding: EdgeInsets.only(
@@ -227,9 +298,9 @@ class ProfileScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: Dimensions.spacingLarge,
+            offset: Offset(0, Dimensions.spacingSmall),
           ),
         ],
       ),
@@ -248,7 +319,7 @@ class ProfileScreen extends ConsumerWidget {
                   child: Divider(
                     height: 1,
                     thickness: 0.5,
-                    color: colors.iconGrey.withOpacity(0.1),
+                    color: colors.iconGrey.withValues(alpha: 0.1),
                   ),
                 ),
             ],
@@ -270,7 +341,6 @@ class ProfileScreen extends ConsumerWidget {
           _logger.info('User initiated logout.');
           await ref.read(authControllerProvider.notifier).logout();
           if (context.mounted) {
-            _logger.info('Logout successful, navigating to explore screen.');
             context.go(RoutePaths.explore);
           }
         },
@@ -290,7 +360,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-            side: BorderSide(color: colors.error.withOpacity(0.2)),
+            side: BorderSide(color: colors.error.withValues(alpha: 0.2)),
           ),
         ),
       ),
@@ -303,12 +373,17 @@ class ProfileScreen extends ConsumerWidget {
         color: colors.surface,
         shape: BoxShape.circle,
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: Dimensions.spacingMedium,
+          ),
         ],
       ),
       child: IconButton(
         icon: Icon(Icons.notifications_none_rounded, color: colors.textPrimary),
-        onPressed: () {},
+        onPressed: () {
+          _logger.info('User clicked notifications.');
+        },
       ),
     );
   }
@@ -335,11 +410,13 @@ class ProfileScreen extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildLanguageTile('العربية', isCurrentlyArabic, colors, () {
+                  _logger.info('User selected Arabic language.');
                   ref.read(appLocaleProvider.notifier).setLocale('ar');
                   Navigator.pop(ctx);
                 }),
                 SizedBox(height: Dimensions.spacingSmall),
                 _buildLanguageTile('English', !isCurrentlyArabic, colors, () {
+                  _logger.info('User selected English language.');
                   ref.read(appLocaleProvider.notifier).setLocale('en');
                   Navigator.pop(ctx);
                 }),
@@ -371,11 +448,10 @@ class ProfileScreen extends ConsumerWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
       ),
-      tileColor: selected ? colors.primary.withOpacity(0.05) : null,
+      tileColor: selected ? colors.primary.withValues(alpha: 0.05) : null,
     );
   }
 
-  // ARCHITECTURE FIX: Securely decoupled the Dialog's Navigator from the Main Context.
   Future<void> _handleAvatarUpdate(
     BuildContext context,
     WidgetRef ref,
@@ -394,7 +470,6 @@ class ProfileScreen extends ConsumerWidget {
       return;
     }
 
-    // Capture the root navigator context before any async gaps to prevent GoError
     final navigator = Navigator.of(context, rootNavigator: true);
 
     showDialog(
@@ -410,7 +485,6 @@ class ProfileScreen extends ConsumerWidget {
         .read(authControllerProvider.notifier)
         .uploadAvatarToApi(pickedFile.path);
 
-    // Safely pop the dialog using the precise root navigator we captured
     navigator.pop();
 
     if (newAvatarUrl != null) {

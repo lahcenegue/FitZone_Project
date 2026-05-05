@@ -1,3 +1,12 @@
+import 'package:fitzone/features/loyalty/presentation/screens/bank_account_screen.dart';
+import 'package:fitzone/features/loyalty/presentation/screens/loyalty_dashboard_screen.dart';
+import 'package:fitzone/features/loyalty/presentation/screens/loyalty_gamified_track_screen.dart';
+import 'package:fitzone/features/loyalty/presentation/screens/loyalty_packages_screen.dart';
+import 'package:fitzone/features/loyalty/presentation/screens/points_history_screen.dart';
+import 'package:fitzone/features/loyalty/presentation/screens/rewards_history_screen.dart';
+import 'package:fitzone/features/loyalty/presentation/screens/transactions_history_screen.dart';
+import 'package:fitzone/features/loyalty/presentation/screens/withdraw_screen.dart';
+
 import 'package:fitzone/features/subscriptions/data/models/subscription_model.dart';
 import 'package:fitzone/features/subscriptions/presentation/screens/subscription_details_screen.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +38,6 @@ import '../../features/subscriptions/presentation/screens/my_subscriptions_scree
 
 import '../l10n/l10n_extension.dart';
 
-// ARCHITECTURE FIX: Import AuthController to monitor login state
 import '../../features/auth/presentation/providers/auth_provider.dart';
 
 class RoutePaths {
@@ -50,6 +58,17 @@ class RoutePaths {
   static const String profile = '/profile';
   static const String personalInfo = '/personal-info';
 
+  static const String loyalty = '/loyalty';
+  static const String gamifiedTrack = '/gamified-track';
+
+  static const String bankAccount = '/bank-account';
+  static const String withdraw = '/withdraw';
+  static const String buyPoints = '/buy-points';
+
+  static const String transactionsHistory = '/transactions-history';
+  static const String pointsHistory = '/points-history';
+  static const String rewardsHistory = '/rewards-history';
+
   static const String changePassword = '/change-password';
   static const String deleteAccount = '/delete-account';
 
@@ -68,17 +87,15 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
 );
 
 final goRouterProvider = Provider<GoRouter>((ref) {
-  // Listen to the auth state to trigger redirects instantly when user logs out or session dies
-  final authState = ref.watch(authControllerProvider);
-
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: RoutePaths.splash,
     debugLogDiagnostics: true,
 
-    // ARCHITECTURE FIX: Global Route Guard
+    // ARCHITECTURE FIX: Pure Guard Logic. Prevents unauthorized access but doesn't override manual navigation.
     redirect: (context, state) {
-      // Define routes that ANYONE can access
+      final authState = ref.read(authControllerProvider);
+
       final isSplash = state.uri.path == RoutePaths.splash;
       final isAuthRoute =
           state.uri.path == RoutePaths.login ||
@@ -87,33 +104,31 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           state.uri.path == RoutePaths.resetPassword ||
           state.uri.path == RoutePaths.verifyOtp;
 
-      // Let Explore and Gym Details be public too if your app allows guest browsing
-      final isPublicExploreRoute =
+      final isPublicRoute =
           state.uri.path == RoutePaths.explore ||
           state.uri.path.startsWith('/gym/') ||
-          state.uri.path == RoutePaths.filters;
+          state.uri.path == RoutePaths.filters ||
+          state.uri.path == RoutePaths.profile;
 
-      // Check if user is logged in (has data)
       final isLoggedIn = authState.value != null;
 
-      if (isSplash) return null; // Let splash handle its own logic
+      if (isSplash) return null;
 
       if (!isLoggedIn) {
-        // If they are not logged in and trying to access a PROTECTED route (like subscriptions)
-        if (!isAuthRoute && !isPublicExploreRoute) {
+        if (!isAuthRoute && !isPublicRoute) {
           _routerLogger.warning(
             'Unauthorized access attempt to ${state.uri.path}. Redirecting to Login.',
           );
           return RoutePaths.login;
         }
       } else {
-        // If they are logged in and trying to access login/register, send them to home
         if (isAuthRoute) {
+          // If a logged-in user tries to visit the login screen, kick them out to explore
           return RoutePaths.explore;
         }
       }
 
-      return null; // Let them proceed
+      return null; // All good, proceed to intended route
     },
 
     routes: [
@@ -188,6 +203,47 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             gymName: extra['gymName'] ?? '',
           );
         },
+      ),
+      GoRoute(
+        path: RoutePaths.loyalty,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const LoyaltyDashboardScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.gamifiedTrack,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const LoyaltyGamifiedTrackScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.bankAccount,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const BankAccountScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.withdraw,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const WithdrawScreen(),
+      ),
+
+      GoRoute(
+        path: RoutePaths.transactionsHistory,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const TransactionsHistoryScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.pointsHistory,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const PointsHistoryScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.rewardsHistory,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const RewardsHistoryScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.buyPoints,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const LoyaltyPackagesScreen(),
       ),
       GoRoute(
         path: RoutePaths.mySubscriptions,

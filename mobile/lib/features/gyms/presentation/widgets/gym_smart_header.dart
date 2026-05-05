@@ -16,9 +16,9 @@ class GymSmartHeader extends ConsumerWidget {
 
   /// Intelligent logic to strictly define gender allocation without using "mixed"
   String _getGenderText(String gender, AppLocalizations l10n) {
-    if (gender.toLowerCase() == 'men') return l10n.menOnly ?? 'للرجال فقط';
-    if (gender.toLowerCase() == 'women') return l10n.womenOnly ?? 'للنساء فقط';
-    return l10n.menAndWomen ?? 'للرجال والنساء';
+    if (gender.toLowerCase() == 'men') return l10n.menOnly;
+    if (gender.toLowerCase() == 'women') return l10n.womenOnly;
+    return l10n.menAndWomen;
   }
 
   /// Assigns highly specific icons based on gender allocation
@@ -172,7 +172,7 @@ class GymSmartHeader extends ConsumerWidget {
                 icon: Icons.star_rounded,
                 iconColor: colors.star,
                 value: ratingValue,
-                label: '(${gym.totalReviews}) ${l10n.reviewsCount ?? 'مراجعة'}',
+                label: '(${gym.totalReviews}) ${l10n.reviewsCount}',
                 textColor: colors.textPrimary,
               ),
 
@@ -183,7 +183,7 @@ class GymSmartHeader extends ConsumerWidget {
                 icon: Icons.route_rounded,
                 iconColor: colors.primary,
                 value: dynamicDistance,
-                label: l10n.distanceFromYou ?? 'عن موقعك',
+                label: l10n.distanceFromYou,
                 textColor: colors.primary,
               ),
 
@@ -194,7 +194,7 @@ class GymSmartHeader extends ConsumerWidget {
                 icon: genderIcon,
                 iconColor: colors.primary,
                 value: genderText,
-                label: l10n.gymAllocation ?? 'التخصيص',
+                label: l10n.gymAllocation,
                 textColor: colors.textPrimary,
               ),
             ],

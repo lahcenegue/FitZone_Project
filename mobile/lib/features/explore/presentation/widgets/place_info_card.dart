@@ -20,8 +20,8 @@ class PlaceInfoCard extends ConsumerWidget {
   });
 
   String _getLocalizedGender(String gender, AppLocalizations l10n) {
-    if (gender.toLowerCase() == 'men') return l10n.men ?? 'رجال';
-    if (gender.toLowerCase() == 'women') return l10n.women ?? 'نساء';
+    if (gender.toLowerCase() == 'men') return l10n.men;
+    if (gender.toLowerCase() == 'women') return l10n.women;
     return 'متاح للجنسين';
   }
 

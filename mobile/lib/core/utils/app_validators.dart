@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+
 /// Centralized regular expressions and validation logic.
 class AppValidators {
   AppValidators._();
@@ -17,4 +19,27 @@ class AppValidators {
 
   /// Saudi phone number format: starts with 05 and has exactly 10 digits.
   static final RegExp phoneRegex = RegExp(r'^05[0-9]{8}$');
+
+  /// Validates financial withdrawal amounts.
+  static String? validateWithdrawalAmount(
+    String? value,
+    double maxAmount,
+    double minAmount,
+    AppLocalizations l10n,
+  ) {
+    if (value == null || value.trim().isEmpty) {
+      return l10n.amountRequired;
+    }
+    final double? parsedAmount = double.tryParse(value.trim());
+    if (parsedAmount == null) {
+      return l10n.errorValidation;
+    }
+    if (parsedAmount < minAmount) {
+      return l10n.minWithdrawal(minAmount.toStringAsFixed(0));
+    }
+    if (parsedAmount > maxAmount) {
+      return l10n.insufficientBalance;
+    }
+    return null;
+  }
 }

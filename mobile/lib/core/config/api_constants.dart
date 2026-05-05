@@ -21,7 +21,7 @@ class ApiConstants {
   static const String updateProfile = '/users/profile/update/';
   static const String deleteAccount = '/users/profile/delete/';
 
-  // --- Subscriptions & Checkout (NEW) ---
+  // --- Subscriptions & Checkout ---
   static const String checkout = '/gyms/checkout/';
   static const String mySubscriptions = '/users/my-subscriptions/';
 
@@ -39,4 +39,12 @@ class ApiConstants {
   // --- Filters For Gym ---
   static const String sports = '/gyms/sports/';
   static const String amenities = '/gyms/amenities/';
+
+  // --- NEW: Loyalty & Gamification System ---
+  static const String loyaltyMilestones = '/loyalty/milestones/';
+  static const String loyaltyPackages = '/loyalty/packages/';
+  static const String loyaltyPurchase = '/loyalty/purchase/';
+  static const String loyaltyWallet = '/loyalty/wallet/';
+  static const String loyaltyMyMilestones = '/loyalty/my-milestones/';
+  static const String loyaltyConsume = '/loyalty/milestones/consume/';
 }

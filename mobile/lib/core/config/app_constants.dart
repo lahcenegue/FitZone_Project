@@ -44,4 +44,6 @@ class AppConstants {
   ]''';
 
   static const double maxdistamceKm = 200;
+
+  static const double minimumWithdrawalAmount = 50.0;
 }

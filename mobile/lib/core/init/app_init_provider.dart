@@ -43,7 +43,6 @@ class AppInitService {
       final Map<String, dynamic> initData =
           initResponse.data as Map<String, dynamic>;
 
-      // ARCHITECTURE FIX: Save lightweight configs to SharedPreferences
       final int premiumPoints =
           initData['premium_points_required'] as int? ?? 1000;
       await _storageService.setPremiumPointsRequired(premiumPoints);
@@ -77,6 +76,16 @@ class AppInitService {
             (initData['amenities_version'] as num?)?.toDouble() ?? 0.0,
         endpoint: ApiConstants.amenities,
         insertOperation: _dbService.insertAmenities,
+      );
+
+      // NEW: Sync Loyalty Milestones Roadmap
+      await _syncTable(
+        versionKey: 'loyalty_roadmap_version',
+        remoteVersion:
+            (initData['loyalty_roadmap_version'] as num?)?.toDouble() ?? 0.0,
+        endpoint: ApiConstants
+            .loyaltyMilestones, // Requires this to be defined in ApiConstants
+        insertOperation: _dbService.insertLoyaltyMilestones,
       );
 
       _logger.info(

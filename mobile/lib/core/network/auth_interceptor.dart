@@ -1,10 +1,10 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 
 import '../config/api_constants.dart';
 import '../storage/secure_storage_provider.dart';
-// ARCHITECTURE FIX: Import StorageProvider and AuthProvider to perform a complete wipeout
 import '../storage/storage_provider.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../routing/app_router.dart';
@@ -12,6 +12,10 @@ import '../routing/app_router.dart';
 class AuthInterceptor extends Interceptor {
   final Ref ref;
   final Logger _logger = Logger('AuthInterceptor');
+
+  // Architecture Fix: Queue management variables to handle Race Conditions
+  bool _isRefreshing = false;
+  Completer<bool>? _refreshCompleter;
 
   AuthInterceptor(this.ref);
 
@@ -55,57 +59,93 @@ class AuthInterceptor extends Interceptor {
     if (err.response?.statusCode == 401 &&
         !err.requestOptions.path.contains(ApiConstants.refreshToken)) {
       _logger.warning(
-        'Unauthorized request (401). Token expired. Attempting refresh...',
+        'Unauthorized request (401) for ${err.requestOptions.path}.',
       );
 
+      // Architecture Fix: Prevent Race Condition when multiple endpoints fail 401 simultaneously.
+      if (_isRefreshing) {
+        _logger.info('Token refresh already in progress. Queuing request...');
+        try {
+          // Wait for the ongoing refresh to finish
+          final bool isRefreshed = await _refreshCompleter!.future;
+          if (isRefreshed) {
+            return await _retryOriginalRequest(err, handler);
+          } else {
+            return handler.next(err);
+          }
+        } catch (e) {
+          return handler.next(err);
+        }
+      }
+
+      _isRefreshing = true;
+      _refreshCompleter = Completer<bool>();
+
+      _logger.info('Attempting token refresh...');
       final bool isRefreshed = await _attemptTokenRefresh();
+
+      _isRefreshing = false;
+      _refreshCompleter!.complete(isRefreshed);
 
       if (isRefreshed) {
         _logger.info(
           'Token refreshed successfully. Retrying original request.',
         );
-
-        try {
-          final secureStorage = ref.read(secureStorageServiceProvider);
-          final String? newAccessToken = await secureStorage.getAccessToken();
-
-          if (newAccessToken != null) {
-            err.requestOptions.headers['Authorization'] =
-                'Bearer $newAccessToken';
-          }
-
-          final isolatedRetryDio = Dio();
-          final response = await isolatedRetryDio.fetch(err.requestOptions);
-
-          return handler.resolve(response);
-        } on DioException catch (retryError) {
-          _logger.severe('Retry request failed.', retryError);
-          return handler.next(retryError);
-        }
+        return await _retryOriginalRequest(err, handler);
       } else {
         _logger.severe(
           'Fatal: Token refresh failed completely. Session expired.',
         );
-
-        // ARCHITECTURE FIX: Complete State Wipeout (The Phantom Session Fix)
-
-        // 1. Clear secure tokens (JWT)
-        await ref.read(secureStorageServiceProvider).clearAll();
-
-        // 2. Clear cached user data (SharedPreferences)
-        await ref.read(storageServiceProvider).clearCachedUser();
-
-        // 3. Invalidate AuthController to notify the entire app (and Router) that the user is logged out
-        ref.invalidate(authControllerProvider);
-
-        // 4. Force redirect to login
-        ref.read(goRouterProvider).go(RoutePaths.login);
-
+        _triggerLogoutWipeout();
         return handler.next(err);
       }
     }
 
     super.onError(err, handler);
+  }
+
+  Future<void> _retryOriginalRequest(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    try {
+      final secureStorage = ref.read(secureStorageServiceProvider);
+      final String? newAccessToken = await secureStorage.getAccessToken();
+
+      if (newAccessToken != null) {
+        err.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+      }
+
+      // Using an isolated Dio instance to avoid recursive loops
+      final isolatedRetryDio = Dio();
+      final response = await isolatedRetryDio.fetch(err.requestOptions);
+
+      return handler.resolve(response);
+    } on DioException catch (retryError) {
+      _logger.severe(
+        'Retry request failed for ${err.requestOptions.path}.',
+        retryError,
+      );
+      return handler.next(retryError);
+    }
+  }
+
+  void _triggerLogoutWipeout() async {
+    try {
+      // 1. Clear secure tokens (JWT)
+      await ref.read(secureStorageServiceProvider).clearAll();
+
+      // 2. Clear cached user data (SharedPreferences)
+      await ref.read(storageServiceProvider).clearCachedUser();
+
+      // 3. Invalidate AuthController to notify the entire app
+      ref.invalidate(authControllerProvider);
+
+      // 4. Force redirect to login
+      ref.read(goRouterProvider).go(RoutePaths.login);
+    } catch (e) {
+      _logger.severe('Error during logout wipeout', e);
+    }
   }
 
   Future<bool> _attemptTokenRefresh() async {
@@ -146,7 +186,7 @@ class AuthInterceptor extends Interceptor {
       }
       return false;
     } catch (error) {
-      _logger.severe('Refresh token expired or invalid', error);
+      _logger.severe('Refresh token expired or invalid API error', error);
       return false;
     }
   }

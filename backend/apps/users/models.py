@@ -419,3 +419,29 @@ class PasswordResetToken(models.Model):
         Checks if the password reset OTP is still valid (not expired).
         """
         return timezone.now() <= self.expires_at
+
+
+class UserBankAccount(models.Model):
+    """
+    Stores the user's bank account details for processing fiat withdrawals or refunds.
+    """
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="bank_account",
+        verbose_name=_("User")
+    )
+    bank_name = models.CharField(max_length=255, verbose_name=_("Bank Name"))
+    account_number = models.CharField(max_length=50, verbose_name=_("Account Number"))
+    iban = models.CharField(max_length=34, verbose_name=_("IBAN"))
+    beneficiary_name = models.CharField(max_length=255, verbose_name=_("Beneficiary Name"))
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _("User Bank Account")
+        verbose_name_plural = _("User Bank Accounts")
+
+    def __str__(self):
+        return f"{self.bank_name} - {self.user.email}"

@@ -69,7 +69,7 @@ class GymLocationSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GymSectionTitle(title: l10n.gymLocation ?? 'Location', colors: colors),
+        GymSectionTitle(title: l10n.gymLocation, colors: colors),
         SizedBox(height: Dimensions.spacingMedium),
         Container(
           decoration: BoxDecoration(

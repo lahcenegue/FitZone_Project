@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 
+import '../../../../core/presentation/widgets/premium_alert_banner.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/routing/auth_intent_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -13,7 +14,6 @@ import '../../../../core/theme/app_theme_provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 
-/// Screen for verifying the user's email via a 6-digit OTP.
 class OtpVerificationScreen extends ConsumerStatefulWidget {
   final String email;
 
@@ -62,6 +62,10 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     if (_cooldownSeconds > 0 || _isResending) return;
 
     setState(() => _isResending = true);
+    _logger.info(
+      'User requested to resend OTP for email: ${widget.email}',
+    ); // Logger Fix
+
     try {
       await ref.read(authControllerProvider.notifier).resendOtp(widget.email);
       _startCooldown();
@@ -69,13 +73,12 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         _showSnackBar(context, l10n.verificationSent, colors.success);
       }
     } catch (e) {
+      _logger.severe('Failed to resend OTP', e); // Logger Fix
       if (mounted) {
         _showSnackBar(context, e.toString(), colors.error);
       }
     } finally {
-      if (mounted) {
-        setState(() => _isResending = false);
-      }
+      if (mounted) setState(() => _isResending = false);
     }
   }
 
@@ -87,17 +90,23 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     }
 
     setState(() => _errorText = null);
+    _logger.info('Attempting to verify OTP'); // Logger Fix
 
     try {
       await ref.read(authControllerProvider.notifier).verifyEmail(otp);
       final authState = ref.read(authControllerProvider);
 
       if (authState.hasValue && authState.value != null) {
+        _logger.info('OTP Verification Successful'); // Logger Fix
         _handleSmartRouting(authState.value!.profileIsComplete);
       } else if (authState.hasError) {
+        _logger.warning(
+          'OTP Verification Failed: ${authState.error}',
+        ); // Logger Fix
         setState(() => _errorText = authState.error.toString());
       }
     } catch (e) {
+      _logger.severe('Exception during OTP verification', e); // Logger Fix
       setState(() => _errorText = e.toString());
     }
   }
@@ -108,15 +117,13 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final AppColors colors = ref.read(appThemeProvider);
     final intentService = ref.read(authIntentServiceProvider);
-
     final intent = intentService.getIntent();
 
     if (!profileIsComplete) {
       if (intent.type == AuthIntentType.buyGymSubscription) {
-        // DO NOT clear intent here, we need it for CompleteProfileScreen!
         context.go(RoutePaths.completeProfile);
       } else {
-        intentService.clearIntent(); // Safe to clear, flow ends here
+        intentService.clearIntent();
         context.go(RoutePaths.explore);
         WidgetsBinding.instance.addPostFrameCallback((_) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -136,7 +143,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         });
       }
     } else {
-      intentService.clearIntent(); // Safe to clear, flow ends here
+      intentService.clearIntent();
       if (intent.type == AuthIntentType.buyGymSubscription) {
         final int id = intent.payload['gym_id'] as int? ?? 0;
         context.go(RoutePaths.gymDetailsPath(id));
@@ -187,79 +194,105 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           padding: EdgeInsets.symmetric(horizontal: Dimensions.spacingLarge),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: Dimensions.spacingLarge),
-              Text(
-                l10n.enterOtpTitle,
-                style: TextStyle(
-                  fontSize: Dimensions.fontHeading1,
-                  fontWeight: FontWeight.w900,
-                  color: colors.textPrimary,
+
+              // ARCHITECTURE FIX: Unified Premium Alert Banner
+              PremiumAlertBanner(
+                colors: colors,
+                themeColor: colors.primary,
+                icon: Icons.mark_email_unread_rounded,
+                title: l10n.enterOtpTitle,
+                subtitle: l10n.enterOtpSubtitle(widget.email),
+              ),
+              SizedBox(height: Dimensions.spacingExtraLarge),
+
+              // ARCHITECTURE FIX: Premium Card Wrapper
+              Container(
+                padding: EdgeInsets.all(Dimensions.spacingLarge),
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(
+                    Dimensions.borderRadiusLarge,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.otpHint,
+                      style: TextStyle(
+                        fontSize: Dimensions.fontBodyLarge,
+                        fontWeight: FontWeight.w700,
+                        color: colors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: Dimensions.spacingSmall),
+                    TextField(
+                      controller: _otpController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      textAlign: TextAlign.center,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      style: TextStyle(
+                        fontSize: Dimensions.fontHeading1 * 1.2,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 16.0,
+                        color: colors.textPrimary,
+                      ),
+                      decoration: InputDecoration(
+                        counterText: "",
+                        hintText: "••••••",
+                        hintStyle: TextStyle(
+                          color: colors.iconGrey.withOpacity(0.3),
+                        ),
+                        filled: true,
+                        fillColor: colors.background,
+                        errorText: _errorText,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: Dimensions.spacingLarge,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.borderRadius,
+                          ),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.borderRadius,
+                          ),
+                          borderSide: BorderSide(
+                            color: colors.primary,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      onChanged: (val) {
+                        if (val.length == 6) {
+                          FocusScope.of(context).unfocus();
+                          _handleVerify(l10n);
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: Dimensions.spacingMedium),
-              Text(
-                // Safely invokes the generated method from the AppLocalizations class
-                l10n.enterOtpSubtitle(widget.email),
-                style: TextStyle(
-                  fontSize: Dimensions.fontBodyLarge,
-                  color: colors.textSecondary,
-                  height: 1.5,
-                ),
-              ),
+
               SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
-              // Custom OTP Input Field
-              TextField(
-                controller: _otpController,
-                keyboardType: TextInputType.number,
-                maxLength: 6,
-                textAlign: TextAlign.center,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                style: TextStyle(
-                  fontSize: Dimensions.fontHeading1 * 1.2,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 16.0,
-                  color: colors.textPrimary,
-                ),
-                decoration: InputDecoration(
-                  counterText: "",
-                  hintText: l10n.otpHint,
-                  hintStyle: TextStyle(color: colors.iconGrey.withOpacity(0.3)),
-                  filled: true,
-                  fillColor: colors.surface,
-                  errorText: _errorText,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: Dimensions.spacingLarge,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                      Dimensions.borderRadiusLarge,
-                    ),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                      Dimensions.borderRadiusLarge,
-                    ),
-                    borderSide: BorderSide(color: colors.primary, width: 2),
-                  ),
-                ),
-                onChanged: (val) {
-                  if (val.length == 6) {
-                    FocusScope.of(context).unfocus();
-                    _handleVerify(l10n);
-                  }
-                },
-              ),
-
-              SizedBox(height: Dimensions.spacingExtraLarge * 2),
-
-              // Verify Button
               SizedBox(
                 width: double.infinity,
                 height: Dimensions.buttonHeight * 1.2,
@@ -267,6 +300,8 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.primary,
                     foregroundColor: Colors.white,
+                    elevation: 4,
+                    shadowColor: colors.primary.withOpacity(0.4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                         Dimensions.borderRadiusLarge,
@@ -275,20 +310,22 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                   ),
                   onPressed: isVerifying ? null : () => _handleVerify(l10n),
                   child: isVerifying
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3.0,
+                        )
                       : Text(
                           l10n.verifyAccount,
                           style: TextStyle(
                             fontSize: Dimensions.fontTitleMedium,
                             fontWeight: FontWeight.bold,
+                            letterSpacing: 1.0,
                           ),
                         ),
                 ),
               ),
-
               SizedBox(height: Dimensions.spacingLarge),
 
-              // Resend Code Section
               Center(
                 child: TextButton(
                   onPressed: canResend

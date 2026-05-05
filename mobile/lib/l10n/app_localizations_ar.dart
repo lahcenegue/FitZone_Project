@@ -9,7 +9,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get explore => 'استكشاف';
+  String get explore => 'اكتشف';
 
   @override
   String get saved => 'المحفوظات';
@@ -24,13 +24,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get savedItems => 'العناصر المحفوظة';
 
   @override
-  String get userProfile => 'الملف الشخصي';
+  String get userProfile => 'ملف المستخدم';
 
   @override
-  String get navigationError => 'خطأ في التنقل';
+  String get navigationError => 'خطأ في التوجيه';
 
   @override
-  String get search => 'بحث...';
+  String get search => 'ابحث...';
 
   @override
   String get filters => 'تصفية';
@@ -39,10 +39,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get searchingArea => 'جاري البحث في المنطقة...';
 
   @override
-  String get fitnessCenter => 'صالة رياضية';
+  String get fitnessCenter => 'مركز رياضي';
 
   @override
-  String get healthyFood => 'أكل صحي';
+  String get healthyFood => 'طعام صحي';
 
   @override
   String get personalTrainer => 'مدرب شخصي';
@@ -57,7 +57,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get amenities => 'المرافق';
 
   @override
-  String get subscriptionPlans => 'خطط الاشتراك';
+  String get subscriptionPlans => 'باقات الاشتراك';
 
   @override
   String get openNow => 'مفتوح الآن';
@@ -81,7 +81,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get subscribeNow => 'اشترك الآن';
 
   @override
-  String get getDirections => 'الاتجاهات';
+  String get getDirections => 'احصل على الاتجاهات';
 
   @override
   String get crowdLow => 'هادئ';
@@ -96,7 +96,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get liveStatus => 'الحالة الآن';
 
   @override
-  String get reviews => 'التقييمات';
+  String get reviews => 'المراجعات';
 
   @override
   String get viewAllReviews => 'عرض الكل';
@@ -105,10 +105,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get earnPoints => 'اكسب';
 
   @override
-  String get points => 'نقطة';
+  String get points => 'نقاط';
 
   @override
-  String get buyNow => 'ادفع الآن';
+  String get buyNow => 'شراء الآن';
 
   @override
   String get sports => 'الرياضات';
@@ -120,37 +120,37 @@ class AppLocalizationsAr extends AppLocalizations {
   String get searchPlaces => 'ابحث عن صالات، مدربين...';
 
   @override
-  String get gender => 'القسم';
+  String get gender => 'الجنس';
 
   @override
   String get sortBy => 'ترتيب حسب';
 
   @override
-  String get distance => 'الأقرب إليك';
+  String get distance => 'المسافة';
 
   @override
   String get highestRating => 'الأعلى تقييماً';
 
   @override
-  String get applyFilters => 'تطبيق الفلاتر';
+  String get applyFilters => 'تطبيق التصفية';
 
   @override
   String get reset => 'إعادة ضبط';
 
   @override
-  String get category => 'النوع';
+  String get category => 'التصنيف';
 
   @override
   String get gym => 'صالة رياضية';
 
   @override
-  String get trainer => 'مدرب شخصي';
+  String get trainer => 'مدرب';
 
   @override
   String get cityOrRegion => 'المدينة / المنطقة';
 
   @override
-  String get searchRadiusKm => 'نطاق البحث (كيلومتر)';
+  String get searchRadiusKm => 'نطاق البحث (كم)';
 
   @override
   String get specialties => 'التخصصات';
@@ -159,7 +159,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dietaryOptions => 'الخيارات الغذائية';
 
   @override
-  String get equipmentCategories => 'التصنيفات';
+  String get equipmentCategories => 'الأقسام';
 
   @override
   String get selectRegion => 'اختر المنطقة';
@@ -168,7 +168,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get allRegions => 'جميع المناطق';
 
   @override
-  String get locationWarningText => 'يرجى تفعيل الموقع الجغرافي لنتائج أدق';
+  String get locationWarningText => 'يرجى تفعيل خدمات الموقع لنتائج أفضل';
 
   @override
   String get enable => 'تفعيل';
@@ -180,18 +180,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get trainers => 'مدربين';
 
   @override
-  String get food => 'مطاعم';
+  String get food => 'طعام';
 
   @override
   String get stores => 'متاجر';
 
   @override
   String filtersCount(Object count) {
-    return '$count فلاتر';
+    return '$count عوامل تصفية';
   }
 
   @override
-  String get anyDistance => 'بدون حد';
+  String get anyDistance => 'أي مسافة';
 
   @override
   String get anyPrice => 'أي سعر';
@@ -205,125 +205,122 @@ class AppLocalizationsAr extends AppLocalizations {
   String get showLess => 'إخفاء';
 
   @override
-  String get maxPriceLimit => 'الحد الأقصى للسعر';
+  String get maxPriceLimit => 'الحد الأقصى';
 
   @override
-  String get status => 'حالة العمل';
+  String get status => 'الحالة';
 
   @override
-  String get minPrice => 'السعر الأدنى';
+  String get minPrice => 'الحد الأدنى';
 
   @override
-  String get maxPrice => 'السعر الأعلى';
+  String get maxPrice => 'الحد الأقصى';
 
   @override
-  String get any => 'بدون حد';
+  String get any => 'الكل';
 
   @override
   String get nameRequired => 'الاسم الكامل مطلوب';
 
   @override
-  String get invalidName =>
-      'أدخل اسماً صحيحاً (3-50 حرفاً، بدون أرقام أو رموز)';
+  String get invalidName => 'أدخل اسماً صالحاً (3-50 حرف)';
 
   @override
   String get emailRequired => 'البريد الإلكتروني مطلوب';
 
   @override
-  String get invalidEmail => 'أدخل بريداً إلكترونياً صحيحاً';
+  String get invalidEmail => 'أدخل بريداً إلكترونياً صالحاً';
 
   @override
   String get passwordRequired => 'كلمة المرور مطلوبة';
 
   @override
-  String get invalidPassword =>
-      'يجب أن تتكون من 8 أحرف، وتحتوي على حرف كبير، حرف صغير، رقم، ورمز خاص';
+  String get invalidPassword => 'يجب أن تحتوي على 8 أحرف، حرف كبير، رقم ورمز';
 
   @override
-  String get genderRequired => 'تحديد القسم مطلوب';
+  String get genderRequired => 'الجنس مطلوب';
 
   @override
-  String get cityRequired => 'تحديد المدينة مطلوب';
+  String get cityRequired => 'المدينة مطلوبة';
 
   @override
-  String get createAccount => 'إنشاء حساب جديد';
+  String get createAccount => 'إنشاء حساب';
 
   @override
   String get register => 'تسجيل';
 
   @override
-  String get verifyingEmail => 'جاري تأكيد البريد الإلكتروني';
+  String get verifyingEmail => 'جاري التحقق من بريدك';
 
   @override
-  String get verificationSuccess => 'تم تأكيد البريد بنجاح';
+  String get verificationSuccess => 'تم التحقق بنجاح';
 
   @override
-  String get verificationFailed => 'فشل عملية التأكيد';
+  String get verificationFailed => 'فشل التحقق';
 
   @override
-  String get invalidToken => 'رمز التأكيد غير صالح أو مفقود';
+  String get invalidToken => 'الرمز غير صالح أو مفقود';
 
   @override
   String get goHome => 'العودة للرئيسية';
 
   @override
-  String get pleaseWait => 'يرجى الانتظار بينما نقوم بتأمين حسابك';
+  String get pleaseWait => 'يرجى الانتظار لتأمين حسابك';
 
   @override
-  String get tryAgain => 'إعادة المحاولة';
+  String get tryAgain => 'حاول مجدداً';
 
   @override
-  String get completeProfileTitle => 'إكمال الملف';
+  String get completeProfileTitle => 'إكمال الملف الشخصي';
 
   @override
   String get completeProfileSubtitle =>
-      'لضمان بيئة آمنة والامتثال للوائح الأندية الرياضية، يرجى تأكيد هويتك. هذه الخطوة مطلوبة لمرة واحدة لتفعيل عضويتك.';
+      'لضمان بيئة آمنة، يرجى التحقق من هويتك.';
 
   @override
-  String get phoneNumber => 'رقم الهاتف';
+  String get phoneNumber => 'رقم الجوال';
 
   @override
   String get phoneNumberHint => '05XXXXXXXX';
 
   @override
-  String get invalidPhoneNumber => 'أدخل رقم هاتف سعودي صحيح';
+  String get invalidPhoneNumber => 'أدخل رقم جوال سعودي صالح';
 
   @override
   String get idCardImage => 'الهوية الوطنية';
 
   @override
-  String get uploadIdCard => 'اضغط لرفع الهوية';
+  String get uploadIdCard => 'انقر لرفع الهوية';
 
   @override
-  String get faceImage => 'صورة الوجه';
+  String get faceImage => 'الصورة الشخصية';
 
   @override
-  String get uploadFaceImage => 'التقط صورة شخصية';
+  String get uploadFaceImage => 'التقط صورة';
 
   @override
   String get addressOptional => 'العنوان (اختياري)';
 
   @override
-  String get addressHint => 'أدخل عنوانك بالتفصيل';
+  String get addressHint => 'أدخل عنوانك الكامل';
 
   @override
-  String get submitProfile => 'تأكيد وإرسال';
+  String get submitProfile => 'تقديم الملف';
 
   @override
-  String get imagesRequiredError => 'يجب رفع صورة الهوية وصورة الوجه معاً';
+  String get imagesRequiredError => 'صور الهوية والوجه مطلوبة';
 
   @override
-  String get locationFetched => 'تم تحديث الموقع بنجاح';
+  String get locationFetched => 'تم تحديث الموقع';
 
   @override
-  String get refreshLocation => 'تحديث الموقع الحالي';
+  String get refreshLocation => 'تحديث الموقع';
 
   @override
   String get authRequiredTitle => 'تسجيل الدخول مطلوب';
 
   @override
-  String get authRequiredSubtitle =>
-      'يرجى تسجيل الدخول أو إنشاء حساب جديد لإتمام عملية الاشتراك.';
+  String get authRequiredSubtitle => 'يرجى تسجيل الدخول أو إنشاء حساب.';
 
   @override
   String get login => 'تسجيل الدخول';
@@ -333,58 +330,57 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get registrationSuccessMsg =>
-      'لقد أرسلنا رابط التفعيل إلى بريدك الإلكتروني. يرجى مراجعة صندوق الوارد والضغط على الرابط لتفعيل حسابك.';
+      'أرسلنا رابط التحقق لبريدك. يرجى تفعيله.';
 
   @override
   String get ok => 'حسناً';
 
   @override
-  String get awaitingVerificationTitle => 'تأكيد البريد الإلكتروني';
+  String get awaitingVerificationTitle => 'تحقق من بريدك';
 
   @override
   String get awaitingVerificationSubtitle =>
-      'لقد أرسلنا رابط التفعيل إلى بريدك الإلكتروني. يرجى مراجعة صندوق الوارد والضغط على الرابط لتفعيل حسابك.';
+      'أرسلنا رابط التحقق لبريدك. يرجى تفعيله.';
 
   @override
-  String get resendLink => 'إعادة إرسال الرابط';
+  String get resendLink => 'إعادة الإرسال';
 
   @override
   String resendLinkCooldown(Object seconds) {
-    return 'إعادة الإرسال بعد $seconds ثانية';
+    return 'إعادة الإرسال بعد $secondsث';
   }
 
   @override
-  String get verificationSent => 'تم إرسال رابط التفعيل بنجاح.';
+  String get verificationSent => 'تم الإرسال بنجاح.';
 
   @override
-  String get profileIncompleteWarning =>
-      'تم تأكيد البريد! يرجى إكمال ملفك الشخصي لاحقاً لتتمكن من شراء الاشتراكات.';
+  String get profileIncompleteWarning => 'تم التحقق! يرجى إكمال ملفك لاحقاً.';
 
   @override
-  String get backToHome => 'العودة للرئيسية';
+  String get backToHome => 'الرئيسية';
 
   @override
   String get enterOtpTitle => 'أدخل رمز التحقق';
 
   @override
   String enterOtpSubtitle(Object email) {
-    return 'لقد أرسلنا رمزاً من 6 أرقام إلى $email. يرجى إدخاله أدناه.';
+    return 'أرسلنا كود 6 أرقام إلى $email.';
   }
 
   @override
-  String get verifyAccount => 'تأكيد الحساب';
+  String get verifyAccount => 'تحقق من الحساب';
 
   @override
-  String get invalidOtp => 'يرجى إدخال رمز صحيح مكون من 6 أرقام';
+  String get invalidOtp => 'أدخل رمزاً صالحاً';
 
   @override
   String get otpHint => '000000';
 
   @override
-  String get fetchingAddress => 'جاري تحديد العنوان...';
+  String get fetchingAddress => 'جاري جلب العنوان...';
 
   @override
-  String get searchLocationHint => 'ابحث عن مدينة، شارع، أو حي...';
+  String get searchLocationHint => 'ابحث عن مدينة أو حي...';
 
   @override
   String get confirmLocation => 'تأكيد الموقع';
@@ -399,23 +395,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get camera => 'الكاميرا';
 
   @override
-  String get gallery => 'ألبوم الصور';
+  String get gallery => 'الاستوديو';
 
   @override
-  String get loginTitle => 'مرحباً بعودتك';
+  String get loginTitle => 'أهلاً بعودتك';
 
   @override
-  String get loginSubtitle =>
-      'سجل الدخول لحسابك في فت زون لمواصلة رحلتك الرياضية.';
+  String get loginSubtitle => 'سجل دخولك لمتابعة رحلتك الرياضية.';
 
   @override
-  String get forgotPassword => 'هل نسيت كلمة المرور؟';
+  String get forgotPassword => 'نسيت كلمة المرور؟';
 
   @override
   String get dontHaveAccount => 'ليس لديك حساب؟ سجل الآن';
 
   @override
-  String get loginButton => 'تسجيل الدخول';
+  String get loginButton => 'دخول';
 
   @override
   String get emailAddress => 'البريد الإلكتروني';
@@ -424,13 +419,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get password => 'كلمة المرور';
 
   @override
-  String get invalidEmailError => 'يرجى إدخال بريد إلكتروني صحيح';
+  String get invalidEmailError => 'أدخل بريداً صالحاً';
 
   @override
   String get passwordRequiredError => 'كلمة المرور مطلوبة';
 
   @override
-  String get profileTitle => 'الملف الشخصي';
+  String get profileTitle => 'الحساب';
 
   @override
   String get accountSettings => 'إعدادات الحساب';
@@ -448,7 +443,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get guestUser => 'زائر';
 
   @override
-  String get loginToContinue => 'قم بتسجيل الدخول لفتح كافة المزايا';
+  String get loginToContinue => 'سجل الدخول لفتح الميزات';
 
   @override
   String get personalInfo => 'المعلومات الشخصية';
@@ -457,13 +452,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loyaltyPoints => 'نقاط الولاء';
 
   @override
-  String get pointsToPremium => 'اجمع المزيد من النقاط للوصول للعضوية المميزة!';
+  String get pointsToPremium => 'اجمع نقاطاً أكثر للوصول للفئة الممتازة!';
 
   @override
   String get mySubscriptions => 'اشتراكاتي';
 
   @override
-  String get myOrders => 'مشترياتي';
+  String get myOrders => 'طلباتي';
 
   @override
   String get paymentMethods => 'طرق الدفع';
@@ -484,13 +479,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get inviteFriends => 'دعوة الأصدقاء';
 
   @override
-  String get termsOfService => 'شروط الاستخدام';
+  String get termsOfService => 'شروط الخدمة';
 
   @override
   String get appSettings => 'إعدادات التطبيق';
 
   @override
-  String get supportAndAbout => 'الدعم والسياسات';
+  String get supportAndAbout => 'الدعم وحول التطبيق';
 
   @override
   String get helpCenter => 'مركز المساعدة';
@@ -499,16 +494,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get privacyPolicy => 'سياسة الخصوصية';
 
   @override
-  String get activePlans => 'الباقات النشطة';
+  String get activePlans => 'الخطط الفعالة';
 
   @override
   String get membership => 'العضوية';
 
   @override
-  String get basicMembership => 'أساسية';
+  String get basicMembership => 'أساسي';
 
   @override
-  String get loyaltyOverview => 'نظرة على الولاء';
+  String get loyaltyOverview => 'ملخص الولاء';
 
   @override
   String get earned => 'مكتسبة';
@@ -523,21 +518,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get newBadge => 'جديد';
 
   @override
-  String get guest => 'زائر';
+  String get noInternetTitle => 'لا يوجد اتصال';
 
   @override
-  String get noInternetTitle => 'لا يوجد اتصال بالإنترنت';
+  String get noInternetMessage => 'تأكد من اتصالك بالشبكة.';
 
   @override
-  String get noInternetMessage =>
-      'يرجى التحقق من اتصالك بالشبكة والمحاولة مرة أخرى.';
+  String get locationRequiredTitle => 'الموقع مطلوب';
 
   @override
-  String get locationRequiredTitle => 'الموقع الجغرافي مطلوب';
-
-  @override
-  String get locationRequiredMessage =>
-      'تطبيق FitZone يحتاج إلى موقعك للعثور على الصالات والخدمات القريبة منك.';
+  String get locationRequiredMessage => 'نحتاج لموقعك لعرض الصالات القريبة.';
 
   @override
   String get retryButton => 'إعادة المحاولة';
@@ -547,24 +537,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get locationTimeoutMessage =>
-      'لم نتمكن من تحديد موقعك بدقة. سيتم توجيهك للخريطة لتصفح الخدمات يدوياً.';
+      'فشل تحديد الموقع. نعرض الخريطة للبحث اليدوي.';
 
   @override
   String get forgotPasswordTitle => 'نسيت كلمة المرور؟';
 
   @override
-  String get forgotPasswordSubtitle =>
-      'أدخل بريدك الإلكتروني المسجل لتلقي رمز إعادة تعيين كلمة المرور.';
+  String get forgotPasswordSubtitle => 'أدخل بريدك لتلقي رمز الاستعادة.';
 
   @override
-  String get sendResetCode => 'إرسال رمز الاسترداد';
+  String get sendResetCode => 'إرسال الرمز';
 
   @override
-  String get resetPasswordTitle => 'إعادة تعيين كلمة المرور';
+  String get resetPasswordTitle => 'استعادة كلمة المرور';
 
   @override
-  String get resetPasswordSubtitle =>
-      'أدخل الرمز المكون من 6 أرقام المرسل إلى بريدك الإلكتروني وكلمة المرور الجديدة.';
+  String get resetPasswordSubtitle => 'أدخل الرمز وكلمة المرور الجديدة.';
 
   @override
   String get newPassword => 'كلمة المرور الجديدة';
@@ -573,88 +561,82 @@ class AppLocalizationsAr extends AppLocalizations {
   String get confirmNewPassword => 'تأكيد كلمة المرور';
 
   @override
-  String get passwordsDoNotMatch => 'كلمات المرور غير متطابقة.';
+  String get passwordsDoNotMatch => 'كلمتا المرور غير متطابقتين.';
 
   @override
-  String get resetPasswordSuccess =>
-      'تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.';
+  String get resetPasswordSuccess => 'تم التحديث بنجاح. يمكنك تسجيل الدخول.';
 
   @override
-  String get resetCodeSent =>
-      'إذا كان هذا البريد مسجلاً، فقد تم إرسال رمز الاسترداد.';
+  String get resetCodeSent => 'إذا كان البريد مسجلاً، تم إرسال الرمز.';
 
   @override
-  String get verifyAndReset => 'تحقق وإعادة تعيين';
+  String get verifyAndReset => 'تحقق وتحديث';
 
   @override
-  String get errorRequestCancelled => 'تم إلغاء الطلب من الخادم.';
+  String get errorRequestCancelled => 'تم إلغاء الطلب.';
 
   @override
-  String get errorConnectionTimeout => 'انتهى وقت الاتصال بالخادم.';
+  String get errorConnectionTimeout => 'انتهى وقت الاتصال.';
 
   @override
-  String get errorReceiveTimeout => 'انتهى وقت الاستجابة من الخادم.';
+  String get errorReceiveTimeout => 'انتهى وقت الاستقبال.';
 
   @override
-  String get errorSendTimeout => 'انتهى وقت إرسال البيانات للخادم.';
+  String get errorSendTimeout => 'انتهى وقت الإرسال.';
 
   @override
-  String get errorNoInternet =>
-      'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة.';
+  String get errorNoInternet => 'لا يوجد اتصال بالإنترنت.';
 
   @override
   String get errorUnexpected => 'حدث خطأ غير متوقع.';
 
   @override
-  String get errorUnknownStatus => 'خطأ غير معروف في رمز الحالة.';
+  String get errorUnknownStatus => 'رمز خطأ غير معروف.';
 
   @override
   String get errorBadRequest => 'طلب غير صالح.';
 
   @override
-  String get errorUnauthorized =>
-      'وصول غير مصرح به. يرجى تسجيل الدخول مرة أخرى.';
+  String get errorUnauthorized => 'غير مصرح لك. سجل دخولك مجدداً.';
 
   @override
-  String get errorForbidden => 'تم رفض الوصول.';
+  String get errorForbidden => 'وصول مرفوض.';
 
   @override
-  String get errorNotFound => 'المورد المطلوب غير موجود.';
+  String get errorNotFound => 'البيانات غير موجودة.';
 
   @override
-  String get errorValidation => 'خطأ في التحقق من صحة البيانات.';
+  String get errorValidation => 'خطأ في التحقق من البيانات.';
 
   @override
-  String get errorInternalServer =>
-      'خطأ داخلي في الخادم. يرجى المحاولة لاحقاً.';
+  String get errorInternalServer => 'خطأ في الخادم. حاول لاحقاً.';
 
   @override
-  String get errorBadGateway => 'خطأ في البوابة (Bad gateway).';
+  String get errorBadGateway => 'بوابة غير صالحة.';
 
   @override
   String get errorOops => 'عذراً، حدث خطأ ما.';
 
   @override
-  String get avatarUpdatedSuccessfully => 'تم تحديث الصورة الشخصية بنجاح!';
+  String get avatarUpdatedSuccessfully => 'تم تحديث الصورة بنجاح!';
 
   @override
   String get basicInfo => 'المعلومات الأساسية';
 
   @override
-  String get identityVerification => 'توثيق الحساب';
+  String get identityVerification => 'التحقق من الهوية';
 
   @override
-  String get editProfile => 'تعديل البيانات';
+  String get editProfile => 'تعديل الملف';
 
   @override
   String get saveChanges => 'حفظ التغييرات';
 
   @override
-  String get profileUpdatedSuccessfully => 'تم تحديث البيانات بنجاح!';
+  String get profileUpdatedSuccessfully => 'تم التحديث بنجاح!';
 
   @override
-  String get emailChangedWarning =>
-      'تم تغيير البريد الإلكتروني. يرجى تأكيده للمتابعة.';
+  String get emailChangedWarning => 'تغير البريد. يرجى التحقق منه.';
 
   @override
   String get verified => 'موثق';
@@ -679,26 +661,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get deleteAccountWarningMessage =>
-      'هذا الإجراء نهائي ولا يمكن التراجع عنه. سيتم مسح جميع بياناتك، اشتراكاتك، ونقاطك نهائياً من خوادمنا.';
+      'هذا الإجراء نهائي ولا يمكن التراجع عنه.';
 
   @override
   String get confirmDeleteAccount => 'نعم، احذف حسابي نهائياً';
 
   @override
-  String get cancel => 'إلغاء الإجراء';
+  String get cancel => 'تراجع';
 
   @override
-  String get changePasswordSubtitle =>
-      'أدخل كلمة المرور الحالية واختر كلمة مرور جديدة وآمنة لحماية حسابك.';
+  String get changePasswordSubtitle => 'أدخل كلمة المرور الحالية والجديدة.';
 
   @override
-  String get checkoutTitle => 'إتمام الدفع';
+  String get checkoutTitle => 'الدفع';
 
   @override
   String get orderSummary => 'ملخص الطلب';
 
   @override
-  String get paymentMethod => 'وسيلة الدفع';
+  String get paymentMethod => 'طريقة الدفع';
 
   @override
   String get payNow => 'ادفع الآن';
@@ -710,25 +691,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get applePay => 'Apple Pay';
 
   @override
-  String get paymentSuccess => 'تم الدفع وتفعيل الاشتراك بنجاح!';
+  String get paymentSuccess => 'تم الدفع بنجاح!';
 
   @override
-  String get activeSubscription => 'نشط';
+  String get activeSubscription => 'فعال';
 
   @override
   String get expiredSubscription => 'منتهي';
 
   @override
-  String get scanQrToEnter => 'امسح الرمز عند بوابة الدخول';
+  String get scanQrToEnter => 'امسح الـ QR للدخول';
 
   @override
   String get validUntil => 'صالح حتى';
 
   @override
-  String get totalAmount => 'الإجمالي';
+  String get totalAmount => 'المبلغ الإجمالي';
 
   @override
-  String get noSubscriptions => 'لا توجد لديك اشتراكات حالية.';
+  String get noSubscriptions => 'لا تملك اشتراكات فعالة.';
 
   @override
   String get subscriptionDetails => 'تفاصيل الاشتراك';
@@ -737,16 +718,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get validity => 'فترة الصلاحية';
 
   @override
-  String get daysRemaining => 'يوم متبقي';
+  String get daysRemaining => 'الأيام المتبقية';
 
   @override
-  String get tapToExpandQr => 'اضغط لتكبير الرمز';
+  String get tapToExpandQr => 'انقر لتكبير الـ QR';
 
   @override
   String get gymLocation => 'موقع الصالة';
 
   @override
-  String get openInMaps => 'الفتح في الخرائط';
+  String get openInMaps => 'فتح في الخرائط';
 
   @override
   String get subscriptionProgress => 'تقدم الاشتراك';
@@ -767,19 +748,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get today => 'اليوم';
 
   @override
-  String get noReviewsYet => 'لا توجد تقييمات بعد';
+  String get noReviewsYet => 'لا توجد مراجعات';
 
   @override
-  String get beFirstToReview => 'كن أول من يقيّم هذه الصالة!';
+  String get beFirstToReview => 'كن أول من يقيّم';
 
   @override
   String get otherBranches => 'فروع أخرى';
 
   @override
-  String get nearbyGyms => 'صالات قريبة منك';
+  String get nearbyGyms => 'صالات قريبة';
 
   @override
-  String get navigate => 'الاتجاهات';
+  String get navigate => 'ملاحة';
 
   @override
   String get menOnly => 'للرجال فقط';
@@ -798,4 +779,279 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get gymAllocation => 'التخصيص';
+
+  @override
+  String get newLabel => 'جديد';
+
+  @override
+  String get walletAndRewards => 'المحفظة والمكافآت';
+
+  @override
+  String get financialWallet => 'المحفظة المالية';
+
+  @override
+  String get pointsWallet => 'محفظة النقاط';
+
+  @override
+  String get fiatBalance => 'الرصيد المالي';
+
+  @override
+  String get withdrawFunds => 'سحب الرصيد';
+
+  @override
+  String get addBankAccount => 'إضافة حساب بنكي';
+
+  @override
+  String get linkedAccount => 'الحساب المرتبط';
+
+  @override
+  String get transactionsHistory => 'سجل العمليات';
+
+  @override
+  String get spendablePoints => 'النقاط المتاحة';
+
+  @override
+  String get lifetimePoints => 'النقاط التراكمية';
+
+  @override
+  String get currentLevel => 'المستوى الحالي';
+
+  @override
+  String get buyPoints => 'شراء نقاط';
+
+  @override
+  String get rewardsHistory => 'سجل المكافآت';
+
+  @override
+  String get competitionTrack => 'مضمار المنافسات';
+
+  @override
+  String get noTransactions => 'لا توجد عمليات سابقة';
+
+  @override
+  String get noRewards => 'لم تقم باستهلاك أي مكافأة حتى الآن';
+
+  @override
+  String get dashboardDesc =>
+      'إدارة رصيدك المالي، الحسابات البنكية، ومتابعة رحلة المكافآت.';
+
+  @override
+  String get seeAll => 'عرض الكل';
+
+  @override
+  String get statusCompleted => 'مكتمل';
+
+  @override
+  String get statusPending => 'قيد الانتظار';
+
+  @override
+  String get statusFailed => 'مرفوض';
+
+  @override
+  String get trackOverview => 'موقعك الحالي على مضمار الإنجاز FitZone Rewards.';
+
+  @override
+  String get rewardDetails => 'تفاصيل المكافأة';
+
+  @override
+  String get consumedBtn => 'تم الاستلام';
+
+  @override
+  String unlockedRewardTitle(String title) {
+    return 'مكافأة المستوى $title';
+  }
+
+  @override
+  String get unlockedDesc => 'تهانينا! لقد حصلت على هذه المكافأة لتقدمك.';
+
+  @override
+  String get lockedDesc => 'اجمع مزيداً من النقاط لفتح هذه المكافأة الرائعة.';
+
+  @override
+  String get consumedDesc => 'لقد قمت باستلام هذه المكافأة مسبقاً.';
+
+  @override
+  String get unlockedBtn => 'استلم الآن';
+
+  @override
+  String get lockedBtn => 'مغلق';
+
+  @override
+  String get achievementTrack => 'مضمار الإنجاز';
+
+  @override
+  String get youAreHere => 'أنت هنا';
+
+  @override
+  String get tapToSeeReward => 'اضغط لمعرفة المكافأة';
+
+  @override
+  String get pointsToNextMilestone => 'نقطة للمستوى التالي';
+
+  @override
+  String get levelProgress => 'تقدم المستوى';
+
+  @override
+  String get pointsPackages => 'باقات النقاط';
+
+  @override
+  String get choosePackage => 'اختر الباقة المناسبة';
+
+  @override
+  String get levelUpRewards => 'ارتقِ بمستوى مكافآتك واحصل على ميزات حصرية!';
+
+  @override
+  String get mostPopular => 'الأكثر طلباً';
+
+  @override
+  String get confirmPurchase => 'تأكيد الشراء';
+
+  @override
+  String get purchaseSuccessful => 'تم شراء النقاط بنجاح!';
+
+  @override
+  String get processingPayment => 'جاري معالجة الدفع...';
+
+  @override
+  String payAmount(String amount) {
+    return 'ادفع $amount ر.س';
+  }
+
+  @override
+  String get bankName => 'اسم البنك';
+
+  @override
+  String get accountNumber => 'رقم الحساب';
+
+  @override
+  String get iban => 'رقم الآيبان (IBAN)';
+
+  @override
+  String get beneficiaryName => 'اسم المستفيد';
+
+  @override
+  String get saveAccount => 'حفظ بيانات الحساب';
+
+  @override
+  String get enterValidIban => 'يرجى إدخال رقم آيبان صحيح';
+
+  @override
+  String get accountSavedSuccessfully => 'تم حفظ الحساب البنكي بنجاح';
+
+  @override
+  String get withdrawAmount => 'المبلغ المراد سحبه';
+
+  @override
+  String minWithdrawal(String amount) {
+    return 'الحد الأدنى للسحب هو $amount ر.س';
+  }
+
+  @override
+  String get insufficientBalance => 'الرصيد المتاح غير كافٍ لإتمام العملية';
+
+  @override
+  String get confirmWithdrawal => 'تأكيد السحب';
+
+  @override
+  String get withdrawalRequested =>
+      'تم رفع طلب السحب بنجاح. العملية قيد المراجعة.';
+
+  @override
+  String get amountRequired => 'يرجى إدخال المبلغ';
+
+  @override
+  String get totalEarned => 'إجمالي المكتسب';
+
+  @override
+  String get totalSpent => 'إجمالي المستهلك';
+
+  @override
+  String get pendingWithdrawals => 'سحوبات قيد الانتظار';
+
+  @override
+  String get completedWithdrawals => 'سحوبات مكتملة';
+
+  @override
+  String get all => 'الكل';
+
+  @override
+  String get deposits => 'إيداعات';
+
+  @override
+  String get withdrawals => 'سحوبات';
+
+  @override
+  String get refunds => 'مسترجعة';
+
+  @override
+  String get pointsHistory => 'سجل النقاط';
+
+  @override
+  String get myRewards => 'هداياي ومكافآتي';
+
+  @override
+  String get pointsEarned => 'اكتساب';
+
+  @override
+  String get pointsRedeemed => 'استهلاك';
+
+  @override
+  String get rewardAvailable => 'متاحة';
+
+  @override
+  String get rewardConsumed => 'مستهلكة';
+
+  @override
+  String get pointsToNextTier => 'نقطة للوصول إلى';
+
+  @override
+  String get currentTier => 'المستوى الحالي';
+
+  @override
+  String get lifetimePointsTitle => 'النقاط التراكمية:';
+
+  @override
+  String get lifetimePointsDesc => '(تُستخدم لترقية مستوى حسابك)';
+
+  @override
+  String get viewRoadmap => 'عرض المضمار';
+
+  @override
+  String get myRewardsDesc => 'استعرض الهدايا الخاصة بك';
+
+  @override
+  String get claimRewardBtn => 'استلام الهدية';
+
+  @override
+  String get useRewardBtn => 'استخدام الهدية';
+
+  @override
+  String get rewardClaimedSuccess =>
+      'تم استلام الهدية بنجاح! تجدها الآن في محفظتك.';
+
+  @override
+  String get claimedDesc => 'الهدية في محفظتك، جاهزة للاستخدام.';
+
+  @override
+  String get qrScanInstruction =>
+      'يرجى إظهار هذا الرمز لموظف الاستقبال في الصالة ليتم مسحه وتأكيد الدخول.';
+
+  @override
+  String get rewardQrCode => 'رمز تفعيل الهدية';
+
+  @override
+  String get confirmConsumeTitle => 'تأكيد الاستخدام';
+
+  @override
+  String get confirmConsumeDesc =>
+      'هل أنت متأكد أنك تريد تفعيل واستخدام هذه الهدية الآن؟ لا يمكن التراجع عن هذه العملية.';
+
+  @override
+  String get confirmBtn => 'تأكيد واستخدام';
+
+  @override
+  String get cancelBtn => 'تراجع';
+
+  @override
+  String get rewardConsumedSuccess => 'تم استخدام الهدية بنجاح!';
 }

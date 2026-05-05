@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 
 import '../../../../core/presentation/widgets/premium_alert_banner.dart';
+import '../../../../core/presentation/widgets/premium_text_field.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -23,8 +24,21 @@ class DeleteAccountScreen extends ConsumerStatefulWidget {
 
 class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
   final Logger _logger = Logger('DeleteAccountScreen');
+  late TextEditingController _passwordController;
   bool _isPasswordObscured = true;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   Future<void> _submit(AppLocalizations l10n, AppColors colors) async {
     if (!ref.read(deleteAccountFormProvider.notifier).validateAll(l10n)) return;
@@ -89,7 +103,6 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ARCHITECTURE FIX: Using the unified Design System Component in centered mode
               PremiumAlertBanner(
                 colors: colors,
                 themeColor: colors.error,
@@ -99,7 +112,6 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
                 isCentered: true,
                 customIconSize: Dimensions.iconLarge * 1.5,
               ),
-
               SizedBox(height: Dimensions.spacingExtraLarge),
 
               Container(
@@ -117,82 +129,28 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
                     ),
                   ],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.password,
-                      style: TextStyle(
-                        color: colors.textSecondary,
-                        fontSize: Dimensions.fontBodyMedium,
-                        fontWeight: FontWeight.w700,
-                      ),
+                child: PremiumTextField(
+                  label: l10n.password,
+                  hintText: '••••••••',
+                  controller: _passwordController,
+                  icon: Icons.lock_outline_rounded,
+                  obscureText: _isPasswordObscured,
+                  errorText: formState.passwordError,
+                  colors: colors,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordObscured
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: colors.iconGrey,
                     ),
-                    SizedBox(height: Dimensions.spacingSmall),
-                    TextFormField(
-                      initialValue: formState.password,
-                      obscureText: _isPasswordObscured,
-                      style: TextStyle(
-                        color: colors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.lock_outline_rounded,
-                          color: colors.iconGrey,
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isPasswordObscured
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: colors.iconGrey,
-                          ),
-                          onPressed: () => setState(
-                            () => _isPasswordObscured = !_isPasswordObscured,
-                          ),
-                        ),
-                        filled: true,
-                        fillColor: colors.background,
-                        errorText: formState.passwordError,
-                        contentPadding: EdgeInsets.all(
-                          Dimensions.spacingMedium,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.borderRadius,
-                          ),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.borderRadius,
-                          ),
-                          borderSide: BorderSide(
-                            color: colors.iconGrey.withOpacity(0.1),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.borderRadius,
-                          ),
-                          borderSide: BorderSide(color: colors.error, width: 2),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.borderRadius,
-                          ),
-                          borderSide: BorderSide(
-                            color: colors.error,
-                            width: 1.5,
-                          ),
-                        ),
-                      ),
-                      onChanged: (val) => ref
-                          .read(deleteAccountFormProvider.notifier)
-                          .updatePassword(val, l10n),
+                    onPressed: () => setState(
+                      () => _isPasswordObscured = !_isPasswordObscured,
                     ),
-                  ],
+                  ),
+                  onChanged: (val) => ref
+                      .read(deleteAccountFormProvider.notifier)
+                      .updatePassword(val, l10n),
                 ),
               ),
 

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 
 import '../../../../core/presentation/widgets/premium_alert_banner.dart';
+import '../../../../core/presentation/widgets/premium_text_field.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme_provider.dart';
@@ -22,10 +23,31 @@ class ChangePasswordScreen extends ConsumerStatefulWidget {
 
 class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   final Logger _logger = Logger('ChangePasswordScreen');
+
+  late TextEditingController _oldPasswordController;
+  late TextEditingController _newPasswordController;
+  late TextEditingController _confirmPasswordController;
+
   bool _isOldPasswordObscured = true;
   bool _isNewPasswordObscured = true;
   bool _isConfirmPasswordObscured = true;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _oldPasswordController = TextEditingController();
+    _newPasswordController = TextEditingController();
+    _confirmPasswordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _oldPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   Future<void> _submit(AppLocalizations l10n, AppColors colors) async {
     if (!ref.read(changePasswordFormProvider.notifier).validateAll(l10n))
@@ -91,14 +113,12 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ARCHITECTURE FIX: Using the unified Design System Component
               PremiumAlertBanner(
                 colors: colors,
                 themeColor: colors.primary,
                 icon: Icons.security_rounded,
                 subtitle: l10n.changePasswordSubtitle,
               ),
-
               SizedBox(height: Dimensions.spacingExtraLarge),
 
               Container(
@@ -119,49 +139,83 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildPasswordField(
+                    PremiumTextField(
                       label: l10n.oldPassword,
-                      value: formState.oldPassword,
+                      hintText: '••••••••',
+                      controller: _oldPasswordController,
+                      icon: Icons.lock_outline_rounded,
+                      obscureText: _isOldPasswordObscured,
                       errorText: formState.oldPasswordError,
-                      isObscured: _isOldPasswordObscured,
-                      onToggle: () => setState(
-                        () => _isOldPasswordObscured = !_isOldPasswordObscured,
+                      colors: colors,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isOldPasswordObscured
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: colors.iconGrey,
+                        ),
+                        onPressed: () => setState(
+                          () =>
+                              _isOldPasswordObscured = !_isOldPasswordObscured,
+                        ),
                       ),
                       onChanged: (val) => ref
                           .read(changePasswordFormProvider.notifier)
                           .updateOldPassword(val, l10n),
-                      colors: colors,
                     ),
                     SizedBox(height: Dimensions.spacingLarge),
                     Divider(color: colors.iconGrey.withOpacity(0.1)),
                     SizedBox(height: Dimensions.spacingLarge),
-                    _buildPasswordField(
+
+                    PremiumTextField(
                       label: l10n.newPassword,
-                      value: formState.newPassword,
+                      hintText: '••••••••',
+                      controller: _newPasswordController,
+                      icon: Icons.lock_outline_rounded,
+                      obscureText: _isNewPasswordObscured,
                       errorText: formState.newPasswordError,
-                      isObscured: _isNewPasswordObscured,
-                      onToggle: () => setState(
-                        () => _isNewPasswordObscured = !_isNewPasswordObscured,
+                      colors: colors,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isNewPasswordObscured
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: colors.iconGrey,
+                        ),
+                        onPressed: () => setState(
+                          () =>
+                              _isNewPasswordObscured = !_isNewPasswordObscured,
+                        ),
                       ),
                       onChanged: (val) => ref
                           .read(changePasswordFormProvider.notifier)
                           .updateNewPassword(val, l10n),
-                      colors: colors,
                     ),
                     SizedBox(height: Dimensions.spacingLarge),
-                    _buildPasswordField(
+
+                    PremiumTextField(
                       label: l10n.confirmNewPassword,
-                      value: formState.confirmPassword,
+                      hintText: '••••••••',
+                      controller: _confirmPasswordController,
+                      icon: Icons.lock_outline_rounded,
+                      obscureText: _isConfirmPasswordObscured,
                       errorText: formState.confirmPasswordError,
-                      isObscured: _isConfirmPasswordObscured,
-                      onToggle: () => setState(
-                        () => _isConfirmPasswordObscured =
-                            !_isConfirmPasswordObscured,
+                      colors: colors,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isConfirmPasswordObscured
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: colors.iconGrey,
+                        ),
+                        onPressed: () => setState(
+                          () => _isConfirmPasswordObscured =
+                              !_isConfirmPasswordObscured,
+                        ),
                       ),
                       onChanged: (val) => ref
                           .read(changePasswordFormProvider.notifier)
                           .updateConfirmPassword(val, l10n),
-                      colors: colors,
                     ),
                   ],
                 ),
@@ -174,76 +228,6 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildPasswordField({
-    required String label,
-    required String value,
-    required String? errorText,
-    required bool isObscured,
-    required VoidCallback onToggle,
-    required Function(String) onChanged,
-    required AppColors colors,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: colors.textSecondary,
-            fontSize: Dimensions.fontBodyMedium,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        SizedBox(height: Dimensions.spacingSmall),
-        TextFormField(
-          initialValue: value,
-          obscureText: isObscured,
-          style: TextStyle(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-          decoration: InputDecoration(
-            prefixIcon: Icon(
-              Icons.lock_outline_rounded,
-              color: colors.iconGrey,
-            ),
-            suffixIcon: IconButton(
-              icon: Icon(
-                isObscured
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
-                color: colors.iconGrey,
-              ),
-              onPressed: onToggle,
-            ),
-            filled: true,
-            fillColor: colors.background,
-            errorText: errorText,
-            errorMaxLines: 2,
-            contentPadding: EdgeInsets.all(Dimensions.spacingMedium),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.iconGrey.withOpacity(0.1)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.primary, width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.error, width: 1.5),
-            ),
-          ),
-          onChanged: onChanged,
-        ),
-      ],
     );
   }
 

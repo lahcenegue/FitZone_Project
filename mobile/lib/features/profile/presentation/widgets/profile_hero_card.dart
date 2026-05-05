@@ -1,7 +1,7 @@
+import 'package:fitzone/core/routing/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -13,8 +13,6 @@ class ProfileHeroCard extends StatelessWidget {
   final AppColors colors;
   final AppLocalizations l10n;
 
-  // Added a callback to handle avatar update logic externally
-  // keeping this widget strictly for UI presentation (Single Responsibility).
   final VoidCallback? onEditAvatarPressed;
 
   const ProfileHeroCard({
@@ -30,7 +28,6 @@ class ProfileHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!isLoggedIn) return _buildGuestCard(context);
 
-    // Provide a fallback initial if the user's name is missing
     final String initial = user?.fullName.isNotEmpty == true
         ? user!.fullName[0].toUpperCase()
         : '?';
@@ -52,18 +49,15 @@ class ProfileHeroCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Avatar & Name Section
             Expanded(
               flex: 5,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Avatar Stack with Edit Button and Verified Badge
                   Stack(
                     clipBehavior: Clip.none,
                     alignment: Alignment.center,
                     children: [
-                      // Main Avatar
                       GestureDetector(
                         onTap: onEditAvatarPressed,
                         child: CircleAvatar(
@@ -84,9 +78,6 @@ class ProfileHeroCard extends StatelessWidget {
                               : null,
                         ),
                       ),
-
-                      // Verified Badge (Bottom Right)
-                      // FIXED: Now checks if the KYC profile is complete instead of just email verification
                       if (user?.profileIsComplete == true)
                         Positioned(
                           bottom: 0,
@@ -99,14 +90,11 @@ class ProfileHeroCard extends StatelessWidget {
                             ),
                             child: Icon(
                               Icons.verified_rounded,
-                              color: Colors
-                                  .green, // Optional: Changed to green for a stronger 'verified' feeling, adjust to colors.primary if you prefer
+                              color: Colors.green,
                               size: Dimensions.iconLarge,
                             ),
                           ),
                         ),
-
-                      // Edit Avatar Button (Bottom Left)
                       Positioned(
                         bottom: 0,
                         left: -4,
@@ -123,7 +111,7 @@ class ProfileHeroCard extends StatelessWidget {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: colors.shadow.withOpacity(0.15),
+                                  color: colors.shadow.withValues(alpha: 0.15),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -140,8 +128,6 @@ class ProfileHeroCard extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: Dimensions.spacingMedium),
-
-                  // User Name
                   Text(
                     user?.fullName ?? '',
                     style: TextStyle(
@@ -155,10 +141,9 @@ class ProfileHeroCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: Dimensions.spacingTiny),
-
-                  // User City
                   Text(
-                    user?.city ?? l10n.guest,
+                    // FIXED: Used guestUser instead of the undefined 'guest'
+                    user?.city ?? l10n.guestUser,
                     style: TextStyle(
                       fontSize: Dimensions.fontBodyLarge,
                       color: colors.textSecondary,
@@ -171,17 +156,13 @@ class ProfileHeroCard extends StatelessWidget {
                 ],
               ),
             ),
-
-            // Vertical Divider
             VerticalDivider(
               width: Dimensions.spacingExtraLarge,
               thickness: Dimensions.dividerHeight,
-              color: colors.iconGrey.withOpacity(0.2),
+              color: colors.iconGrey.withValues(alpha: 0.2),
               indent: Dimensions.spacingMedium,
               endIndent: Dimensions.spacingMedium,
             ),
-
-            // User Stats Section
             Expanded(
               flex: 4,
               child: Column(
@@ -194,13 +175,13 @@ class ProfileHeroCard extends StatelessWidget {
                   ),
                   Divider(
                     height: Dimensions.spacingLarge,
-                    color: colors.iconGrey.withOpacity(0.2),
+                    color: colors.iconGrey.withValues(alpha: 0.2),
                     thickness: Dimensions.dividerHeight,
                   ),
                   _buildStatItem('0', l10n.activePlans),
                   Divider(
                     height: Dimensions.spacingLarge,
-                    color: colors.iconGrey.withOpacity(0.2),
+                    color: colors.iconGrey.withValues(alpha: 0.2),
                     thickness: Dimensions.dividerHeight,
                   ),
                   _buildStatItem(l10n.basicMembership, l10n.membership),
@@ -213,7 +194,6 @@ class ProfileHeroCard extends StatelessWidget {
     );
   }
 
-  /// Builds an individual statistics item (Value and Label)
   Widget _buildStatItem(String value, String label) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,7 +218,6 @@ class ProfileHeroCard extends StatelessWidget {
     );
   }
 
-  /// Builds the alternative card displayed when the user is not authenticated
   Widget _buildGuestCard(BuildContext context) {
     return Container(
       width: double.infinity,
@@ -282,7 +261,9 @@ class ProfileHeroCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(Dimensions.borderRadius),
               ),
             ),
-            onPressed: () => context.push(RoutePaths.login),
+            onPressed: () {
+              context.push(RoutePaths.login);
+            },
             child: Text(
               l10n.login,
               style: const TextStyle(fontWeight: FontWeight.bold),

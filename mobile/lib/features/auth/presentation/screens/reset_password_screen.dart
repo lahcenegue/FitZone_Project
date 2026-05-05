@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/presentation/widgets/premium_alert_banner.dart';
+import '../../../../core/presentation/widgets/premium_text_field.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -12,7 +14,6 @@ import '../providers/auth_provider.dart';
 
 class ResetPasswordScreen extends ConsumerStatefulWidget {
   final String email;
-
   const ResetPasswordScreen({super.key, required this.email});
 
   @override
@@ -26,7 +27,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  bool _isPasswordObscured = true;
+  bool _isNewPasswordObscured = true;
+  bool _isConfirmPasswordObscured = true;
   bool _isLoading = false;
 
   @override
@@ -61,14 +63,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           .confirmPasswordReset(widget.email, otp, newPassword);
       if (mounted) {
         _showSnackBar(context, l10n.resetPasswordSuccess, colors.success);
-        context.go(
-          RoutePaths.login,
-        ); // Return to login directly after successful reset
+        context.go(RoutePaths.login);
       }
     } catch (e) {
-      if (mounted) {
-        _showSnackBar(context, e.toString(), colors.error);
-      }
+      if (mounted) _showSnackBar(context, e.toString(), colors.error);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -116,85 +114,129 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: Dimensions.spacingLarge),
-              Text(
-                l10n.resetPasswordTitle,
-                style: TextStyle(
-                  fontSize: Dimensions.fontHeading1 * 1.2,
-                  fontWeight: FontWeight.w900,
-                  color: colors.textPrimary,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              SizedBox(height: Dimensions.spacingTiny),
-              Text(
-                l10n.resetPasswordSubtitle,
-                style: TextStyle(
-                  fontSize: Dimensions.fontBodyLarge,
-                  color: colors.textSecondary,
-                  height: 1.4,
-                ),
+
+              // ARCHITECTURE FIX: Unified Premium Alert Banner
+              PremiumAlertBanner(
+                colors: colors,
+                themeColor: colors.primary,
+                icon: Icons.password_rounded,
+                title: l10n.resetPasswordTitle,
+                subtitle: l10n.resetPasswordSubtitle,
               ),
               SizedBox(height: Dimensions.spacingExtraLarge),
 
-              // OTP Input
-              Text(
-                l10n.otpHint,
-                style: TextStyle(
-                  fontSize: Dimensions.fontBodyLarge,
-                  fontWeight: FontWeight.w700,
-                  color: colors.textPrimary,
-                ),
-              ),
-              SizedBox(height: Dimensions.spacingSmall),
-              TextField(
-                controller: _otpController,
-                keyboardType: TextInputType.number,
-                maxLength: 6,
-                textAlign: TextAlign.center,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                style: TextStyle(
-                  fontSize: Dimensions.fontHeading1,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 16.0,
-                  color: colors.textPrimary,
-                ),
-                decoration: InputDecoration(
-                  counterText: "",
-                  filled: true,
-                  fillColor: colors.surface,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: Dimensions.spacingMedium,
+              // ARCHITECTURE FIX: Premium Card Wrapper
+              Container(
+                padding: EdgeInsets.all(Dimensions.spacingLarge),
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(
+                    Dimensions.borderRadiusLarge,
                   ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                      Dimensions.borderRadius,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
                     ),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                      Dimensions.borderRadius,
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.otpHint,
+                      style: TextStyle(
+                        fontSize: Dimensions.fontBodyLarge,
+                        fontWeight: FontWeight.w700,
+                        color: colors.textPrimary,
+                      ),
                     ),
-                    borderSide: BorderSide(color: colors.primary, width: 2),
-                  ),
+                    SizedBox(height: Dimensions.spacingSmall),
+                    TextField(
+                      controller: _otpController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      textAlign: TextAlign.center,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      style: TextStyle(
+                        fontSize: Dimensions.fontHeading1,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 16.0,
+                        color: colors.textPrimary,
+                      ),
+                      decoration: InputDecoration(
+                        counterText: "",
+                        filled: true,
+                        fillColor: colors.background,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: Dimensions.spacingMedium,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.borderRadius,
+                          ),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.borderRadius,
+                          ),
+                          borderSide: BorderSide(
+                            color: colors.primary,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: Dimensions.spacingLarge),
+
+                    PremiumTextField(
+                      label: l10n.newPassword,
+                      hintText: '••••••••',
+                      controller: _newPasswordController,
+                      icon: Icons.lock_outline_rounded,
+                      obscureText: _isNewPasswordObscured,
+                      colors: colors,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isNewPasswordObscured
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: colors.iconGrey,
+                        ),
+                        onPressed: () => setState(
+                          () =>
+                              _isNewPasswordObscured = !_isNewPasswordObscured,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: Dimensions.spacingMedium),
+
+                    PremiumTextField(
+                      label: l10n.confirmNewPassword,
+                      hintText: '••••••••',
+                      controller: _confirmPasswordController,
+                      icon: Icons.lock_outline_rounded,
+                      obscureText: _isConfirmPasswordObscured,
+                      colors: colors,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isConfirmPasswordObscured
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: colors.iconGrey,
+                        ),
+                        onPressed: () => setState(
+                          () => _isConfirmPasswordObscured =
+                              !_isConfirmPasswordObscured,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: Dimensions.spacingLarge),
 
-              // New Password Input
-              _buildPasswordField(
-                l10n.newPassword,
-                _newPasswordController,
-                colors,
-              ),
-              SizedBox(height: Dimensions.spacingMedium),
-
-              // Confirm Password Input
-              _buildPasswordField(
-                l10n.confirmNewPassword,
-                _confirmPasswordController,
-                colors,
-              ),
               SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
               SizedBox(
@@ -204,6 +246,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.primary,
                     foregroundColor: Colors.white,
+                    elevation: 4,
+                    shadowColor: colors.primary.withOpacity(0.4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                         Dimensions.borderRadiusLarge,
@@ -214,12 +258,16 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                       ? null
                       : () => _handleConfirmReset(l10n, colors),
                   child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3.0,
+                        )
                       : Text(
                           l10n.verifyAndReset,
                           style: TextStyle(
                             fontSize: Dimensions.fontTitleMedium,
                             fontWeight: FontWeight.bold,
+                            letterSpacing: 1.0,
                           ),
                         ),
                 ),
@@ -228,67 +276,6 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildPasswordField(
-    String label,
-    TextEditingController controller,
-    AppColors colors,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: Dimensions.fontBodyLarge,
-            fontWeight: FontWeight.w700,
-            color: colors.textPrimary,
-          ),
-        ),
-        SizedBox(height: Dimensions.spacingSmall),
-        TextFormField(
-          controller: controller,
-          obscureText: _isPasswordObscured,
-          style: TextStyle(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-          decoration: InputDecoration(
-            hintText: '••••••••',
-            hintStyle: TextStyle(
-              color: colors.iconGrey,
-              fontWeight: FontWeight.w400,
-            ),
-            prefixIcon: Icon(
-              Icons.lock_outline_rounded,
-              color: colors.iconGrey,
-            ),
-            suffixIcon: IconButton(
-              icon: Icon(
-                _isPasswordObscured
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
-                color: colors.iconGrey,
-              ),
-              onPressed: () =>
-                  setState(() => _isPasswordObscured = !_isPasswordObscured),
-            ),
-            filled: true,
-            fillColor: colors.surface,
-            contentPadding: EdgeInsets.all(Dimensions.spacingMedium),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.primary, width: 2),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

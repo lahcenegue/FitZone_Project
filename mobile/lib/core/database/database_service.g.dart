@@ -8,18 +8,14 @@ part of 'database_service.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Global provider for the SQLite Database Service.
 
 @ProviderFor(databaseService)
 final databaseServiceProvider = DatabaseServiceProvider._();
-
-/// Global provider for the SQLite Database Service.
 
 final class DatabaseServiceProvider
     extends
         $FunctionalProvider<DatabaseService, DatabaseService, DatabaseService>
     with $Provider<DatabaseService> {
-  /// Global provider for the SQLite Database Service.
   DatabaseServiceProvider._()
     : super(
         from: null,

@@ -35,7 +35,7 @@ class _ExploreFiltersScreenState extends ConsumerState<ExploreFiltersScreen> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final AppColors colors = ref.watch(appThemeProvider);
-    final staticDataAsync = ref.watch(filterStaticDataProvider);
+    final staticDataAsync = ref.watch(appStaticDataProvider);
 
     return Scaffold(
       backgroundColor: colors.background,

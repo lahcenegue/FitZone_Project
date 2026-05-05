@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:ui';
-import 'package:fitzone/core/routing/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/database/local_data_provider.dart';
 import '../../../../core/presentation/widgets/premium_alert_banner.dart';
+import '../../../../core/presentation/widgets/premium_text_field.dart';
+import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme_provider.dart';
@@ -145,11 +146,10 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                   );
                   if (image != null) {
                     setState(() {
-                      if (isFaceImage) {
+                      if (isFaceImage)
                         _newFaceImagePath = image.path;
-                      } else {
+                      else
                         _newIdImagePath = image.path;
-                      }
                     });
                   }
                 },
@@ -181,11 +181,10 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                   );
                   if (image != null) {
                     setState(() {
-                      if (isFaceImage) {
+                      if (isFaceImage)
                         _newFaceImagePath = image.path;
-                      } else {
+                      else
                         _newIdImagePath = image.path;
-                      }
                     });
                   }
                 },
@@ -198,7 +197,6 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     );
   }
 
-  // ARCHITECTURE FIX: Smart routing based on update result
   Future<void> _saveChanges(AppLocalizations l10n, AppColors colors) async {
     if (_nameController.text.trim().isEmpty) {
       _showSnackBar(context, l10n.nameRequired, colors.error);
@@ -244,11 +242,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
         });
 
         _showSnackBar(context, l10n.emailChangedWarning, colors.warning);
-
-        // Quietly ensure OTP is sent to the new email
         ref.read(authControllerProvider.notifier).resendOtp(targetEmail);
-
-        // Redirect seamlessly to Verification
         context.push('${RoutePaths.verifyOtp}?email=$targetEmail');
       } else if (result == ProfileUpdateResult.success) {
         setState(() {
@@ -269,7 +263,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     final AppColors colors = ref.watch(appThemeProvider);
     final UserModel? user = ref.watch(authControllerProvider).value;
     final AsyncValue<dynamic> staticDataAsync = ref.watch(
-      filterStaticDataProvider,
+      appStaticDataProvider,
     );
 
     if (user == null) {
@@ -307,9 +301,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
               color: _isEditing ? colors.error : colors.primary,
             ),
             onPressed: () {
-              if (_isEditing) {
-                _initControllers();
-              }
+              if (_isEditing) _initControllers();
               setState(() => _isEditing = !_isEditing);
             },
           ),
@@ -376,36 +368,64 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                 ),
                 child: Column(
                   children: [
-                    _buildTextField(
+                    PremiumTextField(
                       label: 'Full Name',
                       controller: _nameController,
                       icon: Icons.person_outline_rounded,
                       colors: colors,
+                      enabled: _isEditing,
                     ),
                     SizedBox(height: Dimensions.spacingLarge),
 
-                    _buildTextField(
+                    PremiumTextField(
                       label: l10n.emailAddress,
                       controller: _emailController,
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       colors: colors,
+                      enabled: _isEditing,
                     ),
                     SizedBox(height: Dimensions.spacingLarge),
 
-                    _buildTextField(
+                    PremiumTextField(
                       label: l10n.phoneNumber,
                       controller: _phoneController,
                       icon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       colors: colors,
+                      enabled: _isEditing,
                     ),
                     SizedBox(height: Dimensions.spacingLarge),
 
                     _buildCityDropdown(l10n, colors, staticDataAsync),
                     SizedBox(height: Dimensions.spacingLarge),
 
-                    _buildMapAddressField(l10n, colors),
+                    // Map Field refactored using PremiumTextField properties
+                    PremiumTextField(
+                      label: l10n.addressOptional,
+                      hintText: l10n.addressHint,
+                      controller: _addressController,
+                      icon: Icons.location_on_outlined,
+                      colors: colors,
+                      readOnly: true,
+                      enabled: _isEditing,
+                      onTap: _isEditing ? () => _openMapPicker(colors) : null,
+                      suffixIcon: _isEditing
+                          ? Container(
+                              margin: EdgeInsets.all(Dimensions.spacingTiny),
+                              decoration: BoxDecoration(
+                                color: colors.primary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(
+                                  Dimensions.borderRadius,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.my_location_rounded,
+                                color: colors.primary,
+                              ),
+                            )
+                          : null,
+                    ),
                   ],
                 ),
               ),
@@ -422,6 +442,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     );
   }
 
+  // .. (Rest of the file _buildVerificationCard, _buildSaveButton, _buildSecureDocumentsVault etc. stays EXACTLY the same) ..
   Widget _buildVerificationCard(
     UserModel user,
     AppColors colors,
@@ -455,140 +476,6 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
               ),
             )
           : null,
-    );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-    required IconData icon,
-    required AppColors colors,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: colors.textSecondary,
-            fontSize: Dimensions.fontBodyMedium,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: Dimensions.spacingSmall),
-        TextFormField(
-          controller: controller,
-          enabled: _isEditing,
-          keyboardType: keyboardType,
-          style: TextStyle(
-            color: _isEditing ? colors.textPrimary : colors.textSecondary,
-            fontWeight: FontWeight.w600,
-          ),
-          decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: colors.iconGrey),
-            filled: true,
-            fillColor: _isEditing ? colors.background : colors.surface,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: Dimensions.spacingLarge,
-              vertical: Dimensions.spacingMedium,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide.none,
-            ),
-            disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.iconGrey.withOpacity(0.1)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.iconGrey.withOpacity(0.2)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.primary, width: 2),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMapAddressField(AppLocalizations l10n, AppColors colors) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.addressOptional,
-          style: TextStyle(
-            color: colors.textSecondary,
-            fontSize: Dimensions.fontBodyMedium,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: Dimensions.spacingSmall),
-        GestureDetector(
-          onTap: _isEditing ? () => _openMapPicker(colors) : null,
-          child: AbsorbPointer(
-            child: TextFormField(
-              controller: _addressController,
-              readOnly: true,
-              style: TextStyle(
-                color: _isEditing ? colors.textPrimary : colors.textSecondary,
-                fontWeight: FontWeight.w600,
-              ),
-              decoration: InputDecoration(
-                prefixIcon: Icon(
-                  Icons.location_on_outlined,
-                  color: colors.iconGrey,
-                ),
-                suffixIcon: _isEditing
-                    ? Container(
-                        margin: EdgeInsets.all(Dimensions.spacingTiny),
-                        decoration: BoxDecoration(
-                          color: colors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.borderRadius,
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.my_location_rounded,
-                          color: colors.primary,
-                        ),
-                      )
-                    : null,
-                filled: true,
-                fillColor: _isEditing ? colors.background : colors.surface,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: Dimensions.spacingLarge,
-                  vertical: Dimensions.spacingMedium,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-                  borderSide: BorderSide.none,
-                ),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-                  borderSide: BorderSide(
-                    color: colors.iconGrey.withOpacity(0.1),
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-                  borderSide: BorderSide(
-                    color: colors.iconGrey.withOpacity(0.2),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-                  borderSide: BorderSide(color: colors.primary, width: 2),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 

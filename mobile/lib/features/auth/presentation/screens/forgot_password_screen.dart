@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/presentation/widgets/premium_alert_banner.dart';
+import '../../../../core/presentation/widgets/premium_text_field.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -44,13 +46,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           .requestPasswordReset(email);
       if (mounted) {
         _showSnackBar(context, l10n.resetCodeSent, colors.success);
-        // Pass the email to the reset screen via query parameter
         context.push('${RoutePaths.resetPassword}?email=$email');
       }
     } catch (e) {
-      if (mounted) {
-        _showSnackBar(context, e.toString(), colors.error);
-      }
+      if (mounted) _showSnackBar(context, e.toString(), colors.error);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -98,75 +97,43 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: Dimensions.spacingLarge),
-              Icon(
-                Icons.lock_reset_rounded,
-                size: Dimensions.iconLarge * 2.5,
-                color: colors.primary,
-              ),
-              SizedBox(height: Dimensions.spacingLarge),
-              Text(
-                l10n.forgotPasswordTitle,
-                style: TextStyle(
-                  fontSize: Dimensions.fontHeading1 * 1.2,
-                  fontWeight: FontWeight.w900,
-                  color: colors.textPrimary,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              SizedBox(height: Dimensions.spacingTiny),
-              Text(
-                l10n.forgotPasswordSubtitle,
-                style: TextStyle(
-                  fontSize: Dimensions.fontBodyLarge,
-                  color: colors.textSecondary,
-                  height: 1.4,
-                ),
-              ),
-              SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
-              Text(
-                l10n.emailAddress,
-                style: TextStyle(
-                  fontSize: Dimensions.fontBodyLarge,
-                  fontWeight: FontWeight.w700,
-                  color: colors.textPrimary,
-                ),
+              // ARCHITECTURE FIX: Unified Premium Alert Banner
+              PremiumAlertBanner(
+                colors: colors,
+                themeColor: colors.primary,
+                icon: Icons.lock_reset_rounded,
+                title: l10n.forgotPasswordTitle,
+                subtitle: l10n.forgotPasswordSubtitle,
               ),
-              SizedBox(height: Dimensions.spacingSmall),
-              TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                style: TextStyle(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w600,
+              SizedBox(height: Dimensions.spacingExtraLarge),
+
+              // ARCHITECTURE FIX: Premium Card Wrapper
+              Container(
+                padding: EdgeInsets.all(Dimensions.spacingLarge),
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(
+                    Dimensions.borderRadiusLarge,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
                 ),
-                decoration: InputDecoration(
+                child: PremiumTextField(
+                  label: l10n.emailAddress,
                   hintText: 'user@fitzone.sa',
-                  hintStyle: TextStyle(
-                    color: colors.iconGrey,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.email_outlined,
-                    color: colors.iconGrey,
-                  ),
-                  filled: true,
-                  fillColor: colors.surface,
-                  contentPadding: EdgeInsets.all(Dimensions.spacingMedium),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                      Dimensions.borderRadius,
-                    ),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                      Dimensions.borderRadius,
-                    ),
-                    borderSide: BorderSide(color: colors.primary, width: 2),
-                  ),
+                  controller: _emailController,
+                  icon: Icons.email_outlined,
+                  keyboardType: TextInputType.emailAddress,
+                  colors: colors,
                 ),
               ),
+
               SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
               SizedBox(
@@ -176,6 +143,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.primary,
                     foregroundColor: Colors.white,
+                    elevation: 4,
+                    shadowColor: colors.primary.withOpacity(0.4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                         Dimensions.borderRadiusLarge,
@@ -186,12 +155,16 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       ? null
                       : () => _handleRequestReset(l10n, colors),
                   child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3.0,
+                        )
                       : Text(
                           l10n.sendResetCode,
                           style: TextStyle(
                             fontSize: Dimensions.fontTitleMedium,
                             fontWeight: FontWeight.bold,
+                            letterSpacing: 1.0,
                           ),
                         ),
                 ),

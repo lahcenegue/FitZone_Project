@@ -3,7 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import RegexValidator
 from apps.users.models import User, UserGender
-from apps.loyalty.models import CustomerWallet
+from apps.loyalty.models import CustomerWallet, Milestone
 
 phone_regex = RegexValidator(
     regex=r'^\+?[0-9]{9,15}$',
@@ -45,7 +45,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     lat = serializers.SerializerMethodField()
     lng = serializers.SerializerMethodField()
     profile_is_complete = serializers.SerializerMethodField()
-    points_balance = serializers.SerializerMethodField()
+    current_milestone = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -53,7 +53,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'id', 'email', 'full_name', 'phone_number', 'gender', 
             'avatar', 'real_face_image', 'id_card_image',
             'address', 'city', 'lat', 'lng', 
-            'is_active', 'is_verified', 'points_balance', 'profile_is_complete'
+            'is_active', 'is_verified', 'current_milestone', 'profile_is_complete'
         ]
 
     def get_lat(self, obj):
@@ -66,10 +66,17 @@ class UserProfileSerializer(serializers.ModelSerializer):
         """Helper for the mobile app to know if it should show the completion screen"""
         return bool(obj.phone_number and obj.real_face_image and obj.id_card_image)
 
-    def get_points_balance(self, obj):
-        """Dynamically fetch points from the CustomerWallet instead of the legacy User field."""
-        wallet, _ = CustomerWallet.objects.get_or_create(user=obj)
-        return wallet.points_balance
+    def get_current_milestone(self, obj):
+        """Dynamically fetch the current user milestone based on lifetime points."""
+        try:
+            wallet = CustomerWallet.objects.get(user=obj)
+            milestone = Milestone.objects.filter(
+                is_active=True,
+                required_lifetime_points__lte=wallet.lifetime_points
+            ).order_by('-required_lifetime_points').first()
+            return milestone.title if milestone else "Starter"
+        except CustomerWallet.DoesNotExist:
+            return "Starter"
 
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()

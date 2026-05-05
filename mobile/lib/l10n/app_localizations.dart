@@ -1094,12 +1094,6 @@ abstract class AppLocalizations {
   /// **'NEW'**
   String get newBadge;
 
-  /// No description provided for @guest.
-  ///
-  /// In en, this message translates to:
-  /// **'Guest'**
-  String get guest;
-
   /// No description provided for @noInternetTitle.
   ///
   /// In en, this message translates to:
@@ -1621,6 +1615,534 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Allocation'**
   String get gymAllocation;
+
+  /// No description provided for @newLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get newLabel;
+
+  /// No description provided for @walletAndRewards.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet & Rewards'**
+  String get walletAndRewards;
+
+  /// No description provided for @financialWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Wallet'**
+  String get financialWallet;
+
+  /// No description provided for @pointsWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Points Wallet'**
+  String get pointsWallet;
+
+  /// No description provided for @fiatBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Fiat Balance'**
+  String get fiatBalance;
+
+  /// No description provided for @withdrawFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw Funds'**
+  String get withdrawFunds;
+
+  /// No description provided for @addBankAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Bank Account'**
+  String get addBankAccount;
+
+  /// No description provided for @linkedAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked Account'**
+  String get linkedAccount;
+
+  /// No description provided for @transactionsHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions History'**
+  String get transactionsHistory;
+
+  /// No description provided for @spendablePoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable Points'**
+  String get spendablePoints;
+
+  /// No description provided for @lifetimePoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime Points'**
+  String get lifetimePoints;
+
+  /// No description provided for @currentLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Level'**
+  String get currentLevel;
+
+  /// No description provided for @buyPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy Points'**
+  String get buyPoints;
+
+  /// No description provided for @rewardsHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewards History'**
+  String get rewardsHistory;
+
+  /// No description provided for @competitionTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Competition Track'**
+  String get competitionTrack;
+
+  /// No description provided for @noTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions available'**
+  String get noTransactions;
+
+  /// No description provided for @noRewards.
+  ///
+  /// In en, this message translates to:
+  /// **'No rewards consumed yet'**
+  String get noRewards;
+
+  /// No description provided for @dashboardDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your fiat balance, bank accounts, and track your rewards journey.'**
+  String get dashboardDesc;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See All'**
+  String get seeAll;
+
+  /// No description provided for @statusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get statusCompleted;
+
+  /// No description provided for @statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get statusPending;
+
+  /// No description provided for @statusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get statusFailed;
+
+  /// No description provided for @trackOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current location on the FitZone Rewards track.'**
+  String get trackOverview;
+
+  /// No description provided for @rewardDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward Details'**
+  String get rewardDetails;
+
+  /// No description provided for @consumedBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Claimed'**
+  String get consumedBtn;
+
+  /// No description provided for @unlockedRewardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {title} Reward'**
+  String unlockedRewardTitle(String title);
+
+  /// No description provided for @unlockedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Congratulations! You have earned this reward.'**
+  String get unlockedDesc;
+
+  /// No description provided for @lockedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn more points to unlock this awesome reward.'**
+  String get lockedDesc;
+
+  /// No description provided for @consumedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already claimed this reward.'**
+  String get consumedDesc;
+
+  /// No description provided for @unlockedBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Now'**
+  String get unlockedBtn;
+
+  /// No description provided for @lockedBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get lockedBtn;
+
+  /// No description provided for @achievementTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievement Track'**
+  String get achievementTrack;
+
+  /// No description provided for @youAreHere.
+  ///
+  /// In en, this message translates to:
+  /// **'You are here'**
+  String get youAreHere;
+
+  /// No description provided for @tapToSeeReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to reveal reward'**
+  String get tapToSeeReward;
+
+  /// No description provided for @pointsToNextMilestone.
+  ///
+  /// In en, this message translates to:
+  /// **'Points to next level'**
+  String get pointsToNextMilestone;
+
+  /// No description provided for @levelProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Level Progress'**
+  String get levelProgress;
+
+  /// No description provided for @pointsPackages.
+  ///
+  /// In en, this message translates to:
+  /// **'Points Packages'**
+  String get pointsPackages;
+
+  /// No description provided for @choosePackage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a Package'**
+  String get choosePackage;
+
+  /// No description provided for @levelUpRewards.
+  ///
+  /// In en, this message translates to:
+  /// **'Level up your rewards and unlock exclusive perks!'**
+  String get levelUpRewards;
+
+  /// No description provided for @mostPopular.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Popular'**
+  String get mostPopular;
+
+  /// No description provided for @confirmPurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Purchase'**
+  String get confirmPurchase;
+
+  /// No description provided for @purchaseSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Points purchased successfully!'**
+  String get purchaseSuccessful;
+
+  /// No description provided for @processingPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing Payment...'**
+  String get processingPayment;
+
+  /// No description provided for @payAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {amount} SAR'**
+  String payAmount(String amount);
+
+  /// No description provided for @bankName.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Name'**
+  String get bankName;
+
+  /// No description provided for @accountNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Number'**
+  String get accountNumber;
+
+  /// No description provided for @iban.
+  ///
+  /// In en, this message translates to:
+  /// **'IBAN'**
+  String get iban;
+
+  /// No description provided for @beneficiaryName.
+  ///
+  /// In en, this message translates to:
+  /// **'Beneficiary Name'**
+  String get beneficiaryName;
+
+  /// No description provided for @saveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Account'**
+  String get saveAccount;
+
+  /// No description provided for @enterValidIban.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid IBAN'**
+  String get enterValidIban;
+
+  /// No description provided for @accountSavedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank account saved successfully'**
+  String get accountSavedSuccessfully;
+
+  /// No description provided for @withdrawAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount to Withdraw'**
+  String get withdrawAmount;
+
+  /// No description provided for @minWithdrawal.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum withdrawal is {amount} SAR'**
+  String minWithdrawal(String amount);
+
+  /// No description provided for @insufficientBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient available balance'**
+  String get insufficientBalance;
+
+  /// No description provided for @confirmWithdrawal.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Withdrawal'**
+  String get confirmWithdrawal;
+
+  /// No description provided for @withdrawalRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal request submitted successfully. Under review.'**
+  String get withdrawalRequested;
+
+  /// No description provided for @amountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the amount'**
+  String get amountRequired;
+
+  /// No description provided for @totalEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Earned'**
+  String get totalEarned;
+
+  /// No description provided for @totalSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Spent'**
+  String get totalSpent;
+
+  /// No description provided for @pendingWithdrawals.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Withdrawals'**
+  String get pendingWithdrawals;
+
+  /// No description provided for @completedWithdrawals.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed Withdrawals'**
+  String get completedWithdrawals;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @deposits.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposits'**
+  String get deposits;
+
+  /// No description provided for @withdrawals.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawals'**
+  String get withdrawals;
+
+  /// No description provided for @refunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds'**
+  String get refunds;
+
+  /// No description provided for @pointsHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Points History'**
+  String get pointsHistory;
+
+  /// No description provided for @myRewards.
+  ///
+  /// In en, this message translates to:
+  /// **'My Rewards'**
+  String get myRewards;
+
+  /// No description provided for @pointsEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get pointsEarned;
+
+  /// No description provided for @pointsRedeemed.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeemed'**
+  String get pointsRedeemed;
+
+  /// No description provided for @rewardAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get rewardAvailable;
+
+  /// No description provided for @rewardConsumed.
+  ///
+  /// In en, this message translates to:
+  /// **'Consumed'**
+  String get rewardConsumed;
+
+  /// No description provided for @pointsToNextTier.
+  ///
+  /// In en, this message translates to:
+  /// **'points to reach'**
+  String get pointsToNextTier;
+
+  /// No description provided for @currentTier.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Tier'**
+  String get currentTier;
+
+  /// No description provided for @lifetimePointsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime Points:'**
+  String get lifetimePointsTitle;
+
+  /// No description provided for @lifetimePointsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'(Used for account tier upgrades)'**
+  String get lifetimePointsDesc;
+
+  /// No description provided for @viewRoadmap.
+  ///
+  /// In en, this message translates to:
+  /// **'View Roadmap'**
+  String get viewRoadmap;
+
+  /// No description provided for @myRewardsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'View your gifts'**
+  String get myRewardsDesc;
+
+  /// No description provided for @claimRewardBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Reward'**
+  String get claimRewardBtn;
+
+  /// No description provided for @useRewardBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Reward'**
+  String get useRewardBtn;
+
+  /// No description provided for @rewardClaimedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward claimed successfully! It\'s now in your wallet.'**
+  String get rewardClaimedSuccess;
+
+  /// No description provided for @claimedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward is in your wallet, ready to be used.'**
+  String get claimedDesc;
+
+  /// No description provided for @qrScanInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Please show this QR code to the receptionist to be scanned and grant access.'**
+  String get qrScanInstruction;
+
+  /// No description provided for @rewardQrCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward QR Code'**
+  String get rewardQrCode;
+
+  /// No description provided for @confirmConsumeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Usage'**
+  String get confirmConsumeTitle;
+
+  /// No description provided for @confirmConsumeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to activate and use this reward now? This action cannot be undone.'**
+  String get confirmConsumeDesc;
+
+  /// No description provided for @confirmBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm & Use'**
+  String get confirmBtn;
+
+  /// No description provided for @cancelBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelBtn;
+
+  /// No description provided for @rewardConsumedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward consumed successfully!'**
+  String get rewardConsumedSuccess;
 }
 
 class _AppLocalizationsDelegate

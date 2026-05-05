@@ -29,6 +29,7 @@ class PremiumAlertBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: Dimensions.screenWidth,
       padding: EdgeInsets.all(Dimensions.spacingLarge),
       decoration: BoxDecoration(
         gradient: LinearGradient(

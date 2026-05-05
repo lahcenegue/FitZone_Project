@@ -8,46 +8,46 @@ part of 'local_data_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Fetches and bundles all static data from SQLite for the Explore Filters.
+/// Fetches and bundles all static data from SQLite.
 
-@ProviderFor(filterStaticData)
-final filterStaticDataProvider = FilterStaticDataProvider._();
+@ProviderFor(appStaticData)
+final appStaticDataProvider = AppStaticDataProvider._();
 
-/// Fetches and bundles all static data from SQLite for the Explore Filters.
+/// Fetches and bundles all static data from SQLite.
 
-final class FilterStaticDataProvider
+final class AppStaticDataProvider
     extends
         $FunctionalProvider<
-          AsyncValue<FilterStaticData>,
-          FilterStaticData,
-          FutureOr<FilterStaticData>
+          AsyncValue<AppStaticData>,
+          AppStaticData,
+          FutureOr<AppStaticData>
         >
-    with $FutureModifier<FilterStaticData>, $FutureProvider<FilterStaticData> {
-  /// Fetches and bundles all static data from SQLite for the Explore Filters.
-  FilterStaticDataProvider._()
+    with $FutureModifier<AppStaticData>, $FutureProvider<AppStaticData> {
+  /// Fetches and bundles all static data from SQLite.
+  AppStaticDataProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'filterStaticDataProvider',
+        name: r'appStaticDataProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$filterStaticDataHash();
+  String debugGetCreateSourceHash() => _$appStaticDataHash();
 
   @$internal
   @override
-  $FutureProviderElement<FilterStaticData> $createElement(
+  $FutureProviderElement<AppStaticData> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<FilterStaticData> create(Ref ref) {
-    return filterStaticData(ref);
+  FutureOr<AppStaticData> create(Ref ref) {
+    return appStaticData(ref);
   }
 }
 
-String _$filterStaticDataHash() => r'9e64d97a0e449e20e746bc7cac84f3787ce581a9';
+String _$appStaticDataHash() => r'05a00d5cc4f67ca0867a659b335a82d0a3a29cae';

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 
+import '../../../../core/presentation/widgets/premium_text_field.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/routing/auth_intent_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -28,16 +29,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final intentService = ref.read(authIntentServiceProvider);
     final intent = intentService.getIntent();
 
-    // ARCHITECTURE FIX: Evaluate User Intent BEFORE enforcing KYC.
     if (intent.type == AuthIntentType.buyGymSubscription) {
       if (!profileIsComplete) {
-        // User wants to buy, but needs KYC first. Keep intent active.
         _logger.info(
           'User intent is subscription, but KYC is missing. Redirecting to KYC.',
         );
         context.go(RoutePaths.completeProfile);
       } else {
-        // User wants to buy and KYC is complete. Proceed to checkout/gym.
         _logger.info(
           'User intent is subscription and KYC is complete. Redirecting to Gym.',
         );
@@ -46,7 +44,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         context.go(RoutePaths.gymDetailsPath(id));
       }
     } else {
-      // Normal login flow. Clear any stale intent and go home.
       _logger.info('Standard login flow. Redirecting to Explore.');
       intentService.clearIntent();
       context.go(RoutePaths.explore);
@@ -60,7 +57,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         error.code == 'EMAIL_NOT_VERIFIED' &&
         error.email != null) {
       _showSnackBar(context, error.message, colors.warning);
-
       ref.read(authControllerProvider.notifier).resendOtp(error.email!);
       context.push('${RoutePaths.verifyOtp}?email=${error.email}');
     } else {
@@ -75,10 +71,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final formState = ref.watch(loginFormProvider);
     final authState = ref.watch(authControllerProvider);
 
+    // ARCHITECTURE FIX: Event-Driven Navigation perfectly safe from state updates
     ref.listen<AsyncValue<dynamic>>(authControllerProvider, (previous, next) {
       next.whenOrNull(
         data: (user) {
-          if (user != null) {
+          // Make sure we only navigate IF the previous state was null (actual login)
+          // This prevents navigating again if the user updates avatar or points later!
+          if (user != null && previous?.value == null) {
             _logger.info('Login successful for: ${user.email}');
             _handleSmartRouting(user.profileIsComplete);
           }
@@ -115,40 +114,83 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             children: [
               SizedBox(height: Dimensions.spacingMedium),
               _buildHeader(l10n, colors),
-              SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
+              SizedBox(height: Dimensions.spacingExtraLarge),
 
-              _buildCustomTextField(
-                label: l10n.emailAddress,
-                hint: 'user@fitzone.sa',
-                icon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-                errorText: formState.emailError,
-                colors: colors,
-                onChanged: (val) =>
-                    ref.read(loginFormProvider.notifier).updateEmail(val, l10n),
-              ),
-              SizedBox(height: Dimensions.spacingMedium),
-
-              _buildPasswordField(l10n, formState, colors),
-
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    context.push(RoutePaths.forgotPassword);
-                  },
-                  child: Text(
-                    l10n.forgotPassword,
-                    style: TextStyle(
-                      color: colors.primary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: Dimensions.fontBodyMedium,
-                    ),
+              Container(
+                padding: EdgeInsets.all(Dimensions.spacingLarge),
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(
+                    Dimensions.borderRadiusLarge,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PremiumTextField(
+                      label: l10n.emailAddress,
+                      hintText: 'user@fitzone.sa',
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
+                      errorText: formState.emailError,
+                      colors: colors,
+                      onChanged: (val) => ref
+                          .read(loginFormProvider.notifier)
+                          .updateEmail(val, l10n),
+                    ),
+                    SizedBox(height: Dimensions.spacingMedium),
+
+                    PremiumTextField(
+                      label: l10n.password,
+                      hintText: '••••••••',
+                      icon: Icons.lock_outline_rounded,
+                      obscureText: _isPasswordObscured,
+                      errorText: formState.passwordError,
+                      colors: colors,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordObscured
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: colors.iconGrey,
+                        ),
+                        onPressed: () => setState(
+                          () => _isPasswordObscured = !_isPasswordObscured,
+                        ),
+                      ),
+                      onChanged: (val) => ref
+                          .read(loginFormProvider.notifier)
+                          .updatePassword(val, l10n),
+                    ),
+
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          context.push(RoutePaths.forgotPassword);
+                        },
+                        child: Text(
+                          l10n.forgotPassword,
+                          style: TextStyle(
+                            color: colors.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: Dimensions.fontBodyMedium,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
-              SizedBox(height: Dimensions.spacingLarge),
+              SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
               _buildSubmitButton(l10n, formState, authState, colors),
 
@@ -195,89 +237,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             color: colors.textSecondary,
             height: 1.4,
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCustomTextField({
-    required String label,
-    required String hint,
-    required IconData icon,
-    required AppColors colors,
-    required Function(String) onChanged,
-    String? errorText,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: Dimensions.fontBodyLarge,
-            fontWeight: FontWeight.w700,
-            color: colors.textPrimary,
-          ),
-        ),
-        SizedBox(height: Dimensions.spacingSmall),
-        TextFormField(
-          keyboardType: keyboardType,
-          style: TextStyle(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-          decoration: _getPremiumInputDecoration(hint, icon, colors, errorText),
-          onChanged: onChanged,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPasswordField(
-    AppLocalizations l10n,
-    LoginFormState formState,
-    AppColors colors,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.password,
-          style: TextStyle(
-            fontSize: Dimensions.fontBodyLarge,
-            fontWeight: FontWeight.w700,
-            color: colors.textPrimary,
-          ),
-        ),
-        SizedBox(height: Dimensions.spacingSmall),
-        TextFormField(
-          obscureText: _isPasswordObscured,
-          style: TextStyle(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-          decoration:
-              _getPremiumInputDecoration(
-                '••••••••',
-                Icons.lock_outline_rounded,
-                colors,
-                formState.passwordError,
-              ).copyWith(
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _isPasswordObscured
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    color: colors.iconGrey,
-                  ),
-                  onPressed: () => setState(
-                    () => _isPasswordObscured = !_isPasswordObscured,
-                  ),
-                ),
-              ),
-          onChanged: (val) =>
-              ref.read(loginFormProvider.notifier).updatePassword(val, l10n),
         ),
       ],
     );
@@ -333,47 +292,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   letterSpacing: 1.0,
                 ),
               ),
-      ),
-    );
-  }
-
-  InputDecoration _getPremiumInputDecoration(
-    String hint,
-    IconData icon,
-    AppColors colors,
-    String? errorText,
-  ) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: TextStyle(color: colors.iconGrey, fontWeight: FontWeight.w400),
-      prefixIcon: Icon(icon, color: colors.iconGrey),
-      filled: true,
-      fillColor: colors.surface,
-      errorText: errorText,
-      errorMaxLines: 2,
-      contentPadding: EdgeInsets.symmetric(
-        horizontal: Dimensions.spacingLarge,
-        vertical: Dimensions.spacingMedium,
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        borderSide: const BorderSide(color: Colors.transparent),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        borderSide: BorderSide(color: colors.primary, width: 2),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        borderSide: BorderSide(color: colors.error, width: 1.5),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        borderSide: BorderSide(color: colors.error, width: 2),
       ),
     );
   }

@@ -524,9 +524,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newBadge => 'NEW';
 
   @override
-  String get guest => 'Guest';
-
-  @override
   String get noInternetTitle => 'No Internet Connection';
 
   @override
@@ -801,4 +798,281 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gymAllocation => 'Allocation';
+
+  @override
+  String get newLabel => 'New';
+
+  @override
+  String get walletAndRewards => 'Wallet & Rewards';
+
+  @override
+  String get financialWallet => 'Financial Wallet';
+
+  @override
+  String get pointsWallet => 'Points Wallet';
+
+  @override
+  String get fiatBalance => 'Fiat Balance';
+
+  @override
+  String get withdrawFunds => 'Withdraw Funds';
+
+  @override
+  String get addBankAccount => 'Add Bank Account';
+
+  @override
+  String get linkedAccount => 'Linked Account';
+
+  @override
+  String get transactionsHistory => 'Transactions History';
+
+  @override
+  String get spendablePoints => 'Spendable Points';
+
+  @override
+  String get lifetimePoints => 'Lifetime Points';
+
+  @override
+  String get currentLevel => 'Current Level';
+
+  @override
+  String get buyPoints => 'Buy Points';
+
+  @override
+  String get rewardsHistory => 'Rewards History';
+
+  @override
+  String get competitionTrack => 'Competition Track';
+
+  @override
+  String get noTransactions => 'No transactions available';
+
+  @override
+  String get noRewards => 'No rewards consumed yet';
+
+  @override
+  String get dashboardDesc =>
+      'Manage your fiat balance, bank accounts, and track your rewards journey.';
+
+  @override
+  String get seeAll => 'See All';
+
+  @override
+  String get statusCompleted => 'Completed';
+
+  @override
+  String get statusPending => 'Pending';
+
+  @override
+  String get statusFailed => 'Failed';
+
+  @override
+  String get trackOverview =>
+      'Your current location on the FitZone Rewards track.';
+
+  @override
+  String get rewardDetails => 'Reward Details';
+
+  @override
+  String get consumedBtn => 'Claimed';
+
+  @override
+  String unlockedRewardTitle(String title) {
+    return 'Level $title Reward';
+  }
+
+  @override
+  String get unlockedDesc => 'Congratulations! You have earned this reward.';
+
+  @override
+  String get lockedDesc => 'Earn more points to unlock this awesome reward.';
+
+  @override
+  String get consumedDesc => 'You have already claimed this reward.';
+
+  @override
+  String get unlockedBtn => 'Claim Now';
+
+  @override
+  String get lockedBtn => 'Locked';
+
+  @override
+  String get achievementTrack => 'Achievement Track';
+
+  @override
+  String get youAreHere => 'You are here';
+
+  @override
+  String get tapToSeeReward => 'Tap to reveal reward';
+
+  @override
+  String get pointsToNextMilestone => 'Points to next level';
+
+  @override
+  String get levelProgress => 'Level Progress';
+
+  @override
+  String get pointsPackages => 'Points Packages';
+
+  @override
+  String get choosePackage => 'Choose a Package';
+
+  @override
+  String get levelUpRewards =>
+      'Level up your rewards and unlock exclusive perks!';
+
+  @override
+  String get mostPopular => 'Most Popular';
+
+  @override
+  String get confirmPurchase => 'Confirm Purchase';
+
+  @override
+  String get purchaseSuccessful => 'Points purchased successfully!';
+
+  @override
+  String get processingPayment => 'Processing Payment...';
+
+  @override
+  String payAmount(String amount) {
+    return 'Pay $amount SAR';
+  }
+
+  @override
+  String get bankName => 'Bank Name';
+
+  @override
+  String get accountNumber => 'Account Number';
+
+  @override
+  String get iban => 'IBAN';
+
+  @override
+  String get beneficiaryName => 'Beneficiary Name';
+
+  @override
+  String get saveAccount => 'Save Account';
+
+  @override
+  String get enterValidIban => 'Please enter a valid IBAN';
+
+  @override
+  String get accountSavedSuccessfully => 'Bank account saved successfully';
+
+  @override
+  String get withdrawAmount => 'Amount to Withdraw';
+
+  @override
+  String minWithdrawal(String amount) {
+    return 'Minimum withdrawal is $amount SAR';
+  }
+
+  @override
+  String get insufficientBalance => 'Insufficient available balance';
+
+  @override
+  String get confirmWithdrawal => 'Confirm Withdrawal';
+
+  @override
+  String get withdrawalRequested =>
+      'Withdrawal request submitted successfully. Under review.';
+
+  @override
+  String get amountRequired => 'Please enter the amount';
+
+  @override
+  String get totalEarned => 'Total Earned';
+
+  @override
+  String get totalSpent => 'Total Spent';
+
+  @override
+  String get pendingWithdrawals => 'Pending Withdrawals';
+
+  @override
+  String get completedWithdrawals => 'Completed Withdrawals';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get deposits => 'Deposits';
+
+  @override
+  String get withdrawals => 'Withdrawals';
+
+  @override
+  String get refunds => 'Refunds';
+
+  @override
+  String get pointsHistory => 'Points History';
+
+  @override
+  String get myRewards => 'My Rewards';
+
+  @override
+  String get pointsEarned => 'Earned';
+
+  @override
+  String get pointsRedeemed => 'Redeemed';
+
+  @override
+  String get rewardAvailable => 'Available';
+
+  @override
+  String get rewardConsumed => 'Consumed';
+
+  @override
+  String get pointsToNextTier => 'points to reach';
+
+  @override
+  String get currentTier => 'Current Tier';
+
+  @override
+  String get lifetimePointsTitle => 'Lifetime Points:';
+
+  @override
+  String get lifetimePointsDesc => '(Used for account tier upgrades)';
+
+  @override
+  String get viewRoadmap => 'View Roadmap';
+
+  @override
+  String get myRewardsDesc => 'View your gifts';
+
+  @override
+  String get claimRewardBtn => 'Claim Reward';
+
+  @override
+  String get useRewardBtn => 'Use Reward';
+
+  @override
+  String get rewardClaimedSuccess =>
+      'Reward claimed successfully! It\'s now in your wallet.';
+
+  @override
+  String get claimedDesc => 'Reward is in your wallet, ready to be used.';
+
+  @override
+  String get qrScanInstruction =>
+      'Please show this QR code to the receptionist to be scanned and grant access.';
+
+  @override
+  String get rewardQrCode => 'Reward QR Code';
+
+  @override
+  String get confirmConsumeTitle => 'Confirm Usage';
+
+  @override
+  String get confirmConsumeDesc =>
+      'Are you sure you want to activate and use this reward now? This action cannot be undone.';
+
+  @override
+  String get confirmBtn => 'Confirm & Use';
+
+  @override
+  String get cancelBtn => 'Cancel';
+
+  @override
+  String get rewardConsumedSuccess => 'Reward consumed successfully!';
 }
