@@ -49,7 +49,7 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
 
       _logger.info('Reward claimed successfully: ${widget.milestone.id}');
 
-      // ARCHITECTURE FIX: Using invalidate solves linter warnings and forces a clean rebuild
+      // ARCHITECTURE FIX: Invalidate to remove linter warnings while still forcing UI updates
       ref.invalidate(loyaltyRoadmapProvider);
       ref.invalidate(loyaltyWalletProvider);
       ref.invalidate(allUserMilestonesProvider);
@@ -180,9 +180,9 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
           ),
           SizedBox(height: Dimensions.spacingExtraLarge),
 
-          // Out-of-the-box Premium Responsive Teaser Ticket
+          // ARCHITECTURE FIX: Route to appropriate UI based on reward type
           if (widget.milestone.reward != null)
-            _buildPremiumTicketTeaser(widget.milestone.reward!),
+            _buildSmartTeaser(widget.milestone.reward!),
 
           SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
@@ -292,8 +292,98 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
     );
   }
 
-  /// Masterpiece: Responsive Dynamic Ticket Design (Solves text overflow elegantly)
-  Widget _buildPremiumTicketTeaser(LoyaltyReward reward) {
+  /// Masterpiece: Smart UI Routing (Services vs Coupons)
+  Widget _buildSmartTeaser(LoyaltyReward reward) {
+    if (reward.actionType == 'sys_roaming' ||
+        reward.actionType == 'sys_extension' ||
+        reward.couponType == null) {
+      return _buildPremiumServiceTeaser(reward);
+    } else {
+      return _buildResponsiveCouponTicket(reward);
+    }
+  }
+
+  /// Premium non-ticket design for Extensions and Roaming Passes
+  Widget _buildPremiumServiceTeaser(LoyaltyReward reward) {
+    final bool isRoaming = reward.actionType == 'sys_roaming';
+    final IconData serviceIcon = isRoaming
+        ? Icons.directions_run_rounded
+        : Icons.event_available_rounded;
+    final Color serviceColor = isRoaming
+        ? widget.colors.primary
+        : widget.colors.success;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(Dimensions.spacingLarge),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [serviceColor.withValues(alpha: 0.15), widget.colors.surface],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+        border: Border.all(
+          color: serviceColor.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: serviceColor.withValues(alpha: 0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(Dimensions.spacingMedium),
+            decoration: BoxDecoration(
+              color: serviceColor.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+              border: Border.all(color: serviceColor.withValues(alpha: 0.5)),
+            ),
+            child: Icon(
+              serviceIcon,
+              color: serviceColor,
+              size: Dimensions.iconLarge * 1.5,
+            ),
+          ),
+          SizedBox(width: Dimensions.spacingLarge),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  reward.name,
+                  style: TextStyle(
+                    fontSize: Dimensions.fontHeading3,
+                    fontWeight: FontWeight.w900,
+                    color: widget.colors.textPrimary,
+                  ),
+                ),
+                if (widget.milestone.description.isNotEmpty) ...[
+                  SizedBox(height: Dimensions.spacingTiny),
+                  Text(
+                    widget.milestone.description,
+                    style: TextStyle(
+                      fontSize: Dimensions.fontBodySmall,
+                      color: widget.colors.textSecondary,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Refined Ticket Design ensuring large text fits cleanly without overflow
+  Widget _buildResponsiveCouponTicket(LoyaltyReward reward) {
     Color ticketColor;
     IconData ticketIcon;
     String displayValue;
@@ -323,9 +413,9 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
         ticketColor = const Color(0xFF3B82F6); // Blue
         ticketIcon = Icons.attach_money_rounded;
         displayValue =
-            '${reward.discountValue?.toStringAsFixed(0) ?? 0} ${widget.l10n.currency}';
+            '${reward.discountValue?.toStringAsFixed(0) ?? 0} ${widget.l10n.currency}'; // Dynamic Currency
         break;
-      default: // Extensions, Roaming Passes
+      default:
         ticketColor = widget.colors.primary;
         ticketIcon = Icons.stars_rounded;
         displayValue = reward.name;
@@ -341,7 +431,7 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
           width: 1.5,
         ),
       ),
-      // ARCHITECTURE FIX: IntrinsicHeight ensures the dashed line stretches dynamically with text
+      // ARCHITECTURE FIX: IntrinsicHeight ensures dashed line adjusts automatically to text wrap
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -399,14 +489,13 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
 
             // Right Ticket Body
             Expanded(
-              // ARCHITECTURE FIX: Expanded prevents layout overflow
               child: Padding(
                 padding: EdgeInsets.all(Dimensions.spacingLarge),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Safely scales down long text like "Buy 1 Get 1 Free"
+                    // ARCHITECTURE FIX: FittedBox prevents long text like "Buy 1 Get 1 Free" from overflowing
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: AlignmentDirectional.centerStart,
