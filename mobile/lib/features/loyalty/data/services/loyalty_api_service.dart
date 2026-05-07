@@ -15,6 +15,7 @@ class LoyaltyApiService {
   static const String _claimRewardUrl = '/loyalty/milestones/claim/';
   static const String _consumeRewardUrl = '/loyalty/milestones/consume/';
   static const String _roadmapUrl = '/loyalty/milestones/';
+  static const String _extendSubUrl = '/loyalty/extend-subscription/';
   static const String _bankAccountUrl = '/loyalty/bank-account/';
   static const String _withdrawUrl = '/loyalty/withdraw/';
 
@@ -244,8 +245,10 @@ class LoyaltyApiService {
     }
   }
 
-  // NEW ENDPOINT: Claiming an unlocked reward
-  Future<bool> claimReward({required int userMilestoneId}) async {
+  // ARCHITECTURE FIX: Parse the new ClaimResponse containing RewardPayload
+  Future<ClaimRewardResponse> claimReward({
+    required int userMilestoneId,
+  }) async {
     try {
       _logger.info('Claiming reward for milestone ID: $userMilestoneId');
       final response = await _dio.post(
@@ -255,13 +258,46 @@ class LoyaltyApiService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         _logger.info('Reward claimed successfully.');
-        return true;
+        return ClaimRewardResponse.fromJson(
+          response.data as Map<String, dynamic>,
+        );
       } else {
         throw Exception('Failed to claim reward: ${response.statusCode}');
       }
     } on DioException catch (e) {
       _logger.severe('DioException in claimReward: ${e.message}', e);
       throw Exception('Network error while claiming reward.');
+    }
+  }
+
+  // NEW ENDPOINT: Extend Subscription
+  Future<bool> extendSubscription({
+    required int userMilestoneId,
+    required int subscriptionId,
+  }) async {
+    try {
+      _logger.info(
+        'Extending subscription: $subscriptionId with milestone: $userMilestoneId',
+      );
+      final response = await _dio.post(
+        _extendSubUrl,
+        data: {
+          'user_milestone_id': userMilestoneId,
+          'subscription_id': subscriptionId,
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _logger.info('Subscription extended successfully.');
+        return true;
+      } else {
+        throw Exception(
+          'Failed to extend subscription: ${response.statusCode}',
+        );
+      }
+    } on DioException catch (e) {
+      _logger.severe('DioException in extendSubscription: ${e.message}', e);
+      throw Exception('Network error while extending subscription.');
     }
   }
 
@@ -291,9 +327,10 @@ class LoyaltyApiService {
     }
   }
 
-  Future<List<LoyaltyMilestone>> getGlobalRoadmap() async {
+  // ARCHITECTURE FIX: Roadmap is now fetched per-user via /milestones/ endpoint
+  Future<List<LoyaltyMilestone>> getUserRoadmap() async {
     try {
-      _logger.info('Fetching Global Roadmap from API: $_roadmapUrl');
+      _logger.info('Fetching User Specific Roadmap from API: $_roadmapUrl');
       final response = await _dio.get(_roadmapUrl);
 
       if (response.statusCode == 200) {
@@ -304,15 +341,13 @@ class LoyaltyApiService {
             )
             .toList();
       } else {
-        throw Exception(
-          'Failed to load global roadmap: ${response.statusCode}',
-        );
+        throw Exception('Failed to load user roadmap: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      _logger.severe('DioException in getGlobalRoadmap: ${e.message}', e);
+      _logger.severe('DioException in getUserRoadmap: ${e.message}', e);
       throw Exception('Network error while fetching roadmap.');
     } catch (e, stackTrace) {
-      _logger.severe('Data parsing error in getGlobalRoadmap', e, stackTrace);
+      _logger.severe('Data parsing error in getUserRoadmap', e, stackTrace);
       throw Exception('Failed to parse roadmap data.');
     }
   }

@@ -513,7 +513,7 @@ final class LoyaltyRoadmapProvider
   }
 }
 
-String _$loyaltyRoadmapHash() => r'882959c55cadd028548321fc048a85db092bf2c8';
+String _$loyaltyRoadmapHash() => r'22450f5b15e4379c1b2a7832958dc667d2671a28';
 
 @ProviderFor(pointsSummary)
 final pointsSummaryProvider = PointsSummaryProvider._();

@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:fitzone/core/storage/storage_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:logging/logging.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../config/api_constants.dart';
@@ -12,6 +11,7 @@ import '../network/api_provider.dart';
 import '../database/database_service.dart';
 import '../location/location_provider.dart';
 import '../storage/storage_provider.dart';
+import '../storage/storage_service.dart';
 
 part 'app_init_provider.g.dart';
 
@@ -37,9 +37,40 @@ class AppInitService {
 
   Future<void> initializeApp() async {
     try {
-      _logger.info('Starting app initialization (Configs & SQLite Sync)...');
+      // ARCHITECTURE FIX: Check if we have a baseline roadmap version cached.
+      // If version is > 0, it means this is NOT the first launch.
+      final double localRoadmapVersion = await _dbService.getVersion(
+        'loyalty_roadmap_version',
+      );
+      final bool isFirstLaunch = localRoadmapVersion == 0.0;
 
-      final Response initResponse = await _dio.get(ApiConstants.initConfig);
+      if (isFirstLaunch) {
+        _logger.info(
+          'First app launch detected. Blocking UI to fetch baseline configs.',
+        );
+        await _fetchAndSyncInit();
+      } else {
+        _logger.info(
+          'Returning user. Bypassing /init/ wait to unblock UI. Triggering in background.',
+        );
+        unawaited(_fetchAndSyncInit());
+      }
+    } catch (e, stackTrace) {
+      _logger.severe(
+        'Initialization process failed. Relying on cached data.',
+        e,
+        stackTrace,
+      );
+    }
+  }
+
+  /// Fetches /init/ and handles routing syncs to the background
+  Future<void> _fetchAndSyncInit() async {
+    try {
+      final Response initResponse = await _dio.get(
+        ApiConstants.initConfig,
+        options: Options(receiveTimeout: const Duration(seconds: 10)),
+      );
       final Map<String, dynamic> initData =
           initResponse.data as Map<String, dynamic>;
 
@@ -47,7 +78,24 @@ class AppInitService {
           initData['premium_points_required'] as int? ?? 1000;
       await _storageService.setPremiumPointsRequired(premiumPoints);
 
-      // Proceed with heavy SQLite syncs
+      final double roadmapVersion =
+          (initData['loyalty_roadmap_version'] as num?)?.toDouble() ?? 0.0;
+      await _dbService.setVersion('loyalty_roadmap_version', roadmapVersion);
+
+      // ARCHITECTURE FIX: Fire and forget the heavy SQLite syncs
+      _logger.info(
+        'Spawning background task for heavy SQLite synchronizations...',
+      );
+      unawaited(_runBackgroundSync(initData));
+    } catch (e, stackTrace) {
+      _logger.severe('Failed to fetch /init/ configs', e, stackTrace);
+    }
+  }
+
+  /// Runs completely in the background without blocking the UI Thread
+  Future<void> _runBackgroundSync(Map<String, dynamic> initData) async {
+    _logger.info('Background Sync Started: Verifying versions...');
+    try {
       await _syncTable(
         versionKey: 'service_types_version',
         remoteVersion:
@@ -78,25 +126,9 @@ class AppInitService {
         insertOperation: _dbService.insertAmenities,
       );
 
-      // NEW: Sync Loyalty Milestones Roadmap
-      await _syncTable(
-        versionKey: 'loyalty_roadmap_version',
-        remoteVersion:
-            (initData['loyalty_roadmap_version'] as num?)?.toDouble() ?? 0.0,
-        endpoint: ApiConstants
-            .loyaltyMilestones, // Requires this to be defined in ApiConstants
-        insertOperation: _dbService.insertLoyaltyMilestones,
-      );
-
-      _logger.info(
-        'App initialization complete. Configs and SQLite database are up to date.',
-      );
+      _logger.info('Background Sync Completed successfully.');
     } catch (e, stackTrace) {
-      _logger.severe(
-        'Initialization failed. Relying on cached data.',
-        e,
-        stackTrace,
-      );
+      _logger.severe('Background Sync Encountered an Error.', e, stackTrace);
     }
   }
 
@@ -110,7 +142,7 @@ class AppInitService {
 
     if (remoteVersion > localVersion) {
       _logger.info(
-        'Updating $versionKey from $localVersion to $remoteVersion...',
+        'Background Update: $versionKey from $localVersion to $remoteVersion...',
       );
       final Response response = await _dio.get(endpoint);
       final List<dynamic> data = response.data as List<dynamic>;
@@ -118,7 +150,9 @@ class AppInitService {
       await insertOperation(data);
       await _dbService.setVersion(versionKey, remoteVersion);
     } else {
-      _logger.info('$versionKey is up to date ($localVersion).');
+      _logger.info(
+        'Background Check: $versionKey is up to date ($localVersion).',
+      );
     }
   }
 }
@@ -147,21 +181,13 @@ Future<StartupStatus> appStartup(Ref ref) async {
     throw OfflineException();
   }
 
-  logger.info('Phase 2: Verifying Real Internet Access...');
-  bool hasInternet = false;
-  try {
-    final result = await InternetAddress.lookup(
-      'google.com',
-    ).timeout(const Duration(seconds: 3));
-    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-      hasInternet = true;
-    }
-  } catch (_) {
-    hasInternet = false;
-  }
-
+  logger.info(
+    'Phase 2: Verifying Real Internet Access via Hyper-Fast Checker...',
+  );
+  // ARCHITECTURE FIX: Replaced raw InternetAddress with optimized InternetConnection plugin
+  final bool hasInternet = await InternetConnection().hasInternetAccess;
   if (!hasInternet) {
-    logger.warning('Real Internet check failed or timed out.');
+    logger.warning('Real Internet check failed.');
     throw OfflineException();
   }
 
@@ -172,7 +198,7 @@ Future<StartupStatus> appStartup(Ref ref) async {
   }
 
   logger.info(
-    'Phase 4: Parallel Execution (Waiting for GPS Lock & Init Sync)...',
+    'Phase 4: Parallel Execution (Waiting for GPS Lock & Init Config)...',
   );
   bool locationTimedOut = false;
 
@@ -194,12 +220,10 @@ Future<bool> _fetchLocationWithTimeout(Ref ref, Logger logger) async {
         .read(userLocationProvider.notifier)
         .fetchLocation()
         .timeout(const Duration(seconds: 15));
-    logger.info('GPS Lock acquired successfully.');
+    logger.info('GPS logic resolved successfully.');
     return false;
   } catch (e) {
-    logger.warning(
-      'GPS Lock timed out after 15 seconds. Proceeding to explore screen.',
-    );
+    logger.warning('GPS logic timed out. Proceeding to explore screen.');
     return true;
   }
 }

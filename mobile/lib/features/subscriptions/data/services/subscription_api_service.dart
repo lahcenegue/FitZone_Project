@@ -24,9 +24,11 @@ class SubscriptionApiService {
       );
     } on DioException catch (e) {
       _logger.severe('Checkout failed', e, e.stackTrace);
-      throw _handleError(e);
-    } catch (e) {
-      throw Exception('An unexpected error occurred during checkout.');
+      // ARCHITECTURE FIX: Rethrow to let the UI format it via ApiException and AppLocalizations
+      rethrow;
+    } catch (e, stackTrace) {
+      _logger.severe('Unexpected error during checkout', e, stackTrace);
+      rethrow;
     }
   }
 
@@ -43,21 +45,15 @@ class SubscriptionApiService {
           .toList();
     } on DioException catch (e) {
       _logger.severe('Failed to fetch subscriptions', e, e.stackTrace);
-      throw _handleError(e);
-    } catch (e) {
-      throw Exception(
-        'An unexpected error occurred while fetching subscriptions.',
+      // ARCHITECTURE FIX: Rethrow to let the UI format it via ApiException and AppLocalizations
+      rethrow;
+    } catch (e, stackTrace) {
+      _logger.severe(
+        'Unexpected error while fetching subscriptions',
+        e,
+        stackTrace,
       );
+      rethrow;
     }
-  }
-
-  Exception _handleError(DioException e) {
-    if (e.response != null && e.response?.data is Map<String, dynamic>) {
-      final data = e.response?.data as Map<String, dynamic>;
-      final message =
-          data['message'] ?? data['detail'] ?? 'Transaction failed.';
-      return Exception(message.toString());
-    }
-    return Exception('Network error. Please try again.');
   }
 }

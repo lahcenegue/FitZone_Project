@@ -1,22 +1,19 @@
+import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logging/logging.dart';
 import 'package:location/location.dart' as loc;
 
-/// Core service for handling device location and permissions.
 class LocationService {
   static final Logger _logger = Logger('LocationService');
 
-  /// A stream that emits real-time updates when the hardware GPS is toggled on/off.
   Stream<ServiceStatus> get serviceStatusStream =>
       Geolocator.getServiceStatusStream();
 
-  /// Opens the device's location settings so the user can enable GPS.
   Future<bool> openLocationSettings() async {
     return await Geolocator.openLocationSettings();
   }
 
-  /// Requests to enable GPS via Google Play Services in-app Popup Dialog.
   Future<bool> requestLocationServicePopup() async {
     try {
       loc.Location location = loc.Location();
@@ -29,7 +26,6 @@ class LocationService {
     }
   }
 
-  /// Requests location permissions and retrieves the user's current GPS position.
   Future<LatLng?> getCurrentLocation() async {
     try {
       final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -52,9 +48,17 @@ class LocationService {
         return null;
       }
 
-      final Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      // ARCHITECTURE FIX: Added timeout to prevent hardware indefinite hanging
+      final Position position =
+          await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+          ).timeout(
+            const Duration(seconds: 15),
+            onTimeout: () {
+              _logger.warning('Hardware GPS lock timed out after 15 seconds.');
+              throw TimeoutException('GPS Lock timeout');
+            },
+          );
 
       _logger.info(
         'Location fetched successfully: ${position.latitude}, ${position.longitude}',
@@ -66,7 +70,6 @@ class LocationService {
     }
   }
 
-  /// Calculates the straight-line distance in meters between two geographical points.
   double calculateDistanceInMeters(LatLng start, LatLng end) {
     return Geolocator.distanceBetween(
       start.latitude,
@@ -76,7 +79,6 @@ class LocationService {
     );
   }
 
-  /// Formats the distance into a human-readable string (meters or kilometers).
   String formatDistance(
     double meters, {
     required String kmLabel,

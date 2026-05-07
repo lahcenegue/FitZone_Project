@@ -34,7 +34,8 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
   bool _isLoadingMore = false;
   bool _hasMore = true;
   int _page = 1;
-  String _selectedFilter = 'all';
+  String _selectedFilter =
+      'all'; // ARCHITECTURE FIX: Supports 'all', 'claimed', 'consumed'
 
   @override
   void initState() {
@@ -74,7 +75,6 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
 
     try {
       final apiService = ref.read(loyaltyApiServiceProvider);
-      // 'all' passes null to backend to get everything
       final statusParam = _selectedFilter == 'all' ? null : _selectedFilter;
 
       final response = await apiService.getMyMilestones(
@@ -284,9 +284,9 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
                       backgroundColor: Colors.transparent,
                       builder: (ctx) => LoyaltyRewardSheet(
                         milestone: reward.milestone,
-                        userMilestone: reward,
-                        isUnlocked: true,
-                        isFromWallet: true, // Key fix: Opened from wallet
+                        userMilestoneWallet:
+                            reward, // Loaded from wallet, has payload
+                        isFromWallet: true,
                         colors: colors,
                         l10n: l10n,
                       ),

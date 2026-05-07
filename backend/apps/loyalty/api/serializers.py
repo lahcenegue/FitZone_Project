@@ -12,13 +12,27 @@ class PointPackageSerializer(serializers.ModelSerializer):
 
 class MilestoneRewardSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
+    coupon_type = serializers.SerializerMethodField()
+    discount_value = serializers.SerializerMethodField()
     
     class Meta:
         model = MilestoneReward
-        fields = ['id', 'name', 'action_type', 'action_value', 'fulfillment_type']
+        fields = ['id', 'name', 'action_type', 'action_value', 'fulfillment_type', 'coupon_type', 'discount_value']
 
     def get_name(self, obj):
         return str(_(obj.name))
+
+    def get_coupon_type(self, obj):
+        """Fetches the specific coupon type from the related definition."""
+        if obj.action_type == 'gen_coupon' and hasattr(obj, 'coupon_definition') and obj.coupon_definition:
+            return obj.coupon_definition.coupon_type
+        return None
+
+    def get_discount_value(self, obj):
+        """Fetches the specific discount value from the related definition."""
+        if obj.action_type == 'gen_coupon' and hasattr(obj, 'coupon_definition') and obj.coupon_definition:
+            return float(obj.coupon_definition.discount_value)
+        return None
 
 class MilestoneSerializer(serializers.ModelSerializer):
     reward = MilestoneRewardSerializer(read_only=True)

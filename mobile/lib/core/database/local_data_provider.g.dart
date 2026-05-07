@@ -50,4 +50,4 @@ final class AppStaticDataProvider
   }
 }
 
-String _$appStaticDataHash() => r'05a00d5cc4f67ca0867a659b335a82d0a3a29cae';
+String _$appStaticDataHash() => r'4d33e336fabb6805d341e399419f0b8991d36431';

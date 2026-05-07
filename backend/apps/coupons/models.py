@@ -61,17 +61,16 @@ class CouponDefinition(models.Model):
         return f"{self.title} ({self.get_coupon_type_display()})"
 
     def clean(self):
-        if self.coupon_type == CouponType.PERCENTAGE and self.discount_value > 100:
+        if self.coupon_type == CouponType.PERCENTAGE_DISCOUNT and self.discount_value > 100:
             raise ValidationError({"discount_value": _("Percentage discount cannot exceed 100.")})
         
-        if self.coupon_type in [CouponType.PERCENTAGE, CouponType.FIXED_AMOUNT, CouponType.SUBSCRIPTION_EXTENSION]:
+        if self.coupon_type in [CouponType.PERCENTAGE_DISCOUNT, CouponType.FIXED_AMOUNT_DISCOUNT]:
             if self.discount_value <= 0:
                 raise ValidationError({"discount_value": _("This coupon type requires a discount value greater than 0.")})
 
     def generate_coupon_code(self, length=8):
         """Generates a secure, readable random string for the coupon code."""
         alphabet = string.ascii_uppercase + string.digits
-        # Removing visually confusing characters (0, O, 1, I)
         safe_alphabet = alphabet.translate(str.maketrans('', '', '0O1I'))
         return ''.join(secrets.choice(safe_alphabet) for _ in range(length))
 

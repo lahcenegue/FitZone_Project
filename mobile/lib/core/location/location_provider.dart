@@ -47,7 +47,6 @@ class UserLocation extends _$UserLocation {
   LocationState build() {
     final lastLoc = ref.read(storageServiceProvider).getLastLocation();
 
-    // Listen to hardware GPS changes in real-time!
     _statusStream = ref
         .read(locationServiceProvider)
         .serviceStatusStream
@@ -66,26 +65,21 @@ class UserLocation extends _$UserLocation {
     return LocationState(location: lastLoc);
   }
 
-  /// Opens the device settings to force user to enable GPS
   Future<void> openSettings() async {
     await ref.read(locationServiceProvider).openLocationSettings();
   }
 
-  /// Shows the In-App Location Resolution Dialog (Google Play Services)
   Future<void> promptEnableLocation() async {
     final isEnabled = await Geolocator.isLocationServiceEnabled();
     if (!isEnabled) {
-      // Show the beautiful native popup instead of settings!
       await ref.read(locationServiceProvider).requestLocationServicePopup();
     } else {
-      // If already enabled, user might want to turn it off. Android restricts apps from turning off GPS directly.
-      // So we fallback to opening settings if they want to toggle it off.
       await openSettings();
     }
   }
 
   Future<void> fetchLocation() async {
-    _logger.info('Attempting to fetch real user location...');
+    _logger.info('Initiating smart location fetch sequence...');
 
     final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     LocationPermission permission = await Geolocator.checkPermission();
@@ -106,13 +100,38 @@ class UserLocation extends _$UserLocation {
     );
 
     if (serviceEnabled && permissionGranted) {
+      // ARCHITECTURE FIX: Stale-while-Revalidate strategy
+      if (state.location != null) {
+        _logger.info(
+          'Cached location exists. Bypassing wait to unblock UI. Triggering background update.',
+        );
+        unawaited(_updateRealLocationInBackground());
+        return;
+      } else {
+        _logger.info(
+          'First time launch: No cached location found. Awaiting real GPS lock.',
+        );
+        await _updateRealLocationInBackground();
+      }
+    }
+  }
+
+  Future<void> _updateRealLocationInBackground() async {
+    try {
       final LocationService service = ref.read(locationServiceProvider);
       final LatLng? realLocation = await service.getCurrentLocation();
 
       if (realLocation != null) {
         await ref.read(storageServiceProvider).setLastLocation(realLocation);
         state = state.copyWith(location: realLocation);
+        _logger.info('Background location update successful.');
+      } else {
+        _logger.warning(
+          'Failed to fetch real location in background. Retaining cache if available.',
+        );
       }
+    } catch (e, stackTrace) {
+      _logger.severe('Error updating location in background', e, stackTrace);
     }
   }
 }

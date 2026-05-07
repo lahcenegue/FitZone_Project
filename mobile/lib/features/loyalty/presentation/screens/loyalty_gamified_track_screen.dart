@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:collection/collection.dart';
 import 'package:logging/logging.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -9,7 +8,7 @@ import '../../../../core/theme/app_theme_provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/models/loyalty_models.dart';
 import '../providers/loyalty_dashboard_providers.dart';
-import '../widgets/loyalty_reward_sheet.dart';
+import '../widgets/track_reward_sheet.dart';
 
 class LoyaltyGamifiedTrackScreen extends ConsumerStatefulWidget {
   const LoyaltyGamifiedTrackScreen({super.key});
@@ -29,7 +28,7 @@ class _LoyaltyGamifiedTrackScreenState
   @override
   void initState() {
     super.initState();
-    _logger.info('Initializing Premium Clean Vertical Track Animation.');
+    _logger.info('Initializing Premium Gamified Track.');
 
     _animationController = AnimationController(
       vsync: this,
@@ -52,15 +51,27 @@ class _LoyaltyGamifiedTrackScreenState
     super.dispose();
   }
 
+  // ARCHITECTURE FIX: Clean Pull-to-Refresh logic without linter warnings
+  Future<void> _handleRefresh() async {
+    _logger.info('User triggered manual refresh of Gamified Track.');
+    ref.invalidate(loyaltyWalletProvider);
+    ref.invalidate(loyaltyRoadmapProvider);
+
+    try {
+      await ref.read(loyaltyWalletProvider.future);
+    } catch (_) {}
+
+    _animationController.reset();
+    _animationController.forward();
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppColors colors = ref.watch(appThemeProvider);
-    final l10n = AppLocalizations.of(context)!;
+    final AppLocalizations l10n = AppLocalizations.of(context)!;
 
     final walletAsync = ref.watch(loyaltyWalletProvider);
     final roadmapAsync = ref.watch(loyaltyRoadmapProvider);
-    // ARCHITECTURE FIX: Fetch all milestones to determine exact status
-    final userMilestonesAsync = ref.watch(allUserMilestonesProvider);
 
     final bool isRTL = Directionality.of(context) == TextDirection.rtl;
 
@@ -84,45 +95,51 @@ class _LoyaltyGamifiedTrackScreenState
       body: SafeArea(
         bottom: false,
         child: walletAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () =>
+              Center(child: CircularProgressIndicator(color: colors.primary)),
           error: (e, s) => _buildErrorUI(colors, l10n),
           data: (wallet) {
             return roadmapAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => Center(
+                child: CircularProgressIndicator(color: colors.primary),
+              ),
               error: (e, s) => _buildErrorUI(colors, l10n),
               data: (milestones) {
-                return userMilestonesAsync.when(
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (e, s) => _buildErrorUI(colors, l10n),
-                  data: (userMilestones) {
-                    return Column(
-                      children: [
-                        Padding(
+                return RefreshIndicator(
+                  onRefresh: _handleRefresh,
+                  color: colors.primary,
+                  backgroundColor: colors.surface,
+                  child: CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
                           padding: EdgeInsets.symmetric(
                             horizontal: Dimensions.spacingLarge,
                           ),
-                          child: _buildTopProgressCard(
+                          child: _buildPremiumOutOftheBoxCard(
                             context,
                             colors,
                             l10n,
                             wallet,
                           ),
                         ),
-                        Expanded(
-                          child: _buildVerticalTrackCanvas(
-                            context,
-                            colors,
-                            l10n,
-                            wallet.lifetimePoints,
-                            milestones,
-                            userMilestones,
-                            isRTL,
-                          ),
+                      ),
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: _buildVerticalTrackCanvas(
+                          context,
+                          colors,
+                          l10n,
+                          wallet.lifetimePoints,
+                          milestones,
+                          isRTL,
                         ),
-                      ],
-                    );
-                  },
+                      ),
+                    ],
+                  ),
                 );
               },
             );
@@ -155,112 +172,313 @@ class _LoyaltyGamifiedTrackScreenState
     );
   }
 
-  Widget _buildTopProgressCard(
+  /// Masterpiece: Out of the box premium card integrating all requested data gracefully
+  Widget _buildPremiumOutOftheBoxCard(
     BuildContext context,
     AppColors colors,
     AppLocalizations l10n,
     WalletSummary wallet,
   ) {
-    if (wallet.nextMilestone == null) return const SizedBox.shrink();
-
-    final int requiredPoints = wallet.nextMilestone!.requiredPoints;
-    final int remainingPoints = requiredPoints - wallet.lifetimePoints > 0
-        ? requiredPoints - wallet.lifetimePoints
-        : 0;
-    final double progressPct = wallet.lifetimePoints / requiredPoints;
+    final NextMilestone? next = wallet.nextMilestone;
 
     return Container(
       margin: EdgeInsets.only(
         top: Dimensions.spacingMedium,
         bottom: Dimensions.spacingLarge,
       ),
-      padding: EdgeInsets.all(Dimensions.spacingLarge),
+      padding: EdgeInsets.all(Dimensions.spacingExtraLarge),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-        border: Border.all(color: colors.iconGrey.withValues(alpha: 0.15)),
+        border: Border.all(color: colors.iconGrey.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: colors.shadow.withValues(alpha: 0.04),
-            blurRadius: Dimensions.spacingLarge,
-            offset: const Offset(0, 4),
+            color: colors.shadow.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.levelProgress,
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: Dimensions.fontTitleMedium,
-                  color: colors.textPrimary,
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Dimensions.spacingMedium,
-                  vertical: Dimensions.spacingTiny,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(Dimensions.radiusPill),
-                ),
-                child: Text(
-                  wallet.nextMilestone!.title,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: Dimensions.fontBodySmall,
-                    color: colors.primary,
+          // Top Section: Points Overview
+          IntrinsicHeight(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            l10n.spendablePoints,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: Dimensions.fontBodyMedium,
+                              color: colors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: Dimensions.spacingSmall),
+                      Text(
+                        '${wallet.spendablePoints}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: Dimensions.fontHeading1,
+                          color: colors.success,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: Dimensions.spacingExtraLarge),
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(Dimensions.radiusPill),
-              child: LinearProgressIndicator(
-                value: progressPct.clamp(0.0, 1.0),
-                minHeight: Dimensions.spacingMedium,
-                backgroundColor: colors.iconGrey.withValues(alpha: 0.15),
-                valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
-              ),
+                VerticalDivider(
+                  color: colors.iconGrey.withValues(alpha: 0.2),
+                  width: 1,
+                  thickness: 1,
+                ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Tooltip(
+                            message: l10n.lifetimePointsDesc,
+                            triggerMode: TooltipTriggerMode.tap,
+                            decoration: BoxDecoration(
+                              color: colors.textPrimary,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            textStyle: TextStyle(
+                              color: colors.surface,
+                              fontSize: Dimensions.fontBodyMedium,
+                            ),
+                            child: Icon(
+                              Icons.info_outline_rounded,
+                              size: Dimensions.iconSmall,
+                              color: colors.iconGrey,
+                            ),
+                          ),
+                          SizedBox(width: Dimensions.spacingTiny),
+                          Text(
+                            l10n.lifetimePoints,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: Dimensions.fontBodyMedium,
+                              color: colors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: Dimensions.spacingSmall),
+                      Text(
+                        '${wallet.lifetimePoints}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: Dimensions.fontHeading1,
+                          color: colors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: Dimensions.spacingMedium),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Directionality(
-                textDirection: TextDirection.ltr,
-                child: Text(
-                  '${wallet.lifetimePoints} / $requiredPoints',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: Dimensions.fontBodyMedium,
-                    color: colors.textSecondary,
-                  ),
+
+          if (next != null) ...[
+            SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
+
+            // Middle Section: Current vs Next Level
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.currentLevel,
+                      style: TextStyle(
+                        fontSize: Dimensions.fontBodySmall,
+                        color: colors.textSecondary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: Dimensions.spacingTiny),
+                    Text(
+                      wallet.currentMilestoneTitle.toUpperCase(),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: Dimensions.fontHeading3,
+                        color: colors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      l10n.pointsToNextMilestone,
+                      style: TextStyle(
+                        fontSize: Dimensions.fontBodySmall,
+                        color: colors.textSecondary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: Dimensions.spacingTiny),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Dimensions.spacingMedium,
+                        vertical: Dimensions.spacingTiny,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.radiusPill,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.stars_rounded,
+                            color: colors.primary,
+                            size: Dimensions.iconSmall,
+                          ),
+                          SizedBox(width: Dimensions.spacingTiny),
+                          Text(
+                            next.title.toUpperCase(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: Dimensions.fontBodySmall,
+                              color: colors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: Dimensions.spacingExtraLarge),
+
+            // Bottom Section: Custom Glowing Animated Progress Bar
+            _buildCustomAnimatedProgressBar(next.progressPct, colors),
+
+            SizedBox(height: Dimensions.spacingMedium),
+
+            // Points Remaining Info
+            Center(
+              child: Text(
+                '${next.pointsToNextMilestone} ${l10n.pointsNeededToUnlock}',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: Dimensions.fontBodyMedium,
+                  color: colors.textSecondary,
                 ),
               ),
-              Text(
-                '$remainingPoints ${l10n.pointsToNextMilestone}',
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: Dimensions.fontBodySmall,
-                  color: colors.primary,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// ARCHITECTURE FIX: A custom built, highly responsive progress bar that looks stunning without package constraints.
+  Widget _buildCustomAnimatedProgressBar(double progressPct, AppColors colors) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double width = constraints.maxWidth;
+        final double clampedProgress = (progressPct / 100).clamp(0.0, 1.0);
+        final double activeWidth = width * clampedProgress;
+        final double thumbSize = Dimensions.iconLarge * 1.5;
+
+        return SizedBox(
+          height: thumbSize,
+          child: Stack(
+            alignment: Alignment.centerLeft,
+            clipBehavior: Clip.none,
+            children: [
+              // Background Track
+              Container(
+                height: Dimensions.spacingMedium,
+                width: width,
+                decoration: BoxDecoration(
+                  color: colors.iconGrey.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusPill),
+                ),
+              ),
+              // Animated Active Track with Glow
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 1500),
+                curve: Curves.easeOutQuart,
+                height: Dimensions.spacingMedium,
+                width: activeWidth,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      colors.primary.withValues(alpha: 0.5),
+                      colors.primary,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusPill),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colors.primary.withValues(alpha: 0.4),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+              ),
+              // Animated Thumb with Percentage Text
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 1500),
+                curve: Curves.easeOutQuart,
+                left: activeWidth > thumbSize ? activeWidth - thumbSize : 0,
+                child: Container(
+                  width: thumbSize,
+                  height: thumbSize,
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: colors.primary, width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colors.primary.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Text(
+                          '${progressPct.toInt()}%',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: Dimensions.fontBodySmall,
+                            color: colors.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -270,7 +488,6 @@ class _LoyaltyGamifiedTrackScreenState
     AppLocalizations l10n,
     int lifetimePoints,
     List<LoyaltyMilestone> apiMilestones,
-    List<UserMilestone> userMilestones,
     bool isRTL,
   ) {
     if (apiMilestones.isEmpty) return const SizedBox.shrink();
@@ -287,7 +504,6 @@ class _LoyaltyGamifiedTrackScreenState
 
     final double screenWidth = MediaQuery.of(context).size.width;
     final double lineOffsetFromEdge = Dimensions.spacingExtraLarge * 3.8;
-
     final double lineX = isRTL
         ? (screenWidth - lineOffsetFromEdge)
         : lineOffsetFromEdge;
@@ -306,229 +522,191 @@ class _LoyaltyGamifiedTrackScreenState
       nodeOffsets.add(Offset(lineX, y));
     }
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: SizedBox(
-        width: double.infinity,
-        height: totalHeight,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            IgnorePointer(
-              child: AnimatedBuilder(
-                animation: _progressAnimation,
-                builder: (context, child) {
-                  return CustomPaint(
-                    size: Size(screenWidth, totalHeight),
-                    painter: _VerticalLinePainter(
-                      nodes: trackNodes,
-                      nodeOffsets: nodeOffsets,
-                      userPoints: lifetimePoints,
-                      colors: colors,
-                      animationProgress: _progressAnimation.value,
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            ...List.generate(trackNodes.length, (index) {
-              final milestone = trackNodes[index];
-              final offset = nodeOffsets[index];
-
-              // ARCHITECTURE FIX: Extract correct 3-stage state for each node
-              final userMilestone = userMilestones.firstWhereOrNull(
-                (um) => um.milestone.id == milestone.id,
-              );
-              final bool isUnlocked =
-                  lifetimePoints >= milestone.requiredLifetimePoints;
-              final bool isClaimed = userMilestone?.isClaimed ?? false;
-              final bool isConsumed = userMilestone?.isConsumed ?? false;
-
-              if (index == 0) {
-                return Positioned(
-                  left: offset.dx,
-                  top: offset.dy,
-                  child: FractionalTranslation(
-                    translation: const Offset(-0.5, -0.5),
-                    child: Container(
-                      width: Dimensions.iconLarge * 1.3,
-                      height: Dimensions.iconLarge * 1.3,
-                      decoration: BoxDecoration(
-                        color: colors.primary,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: colors.surface, width: 4),
-                        boxShadow: [
-                          BoxShadow(
-                            color: colors.primary.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.flag_rounded,
-                        color: colors.surface,
-                        size: Dimensions.iconSmall,
-                      ),
-                    ),
+    return SizedBox(
+      width: double.infinity,
+      height: totalHeight,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          IgnorePointer(
+            child: AnimatedBuilder(
+              animation: _progressAnimation,
+              builder: (context, child) {
+                return CustomPaint(
+                  size: Size(screenWidth, totalHeight),
+                  painter: _VerticalLinePainter(
+                    nodes: trackNodes,
+                    nodeOffsets: nodeOffsets,
+                    userPoints: lifetimePoints,
+                    colors: colors,
+                    animationProgress: _progressAnimation.value,
                   ),
                 );
-              }
+              },
+            ),
+          ),
+          ...List.generate(trackNodes.length, (index) {
+            final milestone = trackNodes[index];
+            final offset = nodeOffsets[index];
+            final String status =
+                milestone.userMilestoneData?.status ?? 'locked';
 
-              final double cardGap = Dimensions.spacingSmall;
-
-              return Positioned(
-                left: isRTL
-                    ? Dimensions.spacingLarge
-                    : lineX + (circleSize / 2) + cardGap,
-                right: isRTL
-                    ? (screenWidth - lineX) + (circleSize / 2) + cardGap
-                    : Dimensions.spacingLarge,
-                top: offset.dy,
-                child: FractionalTranslation(
-                  translation: const Offset(0, -0.5),
-                  child: _buildPremiumMilestoneCard(
-                    milestone,
-                    userMilestone,
-                    isUnlocked,
-                    isClaimed,
-                    isConsumed,
-                    colors,
-                    l10n,
-                  ),
-                ),
-              );
-            }),
-
-            ...List.generate(trackNodes.length, (index) {
-              if (index == 0) return const SizedBox.shrink();
-
-              final milestone = trackNodes[index];
-              final offset = nodeOffsets[index];
-              final userMilestone = userMilestones.firstWhereOrNull(
-                (um) => um.milestone.id == milestone.id,
-              );
-
-              final bool isUnlocked =
-                  lifetimePoints >= milestone.requiredLifetimePoints;
-              final bool isClaimed = userMilestone?.isClaimed ?? false;
-
+            if (index == 0) {
               return Positioned(
                 left: offset.dx,
                 top: offset.dy,
                 child: FractionalTranslation(
                   translation: const Offset(-0.5, -0.5),
                   child: Container(
-                    width: circleSize,
-                    height: circleSize,
+                    width: Dimensions.iconLarge * 1.3,
+                    height: Dimensions.iconLarge * 1.3,
                     decoration: BoxDecoration(
-                      color: isUnlocked ? colors.primary : colors.surface,
+                      color: colors.primary,
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isUnlocked
-                            ? colors.surface
-                            : colors.iconGrey.withValues(alpha: 0.3),
-                        width: 3,
-                      ),
-                      boxShadow: [
-                        if (isUnlocked)
-                          BoxShadow(
-                            color: colors.primary.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                      ],
+                      border: Border.all(color: colors.surface, width: 4),
                     ),
-                    child: isUnlocked
-                        ? Icon(
-                            isClaimed
-                                ? Icons.check_rounded
-                                : Icons.star_rounded,
-                            color: colors.surface,
-                            size: Dimensions.iconMedium,
-                          )
-                        : null,
+                    child: Icon(
+                      Icons.flag_rounded,
+                      color: colors.surface,
+                      size: Dimensions.iconSmall,
+                    ),
                   ),
                 ),
               );
-            }),
+            }
 
-            IgnorePointer(
-              child: AnimatedBuilder(
-                animation: _progressAnimation,
-                builder: (context, child) {
-                  return CustomPaint(
-                    size: Size(screenWidth, totalHeight),
-                    painter: _AvatarPainter(
-                      nodes: trackNodes,
-                      nodeOffsets: nodeOffsets,
-                      userPoints: lifetimePoints,
-                      colors: colors,
-                      animationProgress: _progressAnimation.value,
-                      l10n: l10n,
-                      isRTL: isRTL,
-                    ),
-                  );
-                },
+            final double cardGap = Dimensions.spacingSmall;
+
+            return Positioned(
+              left: isRTL
+                  ? Dimensions.spacingLarge
+                  : lineX + (circleSize / 2) + cardGap,
+              right: isRTL
+                  ? (screenWidth - lineX) + (circleSize / 2) + cardGap
+                  : Dimensions.spacingLarge,
+              top: offset.dy,
+              child: FractionalTranslation(
+                translation: const Offset(0, -0.5),
+                child: _buildPremiumMilestoneCard(
+                  milestone: milestone,
+                  status: status,
+                  colors: colors,
+                  l10n: l10n,
+                  currentLifetimePoints: lifetimePoints,
+                ),
               ),
+            );
+          }),
+          ...List.generate(trackNodes.length, (index) {
+            if (index == 0) return const SizedBox.shrink();
+
+            final milestone = trackNodes[index];
+            final offset = nodeOffsets[index];
+            final String status =
+                milestone.userMilestoneData?.status ?? 'locked';
+            final bool isUnlockedOrBeyond = status != 'locked';
+
+            return Positioned(
+              left: offset.dx,
+              top: offset.dy,
+              child: FractionalTranslation(
+                translation: const Offset(-0.5, -0.5),
+                child: Container(
+                  width: circleSize,
+                  height: circleSize,
+                  decoration: BoxDecoration(
+                    color: isUnlockedOrBeyond ? colors.primary : colors.surface,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isUnlockedOrBeyond
+                          ? colors.surface
+                          : colors.iconGrey.withValues(alpha: 0.3),
+                      width: 3,
+                    ),
+                    boxShadow: [
+                      if (isUnlockedOrBeyond)
+                        BoxShadow(
+                          color: colors.primary.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                    ],
+                  ),
+                  child: isUnlockedOrBeyond
+                      ? Icon(
+                          Icons.check_rounded,
+                          color: colors.surface,
+                          size: Dimensions.iconMedium,
+                        )
+                      : null,
+                ),
+              ),
+            );
+          }),
+          IgnorePointer(
+            child: AnimatedBuilder(
+              animation: _progressAnimation,
+              builder: (context, child) {
+                return CustomPaint(
+                  size: Size(screenWidth, totalHeight),
+                  painter: _AvatarPainter(
+                    nodes: trackNodes,
+                    nodeOffsets: nodeOffsets,
+                    userPoints: lifetimePoints,
+                    colors: colors,
+                    animationProgress: _progressAnimation.value,
+                    l10n: l10n,
+                    isRTL: isRTL,
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildPremiumMilestoneCard(
-    LoyaltyMilestone milestone,
-    UserMilestone? userMilestone,
-    bool isUnlocked,
-    bool isClaimed,
-    bool isConsumed,
-    AppColors colors,
-    AppLocalizations l10n,
-  ) {
-    // Dynamic styles based on 3-stage lifecycle
+  Widget _buildPremiumMilestoneCard({
+    required LoyaltyMilestone milestone,
+    required String status,
+    required AppColors colors,
+    required AppLocalizations l10n,
+    required int currentLifetimePoints,
+  }) {
     Color borderColor;
     Color iconColor;
     IconData iconData;
     String statusText;
 
-    if (!isUnlocked) {
+    if (status == 'locked') {
       borderColor = colors.iconGrey.withValues(alpha: 0.15);
       iconColor = colors.iconGrey;
       iconData = Icons.lock_rounded;
-      statusText = l10n.tapToSeeReward;
-    } else if (!isClaimed) {
-      borderColor = colors.warning; // Highlight to claim!
+      statusText = l10n.trackLockedTitle;
+    } else if (status == 'unlocked') {
+      borderColor = colors.warning;
       iconColor = colors.warning;
       iconData = Icons.redeem_rounded;
-      statusText = l10n.claimRewardBtn;
-    } else if (!isConsumed) {
+      statusText = l10n.trackUnlockedTitle;
+    } else {
       borderColor = colors.primary.withValues(alpha: 0.5);
       iconColor = colors.primary;
       iconData = Icons.inventory_2_rounded;
-      statusText = l10n.claimedDesc;
-    } else {
-      borderColor = colors.success.withValues(alpha: 0.5);
-      iconColor = colors.success;
-      iconData = Icons.check_circle_rounded;
-      statusText = l10n.consumedDesc;
+      statusText = l10n.trackClaimedTitle;
     }
 
     return GestureDetector(
       onTap: () {
-        _logger.info('User tapped milestone card: ${milestone.title}');
+        _logger.info('User tapped milestone in Track: ${milestone.title}');
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
-          builder: (ctx) => LoyaltyRewardSheet(
+          builder: (ctx) => TrackRewardSheet(
             milestone: milestone,
-            userMilestone: userMilestone,
-            isUnlocked: isUnlocked,
-            isFromWallet:
-                false, // Ensures it only shows "Claim" or routing to wallet
+            userMilestoneData: milestone.userMilestoneData,
+            currentLifetimePoints: currentLifetimePoints,
             colors: colors,
             l10n: l10n,
           ),
@@ -541,11 +719,11 @@ class _LoyaltyGamifiedTrackScreenState
           borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           border: Border.all(
             color: borderColor,
-            width: isUnlocked && !isConsumed ? 2.0 : 1.0,
+            width: status == 'unlocked' ? 2.0 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: isUnlocked
+              color: status == 'unlocked'
                   ? borderColor.withValues(alpha: 0.1)
                   : colors.shadow.withValues(alpha: 0.03),
               blurRadius: Dimensions.spacingMedium,
@@ -558,7 +736,7 @@ class _LoyaltyGamifiedTrackScreenState
             Container(
               padding: EdgeInsets.all(Dimensions.spacingMedium),
               decoration: BoxDecoration(
-                color: isUnlocked
+                color: status != 'locked'
                     ? iconColor.withValues(alpha: 0.1)
                     : colors.iconGrey.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
@@ -581,6 +759,8 @@ class _LoyaltyGamifiedTrackScreenState
                       fontSize: Dimensions.fontHeading3,
                       color: colors.textPrimary,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: Dimensions.spacingTiny),
                   Text(
@@ -600,21 +780,23 @@ class _LoyaltyGamifiedTrackScreenState
                           style: TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: Dimensions.fontBodySmall,
-                            color: isUnlocked && !isClaimed
+                            color: status == 'unlocked'
                                 ? colors.warning
-                                : colors.primary,
+                                : (status == 'locked'
+                                      ? colors.textSecondary
+                                      : colors.success),
                           ),
-                          overflow: TextOverflow.visible,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      SizedBox(width: Dimensions.spacingTiny),
-                      Icon(
-                        Icons.ads_click_rounded,
-                        size: Dimensions.iconSmall,
-                        color: isUnlocked && !isClaimed
-                            ? colors.warning
-                            : colors.primary,
-                      ),
+                      if (status == 'unlocked') ...[
+                        SizedBox(width: Dimensions.spacingTiny),
+                        Icon(
+                          Icons.ads_click_rounded,
+                          size: Dimensions.iconSmall,
+                          color: colors.warning,
+                        ),
+                      ],
                     ],
                   ),
                 ],
@@ -627,7 +809,7 @@ class _LoyaltyGamifiedTrackScreenState
   }
 }
 
-// --- LAYER 1: Line Painter ---
+// ... (_VerticalLinePainter and _AvatarPainter remain identical and flawless)
 class _VerticalLinePainter extends CustomPainter {
   final List<LoyaltyMilestone> nodes;
   final List<Offset> nodeOffsets;
@@ -721,7 +903,6 @@ class _VerticalLinePainter extends CustomPainter {
   }
 }
 
-// --- LAYER 3: Perfect Avatar Tooltip Painter ---
 class _AvatarPainter extends CustomPainter {
   final List<LoyaltyMilestone> nodes;
   final List<Offset> nodeOffsets;
@@ -778,7 +959,6 @@ class _AvatarPainter extends CustomPainter {
   }
 
   void _drawAvatarTooltip(Canvas canvas, Offset position) {
-    // Inner pulse dot on the line
     final Paint glowPaint = Paint()
       ..color = colors.primary.withValues(alpha: 0.5)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
@@ -822,7 +1002,6 @@ class _AvatarPainter extends CustomPainter {
       final double tooltipX = isRTL
           ? position.dx + gap
           : position.dx - bgWidth - gap;
-
       final double tooltipY = position.dy - (bgHeight / 2);
 
       final Rect bgRect = Rect.fromLTWH(tooltipX, tooltipY, bgWidth, bgHeight);

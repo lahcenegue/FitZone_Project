@@ -1496,12 +1496,6 @@ abstract class AppLocalizations {
   /// **'Days Remaining'**
   String get daysRemaining;
 
-  /// No description provided for @tapToExpandQr.
-  ///
-  /// In en, this message translates to:
-  /// **'Tap to enlarge QR'**
-  String get tapToExpandQr;
-
   /// No description provided for @gymLocation.
   ///
   /// In en, this message translates to:
@@ -1670,24 +1664,6 @@ abstract class AppLocalizations {
   /// **'Transactions History'**
   String get transactionsHistory;
 
-  /// No description provided for @spendablePoints.
-  ///
-  /// In en, this message translates to:
-  /// **'Spendable Points'**
-  String get spendablePoints;
-
-  /// No description provided for @lifetimePoints.
-  ///
-  /// In en, this message translates to:
-  /// **'Lifetime Points'**
-  String get lifetimePoints;
-
-  /// No description provided for @currentLevel.
-  ///
-  /// In en, this message translates to:
-  /// **'Current Level'**
-  String get currentLevel;
-
   /// No description provided for @buyPoints.
   ///
   /// In en, this message translates to:
@@ -1715,7 +1691,7 @@ abstract class AppLocalizations {
   /// No description provided for @noRewards.
   ///
   /// In en, this message translates to:
-  /// **'No rewards consumed yet'**
+  /// **'You haven\'t received any rewards yet.'**
   String get noRewards;
 
   /// No description provided for @dashboardDesc.
@@ -2060,12 +2036,6 @@ abstract class AppLocalizations {
   /// **'Lifetime Points:'**
   String get lifetimePointsTitle;
 
-  /// No description provided for @lifetimePointsDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'(Used for account tier upgrades)'**
-  String get lifetimePointsDesc;
-
   /// No description provided for @viewRoadmap.
   ///
   /// In en, this message translates to:
@@ -2089,12 +2059,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use Reward'**
   String get useRewardBtn;
-
-  /// No description provided for @rewardClaimedSuccess.
-  ///
-  /// In en, this message translates to:
-  /// **'Reward claimed successfully! It\'s now in your wallet.'**
-  String get rewardClaimedSuccess;
 
   /// No description provided for @claimedDesc.
   ///
@@ -2138,11 +2102,251 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancelBtn;
 
+  /// No description provided for @couponCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon Code'**
+  String get couponCode;
+
+  /// No description provided for @spendablePoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable Points'**
+  String get spendablePoints;
+
+  /// No description provided for @lifetimePoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime Points'**
+  String get lifetimePoints;
+
+  /// No description provided for @lifetimePointsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'These points determine your level and never decrease when you consume rewards.'**
+  String get lifetimePointsDesc;
+
+  /// No description provided for @goToWalletBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Wallet to Use'**
+  String get goToWalletBtn;
+
+  /// No description provided for @discountValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount Value:'**
+  String get discountValue;
+
+  /// No description provided for @expiresAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid Until:'**
+  String get expiresAt;
+
+  /// No description provided for @rewardClaimedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward claimed! Find it in your wallet.'**
+  String get rewardClaimedSuccess;
+
   /// No description provided for @rewardConsumedSuccess.
   ///
   /// In en, this message translates to:
   /// **'Reward consumed successfully!'**
   String get rewardConsumedSuccess;
+
+  /// No description provided for @currentLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Level:'**
+  String get currentLevel;
+
+  /// No description provided for @unboxedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Congratulations! Reward Unboxed'**
+  String get unboxedTitle;
+
+  /// No description provided for @alreadyClaimedMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already claimed this reward. Please go to your wallet to use it.'**
+  String get alreadyClaimedMsg;
+
+  /// No description provided for @copyToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Code'**
+  String get copyToClipboard;
+
+  /// No description provided for @copiedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied successfully'**
+  String get copiedSuccessfully;
+
+  /// No description provided for @selectSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Subscription to Extend'**
+  String get selectSubscription;
+
+  /// No description provided for @extendSubscriptionBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Extend Subscription'**
+  String get extendSubscriptionBtn;
+
+  /// No description provided for @noActiveSubscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'No active subscriptions found'**
+  String get noActiveSubscriptions;
+
+  /// No description provided for @showToReception.
+  ///
+  /// In en, this message translates to:
+  /// **'Please show this screen to the receptionist'**
+  String get showToReception;
+
+  /// No description provided for @rewardManualDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'This reward requires manual pickup at the branch.'**
+  String get rewardManualDesc;
+
+  /// No description provided for @tapToExpandQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to expand QR code'**
+  String get tapToExpandQr;
+
+  /// No description provided for @trackLockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked Reward'**
+  String get trackLockedTitle;
+
+  /// No description provided for @trackLockedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect more points to unlock this awesome reward and enjoy its benefits.'**
+  String get trackLockedDesc;
+
+  /// No description provided for @trackUnlockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward Ready!'**
+  String get trackUnlockedTitle;
+
+  /// No description provided for @trackUnlockedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Congratulations! You reached this level. Claim your reward now to use it.'**
+  String get trackUnlockedDesc;
+
+  /// No description provided for @trackClaimedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Already Claimed'**
+  String get trackClaimedTitle;
+
+  /// No description provided for @trackClaimedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already claimed this reward. Please go to your Rewards Wallet to use it.'**
+  String get trackClaimedDesc;
+
+  /// No description provided for @rewardIncludes.
+  ///
+  /// In en, this message translates to:
+  /// **'This reward includes:'**
+  String get rewardIncludes;
+
+  /// No description provided for @pointsNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'points left to unlock'**
+  String get pointsNeeded;
+
+  /// No description provided for @successUnboxedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Awesome! Reward Claimed'**
+  String get successUnboxedTitle;
+
+  /// No description provided for @successUnboxedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The reward has been successfully added to your wallet. You can use it anytime.'**
+  String get successUnboxedDesc;
+
+  /// No description provided for @checkWalletBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Wallet Now'**
+  String get checkWalletBtn;
+
+  /// No description provided for @continueDiscoveringBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Progress'**
+  String get continueDiscoveringBtn;
+
+  /// No description provided for @pointsNeededToUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'more points to unlock'**
+  String get pointsNeededToUnlock;
+
+  /// No description provided for @currency.
+  ///
+  /// In en, this message translates to:
+  /// **'SAR'**
+  String get currency;
+
+  /// No description provided for @pullToRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull to refresh'**
+  String get pullToRefresh;
+
+  /// No description provided for @freeShipping.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Shipping'**
+  String get freeShipping;
+
+  /// No description provided for @fixedAmountDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed Amount Discount'**
+  String get fixedAmountDiscount;
+
+  /// No description provided for @percentageDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Percentage Discount'**
+  String get percentageDiscount;
+
+  /// No description provided for @bogoDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy 1 Get 1 Free'**
+  String get bogoDiscount;
+
+  /// No description provided for @freeItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Item'**
+  String get freeItem;
+
+  /// No description provided for @rewardValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward Value:'**
+  String get rewardValue;
 }
 
 class _AppLocalizationsDelegate

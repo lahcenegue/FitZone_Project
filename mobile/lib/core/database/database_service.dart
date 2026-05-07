@@ -19,13 +19,12 @@ class DatabaseService {
     final String dbPath = await getDatabasesPath();
     final String path = join(dbPath, filePath);
 
-    // ARCHITECTURE FIX: We use onOpen to guarantee table creation even if onUpgrade fails or is bypassed
     return await openDatabase(
       path,
-      version: 2,
+      version: 3, // Incremented version to apply architectural fixes
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
-      onOpen: _ensureTablesExist, // The ultimate fail-safe
+      onOpen: _ensureTablesExist,
     );
   }
 
@@ -38,15 +37,18 @@ class DatabaseService {
     _logger.info(
       'Upgrading SQLite database from $oldVersion to $newVersion...',
     );
+    // ARCHITECTURE FIX: Drop the old loyalty table as it is now user-specific API driven
+    if (oldVersion < 3) {
+      await db.execute('DROP TABLE IF EXISTS loyalty_milestones');
+    }
     await _executeTableCreations(db);
   }
 
   Future<void> _ensureTablesExist(Database db) async {
-    _logger.info('Ensuring all tables exist (Fail-safe check)...');
+    _logger.info('Ensuring all static tables exist (Fail-safe check)...');
     await _executeTableCreations(db);
   }
 
-  /// Extracts the creation logic to be reused in onCreate, onUpgrade, and onOpen safely
   Future<void> _executeTableCreations(Database db) async {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS metadata (
@@ -86,20 +88,6 @@ class DatabaseService {
         icon_image TEXT
       )
     ''');
-
-    // This is the table that was throwing the error
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS loyalty_milestones (
-        id INTEGER PRIMARY KEY,
-        title TEXT,
-        required_lifetime_points INTEGER,
-        reward_id INTEGER,
-        reward_name TEXT,
-        reward_action_type TEXT,
-        reward_action_value REAL,
-        description TEXT
-      )
-    ''');
   }
 
   // --- Metadata (Version Control) ---
@@ -136,35 +124,6 @@ class DatabaseService {
   Future<void> insertAmenities(List<dynamic> data) async =>
       _insertBatch('amenities', data);
 
-  Future<void> insertLoyaltyMilestones(List<dynamic> data) async {
-    final Database db = await database;
-    final Batch batch = db.batch();
-
-    batch.delete('loyalty_milestones');
-
-    for (final dynamic item in data) {
-      final Map<String, dynamic> map = item as Map<String, dynamic>;
-      final Map<String, dynamic> reward =
-          map['reward'] as Map<String, dynamic>? ?? {};
-
-      batch.insert('loyalty_milestones', {
-        'id': map['id'],
-        'title': map['title']?.toString(),
-        'required_lifetime_points': map['required_lifetime_points'],
-        'reward_id': reward['id'],
-        'reward_name': reward['name']?.toString(),
-        'reward_action_type': reward['action_type']?.toString(),
-        'reward_action_value': reward['action_value'],
-        'description': map['description']?.toString(),
-      });
-    }
-
-    await batch.commit(noResult: true);
-    _logger.info(
-      'Successfully inserted ${data.length} records into loyalty_milestones',
-    );
-  }
-
   Future<void> _insertBatch(String table, List<dynamic> data) async {
     final Database db = await database;
     final Batch batch = db.batch();
@@ -185,14 +144,6 @@ class DatabaseService {
       (await database).query('sports');
   Future<List<Map<String, dynamic>>> getAmenities() async =>
       (await database).query('amenities');
-
-  Future<List<Map<String, dynamic>>> getLoyaltyMilestones() async {
-    final Database db = await database;
-    return await db.query(
-      'loyalty_milestones',
-      orderBy: 'required_lifetime_points ASC',
-    );
-  }
 }
 
 @Riverpod(keepAlive: true)

@@ -24,12 +24,10 @@ Future<List<LoyaltyPackage>> loyaltyPackages(Ref ref) async {
   return await apiService.getPackages();
 }
 
-// ARCHITECTURE FIX: This fetches ALL milestones regardless of status.
-// Required for the Gamified Track to know which nodes to mark as unlocked/claimed/consumed.
 @riverpod
 Future<List<UserMilestone>> allUserMilestones(Ref ref) async {
   final apiService = ref.watch(loyaltyApiServiceProvider);
-  // Passing no status retrieves all user milestones
+  // 'all' passes null to backend to get unlocked, claimed, and consumed
   final paginatedData = await apiService.getMyMilestones();
   return paginatedData.results;
 }
@@ -67,7 +65,6 @@ Future<PaginatedTransactions> filteredTransactions(
 @riverpod
 Future<PaginatedUserMilestones> dashboardRewards(Ref ref) async {
   final apiService = ref.watch(loyaltyApiServiceProvider);
-  // Dashboard shows ready-to-use rewards
   return await apiService.getMyMilestones(limit: 5, status: 'claimed');
 }
 
@@ -77,10 +74,11 @@ Future<PaginatedPointsTransactions> dashboardPoints(Ref ref) async {
   return await apiService.getPointsHistory(limit: 5);
 }
 
+// ARCHITECTURE FIX: Fetch the user-specific roadmap
 @riverpod
 Future<List<LoyaltyMilestone>> loyaltyRoadmap(Ref ref) async {
   final apiService = ref.watch(loyaltyApiServiceProvider);
-  return await apiService.getGlobalRoadmap();
+  return await apiService.getUserRoadmap();
 }
 
 @riverpod

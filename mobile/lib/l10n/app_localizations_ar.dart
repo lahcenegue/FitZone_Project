@@ -721,9 +721,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get daysRemaining => 'الأيام المتبقية';
 
   @override
-  String get tapToExpandQr => 'انقر لتكبير الـ QR';
-
-  @override
   String get gymLocation => 'موقع الصالة';
 
   @override
@@ -808,15 +805,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get transactionsHistory => 'سجل العمليات';
 
   @override
-  String get spendablePoints => 'النقاط المتاحة';
-
-  @override
-  String get lifetimePoints => 'النقاط التراكمية';
-
-  @override
-  String get currentLevel => 'المستوى الحالي';
-
-  @override
   String get buyPoints => 'شراء نقاط';
 
   @override
@@ -829,7 +817,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noTransactions => 'لا توجد عمليات سابقة';
 
   @override
-  String get noRewards => 'لم تقم باستهلاك أي مكافأة حتى الآن';
+  String get noRewards => 'لم تتلق أي هدايا حتى الآن.';
 
   @override
   String get dashboardDesc =>
@@ -1011,9 +999,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get lifetimePointsTitle => 'النقاط التراكمية:';
 
   @override
-  String get lifetimePointsDesc => '(تُستخدم لترقية مستوى حسابك)';
-
-  @override
   String get viewRoadmap => 'عرض المضمار';
 
   @override
@@ -1024,10 +1009,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get useRewardBtn => 'استخدام الهدية';
-
-  @override
-  String get rewardClaimedSuccess =>
-      'تم استلام الهدية بنجاح! تجدها الآن في محفظتك.';
 
   @override
   String get claimedDesc => 'الهدية في محفظتك، جاهزة للاستخدام.';
@@ -1053,5 +1034,131 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cancelBtn => 'تراجع';
 
   @override
+  String get couponCode => 'رمز الكوبون';
+
+  @override
+  String get spendablePoints => 'النقاط المتاحة';
+
+  @override
+  String get lifetimePoints => 'النقاط التراكمية';
+
+  @override
+  String get lifetimePointsDesc =>
+      'هذه النقاط تحدد مستواك ولا تنقص عند استهلاك الهدايا.';
+
+  @override
+  String get goToWalletBtn => 'الذهاب للمحفظة للاستخدام';
+
+  @override
+  String get discountValue => 'قيمة الخصم:';
+
+  @override
+  String get expiresAt => 'صالح حتى:';
+
+  @override
+  String get rewardClaimedSuccess => 'تم استلام الهدية! تجدها في محفظتك.';
+
+  @override
   String get rewardConsumedSuccess => 'تم استخدام الهدية بنجاح!';
+
+  @override
+  String get currentLevel => 'المستوى الحالي:';
+
+  @override
+  String get unboxedTitle => 'مبارك! تم فتح الهدية';
+
+  @override
+  String get alreadyClaimedMsg =>
+      'لقد قمت باستلام هذه الهدية مسبقاً. يرجى التوجه إلى محفظتك لاستخدامها.';
+
+  @override
+  String get copyToClipboard => 'نسخ الرمز';
+
+  @override
+  String get copiedSuccessfully => 'تم النسخ بنجاح';
+
+  @override
+  String get selectSubscription => 'اختر الاشتراك المراد تمديده';
+
+  @override
+  String get extendSubscriptionBtn => 'تمديد الاشتراك';
+
+  @override
+  String get noActiveSubscriptions => 'لا توجد اشتراكات فعالة حالياً';
+
+  @override
+  String get showToReception => 'يرجى إظهار هذه الشاشة لموظف الاستقبال';
+
+  @override
+  String get rewardManualDesc => 'هذه الهدية تتطلب استلاماً يدوياً من الفرع.';
+
+  @override
+  String get tapToExpandQr => 'اضغط على الرمز لتكبيره';
+
+  @override
+  String get trackLockedTitle => 'مكافأة مقفلة';
+
+  @override
+  String get trackLockedDesc =>
+      'اجمع المزيد من النقاط لفتح هذه المكافأة الرائعة والاستمتاع بمزاياها.';
+
+  @override
+  String get trackUnlockedTitle => 'مكافأتك جاهزة!';
+
+  @override
+  String get trackUnlockedDesc =>
+      'تهانينا! لقد وصلت إلى هذا المستوى. استلم مكافأتك الآن لتتمكن من استخدامها.';
+
+  @override
+  String get trackClaimedTitle => 'تم الاستلام مسبقاً';
+
+  @override
+  String get trackClaimedDesc =>
+      'لقد قمت باستلام هذه الهدية. يرجى التوجه إلى محفظة الهدايا الخاصة بك لاستخدامها.';
+
+  @override
+  String get rewardIncludes => 'تحتوي هذه المكافأة على:';
+
+  @override
+  String get pointsNeeded => 'نقطة متبقية لفتحها';
+
+  @override
+  String get successUnboxedTitle => 'رائع! تم استلام هديتك';
+
+  @override
+  String get successUnboxedDesc =>
+      'تمت إضافة الهدية بنجاح إلى محفظتك. يمكنك استخدامها في أي وقت.';
+
+  @override
+  String get checkWalletBtn => 'تفقد المحفظة الآن';
+
+  @override
+  String get continueDiscoveringBtn => 'متابعة التقدم';
+
+  @override
+  String get pointsNeededToUnlock => 'نقطة إضافية لفتحها';
+
+  @override
+  String get currency => 'ر.س';
+
+  @override
+  String get pullToRefresh => 'اسحب للتحديث';
+
+  @override
+  String get freeShipping => 'شحن مجاني';
+
+  @override
+  String get fixedAmountDiscount => 'خصم مبلغ ثابت';
+
+  @override
+  String get percentageDiscount => 'خصم نسبة مئوية';
+
+  @override
+  String get bogoDiscount => 'اشتر 1 واحصل على 1 مجاناً';
+
+  @override
+  String get freeItem => 'منتج مجاني';
+
+  @override
+  String get rewardValue => 'قيمة المكافأة:';
 }

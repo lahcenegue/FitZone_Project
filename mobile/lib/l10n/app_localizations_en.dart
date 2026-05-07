@@ -740,9 +740,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get daysRemaining => 'Days Remaining';
 
   @override
-  String get tapToExpandQr => 'Tap to enlarge QR';
-
-  @override
   String get gymLocation => 'Gym Location';
 
   @override
@@ -827,15 +824,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transactionsHistory => 'Transactions History';
 
   @override
-  String get spendablePoints => 'Spendable Points';
-
-  @override
-  String get lifetimePoints => 'Lifetime Points';
-
-  @override
-  String get currentLevel => 'Current Level';
-
-  @override
   String get buyPoints => 'Buy Points';
 
   @override
@@ -848,7 +836,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noTransactions => 'No transactions available';
 
   @override
-  String get noRewards => 'No rewards consumed yet';
+  String get noRewards => 'You haven\'t received any rewards yet.';
 
   @override
   String get dashboardDesc =>
@@ -1032,9 +1020,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lifetimePointsTitle => 'Lifetime Points:';
 
   @override
-  String get lifetimePointsDesc => '(Used for account tier upgrades)';
-
-  @override
   String get viewRoadmap => 'View Roadmap';
 
   @override
@@ -1045,10 +1030,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get useRewardBtn => 'Use Reward';
-
-  @override
-  String get rewardClaimedSuccess =>
-      'Reward claimed successfully! It\'s now in your wallet.';
 
   @override
   String get claimedDesc => 'Reward is in your wallet, ready to be used.';
@@ -1074,5 +1055,132 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancelBtn => 'Cancel';
 
   @override
+  String get couponCode => 'Coupon Code';
+
+  @override
+  String get spendablePoints => 'Spendable Points';
+
+  @override
+  String get lifetimePoints => 'Lifetime Points';
+
+  @override
+  String get lifetimePointsDesc =>
+      'These points determine your level and never decrease when you consume rewards.';
+
+  @override
+  String get goToWalletBtn => 'Go to Wallet to Use';
+
+  @override
+  String get discountValue => 'Discount Value:';
+
+  @override
+  String get expiresAt => 'Valid Until:';
+
+  @override
+  String get rewardClaimedSuccess => 'Reward claimed! Find it in your wallet.';
+
+  @override
   String get rewardConsumedSuccess => 'Reward consumed successfully!';
+
+  @override
+  String get currentLevel => 'Current Level:';
+
+  @override
+  String get unboxedTitle => 'Congratulations! Reward Unboxed';
+
+  @override
+  String get alreadyClaimedMsg =>
+      'You have already claimed this reward. Please go to your wallet to use it.';
+
+  @override
+  String get copyToClipboard => 'Copy Code';
+
+  @override
+  String get copiedSuccessfully => 'Copied successfully';
+
+  @override
+  String get selectSubscription => 'Select Subscription to Extend';
+
+  @override
+  String get extendSubscriptionBtn => 'Extend Subscription';
+
+  @override
+  String get noActiveSubscriptions => 'No active subscriptions found';
+
+  @override
+  String get showToReception => 'Please show this screen to the receptionist';
+
+  @override
+  String get rewardManualDesc =>
+      'This reward requires manual pickup at the branch.';
+
+  @override
+  String get tapToExpandQr => 'Tap to expand QR code';
+
+  @override
+  String get trackLockedTitle => 'Locked Reward';
+
+  @override
+  String get trackLockedDesc =>
+      'Collect more points to unlock this awesome reward and enjoy its benefits.';
+
+  @override
+  String get trackUnlockedTitle => 'Reward Ready!';
+
+  @override
+  String get trackUnlockedDesc =>
+      'Congratulations! You reached this level. Claim your reward now to use it.';
+
+  @override
+  String get trackClaimedTitle => 'Already Claimed';
+
+  @override
+  String get trackClaimedDesc =>
+      'You have already claimed this reward. Please go to your Rewards Wallet to use it.';
+
+  @override
+  String get rewardIncludes => 'This reward includes:';
+
+  @override
+  String get pointsNeeded => 'points left to unlock';
+
+  @override
+  String get successUnboxedTitle => 'Awesome! Reward Claimed';
+
+  @override
+  String get successUnboxedDesc =>
+      'The reward has been successfully added to your wallet. You can use it anytime.';
+
+  @override
+  String get checkWalletBtn => 'Check Wallet Now';
+
+  @override
+  String get continueDiscoveringBtn => 'Continue Progress';
+
+  @override
+  String get pointsNeededToUnlock => 'more points to unlock';
+
+  @override
+  String get currency => 'SAR';
+
+  @override
+  String get pullToRefresh => 'Pull to refresh';
+
+  @override
+  String get freeShipping => 'Free Shipping';
+
+  @override
+  String get fixedAmountDiscount => 'Fixed Amount Discount';
+
+  @override
+  String get percentageDiscount => 'Percentage Discount';
+
+  @override
+  String get bogoDiscount => 'Buy 1 Get 1 Free';
+
+  @override
+  String get freeItem => 'Free Item';
+
+  @override
+  String get rewardValue => 'Reward Value:';
 }
