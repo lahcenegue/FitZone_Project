@@ -337,7 +337,8 @@ class UserDashboardService:
                 "qr_code_signature": sub.get_signed_qr_code(),
                 "start_date": sub.start_date,
                 "end_date": sub.end_date,
-                "branch_logo": None
+                "branch_logo": None,
+                "plan_name": plan.name  # NEW FIELD ADDED
             }
 
             if branch and getattr(branch, 'branch_logo', None) and getattr(branch.branch_logo, 'url', None) and request:
@@ -376,7 +377,8 @@ class UserDashboardService:
                 "qr_code_signature": rp.get_signed_qr_code(),
                 "start_date": rp.purchased_at.date(),
                 "end_date": rp.purchased_at.date(), # Roaming pass is a 1-day pass technically
-                "branch_logo": None
+                "branch_logo": None,
+                "plan_name": "One-Time Roaming Pass"  # NEW FIELD ADDED
             }
 
             if getattr(branch, 'branch_logo', None) and getattr(branch.branch_logo, 'url', None) and request:

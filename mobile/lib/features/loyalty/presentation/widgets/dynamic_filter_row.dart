@@ -26,7 +26,14 @@ class DynamicFilterRow extends StatelessWidget {
         children: filters.entries.map((entry) {
           final bool isSelected = selectedFilter == entry.key;
           return Padding(
-            padding: EdgeInsets.only(right: Dimensions.spacingSmall),
+            padding: EdgeInsets.only(
+              right: Directionality.of(context) == TextDirection.rtl
+                  ? 0
+                  : Dimensions.spacingSmall,
+              left: Directionality.of(context) == TextDirection.rtl
+                  ? Dimensions.spacingSmall
+                  : 0,
+            ),
             child: ChoiceChip(
               label: Text(
                 entry.value,
@@ -38,7 +45,7 @@ class DynamicFilterRow extends StatelessWidget {
               ),
               selected: isSelected,
               selectedColor: colors.primary,
-              backgroundColor: colors.surface,
+              backgroundColor: colors.iconGrey.withValues(alpha: 0.05),
               onSelected: (_) => onFilterChanged(entry.key),
               showCheckmark: false,
               padding: EdgeInsets.symmetric(
@@ -48,9 +55,7 @@ class DynamicFilterRow extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(Dimensions.radiusPill),
                 side: BorderSide(
-                  color: isSelected
-                      ? colors.primary
-                      : colors.iconGrey.withOpacity(0.2),
+                  color: isSelected ? colors.primary : Colors.transparent,
                 ),
               ),
             ),

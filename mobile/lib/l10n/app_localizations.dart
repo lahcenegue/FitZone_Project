@@ -2353,6 +2353,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next Tier'**
   String get nextTier;
+
+  /// No description provided for @virtualCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Points Balance'**
+  String get virtualCardTitle;
+
+  /// No description provided for @quickActionBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get quickActionBuy;
+
+  /// No description provided for @quickActionRewards.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewards'**
+  String get quickActionRewards;
+
+  /// No description provided for @quickActionHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get quickActionHistory;
+
+  /// No description provided for @goToTrackBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gamified Track'**
+  String get goToTrackBannerTitle;
+
+  /// No description provided for @goToTrackBannerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your level and claim rewards'**
+  String get goToTrackBannerSubtitle;
+
+  /// No description provided for @unlockedRewardsBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {count} waiting rewards!'**
+  String unlockedRewardsBadge(String count);
+
+  /// No description provided for @editBankAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Bank Account'**
+  String get editBankAccount;
+
+  /// No description provided for @manageYourBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your approved bank account for withdrawals'**
+  String get manageYourBank;
+
+  /// No description provided for @maxTierAchievedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Tier Achieved'**
+  String get maxTierAchievedTitle;
+
+  /// No description provided for @maxTierAchievedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached the top of our loyalty program! Enjoy your exclusive rewards.'**
+  String get maxTierAchievedDesc;
 }
 
 class _AppLocalizationsDelegate

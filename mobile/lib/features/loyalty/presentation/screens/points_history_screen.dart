@@ -1,10 +1,10 @@
-import 'package:fitzone/core/presentation/widgets/custom_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
 
+import '../../../../core/presentation/widgets/custom_empty_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme_provider.dart';
@@ -13,6 +13,7 @@ import '../../data/models/loyalty_models.dart';
 import '../providers/loyalty_dashboard_providers.dart';
 import '../widgets/dynamic_filter_row.dart';
 import '../widgets/stat_summary_card.dart';
+import '../widgets/premium_history_card.dart'; // IMPORTED REUSABLE WIDGET
 
 class PointsHistoryScreen extends ConsumerStatefulWidget {
   const PointsHistoryScreen({super.key});
@@ -67,6 +68,7 @@ class _PointsHistoryScreenState extends ConsumerState<PointsHistoryScreen> {
         _hasMore = true;
         _transactions.clear();
       });
+      ref.invalidate(pointsSummaryProvider);
     } else {
       setState(() => _isLoadingMore = true);
     }
@@ -158,36 +160,104 @@ class _PointsHistoryScreenState extends ConsumerState<PointsHistoryScreen> {
         ),
       ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: Dimensions.spacingMedium),
-
-            _buildSummaryCards(colors, l10n),
-            SizedBox(height: Dimensions.spacingLarge),
-
-            DynamicFilterRow(
-              filters: filterOptions,
-              selectedFilter: _selectedFilter,
-              onFilterChanged: _onFilterChanged,
-              colors: colors,
+        child: RefreshIndicator(
+          color: colors.primary,
+          backgroundColor: colors.surface,
+          onRefresh: () => _fetchTransactions(refresh: true),
+          child: CustomScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
             ),
-            SizedBox(height: Dimensions.spacingMedium),
+            slivers: [
+              SliverToBoxAdapter(
+                child: SizedBox(height: Dimensions.spacingMedium),
+              ),
+              SliverToBoxAdapter(child: _buildSummaryCards(colors, l10n)),
+              SliverToBoxAdapter(
+                child: SizedBox(height: Dimensions.spacingLarge),
+              ),
+              SliverToBoxAdapter(
+                child: DynamicFilterRow(
+                  filters: filterOptions,
+                  selectedFilter: _selectedFilter,
+                  onFilterChanged: _onFilterChanged,
+                  colors: colors,
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: SizedBox(height: Dimensions.spacingMedium),
+              ),
 
-            Expanded(
-              child: _isLoading
-                  ? Center(
-                      child: CircularProgressIndicator(color: colors.primary),
-                    )
-                  : _transactions.isEmpty
-                  ? CustomEmptyState(
-                      message: l10n.noTransactions,
-                      icon: Icons.toll_rounded,
-                      colors: colors,
-                    )
-                  : _buildTransactionsList(colors, l10n),
-            ),
-          ],
+              if (_isLoading)
+                SliverFillRemaining(
+                  child: Center(
+                    child: CircularProgressIndicator(color: colors.primary),
+                  ),
+                )
+              else if (_transactions.isEmpty)
+                SliverFillRemaining(
+                  child: CustomEmptyState(
+                    message: l10n.noTransactions,
+                    icon: Icons.toll_rounded,
+                    colors: colors,
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Dimensions.spacingLarge,
+                  ),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      if (index == _transactions.length) {
+                        return Padding(
+                          padding: EdgeInsets.all(Dimensions.spacingLarge),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: colors.primary,
+                            ),
+                          ),
+                        );
+                      }
+
+                      final tx = _transactions[index];
+                      final bool isEarn = tx.type == 'earn';
+                      final DateTime date =
+                          DateTime.tryParse(tx.createdAt)?.toLocal() ??
+                          DateTime.now();
+                      final String formattedDate = DateFormat(
+                        'MMM dd, yyyy • hh:mm a',
+                        Localizations.localeOf(context).languageCode,
+                      ).format(date);
+
+                      final Color badgeColor = isEarn
+                          ? colors.success
+                          : colors.warning;
+                      final String amountText =
+                          '${isEarn ? '+' : '-'}${tx.amount}';
+                      final IconData icon = isEarn
+                          ? Icons.add_rounded
+                          : Icons.remove_rounded;
+
+                      // ARCHITECTURE FIX: Using the DRY PremiumHistoryCard
+                      return PremiumHistoryCard(
+                        title: tx.title,
+                        subtitle: formattedDate,
+                        trailingText: amountText,
+                        icon: icon,
+                        color: badgeColor,
+                        colors: colors,
+                      );
+                    }, childCount: _transactions.length + (_hasMore ? 1 : 0)),
+                  ),
+                ),
+
+              SliverToBoxAdapter(
+                child: SizedBox(height: Dimensions.spacingExtraLarge),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -200,143 +270,40 @@ class _PointsHistoryScreenState extends ConsumerState<PointsHistoryScreen> {
       loading: () => const SizedBox.shrink(),
       error: (e, _) => const SizedBox.shrink(),
       data: (summary) {
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
+        final double totalOverall =
+            (summary.totalEarned + summary.totalRedeemed).toDouble();
+
+        return Padding(
           padding: EdgeInsets.symmetric(horizontal: Dimensions.spacingLarge),
           child: Row(
             children: [
-              StatSummaryCard(
-                title: l10n.pointsEarned,
-                value: '+${summary.totalEarned}',
-                icon: Icons.arrow_downward_rounded,
-                color: colors.success,
-                colors: colors,
+              Expanded(
+                child: StatSummaryCard(
+                  title: l10n.pointsEarned,
+                  value: '+${summary.totalEarned}',
+                  icon: Icons.arrow_downward_rounded,
+                  color: colors.success,
+                  colors: colors,
+                  currentValue: summary.totalEarned.toDouble(),
+                  totalValue: totalOverall,
+                ),
               ),
               SizedBox(width: Dimensions.spacingMedium),
-              StatSummaryCard(
-                title: l10n.pointsRedeemed,
-                value: '-${summary.totalRedeemed}',
-                icon: Icons.arrow_upward_rounded,
-                color: colors.warning,
-                colors: colors,
+              Expanded(
+                child: StatSummaryCard(
+                  title: l10n.pointsRedeemed,
+                  value: '-${summary.totalRedeemed}',
+                  icon: Icons.arrow_upward_rounded,
+                  color: colors.warning,
+                  colors: colors,
+                  currentValue: summary.totalRedeemed.toDouble(),
+                  totalValue: totalOverall,
+                ),
               ),
             ],
           ),
         );
       },
-    );
-  }
-
-  Widget _buildTransactionsList(AppColors colors, AppLocalizations l10n) {
-    final String currentLocale = Localizations.localeOf(context).languageCode;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Dimensions.spacingLarge),
-      child: Container(
-        margin: EdgeInsets.only(bottom: Dimensions.spacingExtraLarge),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-          child: ListView.separated(
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(),
-            itemCount: _transactions.length + (_hasMore ? 1 : 0),
-            separatorBuilder: (context, index) => Divider(
-              height: 1,
-              color: colors.iconGrey.withOpacity(0.1),
-              indent: Dimensions.spacingExtraLarge * 2,
-            ),
-            itemBuilder: (context, index) {
-              if (index == _transactions.length) {
-                return Padding(
-                  padding: EdgeInsets.all(Dimensions.spacingLarge),
-                  child: Center(
-                    child: CircularProgressIndicator(color: colors.primary),
-                  ),
-                );
-              }
-
-              final tx = _transactions[index];
-              final bool isEarn = tx.type == 'earn';
-              final DateTime date =
-                  DateTime.tryParse(tx.createdAt)?.toLocal() ?? DateTime.now();
-
-              return Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Dimensions.spacingLarge,
-                  vertical: Dimensions.spacingMedium,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(Dimensions.spacingMedium),
-                      decoration: BoxDecoration(
-                        color: isEarn
-                            ? colors.success.withOpacity(0.1)
-                            : colors.warning.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        isEarn ? Icons.add_rounded : Icons.remove_rounded,
-                        color: isEarn ? colors.success : colors.warning,
-                        size: Dimensions.iconMedium,
-                      ),
-                    ),
-                    SizedBox(width: Dimensions.spacingMedium),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            tx.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: Dimensions.fontBodyMedium,
-                              color: colors.textPrimary,
-                            ),
-                          ),
-                          SizedBox(height: Dimensions.spacingTiny),
-                          Text(
-                            DateFormat(
-                              'MMM dd, yyyy • hh:mm a',
-                              currentLocale,
-                            ).format(date),
-                            style: TextStyle(
-                              fontSize: Dimensions.fontBodySmall,
-                              color: colors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      '${isEarn ? '+' : '-'}${tx.amount}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: Dimensions.fontBodyLarge,
-                        color: isEarn ? colors.success : colors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ),
     );
   }
 }

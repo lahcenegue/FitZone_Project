@@ -58,8 +58,10 @@ class _LoyaltyGamifiedTrackScreenState
 
     try {
       await ref.read(loyaltyWalletProvider.future);
+      await ref.read(loyaltyRoadmapProvider.future);
     } catch (_) {}
 
+    // ARCHITECTURE FIX: Restarting the global controller will now sync ALL UI elements
     _animationController.reset();
     _animationController.forward();
   }
@@ -103,7 +105,11 @@ class _LoyaltyGamifiedTrackScreenState
                 child: CircularProgressIndicator(color: colors.primary),
               ),
               error: (e, s) => _buildErrorUI(colors, l10n),
-              data: (milestones) {
+              data: (roadmapResponse) {
+                final RoadmapMetaProgress meta = roadmapResponse.metaProgress;
+                final List<LoyaltyMilestone> milestones =
+                    roadmapResponse.milestones;
+
                 return RefreshIndicator(
                   onRefresh: _handleRefresh,
                   color: colors.primary,
@@ -123,6 +129,7 @@ class _LoyaltyGamifiedTrackScreenState
                             colors,
                             l10n,
                             wallet,
+                            meta,
                           ),
                         ),
                       ),
@@ -132,7 +139,7 @@ class _LoyaltyGamifiedTrackScreenState
                           context,
                           colors,
                           l10n,
-                          wallet.lifetimePoints,
+                          meta.lifetimePoints,
                           milestones,
                           isRTL,
                         ),
@@ -171,20 +178,20 @@ class _LoyaltyGamifiedTrackScreenState
     );
   }
 
-  /// Masterpiece: Live Animated Premium Card
   Widget _buildPremiumOutOftheBoxCard(
     BuildContext context,
     AppColors colors,
     AppLocalizations l10n,
     WalletSummary wallet,
+    RoadmapMetaProgress meta,
   ) {
-    final NextMilestone? next = wallet.nextMilestone;
+    final bool isMaxLevel = meta.nextMilestoneTitle.toUpperCase() == 'MAX';
 
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 1200),
-      curve: Curves.easeOutCubic,
-      builder: (context, value, child) {
+    // ARCHITECTURE FIX: Binding the entry animation directly to the master controller
+    return AnimatedBuilder(
+      animation: _progressAnimation,
+      builder: (context, child) {
+        final double value = _progressAnimation.value;
         return Transform.translate(
           offset: Offset(0, 20 * (1 - value)),
           child: Opacity(
@@ -220,7 +227,6 @@ class _LoyaltyGamifiedTrackScreenState
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Top Section: Points Overview with Counter Animation
           IntrinsicHeight(
             child: Row(
               children: [
@@ -289,7 +295,7 @@ class _LoyaltyGamifiedTrackScreenState
                       ),
                       SizedBox(height: Dimensions.spacingSmall),
                       _buildAnimatedCounter(
-                        wallet.lifetimePoints,
+                        meta.lifetimePoints,
                         colors.primary,
                       ),
                     ],
@@ -299,41 +305,40 @@ class _LoyaltyGamifiedTrackScreenState
             ),
           ),
 
-          if (next != null) ...[
-            SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
+          SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
-            // Middle Section: Current vs Next Level
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.currentLevel,
-                      style: TextStyle(
-                        fontSize: Dimensions.fontBodySmall,
-                        color: colors.textSecondary,
-                        fontWeight: FontWeight.bold,
-                      ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.currentLevel,
+                    style: TextStyle(
+                      fontSize: Dimensions.fontBodySmall,
+                      color: colors.textSecondary,
+                      fontWeight: FontWeight.bold,
                     ),
-                    SizedBox(height: Dimensions.spacingTiny),
-                    Text(
-                      wallet.currentMilestoneTitle.toUpperCase(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: Dimensions.fontHeading3,
-                        color: colors.textPrimary,
-                      ),
+                  ),
+                  SizedBox(height: Dimensions.spacingTiny),
+                  Text(
+                    meta.currentMilestoneTitle.toUpperCase(),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: Dimensions.fontHeading3,
+                      color: colors.textPrimary,
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+              if (!isMaxLevel)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      l10n.nextTier,
+                      l10n.pointsToNextMilestone,
                       style: TextStyle(
                         fontSize: Dimensions.fontBodySmall,
                         color: colors.textSecondary,
@@ -362,7 +367,7 @@ class _LoyaltyGamifiedTrackScreenState
                           ),
                           SizedBox(width: Dimensions.spacingTiny),
                           Text(
-                            next.title.toUpperCase(),
+                            meta.nextMilestoneTitle.toUpperCase(),
                             style: TextStyle(
                               fontWeight: FontWeight.w900,
                               fontSize: Dimensions.fontBodySmall,
@@ -374,19 +379,18 @@ class _LoyaltyGamifiedTrackScreenState
                     ),
                   ],
                 ),
-              ],
-            ),
-            SizedBox(height: Dimensions.spacingExtraLarge),
+            ],
+          ),
+          SizedBox(height: Dimensions.spacingExtraLarge),
 
-            // Bottom Section: Custom Glowing Animated Progress Bar
-            _buildCustomAnimatedProgressBar(next.progressPct, colors),
-
+          if (isMaxLevel)
+            _buildMaxLevelBadge(colors, l10n)
+          else ...[
+            _buildCustomAnimatedProgressBar(meta.progressPct, colors),
             SizedBox(height: Dimensions.spacingMedium),
-
-            // Points Remaining Info
             Center(
               child: _buildAnimatedRemainingCounter(
-                next.pointsToNextMilestone,
+                meta.pointsToNextMilestone,
                 colors,
                 l10n,
               ),
@@ -397,12 +401,68 @@ class _LoyaltyGamifiedTrackScreenState
     );
   }
 
+  Widget _buildMaxLevelBadge(AppColors colors, AppLocalizations l10n) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(Dimensions.spacingMedium),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            colors.star.withValues(alpha: 0.1),
+            colors.warning.withValues(alpha: 0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+        border: Border.all(
+          color: colors.star.withValues(alpha: 0.5),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.emoji_events_rounded,
+            color: colors.star,
+            size: Dimensions.iconLarge * 1.5,
+          ),
+          SizedBox(width: Dimensions.spacingMedium),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.maxTierAchievedTitle,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: colors.textPrimary,
+                    fontSize: Dimensions.fontTitleMedium,
+                  ),
+                ),
+                SizedBox(height: Dimensions.spacingTiny),
+                Text(
+                  l10n.maxTierAchievedDesc,
+                  style: TextStyle(
+                    color: colors.textSecondary,
+                    fontSize: Dimensions.fontBodySmall,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ARCHITECTURE FIX: Connected the counter text directly to the master animation
   Widget _buildAnimatedCounter(int targetValue, Color color) {
-    return TweenAnimationBuilder<int>(
-      tween: IntTween(begin: 0, end: targetValue),
-      duration: const Duration(milliseconds: 2000),
-      curve: Curves.easeOutQuart,
-      builder: (context, value, child) {
+    return AnimatedBuilder(
+      animation: _progressAnimation,
+      builder: (context, child) {
+        final int value = (targetValue * _progressAnimation.value).toInt();
         return Text(
           '$value',
           style: TextStyle(
@@ -415,21 +475,20 @@ class _LoyaltyGamifiedTrackScreenState
     );
   }
 
+  // ARCHITECTURE FIX: Connected the countdown text to the master animation
   Widget _buildAnimatedRemainingCounter(
     int targetValue,
     AppColors colors,
     AppLocalizations l10n,
   ) {
-    return TweenAnimationBuilder<int>(
-      tween: IntTween(
-        begin: targetValue + 500,
-        end: targetValue,
-      ), // Count down effect
-      duration: const Duration(milliseconds: 2000),
-      curve: Curves.easeOutQuart,
-      builder: (context, value, child) {
+    return AnimatedBuilder(
+      animation: _progressAnimation,
+      builder: (context, child) {
+        final int dropAmount = 500;
+        final int currentValue =
+            targetValue + (dropAmount * (1 - _progressAnimation.value)).toInt();
         return Text(
-          '$value ${l10n.pointsNeededToUnlock}',
+          '$currentValue ${l10n.pointsNeededToUnlock}',
           style: TextStyle(
             fontWeight: FontWeight.w800,
             fontSize: Dimensions.fontBodyMedium,
@@ -440,36 +499,45 @@ class _LoyaltyGamifiedTrackScreenState
     );
   }
 
+  // ARCHITECTURE FIX: Connected the progress bar to the master animation perfectly
   Widget _buildCustomAnimatedProgressBar(double progressPct, AppColors colors) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final double width = constraints.maxWidth;
-        final double clampedProgress = (progressPct / 100).clamp(0.0, 1.0);
-        final double activeWidth = width * clampedProgress;
+        final double targetProgress = (progressPct / 100).clamp(0.0, 1.0);
         final double thumbSize = Dimensions.iconLarge * 1.5;
 
         return SizedBox(
           height: thumbSize,
-          child: Stack(
-            alignment: Alignment.centerLeft,
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                height: Dimensions.spacingMedium,
-                width: width,
-                decoration: BoxDecoration(
-                  color: colors.iconGrey.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(Dimensions.radiusPill),
-                ),
-              ),
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.0, end: activeWidth),
-                duration: const Duration(milliseconds: 2000),
-                curve: Curves.easeOutQuart,
-                builder: (context, animatedWidth, child) {
-                  return Container(
+          child: AnimatedBuilder(
+            animation: _progressAnimation,
+            builder: (context, child) {
+              final double currentProgress =
+                  targetProgress * _progressAnimation.value;
+              final double activeWidth = width * currentProgress;
+              final double thumbLeft = activeWidth > thumbSize
+                  ? activeWidth - thumbSize
+                  : 0;
+              final int displayPct = (progressPct * _progressAnimation.value)
+                  .toInt();
+
+              return Stack(
+                alignment: Alignment.centerLeft,
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
                     height: Dimensions.spacingMedium,
-                    width: animatedWidth,
+                    width: width,
+                    decoration: BoxDecoration(
+                      color: colors.iconGrey.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(
+                        Dimensions.radiusPill,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: Dimensions.spacingMedium,
+                    width: activeWidth,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -488,19 +556,9 @@ class _LoyaltyGamifiedTrackScreenState
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-              TweenAnimationBuilder<double>(
-                tween: Tween(
-                  begin: 0.0,
-                  end: activeWidth > thumbSize ? activeWidth - thumbSize : 0,
-                ),
-                duration: const Duration(milliseconds: 2000),
-                curve: Curves.easeOutQuart,
-                builder: (context, animatedLeft, child) {
-                  return Positioned(
-                    left: animatedLeft,
+                  ),
+                  Positioned(
+                    left: thumbLeft,
                     child: Container(
                       width: thumbSize,
                       height: thumbSize,
@@ -521,28 +579,22 @@ class _LoyaltyGamifiedTrackScreenState
                           fit: BoxFit.scaleDown,
                           child: Padding(
                             padding: const EdgeInsets.all(2.0),
-                            child: TweenAnimationBuilder<double>(
-                              tween: Tween(begin: 0.0, end: progressPct),
-                              duration: const Duration(milliseconds: 2000),
-                              builder: (context, val, _) {
-                                return Text(
-                                  '${val.toInt()}%',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: Dimensions.fontBodySmall,
-                                    color: colors.primary,
-                                  ),
-                                );
-                              },
+                            child: Text(
+                              '$displayPct%',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: Dimensions.fontBodySmall,
+                                color: colors.primary,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
-            ],
+                  ),
+                ],
+              );
+            },
           ),
         );
       },
@@ -875,7 +927,6 @@ class _LoyaltyGamifiedTrackScreenState
   }
 }
 
-// ... (_VerticalLinePainter and _AvatarPainter remain identical)
 class _VerticalLinePainter extends CustomPainter {
   final List<LoyaltyMilestone> nodes;
   final List<Offset> nodeOffsets;

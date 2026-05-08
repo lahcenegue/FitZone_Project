@@ -135,7 +135,6 @@ class LoyaltyService:
             raise ValidationError("Invalid extension days in payload.")
 
         subscription.end_date = subscription.end_date + timedelta(days=days_added)
-        # BUG FIX: Removed 'updated_at' since GymSubscription does not have this field
         subscription.save(update_fields=['end_date'])
 
         user_milestone.consume_reward()
@@ -175,37 +174,55 @@ class LoyaltyService:
         }
 
     @staticmethod
-    def get_wallet_summary(user):
+    def calculate_milestone_progress(user) -> dict:
+        """Calculates and returns the user's progress towards loyalty milestones."""
         wallet, created = CustomerWallet.objects.get_or_create(user=user)
-        LoyaltyService.check_and_unlock_milestones(user)
-        
+        current_lifetime_pts = wallet.lifetime_points
+
         current_milestone = Milestone.objects.filter(
             is_active=True,
-            required_lifetime_points__lte=wallet.lifetime_points
+            required_lifetime_points__lte=current_lifetime_pts
         ).order_by('-required_lifetime_points').first()
 
         current_title = str(_(current_milestone.title)) if current_milestone else str(_("Starter"))
 
         next_milestone = Milestone.objects.filter(
             is_active=True,
-            required_lifetime_points__gt=wallet.lifetime_points
+            required_lifetime_points__gt=current_lifetime_pts
         ).order_by('required_lifetime_points').first()
-
-        unlocked_rewards_count = UserMilestone.objects.filter(
-            user=user, 
-            is_claimed=False
-        ).count()
 
         points_to_next = 0
         progress_pct = 100
 
         if next_milestone:
-            points_to_next = next_milestone.required_lifetime_points - wallet.lifetime_points
+            points_to_next = next_milestone.required_lifetime_points - current_lifetime_pts
             
             base_points = current_milestone.required_lifetime_points if current_milestone else 0
             tier_total = next_milestone.required_lifetime_points - base_points
-            tier_progress = wallet.lifetime_points - base_points
+            tier_progress = current_lifetime_pts - base_points
             progress_pct = int((tier_progress / tier_total) * 100) if tier_total > 0 else 100
+            next_title = str(_(next_milestone.title))
+        else:
+            next_title = str(_("MAX"))
+
+        return {
+            "lifetime_points": current_lifetime_pts,
+            "current_milestone_title": current_title,
+            "next_milestone_title": next_title,
+            "points_to_next_milestone": points_to_next,
+            "progress_pct": progress_pct
+        }
+
+    @staticmethod
+    def get_wallet_summary(user):
+        """Returns only financial and basic point balances to prevent data over-fetching."""
+        wallet, created = CustomerWallet.objects.get_or_create(user=user)
+        LoyaltyService.check_and_unlock_milestones(user)
+        
+        unlocked_rewards_count = UserMilestone.objects.filter(
+            user=user, 
+            is_claimed=False
+        ).count()
 
         bank_account_data = None
         if hasattr(user, 'bank_account'):
@@ -221,17 +238,10 @@ class LoyaltyService:
             }
 
         return {
-            "current_milestone_title": current_title,
             "spendable_points": wallet.points_balance,
             "lifetime_points": wallet.lifetime_points,
             "fiat_balance": wallet.fiat_balance,
             "unlocked_rewards_count": unlocked_rewards_count,
-            "next_milestone": {
-                "title": str(_(next_milestone.title)) if next_milestone else str(_("MAX")),
-                "required": next_milestone.required_lifetime_points if next_milestone else 0,
-                "points_to_next_milestone": points_to_next,
-                "progress_pct": progress_pct
-            },
             "bank_account": bank_account_data
         }
 

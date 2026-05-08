@@ -480,13 +480,13 @@ final loyaltyRoadmapProvider = LoyaltyRoadmapProvider._();
 final class LoyaltyRoadmapProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<LoyaltyMilestone>>,
-          List<LoyaltyMilestone>,
-          FutureOr<List<LoyaltyMilestone>>
+          AsyncValue<LoyaltyRoadmapResponse>,
+          LoyaltyRoadmapResponse,
+          FutureOr<LoyaltyRoadmapResponse>
         >
     with
-        $FutureModifier<List<LoyaltyMilestone>>,
-        $FutureProvider<List<LoyaltyMilestone>> {
+        $FutureModifier<LoyaltyRoadmapResponse>,
+        $FutureProvider<LoyaltyRoadmapResponse> {
   LoyaltyRoadmapProvider._()
     : super(
         from: null,
@@ -503,17 +503,17 @@ final class LoyaltyRoadmapProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<LoyaltyMilestone>> $createElement(
+  $FutureProviderElement<LoyaltyRoadmapResponse> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<LoyaltyMilestone>> create(Ref ref) {
+  FutureOr<LoyaltyRoadmapResponse> create(Ref ref) {
     return loyaltyRoadmap(ref);
   }
 }
 
-String _$loyaltyRoadmapHash() => r'22450f5b15e4379c1b2a7832958dc667d2671a28';
+String _$loyaltyRoadmapHash() => r'2390dd26f23b0100dcf6918aefaec21bc10116df';
 
 @ProviderFor(pointsSummary)
 final pointsSummaryProvider = PointsSummaryProvider._();

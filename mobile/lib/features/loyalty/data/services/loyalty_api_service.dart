@@ -327,19 +327,16 @@ class LoyaltyApiService {
     }
   }
 
-  // ARCHITECTURE FIX: Roadmap is now fetched per-user via /milestones/ endpoint
-  Future<List<LoyaltyMilestone>> getUserRoadmap() async {
+  // ARCHITECTURE FIX: Updated to parse the new Combined Response
+  Future<LoyaltyRoadmapResponse> getUserRoadmap() async {
     try {
       _logger.info('Fetching User Specific Roadmap from API: $_roadmapUrl');
       final response = await _dio.get(_roadmapUrl);
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data as List<dynamic>;
-        return data
-            .map(
-              (json) => LoyaltyMilestone.fromJson(json as Map<String, dynamic>),
-            )
-            .toList();
+        return LoyaltyRoadmapResponse.fromJson(
+          response.data as Map<String, dynamic>,
+        );
       } else {
         throw Exception('Failed to load user roadmap: ${response.statusCode}');
       }

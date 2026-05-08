@@ -396,6 +396,23 @@
   "bogoDiscount": "اشتر 1 واحصل على 1 مجاناً",
   "freeItem": "منتج مجاني",
   "rewardValue": "قيمة المكافأة:",
-  "nextTier":"المستوى التالي"
-
+  "nextTier":"المستوى التالي",
+  "virtualCardTitle": "رصيد النقاط المتاحة",
+  "quickActionBuy": "شراء",
+  "quickActionRewards": "مكافآتي",
+  "quickActionHistory": "السجل",
+  "goToTrackBannerTitle": "مضمار الإنجازات",
+  "goToTrackBannerSubtitle": "اكتشف مستواك واستلم مكافآتك",
+  "unlockedRewardsBadge": "لديك {count} مكافآت بانتظارك!",
+  "@unlockedRewardsBadge": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "editBankAccount": "تعديل الحساب البنكي",
+  "manageYourBank": "إدارة حسابك البنكي المعتمد للسحوبات",
+  "maxTierAchievedTitle": "أعلى مستوى",
+  "maxTierAchievedDesc": "لقد وصلت إلى قمة نظام الولاء! استمتع بمكافآتك الحصرية."
 }

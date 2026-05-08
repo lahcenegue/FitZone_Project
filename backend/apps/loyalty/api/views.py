@@ -13,13 +13,14 @@ from django.utils.translation import gettext as _
 from apps.loyalty.services import LoyaltyService
 from apps.loyalty.models import PointPackage, Milestone, UserMilestone, WalletTransaction, TransactionStatus, TransactionType
 from .serializers import (
-    PurchasePointsSerializer, MilestoneUsageSerializer, MilestoneClaimSerializer,
+    PurchasePointsSerializer, MilestoneClaimSerializer,
     PointPackageSerializer, MilestoneSerializer, UserMilestoneSerializer,
     WalletTransactionSerializer, PointsHistorySerializer, UserBankAccountSerializer, WithdrawalRequestSerializer
 )
 
 logger = logging.getLogger(__name__)
 
+# تمت إعادة الكلاس المفقود إلى مكانه الصحيح
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = 'limit'
@@ -27,15 +28,28 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 class PointPackageListAPIView(ListAPIView):
     permission_classes = [AllowAny]
-    queryset = PointPackage.objects.filter(is_active=True)
+    queryset = PointPackage.objects.filter(is_active=True).order_by('price')
     serializer_class = PointPackageSerializer
     pagination_class = None
 
 class MilestoneRoadmapAPIView(ListAPIView):
-    permission_classes = [AllowAny] # Safe because serializer handles context
+    permission_classes = [AllowAny]
     queryset = Milestone.objects.filter(is_active=True).order_by('required_lifetime_points')
     serializer_class = MilestoneSerializer
     pagination_class = None
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        if request.user and request.user.is_authenticated:
+            meta_progress = LoyaltyService.calculate_milestone_progress(request.user)
+            return Response({
+                "meta_progress": meta_progress,
+                "milestones": serializer.data
+            }, status=status.HTTP_200_OK)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserMilestonesAPIView(ListAPIView):
     """
@@ -46,7 +60,6 @@ class UserMilestonesAPIView(ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        # STRICT: Must be claimed to show in inventory
         queryset = UserMilestone.objects.filter(
             user=self.request.user, 
             is_claimed=True
@@ -55,7 +68,7 @@ class UserMilestonesAPIView(ListAPIView):
         status_filter = self.request.query_params.get('status')
         if status_filter == 'consumed':
             queryset = queryset.filter(is_consumed=True)
-        elif status_filter == 'active': # Not consumed yet (Ready to use)
+        elif status_filter == 'active': 
             queryset = queryset.filter(is_consumed=False)
             
         return queryset
@@ -180,8 +193,6 @@ class WalletSummaryAPIView(APIView):
     def get(self, request):
         try:
             summary = LoyaltyService.get_wallet_summary(request.user)
-            if summary.get('next_milestone') and summary['next_milestone']['title'] != "MAX":
-                summary['next_milestone']['title'] = str(_(summary['next_milestone']['title']))
             return Response(summary, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Error fetching wallet summary for user {request.user.id}: {str(e)}")
@@ -223,7 +234,6 @@ class ClaimMilestoneAPIView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         try:
-            # Capturing payload at Claim time
             payload = LoyaltyService.claim_milestone_reward(
                 user=request.user,
                 user_milestone_id=serializer.validated_data['user_milestone_id']
@@ -233,7 +243,7 @@ class ClaimMilestoneAPIView(APIView):
                 "reward_payload": payload
             }, status=status.HTTP_200_OK)
         except ValidationError as e:
-            return Response({"detail": list(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": list(e) if hasattr(e, 'messages') else str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(f"Error claiming milestone for user {request.user.id}: {str(e)}")
             return Response({"detail": str(_("Failed to claim milestone reward."))}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -281,7 +291,6 @@ class WithdrawalAPIView(APIView):
                 {"detail": str(_("An internal error occurred while processing your withdrawal."))}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-        
 
 class ExtendSubscriptionAPIView(APIView):
     """Endpoint for user to select which subscription to extend using their reward."""
@@ -312,7 +321,7 @@ class ExtendSubscriptionAPIView(APIView):
 
 class ScanGiftQRAPIView(APIView):
     """Endpoint for Gym/Store Staff to scan physical gifts and hand them over."""
-    permission_classes = [IsAuthenticated] # Needs to be updated to IsStaff in future if required
+    permission_classes = [IsAuthenticated] 
 
     def post(self, request):
         qr_code_data = request.data.get('qr_code_data')

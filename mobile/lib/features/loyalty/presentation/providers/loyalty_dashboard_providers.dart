@@ -74,9 +74,9 @@ Future<PaginatedPointsTransactions> dashboardPoints(Ref ref) async {
   return await apiService.getPointsHistory(limit: 5);
 }
 
-// ARCHITECTURE FIX: Fetch the user-specific roadmap
+// ARCHITECTURE FIX: Fetch the user-specific roadmap with its Meta Progress
 @riverpod
-Future<List<LoyaltyMilestone>> loyaltyRoadmap(Ref ref) async {
+Future<LoyaltyRoadmapResponse> loyaltyRoadmap(Ref ref) async {
   final apiService = ref.watch(loyaltyApiServiceProvider);
   return await apiService.getUserRoadmap();
 }

@@ -161,6 +161,7 @@ class AggregatedSubscriptionSerializer(serializers.Serializer):
     """
     id = serializers.IntegerField()
     service_type = serializers.CharField()
+    plan_name = serializers.CharField(required=False, allow_null=True) 
     provider_id = serializers.IntegerField(required=False, allow_null=True)
     provider_name = serializers.CharField(required=False, allow_null=True)
     branch_id = serializers.IntegerField(required=False, allow_null=True)
@@ -174,3 +175,4 @@ class AggregatedSubscriptionSerializer(serializers.Serializer):
     qr_code_signature = serializers.CharField(required=False, allow_null=True)
     start_date = serializers.DateField(required=False, allow_null=True)
     end_date = serializers.DateField(required=False, allow_null=True)
+    

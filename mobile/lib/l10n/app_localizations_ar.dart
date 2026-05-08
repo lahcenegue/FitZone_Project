@@ -1164,4 +1164,40 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get nextTier => 'المستوى التالي';
+
+  @override
+  String get virtualCardTitle => 'رصيد النقاط المتاحة';
+
+  @override
+  String get quickActionBuy => 'شراء';
+
+  @override
+  String get quickActionRewards => 'مكافآتي';
+
+  @override
+  String get quickActionHistory => 'السجل';
+
+  @override
+  String get goToTrackBannerTitle => 'مضمار الإنجازات';
+
+  @override
+  String get goToTrackBannerSubtitle => 'اكتشف مستواك واستلم مكافآتك';
+
+  @override
+  String unlockedRewardsBadge(String count) {
+    return 'لديك $count مكافآت بانتظارك!';
+  }
+
+  @override
+  String get editBankAccount => 'تعديل الحساب البنكي';
+
+  @override
+  String get manageYourBank => 'إدارة حسابك البنكي المعتمد للسحوبات';
+
+  @override
+  String get maxTierAchievedTitle => 'أعلى مستوى';
+
+  @override
+  String get maxTierAchievedDesc =>
+      'لقد وصلت إلى قمة نظام الولاء! استمتع بمكافآتك الحصرية.';
 }

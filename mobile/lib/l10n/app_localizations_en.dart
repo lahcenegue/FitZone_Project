@@ -1186,4 +1186,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nextTier => 'Next Tier';
+
+  @override
+  String get virtualCardTitle => 'Available Points Balance';
+
+  @override
+  String get quickActionBuy => 'Buy';
+
+  @override
+  String get quickActionRewards => 'Rewards';
+
+  @override
+  String get quickActionHistory => 'History';
+
+  @override
+  String get goToTrackBannerTitle => 'Gamified Track';
+
+  @override
+  String get goToTrackBannerSubtitle => 'Check your level and claim rewards';
+
+  @override
+  String unlockedRewardsBadge(String count) {
+    return 'You have $count waiting rewards!';
+  }
+
+  @override
+  String get editBankAccount => 'Edit Bank Account';
+
+  @override
+  String get manageYourBank =>
+      'Manage your approved bank account for withdrawals';
+
+  @override
+  String get maxTierAchievedTitle => 'Max Tier Achieved';
+
+  @override
+  String get maxTierAchievedDesc =>
+      'You have reached the top of our loyalty program! Enjoy your exclusive rewards.';
 }

@@ -84,7 +84,6 @@ class LoyaltyReward {
   final double actionValue;
   final String fulfillmentType;
   final String? actionRoute;
-  // ARCHITECTURE FIX: Added fields from the updated backend JSON
   final String? couponType;
   final double? discountValue;
   final Map<String, dynamic> constraints;
@@ -138,7 +137,7 @@ class LoyaltyMilestone {
   final int requiredLifetimePoints;
   final LoyaltyReward? reward;
   final String description;
-  final UserMilestoneData? userMilestoneData; // Added for Gamified Track
+  final UserMilestoneData? userMilestoneData;
 
   const LoyaltyMilestone({
     required this.id,
@@ -335,36 +334,42 @@ class BankAccount {
   }
 }
 
-class NextMilestone {
-  final String title;
-  final int requiredPoints;
+// ARCHITECTURE FIX: New Model to handle the separate Roadmap Meta Progress
+class RoadmapMetaProgress {
+  final int lifetimePoints;
+  final String currentMilestoneTitle;
+  final String nextMilestoneTitle;
   final int pointsToNextMilestone;
   final double progressPct;
 
-  const NextMilestone({
-    required this.title,
-    required this.requiredPoints,
+  const RoadmapMetaProgress({
+    required this.lifetimePoints,
+    required this.currentMilestoneTitle,
+    required this.nextMilestoneTitle,
     required this.pointsToNextMilestone,
     required this.progressPct,
   });
 
-  factory NextMilestone.fromJson(Map<String, dynamic> json) {
-    final Logger logger = Logger('NextMilestoneModel');
+  factory RoadmapMetaProgress.fromJson(Map<String, dynamic> json) {
+    final Logger logger = Logger('RoadmapMetaProgressModel');
     try {
-      return NextMilestone(
-        title: json['title']?.toString() ?? '',
-        requiredPoints: int.tryParse(json['required']?.toString() ?? '0') ?? 0,
+      return RoadmapMetaProgress(
+        lifetimePoints:
+            int.tryParse(json['lifetime_points']?.toString() ?? '0') ?? 0,
+        currentMilestoneTitle:
+            json['current_milestone_title']?.toString() ?? '',
+        nextMilestoneTitle: json['next_milestone_title']?.toString() ?? '',
         pointsToNextMilestone:
             int.tryParse(json['points_to_next_milestone']?.toString() ?? '0') ??
             0,
-        // Ensure we handle percentages coming as 72 or 72.5
         progressPct: (json['progress_pct'] as num?)?.toDouble() ?? 0.0,
       );
     } catch (e, stackTrace) {
-      logger.severe('Error parsing NextMilestone', e, stackTrace);
-      return const NextMilestone(
-        title: '',
-        requiredPoints: 0,
+      logger.severe('Error parsing RoadmapMetaProgress', e, stackTrace);
+      return const RoadmapMetaProgress(
+        lifetimePoints: 0,
+        currentMilestoneTitle: '',
+        nextMilestoneTitle: '',
         pointsToNextMilestone: 0,
         progressPct: 0.0,
       );
@@ -372,22 +377,51 @@ class NextMilestone {
   }
 }
 
+// ARCHITECTURE FIX: New Combined Response Model for /milestones/ endpoint
+class LoyaltyRoadmapResponse {
+  final RoadmapMetaProgress metaProgress;
+  final List<LoyaltyMilestone> milestones;
+
+  const LoyaltyRoadmapResponse({
+    required this.metaProgress,
+    required this.milestones,
+  });
+
+  factory LoyaltyRoadmapResponse.fromJson(Map<String, dynamic> json) {
+    final Logger logger = Logger('LoyaltyRoadmapResponseModel');
+    try {
+      return LoyaltyRoadmapResponse(
+        metaProgress: RoadmapMetaProgress.fromJson(
+          json['meta_progress'] as Map<String, dynamic>,
+        ),
+        milestones:
+            (json['milestones'] as List<dynamic>?)
+                ?.map(
+                  (e) => LoyaltyMilestone.fromJson(e as Map<String, dynamic>),
+                )
+                .toList() ??
+            [],
+      );
+    } catch (e, stackTrace) {
+      logger.severe('Error parsing LoyaltyRoadmapResponse', e, stackTrace);
+      throw Exception('Failed to parse LoyaltyRoadmapResponse JSON');
+    }
+  }
+}
+
+// ARCHITECTURE FIX: Cleaned Wallet Summary without Track details
 class WalletSummary {
-  final String currentMilestoneTitle; // ARCHITECTURE FIX: Added mapping
   final int spendablePoints;
   final int lifetimePoints;
   final double fiatBalance;
   final int unlockedRewardsCount;
-  final NextMilestone? nextMilestone;
   final BankAccount? bankAccount;
 
   const WalletSummary({
-    required this.currentMilestoneTitle,
     required this.spendablePoints,
     required this.lifetimePoints,
     required this.fiatBalance,
     required this.unlockedRewardsCount,
-    this.nextMilestone,
     this.bankAccount,
   });
 
@@ -395,8 +429,6 @@ class WalletSummary {
     final Logger logger = Logger('WalletSummaryModel');
     try {
       return WalletSummary(
-        currentMilestoneTitle:
-            json['current_milestone_title']?.toString() ?? '',
         spendablePoints:
             int.tryParse(json['spendable_points']?.toString() ?? '0') ?? 0,
         lifetimePoints:
@@ -406,11 +438,6 @@ class WalletSummary {
         unlockedRewardsCount:
             int.tryParse(json['unlocked_rewards_count']?.toString() ?? '0') ??
             0,
-        nextMilestone: json['next_milestone'] != null
-            ? NextMilestone.fromJson(
-                json['next_milestone'] as Map<String, dynamic>,
-              )
-            : null,
         bankAccount: json['bank_account'] != null
             ? BankAccount.fromJson(json['bank_account'] as Map<String, dynamic>)
             : null,

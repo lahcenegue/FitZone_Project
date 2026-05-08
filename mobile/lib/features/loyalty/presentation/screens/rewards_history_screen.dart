@@ -14,6 +14,7 @@ import '../providers/loyalty_dashboard_providers.dart';
 import '../widgets/dynamic_filter_row.dart';
 import '../widgets/stat_summary_card.dart';
 import '../widgets/loyalty_reward_sheet.dart';
+import '../widgets/premium_history_card.dart'; // IMPORTED REUSABLE WIDGET
 
 class RewardsHistoryScreen extends ConsumerStatefulWidget {
   const RewardsHistoryScreen({super.key});
@@ -34,8 +35,7 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
   bool _isLoadingMore = false;
   bool _hasMore = true;
   int _page = 1;
-  String _selectedFilter =
-      'all'; // ARCHITECTURE FIX: Supports 'all', 'claimed', 'consumed'
+  String _selectedFilter = 'all';
 
   @override
   void initState() {
@@ -69,6 +69,7 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
         _hasMore = true;
         _rewards.clear();
       });
+      ref.invalidate(rewardsSummaryProvider);
     } else {
       setState(() => _isLoadingMore = true);
     }
@@ -160,36 +161,120 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
         ),
       ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: Dimensions.spacingMedium),
-
-            _buildSummaryCards(colors, l10n),
-            SizedBox(height: Dimensions.spacingLarge),
-
-            DynamicFilterRow(
-              filters: filterOptions,
-              selectedFilter: _selectedFilter,
-              onFilterChanged: _onFilterChanged,
-              colors: colors,
+        child: RefreshIndicator(
+          color: colors.primary,
+          backgroundColor: colors.surface,
+          onRefresh: () => _fetchRewards(refresh: true),
+          child: CustomScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
             ),
-            SizedBox(height: Dimensions.spacingMedium),
+            slivers: [
+              SliverToBoxAdapter(
+                child: SizedBox(height: Dimensions.spacingMedium),
+              ),
+              SliverToBoxAdapter(child: _buildSummaryCards(colors, l10n)),
+              SliverToBoxAdapter(
+                child: SizedBox(height: Dimensions.spacingLarge),
+              ),
+              SliverToBoxAdapter(
+                child: DynamicFilterRow(
+                  filters: filterOptions,
+                  selectedFilter: _selectedFilter,
+                  onFilterChanged: _onFilterChanged,
+                  colors: colors,
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: SizedBox(height: Dimensions.spacingMedium),
+              ),
 
-            Expanded(
-              child: _isLoading
-                  ? Center(
-                      child: CircularProgressIndicator(color: colors.primary),
-                    )
-                  : _rewards.isEmpty
-                  ? CustomEmptyState(
-                      message: l10n.noRewards,
-                      icon: Icons.card_giftcard_rounded,
-                      colors: colors,
-                    )
-                  : _buildRewardsList(colors, l10n),
-            ),
-          ],
+              if (_isLoading)
+                SliverFillRemaining(
+                  child: Center(
+                    child: CircularProgressIndicator(color: colors.primary),
+                  ),
+                )
+              else if (_rewards.isEmpty)
+                SliverFillRemaining(
+                  child: CustomEmptyState(
+                    message: l10n.noRewards,
+                    icon: Icons.card_giftcard_rounded,
+                    colors: colors,
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Dimensions.spacingLarge,
+                  ),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      if (index == _rewards.length) {
+                        return Padding(
+                          padding: EdgeInsets.all(Dimensions.spacingLarge),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: colors.primary,
+                            ),
+                          ),
+                        );
+                      }
+
+                      final reward = _rewards[index];
+                      final String dateString =
+                          reward.claimedAt ?? reward.unlockedAt;
+                      final DateTime earnedDate =
+                          DateTime.tryParse(dateString)?.toLocal() ??
+                          DateTime.now();
+                      final String formattedDate = DateFormat(
+                        'MMM dd, yyyy',
+                        Localizations.localeOf(context).languageCode,
+                      ).format(earnedDate);
+
+                      final Color statusColor = reward.isConsumed
+                          ? colors.iconGrey
+                          : colors.success;
+                      final String statusText = reward.isConsumed
+                          ? l10n.rewardConsumed
+                          : l10n.rewardAvailable;
+                      final IconData icon = reward.isConsumed
+                          ? Icons.check_circle_rounded
+                          : Icons.card_giftcard_rounded;
+
+                      // ARCHITECTURE FIX: Using the DRY PremiumHistoryCard
+                      return PremiumHistoryCard(
+                        title:
+                            reward.milestone.reward?.name ??
+                            reward.milestone.title,
+                        subtitle: formattedDate,
+                        trailingText: statusText,
+                        icon: icon,
+                        color: statusColor,
+                        colors: colors,
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (ctx) => LoyaltyRewardSheet(
+                              userMilestone: reward,
+                              colors: colors,
+                              l10n: l10n,
+                            ),
+                          );
+                        },
+                      );
+                    }, childCount: _rewards.length + (_hasMore ? 1 : 0)),
+                  ),
+                ),
+
+              SliverToBoxAdapter(
+                child: SizedBox(height: Dimensions.spacingExtraLarge),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -202,187 +287,40 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
       loading: () => const SizedBox.shrink(),
       error: (e, _) => const SizedBox.shrink(),
       data: (summary) {
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
+        final double totalOverall =
+            (summary.totalAvailable + summary.totalConsumed).toDouble();
+
+        return Padding(
           padding: EdgeInsets.symmetric(horizontal: Dimensions.spacingLarge),
           child: Row(
             children: [
-              StatSummaryCard(
-                title: l10n.rewardAvailable,
-                value: summary.totalAvailable.toString(),
-                icon: Icons.redeem_rounded,
-                color: colors.success,
-                colors: colors,
+              Expanded(
+                child: StatSummaryCard(
+                  title: l10n.rewardAvailable,
+                  value: summary.totalAvailable.toString(),
+                  icon: Icons.redeem_rounded,
+                  color: colors.success,
+                  colors: colors,
+                  currentValue: summary.totalAvailable.toDouble(),
+                  totalValue: totalOverall,
+                ),
               ),
               SizedBox(width: Dimensions.spacingMedium),
-              StatSummaryCard(
-                title: l10n.rewardConsumed,
-                value: summary.totalConsumed.toString(),
-                icon: Icons.check_circle_outline_rounded,
-                color: colors.iconGrey,
-                colors: colors,
+              Expanded(
+                child: StatSummaryCard(
+                  title: l10n.rewardConsumed,
+                  value: summary.totalConsumed.toString(),
+                  icon: Icons.check_circle_rounded,
+                  color: colors.iconGrey,
+                  colors: colors,
+                  currentValue: summary.totalConsumed.toDouble(),
+                  totalValue: totalOverall,
+                ),
               ),
             ],
           ),
         );
       },
-    );
-  }
-
-  Widget _buildRewardsList(AppColors colors, AppLocalizations l10n) {
-    final String currentLocale = Localizations.localeOf(context).languageCode;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Dimensions.spacingLarge),
-      child: Container(
-        margin: EdgeInsets.only(bottom: Dimensions.spacingExtraLarge),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-          child: ListView.separated(
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(),
-            itemCount: _rewards.length + (_hasMore ? 1 : 0),
-            separatorBuilder: (context, index) => Divider(
-              height: 1,
-              color: colors.iconGrey.withOpacity(0.1),
-              indent: Dimensions.spacingExtraLarge * 2,
-            ),
-            itemBuilder: (context, index) {
-              if (index == _rewards.length) {
-                return Padding(
-                  padding: EdgeInsets.all(Dimensions.spacingLarge),
-                  child: Center(
-                    child: CircularProgressIndicator(color: colors.primary),
-                  ),
-                );
-              }
-
-              final reward = _rewards[index];
-              final String dateString = reward.claimedAt ?? reward.unlockedAt;
-              final DateTime earnedDate =
-                  DateTime.tryParse(dateString)?.toLocal() ?? DateTime.now();
-
-              return Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (ctx) => LoyaltyRewardSheet(
-                        milestone: reward.milestone,
-                        userMilestoneWallet:
-                            reward, // Loaded from wallet, has payload
-                        isFromWallet: true,
-                        colors: colors,
-                        l10n: l10n,
-                      ),
-                    );
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: Dimensions.spacingLarge,
-                      vertical: Dimensions.spacingMedium,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(Dimensions.spacingMedium),
-                          decoration: BoxDecoration(
-                            color: reward.isConsumed
-                                ? colors.iconGrey.withOpacity(0.1)
-                                : colors.success.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.card_giftcard_rounded,
-                            color: reward.isConsumed
-                                ? colors.iconGrey
-                                : colors.success,
-                            size: Dimensions.iconMedium,
-                          ),
-                        ),
-                        SizedBox(width: Dimensions.spacingMedium),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                reward.milestone.reward?.name ??
-                                    reward.milestone.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: Dimensions.fontBodyMedium,
-                                  color: reward.isConsumed
-                                      ? colors.textSecondary
-                                      : colors.textPrimary,
-                                ),
-                              ),
-                              SizedBox(height: Dimensions.spacingTiny),
-                              Text(
-                                DateFormat(
-                                  'MMM dd, yyyy',
-                                  currentLocale,
-                                ).format(earnedDate),
-                                style: TextStyle(
-                                  fontSize: Dimensions.fontBodySmall,
-                                  color: colors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: Dimensions.spacingMedium,
-                            vertical: Dimensions.spacingTiny,
-                          ),
-                          decoration: BoxDecoration(
-                            color: reward.isConsumed
-                                ? colors.iconGrey.withOpacity(0.1)
-                                : colors.success.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(
-                              Dimensions.radiusPill,
-                            ),
-                          ),
-                          child: Text(
-                            reward.isConsumed
-                                ? l10n.rewardConsumed
-                                : l10n.useRewardBtn,
-                            style: TextStyle(
-                              fontSize: Dimensions.fontBodySmall * 0.9,
-                              fontWeight: FontWeight.w800,
-                              color: reward.isConsumed
-                                  ? colors.iconGrey
-                                  : colors.success,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
     );
   }
 }

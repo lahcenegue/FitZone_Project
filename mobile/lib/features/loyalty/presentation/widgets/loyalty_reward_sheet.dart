@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
-import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -16,19 +15,13 @@ import '../../../subscriptions/presentation/providers/subscription_provider.dart
 import '../../../subscriptions/data/models/subscription_model.dart';
 
 class LoyaltyRewardSheet extends ConsumerStatefulWidget {
-  final LoyaltyMilestone milestone;
-  final UserMilestoneData? userMilestoneData;
-  final UserMilestone? userMilestoneWallet;
-  final bool isFromWallet;
+  final UserMilestone userMilestone;
   final AppColors colors;
   final AppLocalizations l10n;
 
   const LoyaltyRewardSheet({
     super.key,
-    required this.milestone,
-    this.userMilestoneData,
-    this.userMilestoneWallet,
-    required this.isFromWallet,
+    required this.userMilestone,
     required this.colors,
     required this.l10n,
   });
@@ -37,65 +30,20 @@ class LoyaltyRewardSheet extends ConsumerStatefulWidget {
   ConsumerState<LoyaltyRewardSheet> createState() => _LoyaltyRewardSheetState();
 }
 
-class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
-    with SingleTickerProviderStateMixin {
+class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet> {
   static final Logger _logger = Logger('LoyaltyRewardSheet');
   bool _isLoading = false;
-  bool _isUnboxing = false;
+  bool _isCopied = false;
   SubscriptionModel? _selectedSubscription;
 
-  Future<void> _handleClaimReward() async {
-    if (widget.userMilestoneData == null ||
-        widget.userMilestoneData!.userMilestoneId == null)
-      return;
-
-    setState(() => _isLoading = true);
-    try {
-      final apiService = ref.read(loyaltyApiServiceProvider);
-      await apiService.claimReward(
-        userMilestoneId: widget.userMilestoneData!.userMilestoneId!,
-      );
-
-      _logger.info('Reward claimed successfully: ${widget.milestone.id}');
-
-      ref.invalidate(allUserMilestonesProvider);
-      ref.invalidate(dashboardRewardsProvider);
-      ref.invalidate(rewardsSummaryProvider);
-      ref.invalidate(loyaltyWalletProvider);
-
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _isUnboxing = true;
-        });
-
-        await Future.delayed(const Duration(milliseconds: 2500));
-        if (mounted) {
-          Navigator.pop(context);
-          _showSnackBar(
-            widget.l10n.rewardClaimedSuccess,
-            widget.colors.success,
-          );
-        }
-      }
-    } catch (e, stackTrace) {
-      _logger.severe('Failed to claim reward', e, stackTrace);
-      if (mounted) {
-        setState(() => _isLoading = false);
-        _showSnackBar(widget.l10n.errorOops, widget.colors.error);
-      }
-    }
-  }
-
   Future<void> _handleExtendSubscription() async {
-    if (widget.userMilestoneWallet == null || _selectedSubscription == null)
-      return;
+    if (_selectedSubscription == null) return;
 
     setState(() => _isLoading = true);
     try {
       final apiService = ref.read(loyaltyApiServiceProvider);
       await apiService.extendSubscription(
-        userMilestoneId: widget.userMilestoneWallet!.id,
+        userMilestoneId: widget.userMilestone.id,
         subscriptionId: _selectedSubscription!.id,
       );
 
@@ -135,20 +83,21 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
     );
   }
 
+  void _handleCopyCode(String code) {
+    Clipboard.setData(ClipboardData(text: code));
+    setState(() => _isCopied = true);
+
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() => _isCopied = false);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    String status = 'locked';
-    if (_isUnboxing) {
-      status = 'claimed';
-    } else if (widget.isFromWallet && widget.userMilestoneWallet != null) {
-      status = widget.userMilestoneWallet!.isConsumed ? 'consumed' : 'claimed';
-    } else if (!widget.isFromWallet && widget.userMilestoneData != null) {
-      status = widget.userMilestoneData!.status;
-    }
-
-    final bool isUnlocked = status != 'locked';
-    final bool isClaimed = status == 'claimed' || status == 'consumed';
-    final bool isConsumed = status == 'consumed';
+    final bool isConsumed = widget.userMilestone.isConsumed;
+    final milestone = widget.userMilestone.milestone;
 
     return SafeArea(
       child: Container(
@@ -172,10 +121,10 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: Dimensions.spacingExtraLarge * 2,
-                height: Dimensions.spacingTiny,
+                width: Dimensions.spacingExtraLarge * 2.5,
+                height: 5,
                 decoration: BoxDecoration(
-                  color: widget.colors.iconGrey.withValues(alpha: 0.3),
+                  color: widget.colors.iconGrey.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(Dimensions.radiusPill),
                 ),
               ),
@@ -188,107 +137,90 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
                     widget.l10n.rewardDetails,
                     style: TextStyle(
                       fontSize: Dimensions.fontTitleMedium,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w900,
                       color: widget.colors.textSecondary,
+                      letterSpacing: 0.5,
                     ),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: CircleAvatar(
-                      radius: Dimensions.iconMedium,
-                      backgroundColor: widget.colors.surface,
+                    child: Container(
+                      padding: EdgeInsets.all(Dimensions.spacingSmall),
+                      decoration: BoxDecoration(
+                        color: widget.colors.iconGrey.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
                       child: Icon(
                         Icons.close_rounded,
                         size: Dimensions.iconMedium,
-                        color: widget.colors.iconGrey,
+                        color: widget.colors.textPrimary,
                       ),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: Dimensions.spacingExtraLarge),
+              SizedBox(height: Dimensions.spacingExtraLarge * 1.2),
 
               Text(
-                _isUnboxing
-                    ? widget.l10n.unboxedTitle
-                    : (widget.milestone.reward?.name ?? widget.milestone.title),
+                milestone.reward?.name ?? milestone.title,
                 style: TextStyle(
-                  fontSize: Dimensions.fontHeading1,
+                  fontSize: Dimensions.fontHeading1 * 1.1,
                   fontWeight: FontWeight.w900,
                   color: widget.colors.textPrimary,
+                  height: 1.2,
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: Dimensions.spacingSmall),
-
-              if (!_isUnboxing)
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Dimensions.spacingMedium,
-                    vertical: Dimensions.spacingTiny,
-                  ),
-                  decoration: BoxDecoration(
-                    color: widget.colors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(Dimensions.radiusPill),
-                  ),
-                  child: Text(
-                    '${widget.milestone.requiredLifetimePoints} ${widget.l10n.pts}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: widget.colors.primary,
-                      fontSize: Dimensions.fontBodyMedium,
-                    ),
-                  ),
-                ),
               SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
-              if (_isUnboxing)
-                _buildUnboxingAnimation()
-              else if (widget.isFromWallet &&
-                  isClaimed &&
-                  !isConsumed &&
-                  widget.userMilestoneWallet?.rewardPayload != null)
-                _buildDynamicPayloadUI(
-                  widget.userMilestoneWallet!.rewardPayload!,
-                )
+              if (!isConsumed && widget.userMilestone.rewardPayload != null)
+                _buildDynamicPayloadUI(widget.userMilestone.rewardPayload!)
               else
-                _buildPreClaimOrStaticIcon(isUnlocked, isConsumed),
+                _buildGlowingStaticIcon(isConsumed),
 
               SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
-              if (!_isUnboxing) ...[
-                Text(
-                  widget.milestone.description,
+              Text(
+                milestone.description,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: Dimensions.fontTitleMedium,
+                  fontWeight: FontWeight.w700,
+                  color: widget.colors.textPrimary,
+                  height: 1.5,
+                ),
+              ),
+              SizedBox(height: Dimensions.spacingMedium),
+
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: Dimensions.spacingMedium,
+                  vertical: Dimensions.spacingTiny,
+                ),
+                decoration: BoxDecoration(
+                  color: isConsumed
+                      ? widget.colors.iconGrey.withValues(alpha: 0.1)
+                      : widget.colors.success.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusPill),
+                ),
+                child: Text(
+                  isConsumed
+                      ? widget.l10n.consumedDesc
+                      : widget.l10n.claimedDesc,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: Dimensions.fontTitleMedium,
-                    fontWeight: FontWeight.w700,
-                    color: widget.colors.textPrimary,
-                    height: 1.4,
+                    fontSize: Dimensions.fontBodySmall,
+                    fontWeight: FontWeight.w800,
+                    color: isConsumed
+                        ? widget.colors.textSecondary
+                        : widget.colors.success,
                   ),
                 ),
-                SizedBox(height: Dimensions.spacingMedium),
+              ),
 
-                if (!widget.isFromWallet || (widget.isFromWallet && isConsumed))
-                  Text(
-                    isUnlocked
-                        ? (isConsumed
-                              ? widget.l10n.consumedDesc
-                              : (isClaimed
-                                    ? widget.l10n.alreadyClaimedMsg
-                                    : widget.l10n.unlockedDesc))
-                        : widget.l10n.lockedDesc,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: Dimensions.fontBodyMedium,
-                      color: widget.colors.textSecondary,
-                      height: 1.3,
-                    ),
-                  ),
-              ],
               SizedBox(height: Dimensions.spacingExtraLarge * 2),
 
-              if (!_isUnboxing) _buildContextualActionButton(status),
+              _buildContextualActionButton(isConsumed),
             ],
           ),
         ),
@@ -296,144 +228,59 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
     );
   }
 
-  Widget _buildUnboxingAnimation() {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 800),
-      curve: Curves.elasticOut,
-      builder: (context, value, child) {
-        return Transform.scale(
-          scale: value,
-          child: Container(
-            padding: EdgeInsets.all(Dimensions.spacingExtraLarge * 1.5),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [widget.colors.star, widget.colors.warning],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: widget.colors.warning.withValues(alpha: 0.6),
-                  blurRadius: 40 * value,
-                  spreadRadius: 15 * value,
-                ),
-              ],
-            ),
-            child: Icon(
-              Icons.redeem_rounded,
-              size: Dimensions.iconLarge * 3.5,
-              color: widget.colors.surface,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildPreClaimOrStaticIcon(bool isUnlocked, bool isConsumed) {
-    final reward = widget.milestone.reward;
-
-    if (isUnlocked &&
-        !isConsumed &&
-        reward != null &&
-        reward.discountValue != null &&
-        reward.discountValue! > 0) {
-      return Container(
-        padding: EdgeInsets.all(Dimensions.spacingLarge),
-        decoration: BoxDecoration(
-          color: widget.colors.surface,
-          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-          border: Border.all(
-            color: widget.colors.iconGrey.withValues(alpha: 0.15),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: widget.colors.shadow.withValues(alpha: 0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Icon(
-              _getCouponIcon(reward.couponType),
-              size: Dimensions.iconLarge * 2,
-              color: widget.colors.primary,
-            ),
-            SizedBox(height: Dimensions.spacingMedium),
-            Text(
-              widget.l10n.rewardValue,
-              style: TextStyle(
-                color: widget.colors.textSecondary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: Dimensions.spacingTiny),
-            Text(
-              _getCouponDisplayValue(reward.couponType, reward.discountValue!),
-              style: TextStyle(
-                fontSize: Dimensions.fontHeading2,
-                fontWeight: FontWeight.w900,
-                color: widget.colors.primary,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+  Widget _buildGlowingStaticIcon(bool isConsumed) {
+    final Color glowColor = isConsumed
+        ? widget.colors.iconGrey
+        : widget.colors.success;
 
     return Container(
       padding: EdgeInsets.all(Dimensions.spacingExtraLarge * 1.5),
       decoration: BoxDecoration(
-        color: isUnlocked
-            ? (isConsumed
-                  ? widget.colors.iconGrey.withValues(alpha: 0.1)
-                  : widget.colors.primary.withValues(alpha: 0.1))
-            : widget.colors.surface,
+        color: widget.colors.surface,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: isUnlocked
-              ? (isConsumed
-                    ? widget.colors.iconGrey.withValues(alpha: 0.3)
-                    : widget.colors.primary.withValues(alpha: 0.3))
-              : widget.colors.iconGrey.withValues(alpha: 0.1),
-          width: 2,
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: glowColor.withValues(alpha: 0.15),
+            blurRadius: 30,
+            spreadRadius: 10,
+          ),
+          BoxShadow(
+            color: widget.colors.shadow.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
-      child: Icon(
-        isUnlocked
-            ? (isConsumed
-                  ? Icons.check_circle_rounded
-                  : Icons.card_giftcard_rounded)
-            : Icons.lock_rounded,
-        size: Dimensions.iconLarge * 3,
-        color: isUnlocked
-            ? (isConsumed ? widget.colors.iconGrey : widget.colors.primary)
-            : widget.colors.iconGrey.withValues(alpha: 0.5),
+      child: Container(
+        padding: EdgeInsets.all(Dimensions.spacingLarge),
+        decoration: BoxDecoration(
+          color: glowColor.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          isConsumed ? Icons.check_circle_rounded : Icons.card_giftcard_rounded,
+          size: Dimensions.iconLarge * 3,
+          color: glowColor,
+        ),
       ),
     );
   }
 
-  // --- DYNAMIC POLYMORPHIC PAYLOAD UI ---
   Widget _buildDynamicPayloadUI(RewardPayload payload) {
     switch (payload.fulfillmentType) {
       case 'coupon':
-        return _buildCleanCouponUI(payload);
+        return _buildPremiumCouponUI(payload);
       case 'roaming_pass':
         return _buildRoamingPassUI(payload.qrCodeSignature ?? '');
       case 'subscription_extension':
-        return _buildExtensionUI();
+        return _buildPremiumHorizontalExtensionUI();
       case 'manual':
       default:
         return _buildManualUI();
     }
   }
 
-  /// ARCHITECTURE FIX: Minimalist, clean ticket design using proper spacing and low opacity
-  Widget _buildCleanCouponUI(RewardPayload payload) {
+  Widget _buildPremiumCouponUI(RewardPayload payload) {
     final String currentLocale = Localizations.localeOf(context).languageCode;
     final String code = payload.couponCode ?? '';
     final String formattedDate = payload.expiresAt != null
@@ -454,152 +301,225 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
       width: double.infinity,
       decoration: BoxDecoration(
         color: widget.colors.surface,
-        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-        border: Border.all(
-          color: widget.colors.iconGrey.withValues(alpha: 0.15),
-        ),
+        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge * 1.5),
         boxShadow: [
           BoxShadow(
-            color: widget.colors.shadow.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: ticketColor.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: Dimensions.spacingLarge,
-                vertical: Dimensions.spacingMedium,
-              ),
-              decoration: BoxDecoration(
-                color: ticketColor.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.horizontal(
-                  left: Radius.circular(
-                    currentLocale == 'ar'
-                        ? 0
-                        : Dimensions.borderRadiusLarge - 2,
-                  ),
-                  right: Radius.circular(
-                    currentLocale == 'ar'
-                        ? Dimensions.borderRadiusLarge - 2
-                        : 0,
-                  ),
-                ),
-              ),
-              child: Center(
-                child: Icon(
-                  iconType,
-                  color: ticketColor,
-                  size: Dimensions.iconLarge * 1.5,
-                ),
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(Dimensions.spacingExtraLarge),
+            decoration: BoxDecoration(
+              color: ticketColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(Dimensions.borderRadiusLarge * 1.5),
               ),
             ),
-
-            SizedBox(
-              width: 2,
-              child: Flex(
-                direction: Axis.vertical,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(
-                  15,
-                  (_) => SizedBox(
-                    width: 2,
-                    height: 4,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: widget.colors.iconGrey.withValues(alpha: 0.2),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(Dimensions.spacingLarge),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text(
-                        displayValue,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.l10n.rewardValue,
                         style: TextStyle(
-                          fontSize: Dimensions.fontHeading2,
-                          fontWeight: FontWeight.w900,
-                          color: ticketColor,
+                          fontSize: Dimensions.fontBodySmall,
+                          color: ticketColor.withValues(alpha: 0.8),
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
+                      SizedBox(height: Dimensions.spacingTiny),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(
+                          displayValue,
+                          style: TextStyle(
+                            fontSize: Dimensions.fontHeading1 * 1.2,
+                            fontWeight: FontWeight.w900,
+                            color: ticketColor,
+                            height: 1.1,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(Dimensions.spacingMedium),
+                  decoration: BoxDecoration(
+                    color: widget.colors.surface,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: ticketColor.withValues(alpha: 0.15),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    iconType,
+                    color: ticketColor,
+                    size: Dimensions.iconLarge,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(height: 1, color: widget.colors.surface),
+              Row(
+                children: List.generate(
+                  30,
+                  (index) => Expanded(
+                    child: Container(
+                      height: 2,
+                      color: index.isEven
+                          ? widget.colors.iconGrey.withValues(alpha: 0.2)
+                          : Colors.transparent,
                     ),
-                    SizedBox(height: Dimensions.spacingTiny),
-                    if (formattedDate.isNotEmpty)
+                  ),
+                ),
+              ),
+              Positioned(
+                left: -10,
+                child: CircleAvatar(
+                  radius: 10,
+                  backgroundColor: widget.colors.background,
+                ),
+              ),
+              Positioned(
+                right: -10,
+                child: CircleAvatar(
+                  radius: 10,
+                  backgroundColor: widget.colors.background,
+                ),
+              ),
+            ],
+          ),
+
+          Padding(
+            padding: EdgeInsets.all(Dimensions.spacingExtraLarge),
+            child: Column(
+              children: [
+                if (formattedDate.isNotEmpty) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.timer_outlined,
+                        size: Dimensions.iconSmall,
+                        color: widget.colors.textSecondary,
+                      ),
+                      SizedBox(width: Dimensions.spacingTiny),
                       Text(
                         '${widget.l10n.expiresAt} $formattedDate',
                         style: TextStyle(
                           fontSize: Dimensions.fontBodySmall,
                           color: widget.colors.textSecondary,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    SizedBox(height: Dimensions.spacingMedium),
-
-                    GestureDetector(
-                      onTap: () {
-                        Clipboard.setData(ClipboardData(text: code));
-                        _showSnackBar(
-                          widget.l10n.copiedSuccessfully,
-                          widget.colors.success,
-                        );
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: Dimensions.spacingMedium,
-                          vertical: Dimensions.spacingSmall,
-                        ),
-                        decoration: BoxDecoration(
-                          color: widget.colors.background,
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.borderRadius,
+                    ],
+                  ),
+                  SizedBox(height: Dimensions.spacingLarge),
+                ],
+                GestureDetector(
+                  onTap: () => _handleCopyCode(code),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Dimensions.spacingLarge,
+                      vertical: Dimensions.spacingMedium,
+                    ),
+                    decoration: BoxDecoration(
+                      color: widget.colors.background,
+                      borderRadius: BorderRadius.circular(
+                        Dimensions.radiusPill,
+                      ),
+                      border: Border.all(
+                        color: ticketColor.withValues(alpha: 0.3),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          code,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            color: widget.colors.textPrimary,
+                            letterSpacing: 2.0,
+                            fontSize: Dimensions.fontTitleMedium,
                           ),
-                          border: Border.all(
-                            color: widget.colors.iconGrey.withValues(
-                              alpha: 0.15,
-                            ),
-                            width: 1.5,
-                          ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Row(
                           children: [
-                            Text(
-                              code,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w900,
-                                color: widget.colors.textPrimary,
-                                letterSpacing: 1.5,
+                            Container(
+                              width: 1.5,
+                              height: Dimensions.spacingLarge,
+                              color: widget.colors.iconGrey.withValues(
+                                alpha: 0.2,
                               ),
                             ),
-                            Icon(
-                              Icons.copy_rounded,
-                              size: Dimensions.iconSmall,
-                              color: widget.colors.primary,
+                            SizedBox(width: Dimensions.spacingMedium),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              transitionBuilder:
+                                  (Widget child, Animation<double> animation) {
+                                    return ScaleTransition(
+                                      scale: animation,
+                                      child: child,
+                                    );
+                                  },
+                              child: _isCopied
+                                  ? Row(
+                                      key: const ValueKey('copied'),
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          widget.l10n.copiedSuccessfully,
+                                          style: TextStyle(
+                                            fontSize: Dimensions.fontBodySmall,
+                                            fontWeight: FontWeight.bold,
+                                            color: widget.colors.success,
+                                          ),
+                                        ),
+                                        SizedBox(width: Dimensions.spacingTiny),
+                                        Icon(
+                                          Icons.check_circle_rounded,
+                                          size: Dimensions.iconMedium,
+                                          color: widget.colors.success,
+                                        ),
+                                      ],
+                                    )
+                                  : Icon(
+                                      Icons.copy_rounded,
+                                      key: const ValueKey('copy'),
+                                      size: Dimensions.iconMedium,
+                                      color: ticketColor,
+                                    ),
                             ),
                           ],
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -611,20 +531,22 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
         GestureDetector(
           onTap: () => _showFullScreenQr(qrData),
           child: Container(
-            width: Dimensions.screenWidth * 0.5,
-            padding: EdgeInsets.all(Dimensions.spacingMedium),
+            width: Dimensions.screenWidth * 0.55,
+            padding: EdgeInsets.all(Dimensions.spacingLarge),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+              borderRadius: BorderRadius.circular(
+                Dimensions.borderRadiusLarge * 1.2,
+              ),
               border: Border.all(
-                color: widget.colors.primary.withValues(alpha: 0.3),
-                width: 2,
+                color: widget.colors.primary.withValues(alpha: 0.2),
+                width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: widget.colors.primary.withValues(alpha: 0.05),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
+                  color: widget.colors.primary.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
@@ -637,31 +559,41 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
                     shape: PrettyQrSmoothSymbol(color: Colors.black87),
                   ),
                 ),
-                SizedBox(height: Dimensions.spacingMedium),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.fullscreen_rounded,
-                      size: Dimensions.iconSmall,
-                      color: widget.colors.primary,
-                    ),
-                    SizedBox(width: Dimensions.spacingTiny),
-                    Text(
-                      widget.l10n.tapToExpandQr,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: Dimensions.fontBodySmall,
+                SizedBox(height: Dimensions.spacingLarge),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Dimensions.spacingMedium,
+                    vertical: Dimensions.spacingTiny,
+                  ),
+                  decoration: BoxDecoration(
+                    color: widget.colors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(Dimensions.radiusPill),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.fullscreen_rounded,
+                        size: Dimensions.iconSmall,
                         color: widget.colors.primary,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: Dimensions.spacingTiny),
+                      Text(
+                        widget.l10n.tapToExpandQr,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: Dimensions.fontBodySmall,
+                          color: widget.colors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
         ),
-        SizedBox(height: Dimensions.spacingMedium),
+        SizedBox(height: Dimensions.spacingLarge),
         Text(
           widget.l10n.showToReception,
           style: TextStyle(
@@ -728,7 +660,8 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
     );
   }
 
-  Widget _buildExtensionUI() {
+  // ARCHITECTURE FIX: Integrated branchLogo elegantly into the Interactive Carousel.
+  Widget _buildPremiumHorizontalExtensionUI() {
     final subscriptionsAsync = ref.watch(mySubscriptionsProvider);
 
     return subscriptionsAsync.when(
@@ -746,21 +679,29 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
 
         if (activeSubs.isEmpty) {
           return Container(
-            padding: EdgeInsets.all(Dimensions.spacingMedium),
+            padding: EdgeInsets.all(Dimensions.spacingLarge),
             decoration: BoxDecoration(
               color: widget.colors.warning.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+              borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+              border: Border.all(
+                color: widget.colors.warning.withValues(alpha: 0.3),
+              ),
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline_rounded, color: widget.colors.warning),
-                SizedBox(width: Dimensions.spacingSmall),
+                Icon(
+                  Icons.info_outline_rounded,
+                  color: widget.colors.warning,
+                  size: Dimensions.iconLarge,
+                ),
+                SizedBox(width: Dimensions.spacingMedium),
                 Expanded(
                   child: Text(
                     widget.l10n.noActiveSubscriptions,
                     style: TextStyle(
                       color: widget.colors.textPrimary,
                       fontWeight: FontWeight.bold,
+                      height: 1.4,
                     ),
                   ),
                 ),
@@ -769,130 +710,230 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
           );
         }
 
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: Dimensions.spacingLarge),
-          decoration: BoxDecoration(
-            color: widget.colors.surface,
-            borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-            border: Border.all(
-              color: widget.colors.iconGrey.withValues(alpha: 0.15),
-            ),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<SubscriptionModel>(
-              value: _selectedSubscription,
-              isExpanded: true,
-              hint: Text(
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(bottom: Dimensions.spacingMedium),
+              child: Text(
                 widget.l10n.selectSubscription,
                 style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: Dimensions.fontBodyMedium,
                   color: widget.colors.textSecondary,
-                  fontWeight: FontWeight.w700,
                 ),
               ),
-              icon: Icon(
-                Icons.arrow_drop_down_rounded,
-                color: widget.colors.primary,
-              ),
-              items: activeSubs.map((sub) {
-                return DropdownMenuItem(
-                  value: sub,
-                  child: Text(
-                    '${sub.planName} - ${sub.providerName}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: widget.colors.textPrimary,
-                    ),
-                  ),
-                );
-              }).toList(),
-              onChanged: (val) {
-                setState(() => _selectedSubscription = val);
-              },
             ),
-          ),
+            // Adjusted height to accommodate images gracefully
+            SizedBox(
+              height: Dimensions.iconLarge * 3.8,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                clipBehavior: Clip.none,
+                itemCount: activeSubs.length,
+                separatorBuilder: (context, index) =>
+                    SizedBox(width: Dimensions.spacingMedium),
+                itemBuilder: (context, index) {
+                  final sub = activeSubs[index];
+                  final bool isSelected = _selectedSubscription?.id == sub.id;
+
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() => _selectedSubscription = sub);
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: Dimensions.screenWidth * 0.75,
+                      padding: EdgeInsets.all(Dimensions.spacingMedium),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? widget.colors.primary.withValues(alpha: 0.05)
+                            : widget.colors.surface,
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.borderRadiusLarge,
+                        ),
+                        border: Border.all(
+                          color: isSelected
+                              ? widget.colors.primary
+                              : widget.colors.iconGrey.withValues(alpha: 0.15),
+                          width: isSelected ? 2 : 1,
+                        ),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: widget.colors.primary.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ]
+                            : [],
+                      ),
+                      child: Row(
+                        children: [
+                          // ARCHITECTURE FIX: Robust image fetching with loading/error handling
+                          Container(
+                            width: Dimensions.iconLarge * 2.2,
+                            height: Dimensions.iconLarge * 2.2,
+                            decoration: BoxDecoration(
+                              color: widget.colors.background,
+                              borderRadius: BorderRadius.circular(
+                                Dimensions.borderRadius,
+                              ),
+                              border: Border.all(
+                                color: widget.colors.iconGrey.withValues(
+                                  alpha: 0.1,
+                                ),
+                              ),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child:
+                                sub.branchLogo != null &&
+                                    sub.branchLogo!.isNotEmpty
+                                ? Image.network(
+                                    sub.branchLogo!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) => Icon(
+                                          Icons.fitness_center_rounded,
+                                          color: widget.colors.iconGrey,
+                                        ),
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                          if (loadingProgress == null)
+                                            return child;
+                                          return Center(
+                                            child: SizedBox(
+                                              width: Dimensions.iconMedium,
+                                              height: Dimensions.iconMedium,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: widget.colors.primary,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                  )
+                                : Icon(
+                                    Icons.fitness_center_rounded,
+                                    color: widget.colors.iconGrey,
+                                  ),
+                          ),
+                          SizedBox(width: Dimensions.spacingMedium),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  sub.planName,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: Dimensions.fontBodyLarge,
+                                    color: isSelected
+                                        ? widget.colors.primary
+                                        : widget.colors.textPrimary,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                SizedBox(height: Dimensions.spacingTiny),
+                                Text(
+                                  sub.providerName,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: Dimensions.fontBodySmall,
+                                    color: widget.colors.textSecondary,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(width: Dimensions.spacingSmall),
+                          Icon(
+                            isSelected
+                                ? Icons.check_circle_rounded
+                                : Icons.radio_button_unchecked_rounded,
+                            color: isSelected
+                                ? widget.colors.primary
+                                : widget.colors.iconGrey.withValues(alpha: 0.3),
+                            size: Dimensions.iconLarge,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
   Widget _buildManualUI() {
-    return Column(
-      children: [
-        Icon(
-          Icons.front_hand_rounded,
-          size: Dimensions.iconLarge * 2,
-          color: widget.colors.primary,
-        ),
-        SizedBox(height: Dimensions.spacingMedium),
-        Text(
-          widget.l10n.rewardManualDesc,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: widget.colors.textSecondary,
-            fontSize: Dimensions.fontBodyLarge,
+    return Container(
+      padding: EdgeInsets.all(Dimensions.spacingExtraLarge),
+      decoration: BoxDecoration(
+        color: widget.colors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.front_hand_rounded,
+            size: Dimensions.iconLarge * 2,
+            color: widget.colors.primary,
           ),
-        ),
-      ],
+          SizedBox(height: Dimensions.spacingMedium),
+          Text(
+            widget.l10n.rewardManualDesc,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: widget.colors.textPrimary,
+              fontSize: Dimensions.fontBodyLarge,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildContextualActionButton(String status) {
-    if (status == 'locked') {
-      return _buildButtonWrapper(
-        text: widget.l10n.lockedBtn,
-        color: widget.colors.surface,
-        textColor: widget.colors.iconGrey,
-        onPressed: null,
-      );
-    }
-
-    if (status == 'consumed') {
+  Widget _buildContextualActionButton(bool isConsumed) {
+    if (isConsumed) {
       return _buildButtonWrapper(
         text: widget.l10n.consumedBtn,
-        color: widget.colors.iconGrey.withValues(alpha: 0.1),
+        color: widget.colors.background,
         textColor: widget.colors.iconGrey,
+        borderColor: widget.colors.iconGrey.withValues(alpha: 0.2),
         onPressed: null,
       );
     }
 
-    if (!widget.isFromWallet) {
-      if (status == 'claimed') {
-        return _buildButtonWrapper(
-          text: widget.l10n.goToWalletBtn,
-          color: widget.colors.surface,
-          textColor: widget.colors.primary,
-          onPressed: () {
-            Navigator.pop(context);
-            context.push(RoutePaths.rewardsHistory);
-          },
-          icon: Icons.account_balance_wallet_rounded,
-        );
-      } else {
-        return _buildButtonWrapper(
-          text: widget.l10n.claimRewardBtn,
-          color: widget.colors.primary,
-          textColor: widget.colors.surface,
-          onPressed: _isLoading ? null : _handleClaimReward,
-          isLoading: _isLoading,
-        );
-      }
-    }
-
-    if (widget.isFromWallet &&
-        status == 'claimed' &&
-        widget.userMilestoneWallet?.rewardPayload != null) {
-      final payloadType =
-          widget.userMilestoneWallet!.rewardPayload!.fulfillmentType;
+    if (widget.userMilestone.rewardPayload != null) {
+      final payloadType = widget.userMilestone.rewardPayload!.fulfillmentType;
 
       if (payloadType == 'subscription_extension') {
         return _buildButtonWrapper(
           text: widget.l10n.extendSubscriptionBtn,
           color: _selectedSubscription != null
               ? widget.colors.success
-              : widget.colors.iconGrey.withValues(alpha: 0.3),
+              : widget.colors.background,
           textColor: _selectedSubscription != null
               ? widget.colors.surface
               : widget.colors.iconGrey,
+          borderColor: _selectedSubscription != null
+              ? Colors.transparent
+              : widget.colors.iconGrey.withValues(alpha: 0.2),
           onPressed: _selectedSubscription != null && !_isLoading
               ? _handleExtendSubscription
               : null,
@@ -906,33 +947,35 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
           payloadType == 'manual') {
         return const SizedBox.shrink();
       }
-
-      final actionRoute = widget.milestone.reward?.actionRoute;
-      return _buildButtonWrapper(
-        text: widget.l10n.goToWalletBtn,
-        color: actionRoute != null
-            ? widget.colors.primary
-            : widget.colors.iconGrey.withValues(alpha: 0.3),
-        textColor: actionRoute != null
-            ? widget.colors.surface
-            : widget.colors.iconGrey,
-        onPressed: actionRoute != null
-            ? () {
-                Navigator.pop(context);
-                context.push(actionRoute);
-              }
-            : null,
-        icon: Icons.arrow_forward_rounded,
-      );
     }
 
-    return const SizedBox.shrink();
+    final actionRoute = widget.userMilestone.milestone.reward?.actionRoute;
+    return _buildButtonWrapper(
+      text: widget.l10n.useRewardBtn,
+      color: actionRoute != null
+          ? widget.colors.primary
+          : widget.colors.background,
+      textColor: actionRoute != null
+          ? widget.colors.surface
+          : widget.colors.iconGrey,
+      borderColor: actionRoute != null
+          ? Colors.transparent
+          : widget.colors.iconGrey.withValues(alpha: 0.2),
+      onPressed: actionRoute != null
+          ? () {
+              Navigator.pop(context);
+              context.push(actionRoute);
+            }
+          : null,
+      icon: Icons.arrow_forward_rounded,
+    );
   }
 
   Widget _buildButtonWrapper({
     required String text,
     required Color color,
     required Color textColor,
+    Color borderColor = Colors.transparent,
     required VoidCallback? onPressed,
     bool isLoading = false,
     IconData? icon,
@@ -944,15 +987,19 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: textColor,
-          disabledBackgroundColor: widget.colors.surface,
+          disabledBackgroundColor: widget.colors.background,
           disabledForegroundColor: widget.colors.iconGrey,
           padding: EdgeInsets.symmetric(
-            vertical: Dimensions.spacingMedium * 1.2,
+            vertical: Dimensions.spacingMedium * 1.5,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+            side: BorderSide(color: borderColor, width: 1.5),
           ),
-          elevation: onPressed != null ? 4 : 0,
+          elevation: onPressed != null && borderColor == Colors.transparent
+              ? 8
+              : 0,
+          shadowColor: color.withValues(alpha: 0.4),
         ),
         child: isLoading
             ? SizedBox(
@@ -960,7 +1007,7 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
                 width: Dimensions.iconMedium,
                 child: CircularProgressIndicator(
                   color: textColor,
-                  strokeWidth: 2.5,
+                  strokeWidth: 3.0,
                 ),
               )
             : Row(
@@ -974,7 +1021,7 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
                     text,
                     style: TextStyle(
                       fontSize: Dimensions.fontTitleMedium,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
                 ],

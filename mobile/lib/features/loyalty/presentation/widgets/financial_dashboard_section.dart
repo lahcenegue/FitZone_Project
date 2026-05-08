@@ -8,8 +8,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/models/loyalty_models.dart';
-import '../providers/loyalty_dashboard_providers.dart';
-import 'transaction_item_card.dart';
 
 class FinancialDashboardSection extends ConsumerWidget {
   final WalletSummary wallet;
@@ -27,295 +25,282 @@ class FinancialDashboardSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watches the limited provider (5 transactions max) from the backend
-    final transactionsAsync = ref.watch(dashboardTransactionsProvider);
-
     return ListView(
       padding: EdgeInsets.all(Dimensions.spacingLarge),
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
-        _buildUnifiedFiatCard(context, wallet.bankAccount),
+        _buildPremiumVirtualCard(context),
         SizedBox(height: Dimensions.spacingExtraLarge),
 
-        _buildTransactionsHeader(context),
-        SizedBox(height: Dimensions.spacingMedium),
+        // ARCHITECTURE FIX: Cleaned Quick Actions - Removed Redundant Bank Button
+        _buildQuickActionsRow(context),
+        SizedBox(height: Dimensions.spacingExtraLarge),
 
-        transactionsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) {
-            _logger.severe('Error loading transactions', error, stack);
-            return const SizedBox.shrink();
-          },
-          data: (paginatedData) =>
-              _buildTransactionsList(paginatedData.results),
-        ),
+        // ARCHITECTURE FIX: Smart Banner that adapts to Add/Edit states
+        _buildSmartBankBanner(context),
 
-        SizedBox(height: Dimensions.spacingExtraLarge * 3),
+        SizedBox(height: Dimensions.spacingExtraLarge * 2),
       ],
     );
   }
 
-  Widget _buildUnifiedFiatCard(BuildContext context, BankAccount? bankAccount) {
+  Widget _buildPremiumVirtualCard(BuildContext context) {
+    final bool isRTL = Directionality.of(context) == TextDirection.rtl;
+
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(Dimensions.spacingLarge),
       decoration: BoxDecoration(
-        color: colors.surface,
+        gradient: LinearGradient(
+          colors: [
+            colors.textPrimary.withValues(alpha: 0.9),
+            colors.textPrimary.withValues(alpha: 0.7),
+          ],
+          begin: isRTL ? Alignment.topRight : Alignment.topLeft,
+          end: isRTL ? Alignment.bottomLeft : Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge * 1.5),
-        border: Border.all(color: colors.iconGrey.withOpacity(0.1)),
         boxShadow: [
           BoxShadow(
-            color: colors.shadow.withOpacity(0.04),
-            blurRadius: Dimensions.spacingExtraLarge,
-            offset: Offset(0, Dimensions.spacingMedium),
+            color: colors.textPrimary.withValues(alpha: 0.2),
+            blurRadius: 25,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.fiatBalance,
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: colors.textSecondary,
-                  fontSize: Dimensions.fontBodyMedium,
-                ),
+      // ARCHITECTURE FIX: ClipRRect ensures the watermark does not break card boundaries
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge * 1.5),
+        child: Stack(
+          children: [
+            // Elegant Watermark correctly positioned
+            Positioned(
+              right: isRTL ? null : -5,
+              left: isRTL ? -5 : null,
+              bottom: -5,
+              child: Icon(
+                Icons.account_balance_wallet_rounded,
+                size: Dimensions.iconLarge * 6,
+                color: colors.surface.withValues(alpha: 0.04),
               ),
-              Container(
-                padding: EdgeInsets.all(Dimensions.spacingSmall),
-                decoration: BoxDecoration(
-                  color: colors.success.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.account_balance_wallet_rounded,
-                  color: colors.success,
-                  size: Dimensions.iconMedium,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: Dimensions.spacingTiny),
-          Text(
-            '${wallet.fiatBalance.toStringAsFixed(2)} ${l10n.sar}',
-            style: TextStyle(
-              fontSize: Dimensions.fontHeading1 * 1.5,
-              fontWeight: FontWeight.w900,
-              color: colors.textPrimary,
-              letterSpacing: -1.0,
             ),
-          ),
-          SizedBox(height: Dimensions.spacingExtraLarge),
 
-          if (bankAccount != null)
-            Container(
-              padding: EdgeInsets.all(Dimensions.spacingMedium),
-              decoration: BoxDecoration(
-                color: colors.background,
-                borderRadius: BorderRadius.circular(
-                  Dimensions.borderRadiusLarge,
-                ),
-              ),
+            Padding(
+              padding: EdgeInsets.all(Dimensions.spacingExtraLarge),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       Icon(
-                        Icons.account_balance_rounded,
-                        color: colors.textSecondary,
+                        Icons.monetization_on_rounded,
+                        color: colors.surface.withValues(alpha: 0.8),
                         size: Dimensions.iconMedium,
                       ),
-                      SizedBox(width: Dimensions.spacingMedium),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.linkedAccount,
-                              style: TextStyle(
-                                fontSize: Dimensions.fontBodySmall,
-                                color: colors.textSecondary,
-                              ),
-                            ),
-                            Text(
-                              '${bankAccount.bankName} (${bankAccount.accountNumber})',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: colors.textPrimary,
-                              ),
-                            ),
-                          ],
+                      SizedBox(width: Dimensions.spacingSmall),
+                      Text(
+                        l10n.fiatBalance,
+                        style: TextStyle(
+                          color: colors.surface.withValues(alpha: 0.9),
+                          fontSize: Dimensions.fontBodyLarge,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          _logger.info('User initiated edit bank account');
-                          context.push(RoutePaths.bankAccount);
-                        },
-                        icon: Icon(
-                          Icons.edit_rounded,
-                          color: colors.primary,
-                          size: Dimensions.iconMedium,
-                        ),
-                        splashRadius: Dimensions.spacingLarge,
                       ),
                     ],
                   ),
-                  SizedBox(height: Dimensions.spacingMedium),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: wallet.fiatBalance > 0
-                          ? () {
-                              _logger.info('User initiated withdrawal');
-                              context.push(RoutePaths.withdraw);
-                            }
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.success,
-                        foregroundColor: colors.surface,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.radiusPill,
+                  SizedBox(height: Dimensions.spacingExtraLarge * 1.2),
+
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          wallet.fiatBalance.toStringAsFixed(2),
+                          style: TextStyle(
+                            fontSize: Dimensions.fontHeading1 * 2,
+                            fontWeight: FontWeight.w900,
+                            color: colors.surface,
+                            letterSpacing: -1.0,
                           ),
                         ),
-                        padding: EdgeInsets.symmetric(
-                          vertical: Dimensions.spacingMedium,
+                        SizedBox(width: Dimensions.spacingSmall),
+                        Text(
+                          l10n.currency,
+                          style: TextStyle(
+                            fontSize: Dimensions.fontTitleMedium,
+                            fontWeight: FontWeight.w700,
+                            color: colors.surface.withValues(alpha: 0.8),
+                          ),
                         ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        l10n.withdrawFunds,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: Dimensions.fontTitleMedium,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          else
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: Dimensions.spacingMedium,
-                vertical: Dimensions.spacingSmall,
-              ),
-              decoration: BoxDecoration(
-                color: colors.background,
-                borderRadius: BorderRadius.circular(
-                  Dimensions.borderRadiusLarge,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      l10n.addBankAccount,
-                      style: TextStyle(
-                        fontSize: Dimensions.fontBodyMedium,
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _logger.info('User clicked: Add bank account');
-                      context.push(RoutePaths.bankAccount);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colors.primary.withOpacity(0.1),
-                      foregroundColor: colors.primary,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          Dimensions.radiusPill,
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      l10n.addBankAccount,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildTransactionsHeader(BuildContext context) {
+  /// Clean, centralized actions for money operations only
+  Widget _buildQuickActionsRow(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          l10n.transactionsHistory,
-          style: TextStyle(
-            fontSize: Dimensions.fontTitleMedium,
-            fontWeight: FontWeight.w800,
-            color: colors.textPrimary,
-          ),
+        _buildActionItem(
+          icon: Icons.payments_rounded,
+          label: l10n.withdrawFunds,
+          color: wallet.fiatBalance > 0 ? colors.success : colors.iconGrey,
+          onTap: () {
+            if (wallet.fiatBalance > 0) {
+              _logger.info('Navigate to Withdraw Screen');
+              context.push(RoutePaths.withdraw);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(l10n.insufficientBalance),
+                  backgroundColor: colors.warning,
+                ),
+              );
+            }
+          },
         ),
-        TextButton(
-          onPressed: () {
-            _logger.info('User clicked: See all transactions');
+        SizedBox(
+          width: Dimensions.spacingExtraLarge * 2,
+        ), // Spacing between the two actions
+        _buildActionItem(
+          icon: Icons.receipt_long_rounded,
+          label: l10n.quickActionHistory,
+          color: colors.warning,
+          onTap: () {
+            _logger.info('Navigate to Financial Transactions History');
             context.push(RoutePaths.transactionsHistory);
           },
-          child: Text(
-            l10n.seeAll,
-            style: TextStyle(
-              fontWeight: FontWeight.w800,
-              color: colors.primary,
-            ),
-          ),
         ),
       ],
     );
   }
 
-  Widget _buildTransactionsList(List<FinancialTransaction> transactions) {
-    if (transactions.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(Dimensions.spacingLarge),
-          child: Text(
-            l10n.noTransactions,
-            style: TextStyle(color: colors.textSecondary),
+  Widget _buildActionItem({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: EdgeInsets.all(Dimensions.spacingLarge),
+            decoration: BoxDecoration(
+              color: colors.surface,
+              shape: BoxShape.circle,
+              border: Border.all(color: colors.iconGrey.withValues(alpha: 0.1)),
+              boxShadow: [
+                BoxShadow(
+                  color: colors.shadow.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(icon, color: color, size: Dimensions.iconLarge),
           ),
-        ),
-      );
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-        border: Border.all(color: colors.iconGrey.withOpacity(0.1)),
+          SizedBox(height: Dimensions.spacingSmall),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: Dimensions.fontBodySmall,
+              fontWeight: FontWeight.w700,
+              color: colors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: transactions.length,
-        separatorBuilder: (context, index) => Divider(
-          height: 1,
-          color: colors.iconGrey.withOpacity(0.1),
-          indent: Dimensions.spacingExtraLarge * 2,
+    );
+  }
+
+  /// Smart banner: Adapts its text and UI based on whether an account exists
+  Widget _buildSmartBankBanner(BuildContext context) {
+    final BankAccount? bankAccount = wallet.bankAccount;
+    final bool hasBank = bankAccount != null;
+
+    return GestureDetector(
+      onTap: () => context.push(RoutePaths.bankAccount),
+      child: Container(
+        padding: EdgeInsets.all(Dimensions.spacingLarge),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+          border: Border.all(color: colors.iconGrey.withValues(alpha: 0.1)),
+          boxShadow: [
+            BoxShadow(
+              color: colors.shadow.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        itemBuilder: (context, index) {
-          return TransactionItemCard(
-            transaction: transactions[index],
-            colors: colors,
-            l10n: l10n,
-          );
-        },
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(Dimensions.spacingMedium),
+              decoration: BoxDecoration(
+                color: hasBank
+                    ? colors.success.withValues(alpha: 0.1)
+                    : colors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+              ),
+              child: Icon(
+                Icons.account_balance_rounded,
+                color: hasBank ? colors.success : colors.primary,
+                size: Dimensions.iconLarge,
+              ),
+            ),
+            SizedBox(width: Dimensions.spacingMedium),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    hasBank ? l10n.editBankAccount : l10n.addBankAccount,
+                    style: TextStyle(
+                      fontSize: Dimensions.fontBodySmall,
+                      color: hasBank ? colors.success : colors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: Dimensions.spacingTiny),
+                  Text(
+                    hasBank
+                        ? '${bankAccount.bankName} (${bankAccount.accountNumber})'
+                        : l10n.manageYourBank,
+                    style: TextStyle(
+                      fontSize: hasBank
+                          ? Dimensions.fontTitleMedium
+                          : Dimensions.fontBodySmall,
+                      fontWeight: hasBank ? FontWeight.w900 : FontWeight.w600,
+                      color: hasBank
+                          ? colors.textPrimary
+                          : colors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: colors.iconGrey,
+              size: Dimensions.iconMedium,
+            ),
+          ],
+        ),
       ),
     );
   }

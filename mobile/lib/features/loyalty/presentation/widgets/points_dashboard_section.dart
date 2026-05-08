@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
 
 import '../../../../core/routing/app_router.dart';
@@ -11,12 +10,10 @@ import '../../../../l10n/app_localizations.dart';
 import '../../data/models/loyalty_models.dart';
 import '../providers/loyalty_dashboard_providers.dart';
 
-class PointsDashboardSection extends ConsumerWidget {
+class PointsDashboardSection extends ConsumerStatefulWidget {
   final WalletSummary wallet;
   final AppColors colors;
   final AppLocalizations l10n;
-
-  static final Logger _logger = Logger('PointsDashboardSection');
 
   const PointsDashboardSection({
     super.key,
@@ -26,275 +23,320 @@ class PointsDashboardSection extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pointsAsync = ref.watch(dashboardPointsProvider);
+  ConsumerState<PointsDashboardSection> createState() =>
+      _PointsDashboardSectionState();
+}
+
+class _PointsDashboardSectionState extends ConsumerState<PointsDashboardSection>
+    with SingleTickerProviderStateMixin {
+  static final Logger _logger = Logger('PointsDashboardSection');
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
+    if (widget.wallet.unlockedRewardsCount > 0) {
+      _pulseController.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant PointsDashboardSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.wallet.unlockedRewardsCount > 0 &&
+        !_pulseController.isAnimating) {
+      _pulseController.repeat(reverse: true);
+    } else if (widget.wallet.unlockedRewardsCount == 0 &&
+        _pulseController.isAnimating) {
+      _pulseController.stop();
+      _pulseController.reset();
+    }
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // ARCHITECTURE FIX: Safely extract the current level from the roadmap
+    final roadmapAsync = ref.watch(loyaltyRoadmapProvider);
+    final String currentLevelTitle = roadmapAsync.maybeWhen(
+      data: (data) => data.metaProgress.currentMilestoneTitle,
+      orElse: () => '...',
+    );
 
     return ListView(
       padding: EdgeInsets.all(Dimensions.spacingLarge),
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
-        _buildSmartPointsCard(context),
+        _buildPremiumVirtualCard(currentLevelTitle),
         SizedBox(height: Dimensions.spacingExtraLarge),
 
-        _buildRewardsEntryBanner(context),
+        _buildQuickActionsGrid(context),
         SizedBox(height: Dimensions.spacingExtraLarge),
 
-        _buildSectionHeader(l10n.pointsHistory, () {
-          _logger.info('Navigate to Points History');
-          context.push(RoutePaths.pointsHistory);
-        }),
-        SizedBox(height: Dimensions.spacingMedium),
-        pointsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) {
-            _logger.severe('Failed to load dashboard points', err, stack);
-            return const SizedBox.shrink();
-          },
-          data: (paginated) => _buildPointsList(paginated.results, context),
-        ),
+        _buildGamifiedTrackPortal(context),
 
-        SizedBox(height: Dimensions.spacingExtraLarge * 3),
+        // ARCHITECTURE FIX: Removed the entire Points History List logic
+        // to respect SRP (Single Responsibility Principle) and maintain a Clean UI.
+        SizedBox(height: Dimensions.spacingExtraLarge * 2),
       ],
     );
   }
 
-  /// Unified Premium Card with Smart Lifetime vs Spendable Separation
-  Widget _buildSmartPointsCard(BuildContext context) {
+  /// Masterpiece: Softened Virtual Card with beautifully integrated watermark
+  Widget _buildPremiumVirtualCard(String currentLevelTitle) {
+    final bool isRTL = Directionality.of(context) == TextDirection.rtl;
+
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(Dimensions.spacingLarge),
       decoration: BoxDecoration(
-        color: colors.surface,
+        gradient: LinearGradient(
+          colors: [
+            widget.colors.primary.withValues(alpha: 0.8),
+            widget.colors.primary.withValues(alpha: 0.6),
+          ],
+          begin: isRTL ? Alignment.topRight : Alignment.topLeft,
+          end: isRTL ? Alignment.bottomLeft : Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge * 1.5),
-        border: Border.all(color: colors.iconGrey.withOpacity(0.1)),
         boxShadow: [
           BoxShadow(
-            color: colors.shadow.withOpacity(0.04),
-            blurRadius: Dimensions.spacingExtraLarge,
-            offset: Offset(0, Dimensions.spacingMedium),
+            color: widget.colors.primary.withValues(alpha: 0.2),
+            blurRadius: 25,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Spendable Points Section (Primary Actionable Balance)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.spendablePoints,
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: colors.textSecondary,
-                  fontSize: Dimensions.fontBodyMedium,
-                ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge * 1.5),
+        child: Stack(
+          children: [
+            Positioned(
+              right: isRTL ? null : 0,
+              left: isRTL ? 0 : null,
+              bottom: -20,
+              child: Icon(
+                Icons.toll_rounded,
+                size: Dimensions.iconLarge * 6,
+                color: widget.colors.surface.withValues(alpha: 0.08),
               ),
-              Container(
-                padding: EdgeInsets.all(Dimensions.spacingSmall),
-                decoration: BoxDecoration(
-                  color: colors.primary.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.stars_rounded,
-                  color: colors.primary,
-                  size: Dimensions.iconMedium,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: Dimensions.spacingTiny),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                wallet.spendablePoints.toString(),
-                style: TextStyle(
-                  fontSize: Dimensions.fontHeading1 * 1.5,
-                  fontWeight: FontWeight.w900,
-                  color: colors.textPrimary,
-                  letterSpacing: -1.0,
-                ),
-              ),
-              SizedBox(width: Dimensions.spacingSmall),
-              Text(
-                l10n.pts,
-                style: TextStyle(
-                  fontSize: Dimensions.fontBodyLarge,
-                  fontWeight: FontWeight.bold,
-                  color: colors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: Dimensions.spacingMedium),
-
-          // Lifetime Points Section (Informational)
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: Dimensions.spacingMedium,
-              vertical: Dimensions.spacingSmall,
             ),
-            decoration: BoxDecoration(
-              color: colors.iconGrey.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(Dimensions.radiusPill),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.military_tech_rounded,
-                  color: colors.textSecondary,
-                  size: Dimensions.iconSmall,
-                ),
-                SizedBox(width: Dimensions.spacingTiny),
-                Text(
-                  '${l10n.lifetimePointsTitle} ${wallet.lifetimePoints} ${l10n.lifetimePointsDesc}',
-                  style: TextStyle(
-                    fontSize: Dimensions.fontBodySmall * 0.9,
-                    fontWeight: FontWeight.w600,
-                    color: colors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(height: Dimensions.spacingExtraLarge),
-
-          // Interactive Tier Progress Box (Navigates to Roadmap)
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                _logger.info(
-                  'User navigating to Gamified Track Screen via Tier Box',
-                );
-                context.push(RoutePaths.gamifiedTrack);
-              },
-              borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-              splashColor: colors.primary.withOpacity(0.1),
-              highlightColor: colors.primary.withOpacity(0.05),
-              child: Ink(
-                padding: EdgeInsets.all(Dimensions.spacingMedium),
-                decoration: BoxDecoration(
-                  color: colors.background,
-                  borderRadius: BorderRadius.circular(
-                    Dimensions.borderRadiusLarge,
-                  ),
-                  border: Border.all(color: colors.primary.withOpacity(0.1)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.workspace_premium_rounded,
-                          color: colors.star,
-                          size: Dimensions.iconMedium,
-                        ),
-                        SizedBox(width: Dimensions.spacingMedium),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.currentTier,
-                                style: TextStyle(
-                                  fontSize: Dimensions.fontBodySmall,
-                                  color: colors.textSecondary,
-                                ),
-                              ),
-                              Text(
-                                wallet.nextMilestone?.title ?? "MAX TIER",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  color: colors.textPrimary,
-                                ),
-                              ),
-                            ],
+            Padding(
+              padding: EdgeInsets.all(Dimensions.spacingExtraLarge),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.stars_rounded,
+                            color: widget.colors.surface.withValues(alpha: 0.8),
+                            size: Dimensions.iconMedium,
                           ),
-                        ),
-                        Text(
-                          l10n.viewRoadmap,
-                          style: TextStyle(
-                            fontSize: Dimensions.fontBodySmall,
-                            fontWeight: FontWeight.w800,
-                            color: colors.primary,
+                          SizedBox(width: Dimensions.spacingSmall),
+                          Text(
+                            widget.l10n.virtualCardTitle,
+                            style: TextStyle(
+                              color: widget.colors.surface.withValues(
+                                alpha: 0.9,
+                              ),
+                              fontSize: Dimensions.fontBodyMedium,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: Dimensions.spacingTiny),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          color: colors.primary,
-                          size: Dimensions.iconMedium,
-                        ),
-                      ],
-                    ),
-                    if (wallet.nextMilestone != null) ...[
-                      SizedBox(height: Dimensions.spacingMedium),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                          Dimensions.radiusPill,
-                        ),
-                        child: LinearProgressIndicator(
-                          value: wallet.nextMilestone!.progressPct / 100,
-                          backgroundColor: colors.iconGrey.withOpacity(0.1),
-                          color: colors.primary,
-                          minHeight: 8,
-                        ),
+                        ],
                       ),
-                      SizedBox(height: Dimensions.spacingSmall),
-                      Text(
-                        '${wallet.nextMilestone!.requiredPoints - wallet.lifetimePoints} ${l10n.pointsToNextTier} ${wallet.nextMilestone!.title}',
-                        style: TextStyle(
-                          fontSize: Dimensions.fontBodySmall,
-                          color: colors.textSecondary,
-                          fontWeight: FontWeight.w600,
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Dimensions.spacingMedium,
+                          vertical: Dimensions.spacingTiny,
+                        ),
+                        decoration: BoxDecoration(
+                          color: widget.colors.surface.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.radiusPill,
+                          ),
+                          border: Border.all(
+                            color: widget.colors.surface.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Text(
+                          currentLevelTitle.toUpperCase(),
+                          style: TextStyle(
+                            color: widget.colors.surface,
+                            fontSize: Dimensions.fontBodySmall,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.2,
+                          ),
                         ),
                       ),
                     ],
-                  ],
-                ),
+                  ),
+                  SizedBox(height: Dimensions.spacingExtraLarge * 1.2),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          widget.wallet.spendablePoints.toString(),
+                          style: TextStyle(
+                            fontSize: Dimensions.fontHeading1 * 2,
+                            fontWeight: FontWeight.w900,
+                            color: widget.colors.surface,
+                            letterSpacing: -1.0,
+                          ),
+                        ),
+                        SizedBox(width: Dimensions.spacingSmall),
+                        Text(
+                          widget.l10n.pts,
+                          style: TextStyle(
+                            fontSize: Dimensions.fontTitleMedium,
+                            fontWeight: FontWeight.w700,
+                            color: widget.colors.surface.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: Dimensions.spacingExtraLarge),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.military_tech_rounded,
+                        color: widget.colors.star,
+                        size: Dimensions.iconMedium,
+                      ),
+                      SizedBox(width: Dimensions.spacingSmall),
+                      Expanded(
+                        child: Text(
+                          '${widget.l10n.lifetimePointsTitle} ${widget.wallet.lifetimePoints}',
+                          style: TextStyle(
+                            color: widget.colors.surface.withValues(alpha: 0.9),
+                            fontSize: Dimensions.fontBodySmall,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Tooltip(
+                        message: widget.l10n.lifetimePointsDesc,
+                        triggerMode: TooltipTriggerMode.tap,
+                        decoration: BoxDecoration(
+                          color: widget.colors.surface,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        textStyle: TextStyle(
+                          color: widget.colors.textPrimary,
+                          fontSize: Dimensions.fontBodyMedium,
+                        ),
+                        child: Icon(
+                          Icons.info_outline_rounded,
+                          size: Dimensions.iconSmall,
+                          color: widget.colors.surface.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          ),
+          ],
+        ),
+      ),
+    );
+  }
 
-          SizedBox(height: Dimensions.spacingLarge),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                _logger.info('User clicked: Buy Points');
-                context.push(RoutePaths.buyPoints);
-              },
-              icon: Icon(
-                Icons.add_shopping_cart_rounded,
-                color: colors.surface,
-                size: Dimensions.iconMedium,
+  Widget _buildQuickActionsGrid(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildActionItem(
+          icon: Icons.add_shopping_cart_rounded,
+          label: widget.l10n.quickActionBuy,
+          color: widget.colors.primary,
+          onTap: () {
+            _logger.info('Navigate to Buy Points');
+            context.push(RoutePaths.buyPoints);
+          },
+        ),
+        _buildActionItem(
+          icon: Icons.card_giftcard_rounded,
+          label: widget.l10n.quickActionRewards,
+          color: widget.colors.success,
+          onTap: () {
+            _logger.info('Navigate to Rewards Wallet');
+            context.push(RoutePaths.rewardsHistory);
+          },
+        ),
+        _buildActionItem(
+          icon: Icons.history_rounded,
+          label: widget.l10n.quickActionHistory,
+          color: widget.colors.warning,
+          onTap: () {
+            _logger.info('Navigate to Points History');
+            context.push(RoutePaths.pointsHistory);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionItem({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: EdgeInsets.all(Dimensions.spacingLarge),
+            decoration: BoxDecoration(
+              color: widget.colors.surface,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: widget.colors.iconGrey.withValues(alpha: 0.1),
               ),
-              label: Text(
-                l10n.buyPoints,
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                  fontSize: Dimensions.fontTitleMedium,
+              boxShadow: [
+                BoxShadow(
+                  color: widget.colors.shadow.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colors.primary,
-                foregroundColor: colors.surface,
-                padding: EdgeInsets.symmetric(
-                  vertical: Dimensions.spacingMedium,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(Dimensions.radiusPill),
-                ),
-                elevation: 0,
-              ),
+              ],
+            ),
+            child: Icon(icon, color: color, size: Dimensions.iconLarge),
+          ),
+          SizedBox(height: Dimensions.spacingSmall),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: Dimensions.fontBodySmall,
+              fontWeight: FontWeight.w700,
+              color: widget.colors.textSecondary,
             ),
           ),
         ],
@@ -302,25 +344,30 @@ class PointsDashboardSection extends ConsumerWidget {
     );
   }
 
-  /// Sleek entry banner replacing the cluttered rewards list
-  Widget _buildRewardsEntryBanner(BuildContext context) {
+  Widget _buildGamifiedTrackPortal(BuildContext context) {
+    final int unlockedCount = widget.wallet.unlockedRewardsCount;
+
     return GestureDetector(
       onTap: () {
-        _logger.info('Navigate to Rewards History');
-        context.push(RoutePaths.rewardsHistory);
+        _logger.info('Navigate to Gamified Track');
+        context.push(RoutePaths.gamifiedTrack);
       },
       child: Container(
         padding: EdgeInsets.all(Dimensions.spacingLarge),
         decoration: BoxDecoration(
-          color: colors.surface,
+          color: widget.colors.surface,
           borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           border: Border.all(
-            color: colors.success.withOpacity(0.3),
-            width: 1.5,
+            color: unlockedCount > 0
+                ? widget.colors.error.withValues(alpha: 0.3)
+                : widget.colors.iconGrey.withValues(alpha: 0.1),
+            width: unlockedCount > 0 ? 1.5 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: colors.success.withOpacity(0.05),
+              color: unlockedCount > 0
+                  ? widget.colors.error.withValues(alpha: 0.05)
+                  : widget.colors.shadow.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -331,12 +378,12 @@ class PointsDashboardSection extends ConsumerWidget {
             Container(
               padding: EdgeInsets.all(Dimensions.spacingMedium),
               decoration: BoxDecoration(
-                color: colors.success.withOpacity(0.1),
-                shape: BoxShape.circle,
+                color: widget.colors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(Dimensions.borderRadius),
               ),
               child: Icon(
-                Icons.card_giftcard_rounded,
-                color: colors.success,
+                Icons.map_rounded,
+                color: widget.colors.primary,
                 size: Dimensions.iconLarge,
               ),
             ),
@@ -346,177 +393,61 @@ class PointsDashboardSection extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    l10n.myRewards,
+                    widget.l10n.goToTrackBannerTitle,
                     style: TextStyle(
                       fontSize: Dimensions.fontTitleMedium,
                       fontWeight: FontWeight.w900,
-                      color: colors.textPrimary,
+                      color: widget.colors.textPrimary,
                     ),
                   ),
                   SizedBox(height: Dimensions.spacingTiny),
-                  Text(
-                    l10n.myRewardsDesc,
-                    style: TextStyle(
-                      fontSize: Dimensions.fontBodySmall,
-                      color: colors.textSecondary,
+                  if (unlockedCount > 0)
+                    Text(
+                      widget.l10n.unlockedRewardsBadge(
+                        unlockedCount.toString(),
+                      ),
+                      style: TextStyle(
+                        fontSize: Dimensions.fontBodySmall,
+                        fontWeight: FontWeight.bold,
+                        color: widget.colors.error,
+                      ),
+                    )
+                  else
+                    Text(
+                      widget.l10n.goToTrackBannerSubtitle,
+                      style: TextStyle(
+                        fontSize: Dimensions.fontBodySmall,
+                        color: widget.colors.textSecondary,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: colors.success,
-              size: Dimensions.iconMedium,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title, VoidCallback onSeeAll) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: Dimensions.fontTitleMedium,
-            fontWeight: FontWeight.w800,
-            color: colors.textPrimary,
-          ),
-        ),
-        TextButton(
-          onPressed: onSeeAll,
-          child: Text(
-            l10n.seeAll,
-            style: TextStyle(
-              fontWeight: FontWeight.w800,
-              color: colors.primary,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPointsList(
-    List<PointsTransaction> transactions,
-    BuildContext context,
-  ) {
-    if (transactions.isEmpty) {
-      return _buildEmptyState(l10n.noTransactions, Icons.toll_rounded);
-    }
-
-    final String currentLocale = Localizations.localeOf(context).languageCode;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
-        border: Border.all(color: colors.iconGrey.withOpacity(0.1)),
-      ),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: transactions.length,
-        separatorBuilder: (context, index) => Divider(
-          height: 1,
-          color: colors.iconGrey.withOpacity(0.1),
-          indent: Dimensions.spacingExtraLarge * 2,
-        ),
-        itemBuilder: (context, index) {
-          final tx = transactions[index];
-          final bool isEarn = tx.type == 'earn';
-          final DateTime date =
-              DateTime.tryParse(tx.createdAt)?.toLocal() ?? DateTime.now();
-
-          return Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: Dimensions.spacingLarge,
-              vertical: Dimensions.spacingMedium,
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(Dimensions.spacingMedium),
+            if (unlockedCount > 0)
+              ScaleTransition(
+                scale: _pulseAnimation,
+                child: Container(
+                  padding: EdgeInsets.all(Dimensions.spacingSmall),
                   decoration: BoxDecoration(
-                    color: isEarn
-                        ? colors.success.withOpacity(0.1)
-                        : colors.warning.withOpacity(0.1),
+                    color: widget.colors.error,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    isEarn ? Icons.add_rounded : Icons.remove_rounded,
-                    color: isEarn ? colors.success : colors.warning,
-                    size: Dimensions.iconMedium,
+                  child: Text(
+                    unlockedCount.toString(),
+                    style: TextStyle(
+                      color: widget.colors.surface,
+                      fontWeight: FontWeight.w900,
+                      fontSize: Dimensions.fontBodySmall,
+                    ),
                   ),
                 ),
-                SizedBox(width: Dimensions.spacingMedium),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        tx.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: Dimensions.fontBodyMedium,
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                      SizedBox(height: Dimensions.spacingTiny),
-                      Text(
-                        DateFormat(
-                          'MMM dd, yyyy • hh:mm a',
-                          currentLocale,
-                        ).format(date),
-                        style: TextStyle(
-                          fontSize: Dimensions.fontBodySmall,
-                          color: colors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  '${isEarn ? '+' : '-'}${tx.amount}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: Dimensions.fontBodyLarge,
-                    color: isEarn ? colors.success : colors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(String text, IconData icon) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(Dimensions.spacingLarge),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: colors.iconGrey.withOpacity(0.3),
-              size: Dimensions.iconLarge * 2,
-            ),
-            SizedBox(height: Dimensions.spacingSmall),
-            Text(
-              text,
-              style: TextStyle(
-                color: colors.textSecondary,
-                fontWeight: FontWeight.w600,
+              )
+            else
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: widget.colors.iconGrey,
+                size: Dimensions.iconMedium,
               ),
-            ),
           ],
         ),
       ),

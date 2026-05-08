@@ -395,5 +395,23 @@
   "bogoDiscount": "Buy 1 Get 1 Free",
   "freeItem": "Free Item",
   "rewardValue": "Reward Value:",
-  "nextTier":"Next Tier"
+  "nextTier":"Next Tier",
+  "virtualCardTitle": "Available Points Balance",
+  "quickActionBuy": "Buy",
+  "quickActionRewards": "Rewards",
+  "quickActionHistory": "History",
+  "goToTrackBannerTitle": "Gamified Track",
+  "goToTrackBannerSubtitle": "Check your level and claim rewards",
+  "unlockedRewardsBadge": "You have {count} waiting rewards!",
+  "@unlockedRewardsBadge": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "editBankAccount": "Edit Bank Account",
+  "manageYourBank": "Manage your approved bank account for withdrawals",
+  "maxTierAchievedTitle": "Max Tier Achieved",
+  "maxTierAchievedDesc": "You have reached the top of our loyalty program! Enjoy your exclusive rewards."
 }
