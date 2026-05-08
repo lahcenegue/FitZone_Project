@@ -2347,6 +2347,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reward Value:'**
   String get rewardValue;
+
+  /// No description provided for @nextTier.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Tier'**
+  String get nextTier;
 }
 
 class _AppLocalizationsDelegate

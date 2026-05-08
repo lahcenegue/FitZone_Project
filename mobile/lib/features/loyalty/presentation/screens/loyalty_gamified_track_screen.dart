@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -334,7 +333,7 @@ class _LoyaltyGamifiedTrackScreenState
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      l10n.pointsToNextMilestone,
+                      l10n.nextTier,
                       style: TextStyle(
                         fontSize: Dimensions.fontBodySmall,
                         color: colors.textSecondary,

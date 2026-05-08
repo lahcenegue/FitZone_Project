@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -49,7 +50,6 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
 
       _logger.info('Reward claimed successfully: ${widget.milestone.id}');
 
-      // ARCHITECTURE FIX: Invalidate to remove linter warnings while still forcing UI updates
       ref.invalidate(loyaltyRoadmapProvider);
       ref.invalidate(loyaltyWalletProvider);
       ref.invalidate(allUserMilestonesProvider);
@@ -57,7 +57,7 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
       ref.invalidate(rewardsSummaryProvider);
 
       if (mounted) {
-        Navigator.pop(context); // Close BottomSheet
+        Navigator.pop(context);
 
         showDialog(
           context: context,
@@ -121,7 +121,6 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
           ),
           SizedBox(height: Dimensions.spacingExtraLarge),
 
-          // Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -150,7 +149,6 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
           ),
           SizedBox(height: Dimensions.spacingExtraLarge),
 
-          // Title & Status Desc
           Text(
             isLocked
                 ? widget.l10n.trackLockedTitle
@@ -180,13 +178,11 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
           ),
           SizedBox(height: Dimensions.spacingExtraLarge),
 
-          // ARCHITECTURE FIX: Route to appropriate UI based on reward type
           if (widget.milestone.reward != null)
             _buildSmartTeaser(widget.milestone.reward!),
 
           SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
-          // Primary Action
           if (isLocked)
             Container(
               width: double.infinity,
@@ -292,7 +288,6 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
     );
   }
 
-  /// Masterpiece: Smart UI Routing (Services vs Coupons)
   Widget _buildSmartTeaser(LoyaltyReward reward) {
     if (reward.actionType == 'sys_roaming' ||
         reward.actionType == 'sys_extension' ||
@@ -303,7 +298,7 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
     }
   }
 
-  /// Premium non-ticket design for Extensions and Roaming Passes
+  /// ARCHITECTURE FIX: Clean, eye-friendly flat design for services without harsh gradients
   Widget _buildPremiumServiceTeaser(LoyaltyReward reward) {
     final bool isRoaming = reward.actionType == 'sys_roaming';
     final IconData serviceIcon = isRoaming
@@ -317,21 +312,16 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
       width: double.infinity,
       padding: EdgeInsets.all(Dimensions.spacingLarge),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [serviceColor.withValues(alpha: 0.15), widget.colors.surface],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: widget.colors.surface,
         borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
         border: Border.all(
-          color: serviceColor.withValues(alpha: 0.3),
-          width: 1.5,
+          color: widget.colors.iconGrey.withValues(alpha: 0.15),
         ),
         boxShadow: [
           BoxShadow(
-            color: serviceColor.withValues(alpha: 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            color: widget.colors.shadow.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -340,9 +330,8 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
           Container(
             padding: EdgeInsets.all(Dimensions.spacingMedium),
             decoration: BoxDecoration(
-              color: serviceColor.withValues(alpha: 0.2),
+              color: serviceColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
-              border: Border.all(color: serviceColor.withValues(alpha: 0.5)),
             ),
             child: Icon(
               serviceIcon,
@@ -382,68 +371,74 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
     );
   }
 
-  /// Refined Ticket Design ensuring large text fits cleanly without overflow
+  /// ARCHITECTURE FIX: Clean, minimalist ticket using ONLY AppColors with very low opacity
   Widget _buildResponsiveCouponTicket(LoyaltyReward reward) {
     Color ticketColor;
     IconData ticketIcon;
     String displayValue;
 
+    // Mapping using AppColors strictly
     switch (reward.couponType) {
       case 'free_shipping':
-        ticketColor = const Color(0xFF10B981); // Emerald
+        ticketColor = widget.colors.success;
         ticketIcon = Icons.local_shipping_rounded;
         displayValue = widget.l10n.freeShipping;
         break;
       case 'bogo':
-        ticketColor = const Color(0xFF8B5CF6); // Purple
+        ticketColor = widget.colors.primary;
         ticketIcon = Icons.join_inner_rounded;
         displayValue = widget.l10n.bogoDiscount;
         break;
       case 'free_item':
-        ticketColor = const Color(0xFFEC4899); // Pink
+        ticketColor = widget.colors.warning;
         ticketIcon = Icons.card_giftcard_rounded;
         displayValue = widget.l10n.freeItem;
         break;
       case 'percentage':
-        ticketColor = const Color(0xFFF59E0B); // Amber
+        ticketColor = widget.colors.warning;
         ticketIcon = Icons.percent_rounded;
         displayValue = '${reward.discountValue?.toStringAsFixed(0) ?? 0}%';
         break;
       case 'fixed_amount':
-        ticketColor = const Color(0xFF3B82F6); // Blue
+        ticketColor = widget.colors.primary;
         ticketIcon = Icons.attach_money_rounded;
         displayValue =
-            '${reward.discountValue?.toStringAsFixed(0) ?? 0} ${widget.l10n.currency}'; // Dynamic Currency
+            '${reward.discountValue?.toStringAsFixed(0) ?? 0} ${widget.l10n.currency}';
         break;
       default:
         ticketColor = widget.colors.primary;
-        ticketIcon = Icons.stars_rounded;
+        ticketIcon = Icons.local_offer_rounded;
         displayValue = reward.name;
     }
 
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: ticketColor.withValues(alpha: 0.05),
+        color: widget.colors.surface,
         borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
         border: Border.all(
-          color: ticketColor.withValues(alpha: 0.3),
-          width: 1.5,
+          color: widget.colors.iconGrey.withValues(alpha: 0.15),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: widget.colors.shadow.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      // ARCHITECTURE FIX: IntrinsicHeight ensures dashed line adjusts automatically to text wrap
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Left Ticket Stub
+            // Left Ticket Stub (Very Soft Background)
             Container(
               padding: EdgeInsets.symmetric(
                 horizontal: Dimensions.spacingLarge,
                 vertical: Dimensions.spacingMedium,
               ),
               decoration: BoxDecoration(
-                color: ticketColor,
+                color: ticketColor.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.horizontal(
                   left: Radius.circular(
                     Localizations.localeOf(context).languageCode == 'ar'
@@ -460,14 +455,14 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
               child: Center(
                 child: Icon(
                   ticketIcon,
-                  color: widget.colors.surface,
+                  color: ticketColor,
                   size: Dimensions.iconLarge * 1.5,
                 ),
               ),
             ),
 
             // Dashed Cutline
-            Container(
+            SizedBox(
               width: 2,
               child: Flex(
                 direction: Axis.vertical,
@@ -479,7 +474,7 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
                     height: 4,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        color: ticketColor.withValues(alpha: 0.5),
+                        color: widget.colors.iconGrey.withValues(alpha: 0.2),
                       ),
                     ),
                   ),
@@ -495,7 +490,6 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // ARCHITECTURE FIX: FittedBox prevents long text like "Buy 1 Get 1 Free" from overflowing
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: AlignmentDirectional.centerStart,

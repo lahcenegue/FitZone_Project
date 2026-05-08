@@ -395,6 +395,7 @@
   "percentageDiscount": "خصم نسبة مئوية",
   "bogoDiscount": "اشتر 1 واحصل على 1 مجاناً",
   "freeItem": "منتج مجاني",
-  "rewardValue": "قيمة المكافأة:"
+  "rewardValue": "قيمة المكافأة:",
+  "nextTier":"المستوى التالي"
 
 }

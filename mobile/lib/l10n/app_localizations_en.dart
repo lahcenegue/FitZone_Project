@@ -1183,4 +1183,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rewardValue => 'Reward Value:';
+
+  @override
+  String get nextTier => 'Next Tier';
 }

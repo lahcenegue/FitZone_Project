@@ -394,5 +394,6 @@
   "percentageDiscount": "Percentage Discount",
   "bogoDiscount": "Buy 1 Get 1 Free",
   "freeItem": "Free Item",
-  "rewardValue": "Reward Value:"
+  "rewardValue": "Reward Value:",
+  "nextTier":"Next Tier"
 }

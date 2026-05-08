@@ -1161,4 +1161,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rewardValue => 'قيمة المكافأة:';
+
+  @override
+  String get nextTier => 'المستوى التالي';
 }

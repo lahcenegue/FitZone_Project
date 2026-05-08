@@ -242,7 +242,6 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
                 ),
               SizedBox(height: Dimensions.spacingExtraLarge * 1.5),
 
-              // Visual Avatar, Pre-claim details, or Dynamic Payload UI
               if (_isUnboxing)
                 _buildUnboxingAnimation()
               else if (widget.isFromWallet &&
@@ -333,11 +332,9 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
     );
   }
 
-  /// Builds the pre-claim details if available, otherwise just a static icon
   Widget _buildPreClaimOrStaticIcon(bool isUnlocked, bool isConsumed) {
     final reward = widget.milestone.reward;
 
-    // ARCHITECTURE FIX: Display reward value proactively if available before claiming
     if (isUnlocked &&
         !isConsumed &&
         reward != null &&
@@ -349,11 +346,11 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
           color: widget.colors.surface,
           borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           border: Border.all(
-            color: widget.colors.primary.withValues(alpha: 0.2),
+            color: widget.colors.iconGrey.withValues(alpha: 0.15),
           ),
           boxShadow: [
             BoxShadow(
-              color: widget.colors.shadow.withValues(alpha: 0.05),
+              color: widget.colors.shadow.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -424,7 +421,7 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
   Widget _buildDynamicPayloadUI(RewardPayload payload) {
     switch (payload.fulfillmentType) {
       case 'coupon':
-        return _buildPremiumCouponUI(payload);
+        return _buildCleanCouponUI(payload);
       case 'roaming_pass':
         return _buildRoamingPassUI(payload.qrCodeSignature ?? '');
       case 'subscription_extension':
@@ -435,8 +432,8 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
     }
   }
 
-  /// Premium Minimalist Ticket Design (Out of the box)
-  Widget _buildPremiumCouponUI(RewardPayload payload) {
+  /// ARCHITECTURE FIX: Minimalist, clean ticket design using proper spacing and low opacity
+  Widget _buildCleanCouponUI(RewardPayload payload) {
     final String currentLocale = Localizations.localeOf(context).languageCode;
     final String code = payload.couponCode ?? '';
     final String formattedDate = payload.expiresAt != null
@@ -451,6 +448,7 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
       payload.discountValue ?? 0,
     );
     final IconData iconType = _getCouponIcon(payload.couponType);
+    final Color ticketColor = _getCouponColor(payload.couponType);
 
     return Container(
       width: double.infinity,
@@ -458,151 +456,160 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
         color: widget.colors.surface,
         borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
         border: Border.all(
-          color: widget.colors.iconGrey.withValues(alpha: 0.1),
+          color: widget.colors.iconGrey.withValues(alpha: 0.15),
         ),
         boxShadow: [
           BoxShadow(
-            color: widget.colors.shadow.withValues(alpha: 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            color: widget.colors.shadow.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          // Left Side: Brand Accent & Icon
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: Dimensions.spacingLarge,
-              vertical: Dimensions.spacingExtraLarge,
-            ),
-            decoration: BoxDecoration(
-              color: widget.colors.primary.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.horizontal(
-                left: Radius.circular(
-                  currentLocale == 'ar' ? 0 : Dimensions.borderRadiusLarge,
-                ),
-                right: Radius.circular(
-                  currentLocale == 'ar' ? Dimensions.borderRadiusLarge : 0,
-                ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: Dimensions.spacingLarge,
+                vertical: Dimensions.spacingMedium,
               ),
-            ),
-            child: Icon(
-              iconType,
-              size: Dimensions.iconLarge * 1.5,
-              color: widget.colors.primary,
-            ),
-          ),
-
-          // Dashed Divider (Clean UI implementation)
-          Container(
-            height: 100,
-            width: 2,
-            child: Flex(
-              direction: Axis.vertical,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(
-                12,
-                (_) => SizedBox(
-                  width: 2,
-                  height: 4,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: widget.colors.iconGrey.withValues(alpha: 0.3),
-                    ),
+              decoration: BoxDecoration(
+                color: ticketColor.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.horizontal(
+                  left: Radius.circular(
+                    currentLocale == 'ar'
+                        ? 0
+                        : Dimensions.borderRadiusLarge - 2,
+                  ),
+                  right: Radius.circular(
+                    currentLocale == 'ar'
+                        ? Dimensions.borderRadiusLarge - 2
+                        : 0,
                   ),
                 ),
               ),
+              child: Center(
+                child: Icon(
+                  iconType,
+                  color: ticketColor,
+                  size: Dimensions.iconLarge * 1.5,
+                ),
+              ),
             ),
-          ),
 
-          // Right Side: Content & Action
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(Dimensions.spacingLarge),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    displayValue,
-                    style: TextStyle(
-                      fontSize: Dimensions.fontTitleLarge,
-                      fontWeight: FontWeight.w900,
-                      color: widget.colors.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: Dimensions.spacingTiny),
-                  if (formattedDate.isNotEmpty)
-                    Text(
-                      '${widget.l10n.expiresAt} $formattedDate',
-                      style: TextStyle(
-                        fontSize: Dimensions.fontBodySmall,
-                        color: widget.colors.textSecondary,
-                      ),
-                    ),
-                  SizedBox(height: Dimensions.spacingMedium),
-
-                  // Copy Code Button Area
-                  GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: code));
-                      _showSnackBar(
-                        widget.l10n.copiedSuccessfully,
-                        widget.colors.success,
-                      );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: Dimensions.spacingMedium,
-                        vertical: Dimensions.spacingSmall,
-                      ),
+            SizedBox(
+              width: 2,
+              child: Flex(
+                direction: Axis.vertical,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(
+                  15,
+                  (_) => SizedBox(
+                    width: 2,
+                    height: 4,
+                    child: DecoratedBox(
                       decoration: BoxDecoration(
-                        color: widget.colors.background,
-                        borderRadius: BorderRadius.circular(
-                          Dimensions.borderRadius,
-                        ),
-                        border: Border.all(
-                          color: widget.colors.primary.withValues(alpha: 0.2),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            code,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              color: widget.colors.textPrimary,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                          Icon(
-                            Icons.copy_rounded,
-                            size: Dimensions.iconSmall,
-                            color: widget.colors.primary,
-                          ),
-                        ],
+                        color: widget.colors.iconGrey.withValues(alpha: 0.2),
                       ),
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(Dimensions.spacingLarge),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        displayValue,
+                        style: TextStyle(
+                          fontSize: Dimensions.fontHeading2,
+                          fontWeight: FontWeight.w900,
+                          color: ticketColor,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: Dimensions.spacingTiny),
+                    if (formattedDate.isNotEmpty)
+                      Text(
+                        '${widget.l10n.expiresAt} $formattedDate',
+                        style: TextStyle(
+                          fontSize: Dimensions.fontBodySmall,
+                          color: widget.colors.textSecondary,
+                        ),
+                      ),
+                    SizedBox(height: Dimensions.spacingMedium),
+
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: code));
+                        _showSnackBar(
+                          widget.l10n.copiedSuccessfully,
+                          widget.colors.success,
+                        );
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Dimensions.spacingMedium,
+                          vertical: Dimensions.spacingSmall,
+                        ),
+                        decoration: BoxDecoration(
+                          color: widget.colors.background,
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.borderRadius,
+                          ),
+                          border: Border.all(
+                            color: widget.colors.iconGrey.withValues(
+                              alpha: 0.15,
+                            ),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              code,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                color: widget.colors.textPrimary,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            Icon(
+                              Icons.copy_rounded,
+                              size: Dimensions.iconSmall,
+                              color: widget.colors.primary,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  /// Builds a clickable QR code that expands to full screen
   Widget _buildRoamingPassUI(String qrData) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         GestureDetector(
-          onTap: () =>
-              _showFullScreenQr(qrData), // Interactive Fullscreen Trigger
+          onTap: () => _showFullScreenQr(qrData),
           child: Container(
             width: Dimensions.screenWidth * 0.5,
             padding: EdgeInsets.all(Dimensions.spacingMedium),
@@ -615,7 +622,7 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: widget.colors.primary.withValues(alpha: 0.1),
+                  color: widget.colors.primary.withValues(alpha: 0.05),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
@@ -666,11 +673,10 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
     );
   }
 
-  /// Full Screen QR Dialog for easy scanning by reception
   void _showFullScreenQr(String qrData) {
     showGeneralDialog(
       context: context,
-      barrierColor: Colors.white, // Pure white for scanner visibility
+      barrierColor: Colors.white,
       barrierDismissible: false,
       transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (context, animation, secondaryAnimation) {
@@ -769,7 +775,7 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
             color: widget.colors.surface,
             borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
             border: Border.all(
-              color: widget.colors.iconGrey.withValues(alpha: 0.3),
+              color: widget.colors.iconGrey.withValues(alpha: 0.15),
             ),
           ),
           child: DropdownButtonHideUnderline(
@@ -849,7 +855,6 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
       );
     }
 
-    // STRICT SEPARATION: If opened from Gamified Track
     if (!widget.isFromWallet) {
       if (status == 'claimed') {
         return _buildButtonWrapper(
@@ -873,7 +878,6 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
       }
     }
 
-    // STRICT SEPARATION: If opened from Rewards Wallet
     if (widget.isFromWallet &&
         status == 'claimed' &&
         widget.userMilestoneWallet?.rewardPayload != null) {
@@ -897,7 +901,6 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
         );
       }
 
-      // Hide the main button if the UI already handles the action (e.g., QR full screen or Copy code)
       if (payloadType == 'coupon' ||
           payloadType == 'roaming_pass' ||
           payloadType == 'manual') {
@@ -980,15 +983,14 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
     );
   }
 
-  // --- Helper Methods for Translating Coupon Types to UI Elements ---
-
   String _getCouponDisplayValue(String? type, double value) {
     if (type == 'free_shipping') return widget.l10n.freeShipping;
     if (type == 'bogo') return widget.l10n.bogoDiscount;
     if (type == 'free_item') return widget.l10n.freeItem;
-    if (type == 'percentage') return '${value.toStringAsFixed(0)}% OFF';
-    if (type == 'fixed_amount') return '\$${value.toStringAsFixed(2)} OFF';
-    return '${value.toStringAsFixed(0)}';
+    if (type == 'percentage') return '${value.toStringAsFixed(0)}%';
+    if (type == 'fixed_amount')
+      return '${value.toStringAsFixed(0)} ${widget.l10n.currency}';
+    return value.toStringAsFixed(0);
   }
 
   IconData _getCouponIcon(String? type) {
@@ -1005,6 +1007,23 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet>
         return Icons.attach_money_rounded;
       default:
         return Icons.local_offer_rounded;
+    }
+  }
+
+  Color _getCouponColor(String? type) {
+    switch (type) {
+      case 'free_shipping':
+        return widget.colors.success;
+      case 'bogo':
+        return widget.colors.primary;
+      case 'free_item':
+        return widget.colors.warning;
+      case 'percentage':
+        return widget.colors.warning;
+      case 'fixed_amount':
+        return widget.colors.primary;
+      default:
+        return widget.colors.primary;
     }
   }
 }

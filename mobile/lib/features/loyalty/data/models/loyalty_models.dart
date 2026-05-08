@@ -338,7 +338,7 @@ class BankAccount {
 class NextMilestone {
   final String title;
   final int requiredPoints;
-  final int pointsToNextMilestone; // ARCHITECTURE FIX: Added mapping
+  final int pointsToNextMilestone;
   final double progressPct;
 
   const NextMilestone({
