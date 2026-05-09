@@ -55,7 +55,8 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet> {
       ref.invalidate(rewardsSummaryProvider);
 
       if (mounted) {
-        Navigator.pop(context);
+        // ARCHITECTURE FIX: Return true to signal the parent screen to refresh local data
+        Navigator.pop(context, true);
         _showSnackBar(widget.l10n.rewardConsumedSuccess, widget.colors.success);
       }
     } catch (e, stackTrace) {
@@ -188,33 +189,6 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet> {
                   fontWeight: FontWeight.w700,
                   color: widget.colors.textPrimary,
                   height: 1.5,
-                ),
-              ),
-              SizedBox(height: Dimensions.spacingMedium),
-
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Dimensions.spacingMedium,
-                  vertical: Dimensions.spacingTiny,
-                ),
-                decoration: BoxDecoration(
-                  color: isConsumed
-                      ? widget.colors.iconGrey.withValues(alpha: 0.1)
-                      : widget.colors.success.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(Dimensions.radiusPill),
-                ),
-                child: Text(
-                  isConsumed
-                      ? widget.l10n.consumedDesc
-                      : widget.l10n.claimedDesc,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: Dimensions.fontBodySmall,
-                    fontWeight: FontWeight.w800,
-                    color: isConsumed
-                        ? widget.colors.textSecondary
-                        : widget.colors.success,
-                  ),
                 ),
               ),
 
@@ -660,7 +634,6 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet> {
     );
   }
 
-  // ARCHITECTURE FIX: Integrated branchLogo elegantly into the Interactive Carousel.
   Widget _buildPremiumHorizontalExtensionUI() {
     final subscriptionsAsync = ref.watch(mySubscriptionsProvider);
 
@@ -725,7 +698,6 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet> {
                 ),
               ),
             ),
-            // Adjusted height to accommodate images gracefully
             SizedBox(
               height: Dimensions.iconLarge * 3.8,
               child: ListView.separated(
@@ -774,7 +746,6 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet> {
                       ),
                       child: Row(
                         children: [
-                          // ARCHITECTURE FIX: Robust image fetching with loading/error handling
                           Container(
                             width: Dimensions.iconLarge * 2.2,
                             height: Dimensions.iconLarge * 2.2,

@@ -14,7 +14,7 @@ import '../providers/loyalty_dashboard_providers.dart';
 import '../widgets/dynamic_filter_row.dart';
 import '../widgets/stat_summary_card.dart';
 import '../widgets/loyalty_reward_sheet.dart';
-import '../widgets/premium_history_card.dart'; // IMPORTED REUSABLE WIDGET
+import '../widgets/premium_history_card.dart';
 
 class RewardsHistoryScreen extends ConsumerStatefulWidget {
   const RewardsHistoryScreen({super.key});
@@ -50,6 +50,16 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  String _normalizeNumbers(String input) {
+    const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    String result = input;
+    for (int i = 0; i < english.length; i++) {
+      result = result.replaceAll(arabic[i], english[i]);
+    }
+    return result;
   }
 
   void _onScroll() {
@@ -131,10 +141,12 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
   Widget build(BuildContext context) {
     final AppColors colors = ref.watch(appThemeProvider);
     final AppLocalizations l10n = AppLocalizations.of(context)!;
+    final String currentLocale = Localizations.localeOf(context).languageCode;
 
+    // ARCHITECTURE FIX: Changed 'claimed' to 'active' to match the backend API expectations
     final Map<String, String> filterOptions = {
       'all': l10n.all,
-      'claimed': l10n.rewardAvailable,
+      'active': l10n.rewardAvailable,
       'consumed': l10n.rewardConsumed,
     };
 
@@ -228,10 +240,12 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
                       final DateTime earnedDate =
                           DateTime.tryParse(dateString)?.toLocal() ??
                           DateTime.now();
-                      final String formattedDate = DateFormat(
+
+                      final String rawDate = DateFormat(
                         'MMM dd, yyyy',
-                        Localizations.localeOf(context).languageCode,
+                        currentLocale,
                       ).format(earnedDate);
+                      final String formattedDate = _normalizeNumbers(rawDate);
 
                       final Color statusColor = reward.isConsumed
                           ? colors.iconGrey
@@ -243,7 +257,6 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
                           ? Icons.check_circle_rounded
                           : Icons.card_giftcard_rounded;
 
-                      // ARCHITECTURE FIX: Using the DRY PremiumHistoryCard
                       return PremiumHistoryCard(
                         title:
                             reward.milestone.reward?.name ??
@@ -253,17 +266,23 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
                         icon: icon,
                         color: statusColor,
                         colors: colors,
-                        onTap: () {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: Colors.transparent,
-                            builder: (ctx) => LoyaltyRewardSheet(
-                              userMilestone: reward,
-                              colors: colors,
-                              l10n: l10n,
-                            ),
-                          );
+                        // ARCHITECTURE FIX: Awaiting the BottomSheet result to trigger local refresh upon consumption
+                        onTap: () async {
+                          final bool? shouldRefresh =
+                              await showModalBottomSheet<bool>(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (ctx) => LoyaltyRewardSheet(
+                                  userMilestone: reward,
+                                  colors: colors,
+                                  l10n: l10n,
+                                ),
+                              );
+
+                          if (shouldRefresh == true && mounted) {
+                            _fetchRewards(refresh: true);
+                          }
                         },
                       );
                     }, childCount: _rewards.length + (_hasMore ? 1 : 0)),
