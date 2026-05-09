@@ -8,15 +8,12 @@ part of 'register_form_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Manages the state and localized validation logic of the registration form.
 
 @ProviderFor(RegisterForm)
 final registerFormProvider = RegisterFormProvider._();
 
-/// Manages the state and localized validation logic of the registration form.
 final class RegisterFormProvider
     extends $NotifierProvider<RegisterForm, RegisterFormState> {
-  /// Manages the state and localized validation logic of the registration form.
   RegisterFormProvider._()
     : super(
         from: null,
@@ -45,8 +42,6 @@ final class RegisterFormProvider
 }
 
 String _$registerFormHash() => r'55865d885095d38217e4cbda764217bb443d7d68';
-
-/// Manages the state and localized validation logic of the registration form.
 
 abstract class _$RegisterForm extends $Notifier<RegisterFormState> {
   RegisterFormState build();

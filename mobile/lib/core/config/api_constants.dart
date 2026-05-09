@@ -4,6 +4,10 @@ class ApiConstants {
 
   static const String baseUrl = 'http://10.0.2.2:8000/api/v1';
 
+  // ARCHITECTURE FIX: Centralized Timeouts to avoid Magic Numbers
+  static const Duration connectTimeout = Duration(seconds: 15);
+  static const Duration receiveTimeout = Duration(seconds: 15);
+
   // --- Auth & User Profile ---
   static const String register = '/users/register/';
   static const String verifyEmail = '/users/verify-email/';
@@ -47,4 +51,15 @@ class ApiConstants {
   static const String loyaltyWallet = '/loyalty/wallet/';
   static const String loyaltyMyMilestones = '/loyalty/my-milestones/';
   static const String loyaltyConsume = '/loyalty/milestones/consume/';
+
+  // ARCHITECTURE FIX: Centralized Public Endpoints (DRY Principle)
+  static const List<String> publicEndpoints = [
+    register,
+    login,
+    verifyEmail,
+    resendVerification,
+    requestPasswordReset,
+    confirmPasswordReset,
+    refreshToken,
+  ];
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme_provider.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/network/api_exception.dart';
 import '../providers/auth_provider.dart';
 
 class OtpVerificationScreen extends ConsumerStatefulWidget {
@@ -62,9 +64,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     if (_cooldownSeconds > 0 || _isResending) return;
 
     setState(() => _isResending = true);
-    _logger.info(
-      'User requested to resend OTP for email: ${widget.email}',
-    ); // Logger Fix
+    _logger.info('User requested to resend OTP for email: ${widget.email}');
 
     try {
       await ref.read(authControllerProvider.notifier).resendOtp(widget.email);
@@ -73,9 +73,12 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         _showSnackBar(context, l10n.verificationSent, colors.success);
       }
     } catch (e) {
-      _logger.severe('Failed to resend OTP', e); // Logger Fix
+      _logger.severe('Failed to resend OTP', e);
       if (mounted) {
-        _showSnackBar(context, e.toString(), colors.error);
+        final apiException = e is DioException
+            ? ApiException.fromDioException(e, l10n)
+            : ApiException(l10n.errorUnexpected);
+        _showSnackBar(context, apiException.message, colors.error);
       }
     } finally {
       if (mounted) setState(() => _isResending = false);
@@ -90,24 +93,26 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     }
 
     setState(() => _errorText = null);
-    _logger.info('Attempting to verify OTP'); // Logger Fix
+    _logger.info('Attempting to verify OTP');
 
     try {
       await ref.read(authControllerProvider.notifier).verifyEmail(otp);
-      final authState = ref.read(authControllerProvider);
 
-      if (authState.hasValue && authState.value != null) {
-        _logger.info('OTP Verification Successful'); // Logger Fix
-        _handleSmartRouting(authState.value!.profileIsComplete);
-      } else if (authState.hasError) {
-        _logger.warning(
-          'OTP Verification Failed: ${authState.error}',
-        ); // Logger Fix
-        setState(() => _errorText = authState.error.toString());
+      if (mounted) {
+        final user = ref.read(authControllerProvider).value;
+        if (user != null) {
+          _logger.info('OTP Verification Successful');
+          _handleSmartRouting(user.profileIsComplete);
+        }
       }
     } catch (e) {
-      _logger.severe('Exception during OTP verification', e); // Logger Fix
-      setState(() => _errorText = e.toString());
+      _logger.severe('Exception during OTP verification', e);
+      if (mounted) {
+        final apiException = e is DioException
+            ? ApiException.fromDioException(e, l10n)
+            : ApiException(l10n.errorUnexpected);
+        setState(() => _errorText = apiException.message);
+      }
     }
   }
 
@@ -169,6 +174,10 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         ),
         backgroundColor: backgroundColor,
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+        ),
+        margin: EdgeInsets.all(Dimensions.spacingMedium),
       ),
     );
   }
@@ -179,6 +188,9 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     final AppColors colors = ref.watch(appThemeProvider);
     final bool canResend = _cooldownSeconds == 0 && !_isResending;
     final bool isVerifying = ref.watch(authControllerProvider).isLoading;
+
+    final bool isOtpComplete = _otpController.text.length == 6;
+    final bool isButtonEnabled = isOtpComplete && !isVerifying;
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -202,7 +214,6 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
             children: [
               SizedBox(height: Dimensions.spacingLarge),
 
-              // ARCHITECTURE FIX: Unified Premium Alert Banner
               PremiumAlertBanner(
                 colors: colors,
                 themeColor: colors.primary,
@@ -212,7 +223,6 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               ),
               SizedBox(height: Dimensions.spacingExtraLarge),
 
-              // ARCHITECTURE FIX: Premium Card Wrapper
               Container(
                 padding: EdgeInsets.all(Dimensions.spacingLarge),
                 decoration: BoxDecoration(
@@ -222,7 +232,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 15,
                       offset: const Offset(0, 5),
                     ),
@@ -232,58 +242,85 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      l10n.otpHint,
+                      l10n.enterOtpTitle,
                       style: TextStyle(
                         fontSize: Dimensions.fontBodyLarge,
                         fontWeight: FontWeight.w700,
                         color: colors.textPrimary,
                       ),
                     ),
-                    SizedBox(height: Dimensions.spacingSmall),
+                    SizedBox(height: Dimensions.spacingLarge),
+
+                    // ARCHITECTURE FIX: Restored original approved UI matching the screenshot
                     TextField(
                       controller: _otpController,
                       keyboardType: TextInputType.number,
                       maxLength: 6,
                       textAlign: TextAlign.center,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      autofillHints: const [AutofillHints.oneTimeCode],
                       style: TextStyle(
                         fontSize: Dimensions.fontHeading1 * 1.2,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 16.0,
+                        letterSpacing:
+                            16.0, // Reduced from 24 for a more balanced look
                         color: colors.textPrimary,
                       ),
                       decoration: InputDecoration(
                         counterText: "",
-                        hintText: "••••••",
+                        hintText: "000000",
                         hintStyle: TextStyle(
-                          color: colors.iconGrey.withOpacity(0.3),
+                          color: colors.iconGrey.withValues(alpha: 0.3),
+                          letterSpacing: 16.0,
                         ),
                         filled: true,
                         fillColor: colors.background,
                         errorText: _errorText,
                         contentPadding: EdgeInsets.symmetric(
-                          vertical: Dimensions.spacingLarge,
+                          vertical: Dimensions
+                              .spacingLarge, // Adjusted height to be elegant
                         ),
-                        border: OutlineInputBorder(
+                        enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
-                            Dimensions.borderRadius,
+                            Dimensions.borderRadiusLarge,
                           ),
-                          borderSide: BorderSide.none,
+                          borderSide: BorderSide(
+                            color: colors.iconGrey.withValues(alpha: 0.2),
+                            width: 1.5,
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
-                            Dimensions.borderRadius,
+                            Dimensions.borderRadiusLarge,
                           ),
                           borderSide: BorderSide(
                             color: colors.primary,
                             width: 2,
                           ),
                         ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.borderRadiusLarge,
+                          ),
+                          borderSide: BorderSide(
+                            color: colors.error,
+                            width: 1.5,
+                          ),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.borderRadiusLarge,
+                          ),
+                          borderSide: BorderSide(color: colors.error, width: 2),
+                        ),
                       ),
                       onChanged: (val) {
+                        setState(() {
+                          _errorText = null;
+                        });
                         if (val.length == 6) {
                           FocusScope.of(context).unfocus();
-                          _handleVerify(l10n);
+                          _handleVerify(l10n); // Auto-verify
                         }
                       },
                     ),
@@ -298,17 +335,19 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                 height: Dimensions.buttonHeight * 1.2,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.primary,
+                    backgroundColor: isButtonEnabled
+                        ? colors.primary
+                        : colors.iconGrey.withValues(alpha: 0.3),
                     foregroundColor: Colors.white,
-                    elevation: 4,
-                    shadowColor: colors.primary.withOpacity(0.4),
+                    elevation: isButtonEnabled ? 4 : 0,
+                    shadowColor: colors.primary.withValues(alpha: 0.4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                         Dimensions.borderRadiusLarge,
                       ),
                     ),
                   ),
-                  onPressed: isVerifying ? null : () => _handleVerify(l10n),
+                  onPressed: isButtonEnabled ? () => _handleVerify(l10n) : null,
                   child: isVerifying
                       ? const CircularProgressIndicator(
                           color: Colors.white,
@@ -327,32 +366,38 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               SizedBox(height: Dimensions.spacingLarge),
 
               Center(
-                child: TextButton(
-                  onPressed: canResend
-                      ? () => _handleResend(l10n, colors)
-                      : null,
-                  child: _isResending
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: colors.primary,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Text(
-                          canResend
-                              ? l10n.resendLink
-                              : l10n.resendLinkCooldown(_cooldownSeconds),
+                child: canResend
+                    ? TextButton(
+                        onPressed: () => _handleResend(l10n, colors),
+                        child: Text(
+                          l10n.resendLink,
                           style: TextStyle(
-                            color: canResend
-                                ? colors.primary
-                                : colors.textSecondary,
+                            color: colors.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: Dimensions.fontBodyLarge,
                           ),
                         ),
-                ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.timer_outlined,
+                            color: colors.textSecondary,
+                            size: Dimensions.iconMedium,
+                          ),
+                          SizedBox(width: Dimensions.spacingSmall),
+                          Text(
+                            '00:${_cooldownSeconds.toString().padLeft(2, '0')}',
+                            style: TextStyle(
+                              color: colors.textSecondary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: Dimensions.fontBodyLarge,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
               ),
             ],
           ),

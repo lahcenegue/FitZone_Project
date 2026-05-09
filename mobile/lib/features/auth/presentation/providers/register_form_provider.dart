@@ -9,7 +9,6 @@ import '../../data/models/register_request_model.dart';
 
 part 'register_form_provider.g.dart';
 
-/// Represents the current state of the registration form, including localized validation errors.
 class RegisterFormState {
   final String fullName;
   final String email;
@@ -48,7 +47,6 @@ class RegisterFormState {
     this.isFetchingLocation = false,
   });
 
-  /// Computed property to check if the entire form is valid.
   bool get isValid =>
       fullName.isNotEmpty &&
       fullNameError == null &&
@@ -115,7 +113,6 @@ class RegisterFormState {
   }
 }
 
-/// Manages the state and localized validation logic of the registration form.
 @riverpod
 class RegisterForm extends _$RegisterForm {
   final Logger _logger = Logger('RegisterForm');
@@ -253,7 +250,6 @@ class RegisterForm extends _$RegisterForm {
     }
   }
 
-  /// Forces validation on all fields using the provided localizations.
   bool validateAll(AppLocalizations l10n) {
     updateFullName(state.fullName, l10n);
     updateEmail(state.email, l10n);
@@ -264,7 +260,6 @@ class RegisterForm extends _$RegisterForm {
     return state.isValid;
   }
 
-  /// Converts the current valid state into a Request Model for the API.
   RegisterRequestModel toRequestModel() {
     return RegisterRequestModel(
       fullName: state.fullName,

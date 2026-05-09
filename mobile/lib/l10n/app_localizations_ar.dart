@@ -567,7 +567,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get resetPasswordSuccess => 'تم التحديث بنجاح. يمكنك تسجيل الدخول.';
 
   @override
-  String get resetCodeSent => 'إذا كان البريد مسجلاً، تم إرسال الرمز.';
+  String get resetCodeSent =>
+      'إذا كان البريد الإلكتروني مرتبطًا بحساب، فسيتم إرسال رمز إعادة التعيين.';
 
   @override
   String get verifyAndReset => 'تحقق وتحديث';
@@ -1200,4 +1201,22 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get maxTierAchievedDesc =>
       'لقد وصلت إلى قمة نظام الولاء! استمتع بمكافآتك الحصرية.';
+
+  @override
+  String get fullName => 'الاسم الكامل';
+
+  @override
+  String get fullNameHint => 'أدخل اسمك الكامل';
+
+  @override
+  String get emailHint => 'أدخل بريدك الإلكتروني';
+
+  @override
+  String get passwordHint => 'أدخل كلمة المرور';
+
+  @override
+  String get registerSubtitle => 'انضم إلى FitZone وابدأ رحلتك الرياضية اليوم.';
+
+  @override
+  String get locationRequiredError => 'يرجى تحديد موقعك على الخريطة أولاً';
 }

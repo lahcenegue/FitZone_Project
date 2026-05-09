@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +11,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme_provider.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/network/api_exception.dart'; // ARCHITECTURE FIX
 import '../providers/auth_provider.dart';
 import '../providers/register_form_provider.dart';
 import '../../../maps/presentation/screens/map_picker_screen.dart';
@@ -47,20 +49,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       }
     });
 
-    ref.listen<AsyncValue<dynamic>>(authControllerProvider, (previous, next) {
-      next.whenOrNull(
-        data: (user) {
-          if (user != null && previous?.value == null) {
-            _logger.info('Registration successful, navigating to OTP.');
-            context.go('${RoutePaths.verifyOtp}?email=${user.email}');
-          }
-        },
-        error: (error, stackTrace) {
-          _logger.warning('Registration failed: $error');
-          _showSnackBar(context, error.toString(), colors.error);
-        },
-      );
-    });
+    // ARCHITECTURE FIX: Removed the buggy ref.listen entirely. Handled natively in onPressed.
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -105,8 +94,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     PremiumTextField(
-                      label: 'Full Name',
-                      hintText: 'John Doe',
+                      label: l10n.fullName,
+                      hintText: l10n.fullNameHint,
                       icon: Icons.person_outline_rounded,
                       errorText: formState.fullNameError,
                       colors: colors,
@@ -118,7 +107,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                     PremiumTextField(
                       label: l10n.emailAddress,
-                      hintText: 'user@fitzone.sa',
+                      hintText: l10n.emailHint,
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       errorText: formState.emailError,
@@ -144,7 +133,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                     PremiumTextField(
                       label: l10n.password,
-                      hintText: '••••••••',
+                      hintText: l10n.passwordHint,
                       icon: Icons.lock_outline_rounded,
                       obscureText: _isPasswordObscured,
                       errorText: formState.passwordError,
@@ -241,7 +230,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           : Container(
                               margin: EdgeInsets.all(Dimensions.spacingTiny),
                               decoration: BoxDecoration(
-                                color: colors.primary.withOpacity(0.1),
+                                color: colors.primary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(
                                   Dimensions.borderRadius,
                                 ),
@@ -266,7 +255,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     );
   }
 
-  // .. (Rest of the file _buildHeader, _buildGenderSelector, _buildSubmitButton, etc. stays EXACTLY the same) ..
   Widget _buildHeader(AppLocalizations l10n, AppColors colors) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,7 +270,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         ),
         SizedBox(height: Dimensions.spacingTiny),
         Text(
-          'Join FitZone and start your fitness journey today.',
+          l10n.registerSubtitle,
           style: TextStyle(
             fontSize: Dimensions.fontBodyLarge,
             color: colors.textSecondary,
@@ -338,13 +326,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           padding: EdgeInsets.symmetric(vertical: Dimensions.spacingMedium),
           decoration: BoxDecoration(
             color: isSelected
-                ? colors.primary.withOpacity(0.1)
+                ? colors.primary.withValues(alpha: 0.1)
                 : colors.background,
             borderRadius: BorderRadius.circular(Dimensions.borderRadius),
             border: Border.all(
               color: isSelected
                   ? colors.primary
-                  : colors.iconGrey.withOpacity(0.2),
+                  : colors.iconGrey.withValues(alpha: 0.2),
               width: isSelected ? 2.0 : 1.0,
             ),
           ),
@@ -404,7 +392,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: BorderSide(color: colors.iconGrey.withOpacity(0.1)),
+              borderSide: BorderSide(
+                color: colors.iconGrey.withValues(alpha: 0.1),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(Dimensions.borderRadius),
@@ -446,21 +436,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: isEnabled
               ? colors.primary
-              : colors.iconGrey.withOpacity(0.3),
+              : colors.iconGrey.withValues(alpha: 0.3),
           foregroundColor: Colors.white,
           elevation: isEnabled ? 4 : 0,
-          shadowColor: colors.primary.withOpacity(0.4),
+          shadowColor: colors.primary.withValues(alpha: 0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           ),
         ),
+        // ARCHITECTURE FIX: Direct Linear Logic with proper Error Handling
         onPressed: isEnabled
-            ? () {
+            ? () async {
                 if (ref.read(registerFormProvider.notifier).validateAll(l10n)) {
                   if (formState.address.isEmpty || formState.lat == null) {
                     _showSnackBar(
                       context,
-                      'Please select your location',
+                      l10n.locationRequiredError,
                       colors.error,
                     );
                     return;
@@ -468,9 +459,30 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   final request = ref
                       .read(registerFormProvider.notifier)
                       .toRequestModel();
-                  ref
-                      .read(authControllerProvider.notifier)
-                      .registerUser(request);
+                  try {
+                    await ref
+                        .read(authControllerProvider.notifier)
+                        .registerUser(request);
+                    if (context.mounted) {
+                      _logger.info(
+                        'Registration successful, navigating to OTP.',
+                      );
+                      context.go(
+                        '${RoutePaths.verifyOtp}?email=${formState.email}',
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      final apiException = e is DioException
+                          ? ApiException.fromDioException(e, l10n)
+                          : ApiException(l10n.errorUnexpected);
+                      _showSnackBar(
+                        context,
+                        apiException.message,
+                        colors.error,
+                      );
+                    }
+                  }
                 }
               }
             : null,

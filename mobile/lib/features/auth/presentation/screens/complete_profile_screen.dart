@@ -59,7 +59,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                 leading: Container(
                   padding: EdgeInsets.all(Dimensions.spacingSmall),
                   decoration: BoxDecoration(
-                    color: colors.primary.withOpacity(0.1),
+                    color: colors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -83,7 +83,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                 leading: Container(
                   padding: EdgeInsets.all(Dimensions.spacingSmall),
                   decoration: BoxDecoration(
-                    color: colors.primary.withOpacity(0.1),
+                    color: colors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -122,6 +122,30 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
     } else {
       context.go(RoutePaths.explore);
     }
+  }
+
+  void _showSnackBar(
+    BuildContext context,
+    String message,
+    Color backgroundColor,
+  ) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: backgroundColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+        ),
+        margin: EdgeInsets.all(Dimensions.spacingMedium),
+      ),
+    );
   }
 
   @override
@@ -244,11 +268,13 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                     vertical: Dimensions.spacingMedium,
                   ),
                   decoration: BoxDecoration(
-                    color: colors.error.withOpacity(0.1),
+                    color: colors.error.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(
                       Dimensions.borderRadius,
                     ),
-                    border: Border.all(color: colors.error.withOpacity(0.3)),
+                    border: Border.all(
+                      color: colors.error.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -305,15 +331,15 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
           borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           border: Border.all(
             color: hasImage
-                ? Colors.green.withOpacity(0.5)
-                : colors.iconGrey.withOpacity(0.15),
+                ? colors.success.withValues(alpha: 0.5)
+                : colors.iconGrey.withValues(alpha: 0.15),
             width: hasImage ? 1.5 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
               color: hasImage
-                  ? Colors.green.withOpacity(0.05)
-                  : Colors.black.withOpacity(0.02),
+                  ? colors.success.withValues(alpha: 0.05)
+                  : Colors.black.withValues(alpha: 0.02),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),
@@ -336,7 +362,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                           Dimensions.borderRadius,
                         ),
                         border: Border.all(
-                          color: Colors.green.withOpacity(0.3),
+                          color: colors.success.withValues(alpha: 0.3),
                           width: 2,
                         ),
                         image: DecorationImage(
@@ -350,8 +376,8 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                           offset: const Offset(4, 4),
                           child: Container(
                             padding: const EdgeInsets.all(2),
-                            decoration: const BoxDecoration(
-                              color: Colors.green,
+                            decoration: BoxDecoration(
+                              color: colors.success,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -373,7 +399,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                           Dimensions.borderRadius,
                         ),
                         border: Border.all(
-                          color: colors.iconGrey.withOpacity(0.1),
+                          color: colors.iconGrey.withValues(alpha: 0.1),
                         ),
                       ),
                       child: Icon(
@@ -402,7 +428,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                     subtitle,
                     style: TextStyle(
                       fontSize: Dimensions.fontBodySmall,
-                      color: hasImage ? Colors.green : colors.textSecondary,
+                      color: hasImage ? colors.success : colors.textSecondary,
                       fontWeight: hasImage
                           ? FontWeight.w600
                           : FontWeight.normal,
@@ -416,7 +442,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
               decoration: BoxDecoration(
                 color: hasImage
                     ? colors.background
-                    : colors.primary.withOpacity(0.1),
+                    : colors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -447,10 +473,10 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: isEnabled
               ? colors.primary
-              : colors.iconGrey.withOpacity(0.3),
+              : colors.iconGrey.withValues(alpha: 0.3),
           foregroundColor: Colors.white,
           elevation: isEnabled ? 4 : 0,
-          shadowColor: colors.primary.withOpacity(0.4),
+          shadowColor: colors.primary.withValues(alpha: 0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           ),
@@ -486,30 +512,6 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                   letterSpacing: 1.0,
                 ),
               ),
-      ),
-    );
-  }
-
-  void _showSnackBar(
-    BuildContext context,
-    String message,
-    Color backgroundColor,
-  ) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: backgroundColor,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        ),
-        margin: EdgeInsets.all(Dimensions.spacingMedium),
       ),
     );
   }

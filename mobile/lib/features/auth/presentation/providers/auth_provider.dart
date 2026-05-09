@@ -13,7 +13,6 @@ import '../../data/services/auth_api_service.dart';
 
 part 'auth_provider.g.dart';
 
-/// Defines the exact outcome of a profile update operation.
 enum ProfileUpdateResult { success, requiresVerification, error }
 
 @riverpod
@@ -36,10 +35,12 @@ class AuthController extends _$AuthController {
     state = const AsyncLoading();
     try {
       final AuthApiService authService = ref.read(authApiServiceProvider);
-      final UserModel user = await authService.register(request);
-      state = AsyncData(user);
+      await authService.register(request);
+      // ARCHITECTURE FIX: Registration does not mean logged in.
+      state = const AsyncData(null);
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
+      rethrow; // Allows the UI try/catch to handle it linearly
     }
   }
 
@@ -63,6 +64,7 @@ class AuthController extends _$AuthController {
       state = AsyncData(response.user);
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
+      rethrow;
     }
   }
 
@@ -83,6 +85,7 @@ class AuthController extends _$AuthController {
       state = AsyncData(response.user);
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
+      rethrow;
     }
   }
 
@@ -91,7 +94,7 @@ class AuthController extends _$AuthController {
       final AuthApiService authService = ref.read(authApiServiceProvider);
       await authService.resendOtp(email);
     } catch (error) {
-      throw Exception(error.toString());
+      rethrow;
     }
   }
 
@@ -105,6 +108,7 @@ class AuthController extends _$AuthController {
       state = AsyncData(updatedUser);
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
+      rethrow;
     }
   }
 
@@ -198,7 +202,6 @@ class AuthController extends _$AuthController {
     ref.read(storageServiceProvider).cacheUser(user);
   }
 
-  /// ARCHITECTURE FIX: Now correctly identifies if the profile update triggered an email verification state.
   Future<ProfileUpdateResult> updateProfileData({
     required Map<String, dynamic> updateData,
     String? newFaceImagePath,
@@ -238,10 +241,8 @@ class AuthController extends _$AuthController {
       final UserModel updatedUser = UserModel.fromJson(
         response['user'] as Map<String, dynamic>,
       );
-
       updateUserState(updatedUser);
 
-      // Deep inspection of the backend response to detect verification resets
       final bool requiresVerification =
           response['email_changed'] == true ||
           response['user']['is_verified'] == false;
@@ -254,10 +255,8 @@ class AuthController extends _$AuthController {
     }
   }
 
-  /// ARCHITECTURE FIX: Mutates local state to instantly reflect new points after a successful purchase.
   void addLoyaltyPoints(int pointsToAdd) {
     if (state.value != null && pointsToAdd > 0) {
-      _logger.info('Adding $pointsToAdd points to local state.');
       final UserModel currentUser = state.value!;
       final UserModel updatedUser = currentUser.copyWith(
         pointsBalance: currentUser.pointsBalance + pointsToAdd,

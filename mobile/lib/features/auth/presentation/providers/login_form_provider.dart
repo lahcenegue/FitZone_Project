@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/utils/app_validators.dart';
 import '../../../../l10n/app_localizations.dart';
 
 part 'login_form_provider.g.dart';
@@ -51,8 +52,8 @@ class LoginForm extends _$LoginForm {
 
   void updateEmail(String value, AppLocalizations l10n) {
     String? error;
-    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-    if (value.isEmpty || !emailRegex.hasMatch(value)) {
+    // ARCHITECTURE FIX: Using unified AppValidators for DRY compliance
+    if (value.isEmpty || !AppValidators.emailRegex.hasMatch(value)) {
       error = l10n.invalidEmailError;
     }
     state = state.copyWith(

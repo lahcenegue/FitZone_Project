@@ -1193,7 +1193,7 @@ abstract class AppLocalizations {
   /// No description provided for @resetCodeSent.
   ///
   /// In en, this message translates to:
-  /// **'If this email is registered, a reset code has been sent.'**
+  /// **'If an account is associated with this email, a reset code has been sent.'**
   String get resetCodeSent;
 
   /// No description provided for @verifyAndReset.
@@ -2419,6 +2419,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have reached the top of our loyalty program! Enjoy your exclusive rewards.'**
   String get maxTierAchievedDesc;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullName;
+
+  /// No description provided for @fullNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name'**
+  String get fullNameHint;
+
+  /// No description provided for @emailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address'**
+  String get emailHint;
+
+  /// No description provided for @passwordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password'**
+  String get passwordHint;
+
+  /// No description provided for @registerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join FitZone and start your fitness journey today.'**
+  String get registerSubtitle;
+
+  /// No description provided for @locationRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select your location on the map first'**
+  String get locationRequiredError;
 }
 
 class _AppLocalizationsDelegate

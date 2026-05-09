@@ -13,7 +13,6 @@ class AuthInterceptor extends Interceptor {
   final Ref ref;
   final Logger _logger = Logger('AuthInterceptor');
 
-  // Architecture Fix: Queue management variables to handle Race Conditions
   bool _isRefreshing = false;
   Completer<bool>? _refreshCompleter;
 
@@ -25,17 +24,8 @@ class AuthInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     try {
-      final List<String> publicEndpoints = [
-        ApiConstants.register,
-        ApiConstants.login,
-        ApiConstants.verifyEmail,
-        ApiConstants.resendVerification,
-        ApiConstants.requestPasswordReset,
-        ApiConstants.confirmPasswordReset,
-        ApiConstants.refreshToken,
-      ];
-
-      final bool isPublicEndpoint = publicEndpoints.any(
+      // ARCHITECTURE FIX: Using centralized public endpoints list (DRY)
+      final bool isPublicEndpoint = ApiConstants.publicEndpoints.any(
         (endpoint) => options.path.contains(endpoint),
       );
 
@@ -62,11 +52,9 @@ class AuthInterceptor extends Interceptor {
         'Unauthorized request (401) for ${err.requestOptions.path}.',
       );
 
-      // Architecture Fix: Prevent Race Condition when multiple endpoints fail 401 simultaneously.
       if (_isRefreshing) {
         _logger.info('Token refresh already in progress. Queuing request...');
         try {
-          // Wait for the ongoing refresh to finish
           final bool isRefreshed = await _refreshCompleter!.future;
           if (isRefreshed) {
             return await _retryOriginalRequest(err, handler);
@@ -116,7 +104,6 @@ class AuthInterceptor extends Interceptor {
         err.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
       }
 
-      // Using an isolated Dio instance to avoid recursive loops
       final isolatedRetryDio = Dio();
       final response = await isolatedRetryDio.fetch(err.requestOptions);
 
@@ -132,16 +119,9 @@ class AuthInterceptor extends Interceptor {
 
   void _triggerLogoutWipeout() async {
     try {
-      // 1. Clear secure tokens (JWT)
       await ref.read(secureStorageServiceProvider).clearAll();
-
-      // 2. Clear cached user data (SharedPreferences)
       await ref.read(storageServiceProvider).clearCachedUser();
-
-      // 3. Invalidate AuthController to notify the entire app
       ref.invalidate(authControllerProvider);
-
-      // 4. Force redirect to login
       ref.read(goRouterProvider).go(RoutePaths.login);
     } catch (e) {
       _logger.severe('Error during logout wipeout', e);
@@ -161,8 +141,9 @@ class AuthInterceptor extends Interceptor {
       final refreshDio = Dio(
         BaseOptions(
           baseUrl: ApiConstants.baseUrl,
-          connectTimeout: const Duration(seconds: 15),
-          receiveTimeout: const Duration(seconds: 15),
+          // ARCHITECTURE FIX: Centralized timeouts
+          connectTimeout: ApiConstants.connectTimeout,
+          receiveTimeout: ApiConstants.receiveTimeout,
           responseType: ResponseType.json,
         ),
       );

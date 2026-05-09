@@ -14,8 +14,9 @@ Dio dioClient(Ref ref) {
   final Dio dio = Dio(
     BaseOptions(
       baseUrl: ApiConstants.baseUrl,
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
+      // ARCHITECTURE FIX: Using centralized constants instead of Magic Numbers
+      connectTimeout: ApiConstants.connectTimeout,
+      receiveTimeout: ApiConstants.receiveTimeout,
       responseType: ResponseType.json,
     ),
   );
@@ -24,11 +25,7 @@ Dio dioClient(Ref ref) {
   dio.interceptors.addAll([
     AuthInterceptor(ref),
     LanguageInterceptor(ref),
-    LogInterceptor(
-      requestBody: true,
-      responseBody: false, // Set to true only for heavy debugging
-      error: true,
-    ),
+    LogInterceptor(requestBody: true, responseBody: false, error: true),
   ]);
 
   return dio;

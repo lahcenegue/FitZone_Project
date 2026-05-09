@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,7 +11,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme_provider.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../data/services/auth_api_service.dart';
+import '../../../../core/network/api_exception.dart'; // ARCHITECTURE FIX
 import '../providers/auth_provider.dart';
 import '../providers/login_form_provider.dart';
 
@@ -50,20 +51,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  void _handleLoginError(Object error, AppColors colors) {
-    _logger.warning('Login failed: $error');
-
-    if (error is AuthException &&
-        error.code == 'EMAIL_NOT_VERIFIED' &&
-        error.email != null) {
-      _showSnackBar(context, error.message, colors.warning);
-      ref.read(authControllerProvider.notifier).resendOtp(error.email!);
-      context.push('${RoutePaths.verifyOtp}?email=${error.email}');
-    } else {
-      _showSnackBar(context, error.toString(), colors.error);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
@@ -71,20 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final formState = ref.watch(loginFormProvider);
     final authState = ref.watch(authControllerProvider);
 
-    // ARCHITECTURE FIX: Event-Driven Navigation perfectly safe from state updates
-    ref.listen<AsyncValue<dynamic>>(authControllerProvider, (previous, next) {
-      next.whenOrNull(
-        data: (user) {
-          // Make sure we only navigate IF the previous state was null (actual login)
-          // This prevents navigating again if the user updates avatar or points later!
-          if (user != null && previous?.value == null) {
-            _logger.info('Login successful for: ${user.email}');
-            _handleSmartRouting(user.profileIsComplete);
-          }
-        },
-        error: (error, stackTrace) => _handleLoginError(error, colors),
-      );
-    });
+    // ARCHITECTURE FIX: Removed ref.listen entirely
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -136,7 +110,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   children: [
                     PremiumTextField(
                       label: l10n.emailAddress,
-                      hintText: 'user@fitzone.sa',
+                      hintText: l10n.emailHint,
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       errorText: formState.emailError,
@@ -149,7 +123,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                     PremiumTextField(
                       label: l10n.password,
-                      hintText: '••••••••',
+                      hintText: l10n.passwordHint,
                       icon: Icons.lock_outline_rounded,
                       obscureText: _isPasswordObscured,
                       errorText: formState.passwordError,
@@ -258,20 +232,57 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: isEnabled
               ? colors.primary
-              : colors.iconGrey.withOpacity(0.3),
+              : colors.iconGrey.withValues(alpha: 0.3),
           foregroundColor: Colors.white,
           elevation: isEnabled ? 4 : 0,
-          shadowColor: colors.primary.withOpacity(0.4),
+          shadowColor: colors.primary.withValues(alpha: 0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           ),
         ),
+        // ARCHITECTURE FIX: Direct Linear Logic with proper Error Handling
         onPressed: isEnabled
-            ? () {
+            ? () async {
                 if (ref.read(loginFormProvider.notifier).validateAll(l10n)) {
-                  ref
-                      .read(authControllerProvider.notifier)
-                      .login(formState.email, formState.password);
+                  try {
+                    await ref
+                        .read(authControllerProvider.notifier)
+                        .login(formState.email, formState.password);
+                    if (context.mounted) {
+                      final user = ref.read(authControllerProvider).value;
+                      if (user != null) {
+                        _handleSmartRouting(user.profileIsComplete);
+                      }
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      final apiException = e is DioException
+                          ? ApiException.fromDioException(e, l10n)
+                          : ApiException(l10n.errorUnexpected);
+
+                      // Check for specific backend routing error
+                      if (apiException.code == 'EMAIL_NOT_VERIFIED' &&
+                          apiException.email != null) {
+                        _showSnackBar(
+                          context,
+                          apiException.message,
+                          colors.warning,
+                        );
+                        ref
+                            .read(authControllerProvider.notifier)
+                            .resendOtp(apiException.email!);
+                        context.push(
+                          '${RoutePaths.verifyOtp}?email=${apiException.email}',
+                        );
+                      } else {
+                        _showSnackBar(
+                          context,
+                          apiException.message,
+                          colors.error,
+                        );
+                      }
+                    }
+                  }
                 }
               }
             : null,

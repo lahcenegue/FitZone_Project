@@ -181,7 +181,7 @@
   "confirmNewPassword": "Confirm New Password",
   "passwordsDoNotMatch": "Passwords do not match.",
   "resetPasswordSuccess": "Password has been reset successfully. You can now login.",
-  "resetCodeSent": "If this email is registered, a reset code has been sent.",
+  "resetCodeSent": "If an account is associated with this email, a reset code has been sent.",
   "verifyAndReset": "Verify & Reset Password",
   "errorRequestCancelled": "Request to server was cancelled.",
   "errorConnectionTimeout": "Connection timeout with server.",
@@ -413,5 +413,11 @@
   "editBankAccount": "Edit Bank Account",
   "manageYourBank": "Manage your approved bank account for withdrawals",
   "maxTierAchievedTitle": "Max Tier Achieved",
-  "maxTierAchievedDesc": "You have reached the top of our loyalty program! Enjoy your exclusive rewards."
+  "maxTierAchievedDesc": "You have reached the top of our loyalty program! Enjoy your exclusive rewards.",
+  "fullName": "Full Name",
+  "fullNameHint": "Enter your full name",
+  "emailHint": "Enter your email address",
+  "passwordHint": "Enter your password",
+  "registerSubtitle": "Join FitZone and start your fitness journey today.",
+  "locationRequiredError": "Please select your location on the map first"
 }

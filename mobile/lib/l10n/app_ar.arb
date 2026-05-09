@@ -181,7 +181,7 @@
   "confirmNewPassword": "تأكيد كلمة المرور",
   "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين.",
   "resetPasswordSuccess": "تم التحديث بنجاح. يمكنك تسجيل الدخول.",
-  "resetCodeSent": "إذا كان البريد مسجلاً، تم إرسال الرمز.",
+  "resetCodeSent": "إذا كان البريد الإلكتروني مرتبطًا بحساب، فسيتم إرسال رمز إعادة التعيين.",
   "verifyAndReset": "تحقق وتحديث",
   "errorRequestCancelled": "تم إلغاء الطلب.",
   "errorConnectionTimeout": "انتهى وقت الاتصال.",
@@ -414,5 +414,11 @@
   "editBankAccount": "تعديل الحساب البنكي",
   "manageYourBank": "إدارة حسابك البنكي المعتمد للسحوبات",
   "maxTierAchievedTitle": "أعلى مستوى",
-  "maxTierAchievedDesc": "لقد وصلت إلى قمة نظام الولاء! استمتع بمكافآتك الحصرية."
+  "maxTierAchievedDesc": "لقد وصلت إلى قمة نظام الولاء! استمتع بمكافآتك الحصرية.",
+  "fullName": "الاسم الكامل",
+  "fullNameHint": "أدخل اسمك الكامل",
+  "emailHint": "أدخل بريدك الإلكتروني",
+  "passwordHint": "أدخل كلمة المرور",
+  "registerSubtitle": "انضم إلى FitZone وابدأ رحلتك الرياضية اليوم.",
+  "locationRequiredError": "يرجى تحديد موقعك على الخريطة أولاً"
 }

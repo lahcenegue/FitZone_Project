@@ -7,10 +7,12 @@ import 'package:fitzone/l10n/app_localizations.dart';
 class ApiException implements Exception {
   final String message;
   final int? statusCode;
+  final String?
+  code; // ARCHITECTURE FIX: Added to support smart routing (e.g., EMAIL_NOT_VERIFIED)
+  final String? email; // ARCHITECTURE FIX: Added to pass email for OTP resend
 
-  ApiException(this.message, [this.statusCode]);
+  ApiException(this.message, {this.statusCode, this.code, this.email});
 
-  /// Factory constructor to parse DioException into user-friendly localized ApiException.
   factory ApiException.fromDioException(
     DioException dioException,
     AppLocalizations l10n,
@@ -22,17 +24,17 @@ class ApiException implements Exception {
       case DioExceptionType.cancel:
         return ApiException(
           l10n.errorRequestCancelled,
-          dioException.response?.statusCode,
+          statusCode: dioException.response?.statusCode,
         );
       case DioExceptionType.connectionTimeout:
         return ApiException(
           l10n.errorConnectionTimeout,
-          dioException.response?.statusCode,
+          statusCode: dioException.response?.statusCode,
         );
       case DioExceptionType.receiveTimeout:
         return ApiException(
           l10n.errorReceiveTimeout,
-          dioException.response?.statusCode,
+          statusCode: dioException.response?.statusCode,
         );
       case DioExceptionType.badResponse:
         return _handleError(
@@ -43,22 +45,21 @@ class ApiException implements Exception {
       case DioExceptionType.sendTimeout:
         return ApiException(
           l10n.errorSendTimeout,
-          dioException.response?.statusCode,
+          statusCode: dioException.response?.statusCode,
         );
       case DioExceptionType.connectionError:
         return ApiException(
           l10n.errorNoInternet,
-          dioException.response?.statusCode,
+          statusCode: dioException.response?.statusCode,
         );
       default:
         return ApiException(
           l10n.errorUnexpected,
-          dioException.response?.statusCode,
+          statusCode: dioException.response?.statusCode,
         );
     }
   }
 
-  /// Helper method to extract specific error messages based on HTTP status codes.
   static ApiException _handleError(
     int? statusCode,
     dynamic errorData,
@@ -68,45 +69,61 @@ class ApiException implements Exception {
       return ApiException(l10n.errorUnknownStatus);
     }
 
-    // If the server sends a specific message, prioritize it. Otherwise, use localized fallback.
-    final String serverMessage = _extractMessage(errorData);
+    String serverMessage = _extractMessage(errorData);
+    String? errorCode;
+    String? errorEmail;
 
-    switch (statusCode) {
-      case 400:
-        return ApiException(
-          serverMessage.isNotEmpty ? serverMessage : l10n.errorBadRequest,
-          statusCode,
-        );
-      case 401:
-        return ApiException(
-          serverMessage.isNotEmpty ? serverMessage : l10n.errorUnauthorized,
-          statusCode,
-        );
-      case 403:
-        return ApiException(
-          serverMessage.isNotEmpty ? serverMessage : l10n.errorForbidden,
-          statusCode,
-        );
-      case 404:
-        return ApiException(
-          serverMessage.isNotEmpty ? serverMessage : l10n.errorNotFound,
-          statusCode,
-        );
-      case 422:
-        return ApiException(
-          serverMessage.isNotEmpty ? serverMessage : l10n.errorValidation,
-          statusCode,
-        );
-      case 500:
-        return ApiException(l10n.errorInternalServer, statusCode);
-      case 502:
-        return ApiException(l10n.errorBadGateway, statusCode);
-      default:
-        return ApiException(l10n.errorOops, statusCode);
+    if (errorData is Map<String, dynamic>) {
+      errorCode = errorData['code']?.toString();
+      if (errorData['email'] != null) {
+        errorEmail = errorData['email'].toString();
+      }
     }
+
+    // ARCHITECTURE FIX: Intercept raw English backend messages and translate them via l10n
+    final String lowerMsg = serverMessage.toLowerCase();
+    if (lowerMsg.contains('invalid or missing verification code') ||
+        lowerMsg.contains('invalid otp')) {
+      serverMessage = l10n.invalidOtp;
+    } else if (errorCode == 'EMAIL_NOT_VERIFIED' ||
+        lowerMsg.contains('email is not verified')) {
+      serverMessage = l10n.awaitingVerificationSubtitle;
+    } else if (serverMessage.isEmpty) {
+      switch (statusCode) {
+        case 400:
+          serverMessage = l10n.errorBadRequest;
+          break;
+        case 401:
+          serverMessage = l10n.errorUnauthorized;
+          break;
+        case 403:
+          serverMessage = l10n.errorForbidden;
+          break;
+        case 404:
+          serverMessage = l10n.errorNotFound;
+          break;
+        case 422:
+          serverMessage = l10n.errorValidation;
+          break;
+        case 500:
+          serverMessage = l10n.errorInternalServer;
+          break;
+        case 502:
+          serverMessage = l10n.errorBadGateway;
+          break;
+        default:
+          serverMessage = l10n.errorOops;
+      }
+    }
+
+    return ApiException(
+      serverMessage,
+      statusCode: statusCode,
+      code: errorCode,
+      email: errorEmail,
+    );
   }
 
-  /// Extracts the detailed message string from the API JSON response if available.
   static String _extractMessage(dynamic errorData) {
     if (errorData is Map<String, dynamic>) {
       if (errorData.containsKey('message') && errorData['message'] != null) {
@@ -114,6 +131,18 @@ class ApiException implements Exception {
       } else if (errorData.containsKey('detail') &&
           errorData['detail'] != null) {
         return errorData['detail'].toString();
+      } else {
+        // Extract validation list errors
+        final List<String> fieldErrors = [];
+        errorData.forEach((key, value) {
+          if (key == 'code' || key == 'email') return;
+          if (value is List && value.isNotEmpty) {
+            fieldErrors.add(value.first.toString());
+          } else if (value is String) {
+            fieldErrors.add(value);
+          }
+        });
+        if (fieldErrors.isNotEmpty) return fieldErrors.join('\n');
       }
     }
     return '';

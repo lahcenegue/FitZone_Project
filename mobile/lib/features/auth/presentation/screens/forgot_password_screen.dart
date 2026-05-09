@@ -1,7 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/network/api_exception.dart';
 import '../../../../core/presentation/widgets/premium_alert_banner.dart';
 import '../../../../core/presentation/widgets/premium_text_field.dart';
 import '../../../../core/routing/app_router.dart';
@@ -44,14 +46,22 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       await ref
           .read(authControllerProvider.notifier)
           .requestPasswordReset(email);
-      if (mounted) {
-        _showSnackBar(context, l10n.resetCodeSent, colors.success);
-        context.push('${RoutePaths.resetPassword}?email=$email');
-      }
+
+      if (!mounted) return;
+      _showSnackBar(context, l10n.resetCodeSent, colors.success);
+      context.push('${RoutePaths.resetPassword}?email=$email');
     } catch (e) {
-      if (mounted) _showSnackBar(context, e.toString(), colors.error);
+      if (!mounted) return;
+
+      final String message = e is DioException
+          ? ApiException.fromDioException(e, l10n).message
+          : e.toString();
+
+      _showSnackBar(context, message, colors.error);
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -98,7 +108,6 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             children: [
               SizedBox(height: Dimensions.spacingLarge),
 
-              // ARCHITECTURE FIX: Unified Premium Alert Banner
               PremiumAlertBanner(
                 colors: colors,
                 themeColor: colors.primary,
@@ -108,7 +117,6 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               ),
               SizedBox(height: Dimensions.spacingExtraLarge),
 
-              // ARCHITECTURE FIX: Premium Card Wrapper
               Container(
                 padding: EdgeInsets.all(Dimensions.spacingLarge),
                 decoration: BoxDecoration(
@@ -118,7 +126,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 15,
                       offset: const Offset(0, 5),
                     ),
@@ -126,7 +134,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 ),
                 child: PremiumTextField(
                   label: l10n.emailAddress,
-                  hintText: 'user@fitzone.sa',
+                  hintText: l10n.emailHint,
                   controller: _emailController,
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
@@ -144,7 +152,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                     backgroundColor: colors.primary,
                     foregroundColor: Colors.white,
                     elevation: 4,
-                    shadowColor: colors.primary.withOpacity(0.4),
+                    shadowColor: colors.primary.withValues(alpha: 0.4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                         Dimensions.borderRadiusLarge,

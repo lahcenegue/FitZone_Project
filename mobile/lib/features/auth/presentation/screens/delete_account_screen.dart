@@ -1,8 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 
+import '../../../../core/network/api_exception.dart';
 import '../../../../core/presentation/widgets/premium_alert_banner.dart';
 import '../../../../core/presentation/widgets/premium_text_field.dart';
 import '../../../../core/routing/app_router.dart';
@@ -10,7 +12,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme_provider.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../data/services/auth_api_service.dart';
 import '../providers/auth_provider.dart';
 import '../providers/delete_account_form_provider.dart';
 
@@ -51,21 +52,39 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
           .read(authControllerProvider.notifier)
           .deleteAccount(formState.password);
 
-      if (mounted) {
-        _showSnackBar(context, l10n.accountDeletedSuccessfully, Colors.green);
-        context.go(RoutePaths.explore);
-      }
+      if (!mounted) return;
+      _showSnackBar(context, l10n.accountDeletedSuccessfully, colors.success);
+      context.go(RoutePaths.explore);
     } catch (error) {
       _logger.warning('Failed to delete account: $error');
-      if (mounted) {
-        final String message = error is AuthException
-            ? error.getLocalizedMessage(l10n)
-            : error.toString();
-        _showSnackBar(context, message, colors.error);
-      }
+      if (!mounted) return;
+
+      final String message = error is DioException
+          ? ApiException.fromDioException(error, l10n).message
+          : error.toString();
+
+      _showSnackBar(context, message, colors.error);
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
+  }
+
+  void _showSnackBar(BuildContext context, String message, Color bgColor) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: bgColor,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -123,7 +142,7 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 15,
                       offset: const Offset(0, 5),
                     ),
@@ -201,10 +220,10 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: isEnabled
               ? colors.error
-              : colors.iconGrey.withOpacity(0.3),
+              : colors.iconGrey.withValues(alpha: 0.3),
           foregroundColor: Colors.white,
           elevation: isEnabled ? 4 : 0,
-          shadowColor: colors.error.withOpacity(0.4),
+          shadowColor: colors.error.withValues(alpha: 0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
           ),
@@ -227,30 +246,6 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
                   letterSpacing: 0.5,
                 ),
               ),
-      ),
-    );
-  }
-
-  void _showSnackBar(
-    BuildContext context,
-    String message,
-    Color backgroundColor,
-  ) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: backgroundColor,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        ),
-        margin: EdgeInsets.all(Dimensions.spacingMedium),
       ),
     );
   }

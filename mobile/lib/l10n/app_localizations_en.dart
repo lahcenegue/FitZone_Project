@@ -579,7 +579,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetCodeSent =>
-      'If this email is registered, a reset code has been sent.';
+      'If an account is associated with this email, a reset code has been sent.';
 
   @override
   String get verifyAndReset => 'Verify & Reset Password';
@@ -1223,4 +1223,24 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get maxTierAchievedDesc =>
       'You have reached the top of our loyalty program! Enjoy your exclusive rewards.';
+
+  @override
+  String get fullName => 'Full Name';
+
+  @override
+  String get fullNameHint => 'Enter your full name';
+
+  @override
+  String get emailHint => 'Enter your email address';
+
+  @override
+  String get passwordHint => 'Enter your password';
+
+  @override
+  String get registerSubtitle =>
+      'Join FitZone and start your fitness journey today.';
+
+  @override
+  String get locationRequiredError =>
+      'Please select your location on the map first';
 }

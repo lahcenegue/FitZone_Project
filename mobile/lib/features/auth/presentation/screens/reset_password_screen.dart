@@ -1,8 +1,11 @@
+import 'dart:async';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/network/api_exception.dart';
 import '../../../../core/presentation/widgets/premium_alert_banner.dart';
 import '../../../../core/presentation/widgets/premium_text_field.dart';
 import '../../../../core/routing/app_router.dart';
@@ -21,18 +24,43 @@ class ResetPasswordScreen extends ConsumerStatefulWidget {
       _ResetPasswordScreenState();
 }
 
-class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
+class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _otpController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  final FocusNode _otpFocusNode = FocusNode();
 
+  late AnimationController _cursorController;
   bool _isNewPasswordObscured = true;
   bool _isConfirmPasswordObscured = true;
   bool _isLoading = false;
+  bool _isFocused = false;
+  String? _otpErrorText;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _cursorController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    )..repeat(reverse: true);
+
+    _otpFocusNode.addListener(() {
+      if (mounted) {
+        setState(() {
+          _isFocused = _otpFocusNode.hasFocus;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
+    _cursorController.dispose();
+    _otpFocusNode.dispose();
     _otpController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
@@ -48,27 +76,38 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     final confirmPassword = _confirmPasswordController.text;
 
     if (otp.length != 6) {
-      _showSnackBar(context, l10n.invalidOtp, colors.error);
+      setState(() => _otpErrorText = l10n.invalidOtp);
       return;
     }
+
     if (newPassword.isEmpty || newPassword != confirmPassword) {
       _showSnackBar(context, l10n.passwordsDoNotMatch, colors.error);
       return;
     }
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _otpErrorText = null;
+    });
+
     try {
       await ref
           .read(authControllerProvider.notifier)
           .confirmPasswordReset(widget.email, otp, newPassword);
-      if (mounted) {
-        _showSnackBar(context, l10n.resetPasswordSuccess, colors.success);
-        context.go(RoutePaths.login);
-      }
+
+      if (!mounted) return;
+      _showSnackBar(context, l10n.resetPasswordSuccess, colors.success);
+      context.go(RoutePaths.login);
     } catch (e) {
-      if (mounted) _showSnackBar(context, e.toString(), colors.error);
+      if (!mounted) return;
+      final String message = e is DioException
+          ? ApiException.fromDioException(e, l10n).message
+          : e.toString();
+      _showSnackBar(context, message, colors.error);
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -88,10 +127,103 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     );
   }
 
+  // ARCHITECTURE FIX: Embedded the elegant Premium Continuous OTP Input
+  Widget _buildPremiumContinuousOtpInput(AppColors colors) {
+    final String text = _otpController.text;
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: double.infinity,
+          height: Dimensions.buttonHeight * 1.5,
+          decoration: BoxDecoration(
+            color: colors.background,
+            borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge),
+            border: Border.all(
+              color: _otpErrorText != null
+                  ? colors.error
+                  : (_isFocused
+                        ? colors.primary
+                        : colors.iconGrey.withValues(alpha: 0.1)),
+              width: _isFocused ? 2.0 : 1.0,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: List.generate(6, (index) {
+              final bool isCurrentPos = text.length == index && _isFocused;
+              final bool hasValue = text.length > index;
+              final String digit = hasValue ? text[index] : '0';
+
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isCurrentPos)
+                    FadeTransition(
+                      opacity: _cursorController,
+                      child: Container(
+                        width: 2,
+                        height: Dimensions.iconLarge,
+                        color: colors.primary,
+                      ),
+                    ),
+                  if (isCurrentPos) SizedBox(width: Dimensions.spacingTiny),
+                  Text(
+                    digit,
+                    style: TextStyle(
+                      fontSize: Dimensions.fontHeading1,
+                      fontWeight: FontWeight.w800,
+                      color: hasValue
+                          ? colors.textPrimary
+                          : colors.iconGrey.withValues(alpha: 0.3),
+                    ),
+                  ),
+                ],
+              );
+            }),
+          ),
+        ),
+        Positioned.fill(
+          child: TextField(
+            focusNode: _otpFocusNode,
+            controller: _otpController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            maxLength: 6,
+            autofillHints: const [AutofillHints.oneTimeCode],
+            cursorColor: Colors.transparent,
+            style: const TextStyle(color: Colors.transparent, fontSize: 1),
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              disabledBorder: InputBorder.none,
+              counterText: "",
+              fillColor: Colors.transparent,
+            ),
+            onChanged: (val) {
+              setState(() {
+                if (_otpErrorText != null) _otpErrorText = null;
+              });
+              if (val.length == 6) {
+                FocusScope.of(context).unfocus();
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final AppColors colors = ref.watch(appThemeProvider);
+
+    final bool isEnabled = _otpController.text.length == 6 && !_isLoading;
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -115,7 +247,6 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
             children: [
               SizedBox(height: Dimensions.spacingLarge),
 
-              // ARCHITECTURE FIX: Unified Premium Alert Banner
               PremiumAlertBanner(
                 colors: colors,
                 themeColor: colors.primary,
@@ -125,7 +256,6 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               ),
               SizedBox(height: Dimensions.spacingExtraLarge),
 
-              // ARCHITECTURE FIX: Premium Card Wrapper
               Container(
                 padding: EdgeInsets.all(Dimensions.spacingLarge),
                 decoration: BoxDecoration(
@@ -135,7 +265,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 15,
                       offset: const Offset(0, 5),
                     ),
@@ -145,7 +275,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      l10n.otpHint,
+                      l10n.enterOtpTitle,
                       style: TextStyle(
                         fontSize: Dimensions.fontBodyLarge,
                         fontWeight: FontWeight.w700,
@@ -153,47 +283,32 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                       ),
                     ),
                     SizedBox(height: Dimensions.spacingSmall),
-                    TextField(
-                      controller: _otpController,
-                      keyboardType: TextInputType.number,
-                      maxLength: 6,
-                      textAlign: TextAlign.center,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      style: TextStyle(
-                        fontSize: Dimensions.fontHeading1,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 16.0,
-                        color: colors.textPrimary,
-                      ),
-                      decoration: InputDecoration(
-                        counterText: "",
-                        filled: true,
-                        fillColor: colors.background,
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: Dimensions.spacingMedium,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.borderRadius,
-                          ),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.borderRadius,
-                          ),
-                          borderSide: BorderSide(
-                            color: colors.primary,
-                            width: 2,
+
+                    // The unified Premium OTP input field
+                    _buildPremiumContinuousOtpInput(colors),
+
+                    if (_otpErrorText != null)
+                      Padding(
+                        padding: EdgeInsets.only(top: Dimensions.spacingMedium),
+                        child: Center(
+                          child: Text(
+                            _otpErrorText!,
+                            style: TextStyle(
+                              color: colors.error,
+                              fontWeight: FontWeight.bold,
+                              fontSize: Dimensions.fontBodyMedium,
+                            ),
                           ),
                         ),
                       ),
-                    ),
+
+                    SizedBox(height: Dimensions.spacingLarge),
+                    Divider(color: colors.iconGrey.withValues(alpha: 0.1)),
                     SizedBox(height: Dimensions.spacingLarge),
 
                     PremiumTextField(
                       label: l10n.newPassword,
-                      hintText: '••••••••',
+                      hintText: l10n.passwordHint,
                       controller: _newPasswordController,
                       icon: Icons.lock_outline_rounded,
                       obscureText: _isNewPasswordObscured,
@@ -210,12 +325,13 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               _isNewPasswordObscured = !_isNewPasswordObscured,
                         ),
                       ),
+                      onChanged: (val) => setState(() {}),
                     ),
                     SizedBox(height: Dimensions.spacingMedium),
 
                     PremiumTextField(
                       label: l10n.confirmNewPassword,
-                      hintText: '••••••••',
+                      hintText: l10n.passwordHint,
                       controller: _confirmPasswordController,
                       icon: Icons.lock_outline_rounded,
                       obscureText: _isConfirmPasswordObscured,
@@ -232,6 +348,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               !_isConfirmPasswordObscured,
                         ),
                       ),
+                      onChanged: (val) => setState(() {}),
                     ),
                   ],
                 ),
@@ -244,19 +361,21 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                 height: Dimensions.buttonHeight * 1.2,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.primary,
+                    backgroundColor: isEnabled
+                        ? colors.primary
+                        : colors.iconGrey.withValues(alpha: 0.3),
                     foregroundColor: Colors.white,
-                    elevation: 4,
-                    shadowColor: colors.primary.withOpacity(0.4),
+                    elevation: isEnabled ? 4 : 0,
+                    shadowColor: colors.primary.withValues(alpha: 0.4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                         Dimensions.borderRadiusLarge,
                       ),
                     ),
                   ),
-                  onPressed: _isLoading
-                      ? null
-                      : () => _handleConfirmReset(l10n, colors),
+                  onPressed: isEnabled
+                      ? () => _handleConfirmReset(l10n, colors)
+                      : null,
                   child: _isLoading
                       ? const CircularProgressIndicator(
                           color: Colors.white,
