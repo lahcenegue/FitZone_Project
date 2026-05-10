@@ -4,7 +4,8 @@ from datetime import datetime
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
-from django.db.models import Q, F, Min
+from django.db.models import Q, F, Min, Count, Case, When, Value, FloatField
+from django.db.models.functions import Cast, Coalesce
 from django.utils import timezone
 from apps.gyms.models import GymBranch
 
@@ -57,12 +58,7 @@ class UnifiedSearchService:
         elif gender == 'mixed':
             queryset = queryset.filter(gender='mixed')
 
-        # 3. City Filter (Supports 'city_id' or legacy 'city')
-        city_id = params.get('city_id') or params.get('city')
-        if city_id:
-            queryset = queryset.filter(city__iexact=city_id)
-
-        # 4. Amenities & Sports Filters (Gym Specific)
+        # 3. Amenities & Sports Filters (Gym Specific)
         sports = params.get('sports')
         if sports:
             sport_ids = [int(s) for s in sports.split(',') if s.isdigit()]
@@ -75,7 +71,7 @@ class UnifiedSearchService:
             if amenity_ids:
                 queryset = queryset.filter(amenities__id__in=amenity_ids).distinct()
 
-        # 4.5 Roaming & Tier Filters (Refactored to use Hierarchy Level)
+        # 4. Roaming & Tier Filters (Refactored to use Hierarchy Level)
         is_roaming = params.get('is_roaming')
         if is_roaming and str(is_roaming).lower() == 'true':
             queryset = queryset.filter(is_roaming_enabled=True)
@@ -147,12 +143,56 @@ class UnifiedSearchService:
             
             queryset = queryset.filter(id__in=open_gym_ids)
 
-        # 7. Map Bounding Box Filtering
+        # 7. Crowd Level Filter (Database Level Annotation & Calculation)
+        crowd_level = params.get('crowd_level')
+        if crowd_level in ['low', 'medium', 'high', 'full']:
+            queryset = queryset.annotate(
+                active_visits_count=Count('visits', filter=Q(visits__is_active=True))
+            ).annotate(
+                effective_cap=Case(
+                    When(max_capacity__gt=0, then=Cast('max_capacity', FloatField())),
+                    default=Value(100.0, output_field=FloatField()),
+                    output_field=FloatField()
+                )
+            ).annotate(
+                occ_rate=(Cast('active_visits_count', FloatField()) / F('effective_cap')) * 100.0
+            ).annotate(
+                c_low=Coalesce(Cast('crowd_level_low', FloatField()), Value(30.0, output_field=FloatField())),
+                c_med=Coalesce(Cast('crowd_level_medium', FloatField()), Value(60.0, output_field=FloatField())),
+                c_high=Coalesce(Cast('crowd_level_high', FloatField()), Value(90.0, output_field=FloatField()))
+            )
+
+            if crowd_level == 'low':
+                queryset = queryset.filter(occ_rate__lte=F('c_low'))
+            elif crowd_level == 'medium':
+                queryset = queryset.filter(occ_rate__gt=F('c_low'), occ_rate__lte=F('c_med'))
+            elif crowd_level == 'high':
+                queryset = queryset.filter(occ_rate__gt=F('c_med'), occ_rate__lte=F('c_high'))
+            elif crowd_level == 'full':
+                queryset = queryset.filter(occ_rate__gt=F('c_high'))
+
+        # 8. Spatial Query Priority
+        city_id = params.get('city_id') or params.get('city')
+        lat = params.get('lat')
+        lng = params.get('lng')
+        radius_km = params.get('radius_km')
+
         min_lat = params.get('min_lat')
         min_lng = params.get('min_lng')
         max_lat = params.get('max_lat')
         max_lng = params.get('max_lng')
 
+        if city_id:
+            # Priority 1: City Search. Ignore user location (lat/lng) and radius.
+            queryset = queryset.filter(city__iexact=city_id)
+            lat = None
+            lng = None
+            radius_km = None
+        elif radius_km and lat and lng:
+            # Priority 2: Radius Search (Circular). Ignore map bounds.
+            min_lat = min_lng = max_lat = max_lng = None
+
+        # 9. Map Bounding Box Filtering (Executes if not suppressed by Priority 2)
         if min_lat and min_lng and max_lat and max_lng:
             try:
                 geom = Polygon.from_bbox((
@@ -163,11 +203,7 @@ class UnifiedSearchService:
             except (ValueError, TypeError):
                 logger.error("Invalid bounding box coordinates provided.")
 
-        # 8. Exact Distance Calculation & Radius (If center coords provided)
-        lat = params.get('lat')
-        lng = params.get('lng')
-        radius_km = params.get('radius_km')
-        
+        # 10. Exact Distance Calculation & Radius (Executes if not suppressed by Priority 1)
         if lat and lng:
             try:
                 user_location = Point(float(lng), float(lat), srid=4326)
@@ -178,7 +214,7 @@ class UnifiedSearchService:
             except (ValueError, TypeError):
                 logger.error("Invalid center coordinates passed to search service.")
 
-        # 9. Sorting Logic
+        # 11. Sorting Logic
         sort_by = params.get('sort_by')
         if sort_by == 'distance' and lat and lng:
             queryset = queryset.order_by('distance')

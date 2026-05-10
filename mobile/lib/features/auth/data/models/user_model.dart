@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// Represents the core user data returned from the backend.
 class UserModel extends Equatable {
   final int id;
   final String email;
@@ -39,22 +38,24 @@ class UserModel extends Equatable {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    // ARCHITECTURE FIX: Safe parsing using num and tryParse for better robustness
     return UserModel(
-      id: json['id'] as int,
-      email: json['email'] as String,
-      fullName: json['full_name'] as String,
-      phoneNumber: json['phone_number'] as String?,
-      gender: json['gender'] as String,
-      avatar: json['avatar'] as String?,
-      realFaceImage: json['real_face_image'] as String?,
-      idCardImage: json['id_card_image'] as String?,
-      address: json['address'] as String?,
-      city: json['city'] as String,
+      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      email: json['email']?.toString() ?? '',
+      fullName: json['full_name']?.toString() ?? '',
+      phoneNumber: json['phone_number']?.toString(),
+      gender: json['gender']?.toString() ?? 'male',
+      avatar: json['avatar']?.toString(),
+      realFaceImage: json['real_face_image']?.toString(),
+      idCardImage: json['id_card_image']?.toString(),
+      address: json['address']?.toString(),
+      city: json['city']?.toString() ?? '',
       lat: json['lat'] != null ? (json['lat'] as num).toDouble() : null,
       lng: json['lng'] != null ? (json['lng'] as num).toDouble() : null,
       isActive: json['is_active'] as bool? ?? false,
       isVerified: json['is_verified'] as bool? ?? false,
-      pointsBalance: json['points_balance'] as int? ?? 0,
+      pointsBalance:
+          int.tryParse(json['points_balance']?.toString() ?? '0') ?? 0,
       profileIsComplete: json['profile_is_complete'] as bool? ?? false,
     );
   }
@@ -80,7 +81,6 @@ class UserModel extends Equatable {
     };
   }
 
-  /// Creates a copy of this UserModel with the given fields replaced by the new values.
   UserModel copyWith({
     int? id,
     String? email,

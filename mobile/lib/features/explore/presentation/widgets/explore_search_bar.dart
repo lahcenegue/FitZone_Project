@@ -50,15 +50,6 @@ class _ExploreSearchBarState extends ConsumerState<ExploreSearchBar> {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final ExploreFilterState currentFilters = ref.watch(exploreFilterProvider);
 
-    // Dynamic indicator logic based on comprehensive state
-    final bool hasActiveFilters =
-        currentFilters.gender != null ||
-        currentFilters.isOpen ||
-        currentFilters.sortBy != null ||
-        currentFilters.selectedSports.isNotEmpty ||
-        currentFilters.selectedAmenities.isNotEmpty ||
-        currentFilters.maxPrice != null;
-
     return Container(
       height: Dimensions.searchBarHeight,
       decoration: BoxDecoration(
@@ -66,7 +57,7 @@ class _ExploreSearchBarState extends ConsumerState<ExploreSearchBar> {
         borderRadius: BorderRadius.circular(Dimensions.radiusPill),
         boxShadow: [
           BoxShadow(
-            color: widget.colors.shadow.withOpacity(0.1),
+            color: widget.colors.shadow.withValues(alpha: 0.1),
             blurRadius: Dimensions.shadowBlurRadius,
             offset: Offset(0, Dimensions.shadowOffsetY),
           ),
@@ -119,7 +110,7 @@ class _ExploreSearchBarState extends ConsumerState<ExploreSearchBar> {
           Container(
             width: 1,
             height: Dimensions.iconMedium,
-            color: widget.colors.iconGrey.withOpacity(0.3),
+            color: widget.colors.iconGrey.withValues(alpha: 0.3),
             margin: EdgeInsets.symmetric(horizontal: Dimensions.spacingTiny),
           ),
           Stack(
@@ -137,10 +128,10 @@ class _ExploreSearchBarState extends ConsumerState<ExploreSearchBar> {
               ),
               if (currentFilters.activeFilterCount > 0)
                 Positioned(
-                  top: 4,
-                  right: 4,
+                  top: Dimensions.spacingTiny,
+                  right: Dimensions.spacingTiny,
                   child: Container(
-                    padding: const EdgeInsets.all(4),
+                    padding: EdgeInsets.all(Dimensions.spacingTiny),
                     decoration: BoxDecoration(
                       color: widget.colors.error,
                       shape: BoxShape.circle,

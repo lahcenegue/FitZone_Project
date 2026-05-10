@@ -1243,4 +1243,19 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get locationRequiredError =>
       'Please select your location on the map first';
+
+  @override
+  String get crowdLevel => 'Crowd Level';
+
+  @override
+  String get lowCrowd => 'Low';
+
+  @override
+  String get mediumCrowd => 'Medium';
+
+  @override
+  String get highCrowd => 'High';
+
+  @override
+  String get priceRange => 'Price Range';
 }

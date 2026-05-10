@@ -1,4 +1,5 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/config/app_constants.dart';
 
 /// Holds the comprehensive state of all explore filters across all service categories.
 class ExploreFilterState {
@@ -13,7 +14,8 @@ class ExploreFilterState {
   final bool isOpen;
   final String? gender;
   final double? minPrice;
-  final double? maxPrice;
+  final double? maxPrice; // RESTORED: Max price for RangeSlider
+  final String? crowdLevel;
 
   // Type-Specific Array Filters (IDs)
   final List<int> selectedSports;
@@ -23,31 +25,30 @@ class ExploreFilterState {
 
   const ExploreFilterState({
     this.query,
-    this.category = 'gym', // Default category
+    this.category = 'gym',
     this.cityId,
-    this.radiusKm = 200.0, // Default radius
+    this.radiusKm = AppConstants.maxdistamceKm,
     this.sortBy,
     this.bounds,
     this.isOpen = false,
     this.gender,
     this.minPrice,
     this.maxPrice,
+    this.crowdLevel,
     this.selectedSports = const [],
     this.selectedAmenities = const [],
     this.selectedDietary = const [],
     this.selectedEquipmentCategories = const [],
   });
 
-  /// Returns the number of currently active filters
-  /// (Does not count 'category' or 'bounds' as user-selected filters for the badge)
   int get activeFilterCount {
     int count = 0;
     if (query != null && query!.isNotEmpty) count++;
     if (cityId != null && cityId!.isNotEmpty) count++;
-    if (radiusKm < 200.0) count++; // Only counts if restricted from default
+    if (radiusKm < AppConstants.maxdistamceKm) count++;
     if (gender != null && gender!.isNotEmpty) count++;
-    if (minPrice != null) count++;
-    if (maxPrice != null) count++;
+    if (minPrice != null || maxPrice != null) count++;
+    if (crowdLevel != null && crowdLevel!.isNotEmpty) count++;
     if (isOpen) count++;
     if (selectedSports.isNotEmpty) count++;
     if (selectedAmenities.isNotEmpty) count++;
@@ -57,8 +58,6 @@ class ExploreFilterState {
     return count;
   }
 
-  /// Creates a new state with updated fields.
-  /// ARCHITECTURE FIX: Added clear flags for all nullable fields to ensure precise resetting.
   ExploreFilterState copyWith({
     String? query,
     bool clearQuery = false,
@@ -77,6 +76,8 @@ class ExploreFilterState {
     bool clearMinPrice = false,
     double? maxPrice,
     bool clearMaxPrice = false,
+    String? crowdLevel,
+    bool clearCrowdLevel = false,
     List<int>? selectedSports,
     List<int>? selectedAmenities,
     List<int>? selectedDietary,
@@ -93,6 +94,7 @@ class ExploreFilterState {
       gender: clearGender ? null : (gender ?? this.gender),
       minPrice: clearMinPrice ? null : (minPrice ?? this.minPrice),
       maxPrice: clearMaxPrice ? null : (maxPrice ?? this.maxPrice),
+      crowdLevel: clearCrowdLevel ? null : (crowdLevel ?? this.crowdLevel),
       selectedSports: selectedSports ?? this.selectedSports,
       selectedAmenities: selectedAmenities ?? this.selectedAmenities,
       selectedDietary: selectedDietary ?? this.selectedDietary,

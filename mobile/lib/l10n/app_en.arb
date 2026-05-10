@@ -419,5 +419,22 @@
   "emailHint": "Enter your email address",
   "passwordHint": "Enter your password",
   "registerSubtitle": "Join FitZone and start your fitness journey today.",
-  "locationRequiredError": "Please select your location on the map first"
+  "locationRequiredError": "Please select your location on the map first",
+  "crowdLevel": "Crowd Level",
+  "@crowdLevel": {
+    "description": "Label for the crowd level filter"
+  },
+  "lowCrowd": "Low",
+  "@lowCrowd": {
+    "description": "Low crowd level option"
+  },
+  "mediumCrowd": "Medium",
+  "@mediumCrowd": {
+    "description": "Medium crowd level option"
+  },
+  "highCrowd": "High",
+  "@highCrowd": {
+    "description": "High crowd level option"
+  },
+  "priceRange": "Price Range"
 }

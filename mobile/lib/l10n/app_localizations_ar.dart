@@ -1219,4 +1219,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get locationRequiredError => 'يرجى تحديد موقعك على الخريطة أولاً';
+
+  @override
+  String get crowdLevel => 'مستوى الازدحام';
+
+  @override
+  String get lowCrowd => 'منخفض';
+
+  @override
+  String get mediumCrowd => 'متوسط';
+
+  @override
+  String get highCrowd => 'مرتفع';
+
+  @override
+  String get priceRange => 'النطاق السعري';
 }

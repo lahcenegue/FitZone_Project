@@ -24,10 +24,15 @@ class AuthInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     try {
-      // ARCHITECTURE FIX: Using centralized public endpoints list (DRY)
-      final bool isPublicEndpoint = ApiConstants.publicEndpoints.any(
-        (endpoint) => options.path.contains(endpoint),
-      );
+      // ARCHITECTURE FIX: Exact Match for Public Endpoints to prevent security risks
+      final String requestPath = options.path.split('?').first;
+      final bool isPublicEndpoint = ApiConstants.publicEndpoints.any((
+        endpoint,
+      ) {
+        final safePath = requestPath.replaceAll(RegExp(r'/$'), '');
+        final safeEndpoint = endpoint.replaceAll(RegExp(r'/$'), '');
+        return safePath.endsWith(safeEndpoint);
+      });
 
       if (!isPublicEndpoint) {
         final secureStorage = ref.read(secureStorageServiceProvider);
@@ -141,7 +146,6 @@ class AuthInterceptor extends Interceptor {
       final refreshDio = Dio(
         BaseOptions(
           baseUrl: ApiConstants.baseUrl,
-          // ARCHITECTURE FIX: Centralized timeouts
           connectTimeout: ApiConstants.connectTimeout,
           receiveTimeout: ApiConstants.receiveTimeout,
           responseType: ResponseType.json,

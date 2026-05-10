@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logging/logging.dart';
@@ -24,19 +25,6 @@ class ExploreFilter extends _$ExploreFilter {
   ExploreFilterState build() => const ExploreFilterState();
 
   void updateFilters(ExploreFilterState newState) {
-    // ARCHITECTURE FIX: Mathematical Swap for logical price ranges.
-    // If the user accidentally inputs min > max, we swap them silently instead of zeroing the range.
-    if (newState.minPrice != null &&
-        newState.maxPrice != null &&
-        newState.minPrice! > newState.maxPrice!) {
-      _logger.info('Auto-correcting inverted price range (Swap Strategy).');
-      final double tempMin = newState.maxPrice!;
-      final double tempMax = newState.minPrice!;
-
-      state = newState.copyWith(minPrice: tempMin, maxPrice: tempMax);
-      return;
-    }
-
     state = newState;
   }
 
@@ -72,14 +60,29 @@ Future<List<GymModel>> nearbyPlaces(Ref ref) async {
   final userLocation = locationState.location;
 
   if (filters.bounds == null &&
-      (filters.query == null || filters.query!.isEmpty)) {
+      (filters.query == null || filters.query!.isEmpty) &&
+      filters.cityId == null) {
     return [];
   }
 
-  _logger.info('Fetching nearby places with unified filters...');
+  // ARCHITECTURE FIX: Debounce & Cancellation Logic
+  final cancelToken = CancelToken();
+  ref.onDispose(cancelToken.cancel);
+
+  // Debounce time: Wait 500ms before making the API call
+  await Future<void>.delayed(const Duration(milliseconds: 500));
+  if (cancelToken.isCancelled) {
+    _logger.info(
+      'Skipping cancelled request (Map is still moving or filters changed).',
+    );
+    return [];
+  }
+
+  _logger.info('Fetching nearby places with unified filters after debounce...');
 
   return await apiService.discoverPlaces(
     filters: filters,
     userLocation: userLocation,
+    cancelToken: cancelToken,
   );
 }

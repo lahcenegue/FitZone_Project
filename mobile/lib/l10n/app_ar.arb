@@ -420,5 +420,10 @@
   "emailHint": "أدخل بريدك الإلكتروني",
   "passwordHint": "أدخل كلمة المرور",
   "registerSubtitle": "انضم إلى FitZone وابدأ رحلتك الرياضية اليوم.",
-  "locationRequiredError": "يرجى تحديد موقعك على الخريطة أولاً"
+  "locationRequiredError": "يرجى تحديد موقعك على الخريطة أولاً",
+  "crowdLevel": "مستوى الازدحام",
+  "lowCrowd": "منخفض",
+  "mediumCrowd": "متوسط",
+  "highCrowd": "مرتفع",
+  "priceRange": "النطاق السعري"
 }

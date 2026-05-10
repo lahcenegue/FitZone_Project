@@ -2455,6 +2455,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please select your location on the map first'**
   String get locationRequiredError;
+
+  /// Label for the crowd level filter
+  ///
+  /// In en, this message translates to:
+  /// **'Crowd Level'**
+  String get crowdLevel;
+
+  /// Low crowd level option
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get lowCrowd;
+
+  /// Medium crowd level option
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get mediumCrowd;
+
+  /// High crowd level option
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get highCrowd;
+
+  /// No description provided for @priceRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Price Range'**
+  String get priceRange;
 }
 
 class _AppLocalizationsDelegate
