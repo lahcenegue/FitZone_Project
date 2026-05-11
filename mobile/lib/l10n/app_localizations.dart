@@ -2557,6 +2557,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pending'**
   String get pendingBalance;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navExplore.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get navExplore;
+
+  /// No description provided for @navMarketplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get navMarketplace;
+
+  /// No description provided for @navSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get navSaved;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @marketplaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Marketplace'**
+  String get marketplaceTitle;
+
+  /// No description provided for @daysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Days Left'**
+  String get daysLeft;
+
+  /// No description provided for @fairValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Fair Value'**
+  String get fairValue;
+
+  /// No description provided for @askingPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Asking Price'**
+  String get askingPrice;
+
+  /// No description provided for @discountTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get discountTag;
+
+  /// No description provided for @genderMixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed'**
+  String get genderMixed;
+
+  /// No description provided for @genderMale.
+  ///
+  /// In en, this message translates to:
+  /// **'Men'**
+  String get genderMale;
+
+  /// No description provided for @genderFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Women'**
+  String get genderFemale;
+
+  /// No description provided for @kmAway.
+  ///
+  /// In en, this message translates to:
+  /// **'km'**
+  String get kmAway;
+
+  /// No description provided for @noResaleItems.
+  ///
+  /// In en, this message translates to:
+  /// **'No subscriptions available for resale at the moment'**
+  String get noResaleItems;
+
+  /// No description provided for @sellerInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Offered by'**
+  String get sellerInfo;
+
+  /// No description provided for @dealSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Deal Summary'**
+  String get dealSummary;
+
+  /// No description provided for @youSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'You saved'**
+  String get youSaved;
+
+  /// No description provided for @continueToCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Proceed to Checkout'**
+  String get continueToCheckout;
+
+  /// No description provided for @viewGymDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View Gym Facilities'**
+  String get viewGymDetails;
 }
 
 class _AppLocalizationsDelegate

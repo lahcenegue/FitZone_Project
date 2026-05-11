@@ -1294,4 +1294,65 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pendingBalance => 'Pending';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navExplore => 'Explore';
+
+  @override
+  String get navMarketplace => 'Market';
+
+  @override
+  String get navSaved => 'Saved';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get marketplaceTitle => 'Marketplace';
+
+  @override
+  String get daysLeft => 'Days Left';
+
+  @override
+  String get fairValue => 'Fair Value';
+
+  @override
+  String get askingPrice => 'Asking Price';
+
+  @override
+  String get discountTag => 'Off';
+
+  @override
+  String get genderMixed => 'Mixed';
+
+  @override
+  String get genderMale => 'Men';
+
+  @override
+  String get genderFemale => 'Women';
+
+  @override
+  String get kmAway => 'km';
+
+  @override
+  String get noResaleItems =>
+      'No subscriptions available for resale at the moment';
+
+  @override
+  String get sellerInfo => 'Offered by';
+
+  @override
+  String get dealSummary => 'Deal Summary';
+
+  @override
+  String get youSaved => 'You saved';
+
+  @override
+  String get continueToCheckout => 'Proceed to Checkout';
+
+  @override
+  String get viewGymDetails => 'View Gym Facilities';
 }

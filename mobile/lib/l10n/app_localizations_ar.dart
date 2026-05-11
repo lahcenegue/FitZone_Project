@@ -1270,4 +1270,64 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pendingBalance => 'رصيد محجوز';
+
+  @override
+  String get navHome => 'الرئيسية';
+
+  @override
+  String get navExplore => 'استكشاف';
+
+  @override
+  String get navMarketplace => 'المتجر';
+
+  @override
+  String get navSaved => 'المحفوظات';
+
+  @override
+  String get navProfile => 'حسابي';
+
+  @override
+  String get marketplaceTitle => 'المتجر';
+
+  @override
+  String get daysLeft => 'يوم متبقي';
+
+  @override
+  String get fairValue => 'السعر الأصلي';
+
+  @override
+  String get askingPrice => 'سعر البيع';
+
+  @override
+  String get discountTag => 'خصم';
+
+  @override
+  String get genderMixed => 'مختلط';
+
+  @override
+  String get genderMale => 'رجال';
+
+  @override
+  String get genderFemale => 'سيدات';
+
+  @override
+  String get kmAway => 'كم';
+
+  @override
+  String get noResaleItems => 'لا توجد اشتراكات معروضة للبيع حالياً';
+
+  @override
+  String get sellerInfo => 'مقدم من طرف';
+
+  @override
+  String get dealSummary => 'ملخص الصفقة';
+
+  @override
+  String get youSaved => 'لقد وفرت';
+
+  @override
+  String get continueToCheckout => 'متابعة الشراء';
+
+  @override
+  String get viewGymDetails => 'معاينة مرافق الصالة';
 }

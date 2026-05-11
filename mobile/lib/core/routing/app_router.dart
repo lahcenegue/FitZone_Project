@@ -8,13 +8,14 @@ import '../../features/auth/presentation/screens/change_password_screen.dart';
 import '../../features/auth/presentation/screens/complete_profile_screen.dart';
 import '../../features/auth/presentation/screens/delete_account_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
-import 'package:fitzone/features/auth/presentation/screens/register_screen.dart';
+import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../../features/explore/presentation/screens/explore_filters_screen.dart';
 import '../../features/explore/presentation/screens/explore_screen.dart';
 import '../../features/gyms/presentation/screens/gym_details_screen.dart';
+import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/loyalty/presentation/screens/bank_account_screen.dart';
 import '../../features/loyalty/presentation/screens/loyalty_dashboard_screen.dart';
 import '../../features/loyalty/presentation/screens/loyalty_gamified_track_screen.dart';
@@ -23,6 +24,7 @@ import '../../features/loyalty/presentation/screens/points_history_screen.dart';
 import '../../features/loyalty/presentation/screens/rewards_history_screen.dart';
 import '../../features/loyalty/presentation/screens/transactions_history_screen.dart';
 import '../../features/loyalty/presentation/screens/withdraw_screen.dart';
+import '../../features/marketplace/presentation/screens/marketplace_screen.dart';
 import '../../features/profile/presentation/screens/personal_info_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
@@ -43,9 +45,13 @@ class RoutePaths {
   static const String completeProfile = '/complete-profile';
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
-  static const String explore = '/';
+
+  static const String home = '/';
+  static const String explore = '/explore';
+  static const String marketplace = '/marketplace';
   static const String saved = '/saved';
   static const String profile = '/profile';
+
   static const String personalInfo = '/personal-info';
   static const String loyalty = '/loyalty';
   static const String gamifiedTrack = '/gamified-track';
@@ -76,7 +82,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: RoutePaths.splash,
     debugLogDiagnostics: true,
 
-    // ARCHITECTURE FIX: Strict Multi-Stage Guard Logic
     redirect: (context, state) {
       final authState = ref.read(authControllerProvider);
       final user = authState.value;
@@ -92,7 +97,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       final bool isPublicRoute =
           [
+            RoutePaths.home,
             RoutePaths.explore,
+            RoutePaths.marketplace,
             RoutePaths.filters,
             RoutePaths.profile,
           ].contains(state.uri.path) ||
@@ -100,7 +107,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       if (isSplash) return null;
 
-      // STAGE 1: Not Logged In
       if (user == null) {
         if (!isAuthRoute && !isPublicRoute) {
           _routerLogger.warning(
@@ -111,7 +117,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      // STAGE 2: Logged In but NOT Verified (The Missing Link Fix)
       if (!user.isVerified) {
         if (state.uri.path != RoutePaths.verifyOtp) {
           _routerLogger.warning(
@@ -122,10 +127,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      // STAGE 3: Fully Logged In & Verified
       if (isAuthRoute) {
-        // Logged-in users shouldn't see auth screens
-        return RoutePaths.explore;
+        return RoutePaths.home;
       }
 
       return null;
@@ -236,11 +239,32 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return SubscriptionDetailsScreen(subscription: sub);
         },
       ),
+
+      // ARCHITECTURE FIX: Reordered branches. Explore is now Index 2 (Center)
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             MainShellScreen(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(
+            // Index 0: Home
+            routes: [
+              GoRoute(
+                path: RoutePaths.home,
+                builder: (context, state) => const HomeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            // Index 1: Marketplace
+            routes: [
+              GoRoute(
+                path: RoutePaths.marketplace,
+                builder: (context, state) => const MarketplaceScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            // Index 2: Explore (CENTER PROMINENT)
             routes: [
               GoRoute(
                 path: RoutePaths.explore,
@@ -249,6 +273,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
           StatefulShellBranch(
+            // Index 3: Saved
             routes: [
               GoRoute(
                 path: RoutePaths.saved,
@@ -258,6 +283,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
           StatefulShellBranch(
+            // Index 4: Profile
             routes: [
               GoRoute(
                 path: RoutePaths.profile,
@@ -267,6 +293,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+
       GoRoute(
         path: RoutePaths.gymDetails,
         builder: (context, state) {
