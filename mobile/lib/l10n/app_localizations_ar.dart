@@ -1330,4 +1330,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get viewGymDetails => 'معاينة مرافق الصالة';
+
+  @override
+  String get minDaysLeft => 'الحد الأدنى للأيام المتبقية';
+
+  @override
+  String get minDiscount => 'الحد الأدنى للخصم';
+
+  @override
+  String get highestDiscount => 'أعلى خصم';
+
+  @override
+  String get longestDuration => 'أطول مدة';
+
+  @override
+  String get lowestPrice => 'الأرخص';
+
+  @override
+  String get searchResale => 'ابحث عن صالة أو اشتراك...';
 }

@@ -57,6 +57,59 @@ final class MarketplaceApiServiceProvider
 String _$marketplaceApiServiceHash() =>
     r'14be45ccc7ced427a9b1e5cb4643f653552189ba';
 
+@ProviderFor(MarketplaceFilter)
+final marketplaceFilterProvider = MarketplaceFilterProvider._();
+
+final class MarketplaceFilterProvider
+    extends $NotifierProvider<MarketplaceFilter, MarketplaceFilterState> {
+  MarketplaceFilterProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'marketplaceFilterProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$marketplaceFilterHash();
+
+  @$internal
+  @override
+  MarketplaceFilter create() => MarketplaceFilter();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(MarketplaceFilterState value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<MarketplaceFilterState>(value),
+    );
+  }
+}
+
+String _$marketplaceFilterHash() => r'1556f39d5cf5c6f9e0b29adcac13e1bad9e393bc';
+
+abstract class _$MarketplaceFilter extends $Notifier<MarketplaceFilterState> {
+  MarketplaceFilterState build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref =
+        this.ref as $Ref<MarketplaceFilterState, MarketplaceFilterState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<MarketplaceFilterState, MarketplaceFilterState>,
+              MarketplaceFilterState,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(MarketplaceController)
 final marketplaceControllerProvider = MarketplaceControllerProvider._();
 
@@ -82,7 +135,7 @@ final class MarketplaceControllerProvider
 }
 
 String _$marketplaceControllerHash() =>
-    r'53872503c0411bc3f4a1d79ab874ef49ef4e1efb';
+    r'3b1040d3c9f532ca8850c4043fcd2b51d598b2b7';
 
 abstract class _$MarketplaceController
     extends $AsyncNotifier<MarketplaceState> {

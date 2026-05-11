@@ -24,6 +24,7 @@ import '../../features/loyalty/presentation/screens/points_history_screen.dart';
 import '../../features/loyalty/presentation/screens/rewards_history_screen.dart';
 import '../../features/loyalty/presentation/screens/transactions_history_screen.dart';
 import '../../features/loyalty/presentation/screens/withdraw_screen.dart';
+import '../../features/marketplace/presentation/screens/marketplace_filters_screen.dart';
 import '../../features/marketplace/presentation/screens/marketplace_screen.dart';
 import '../../features/profile/presentation/screens/personal_info_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
@@ -39,6 +40,8 @@ class RoutePaths {
 
   static const String splash = '/splash';
   static const String filters = '/filters';
+  static const String marketplaceFilters =
+      '/marketplace-filters'; // ARCHITECTURE FIX: New Route
   static const String login = '/login';
   static const String register = '/register';
   static const String verifyOtp = '/verify-otp';
@@ -101,6 +104,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             RoutePaths.explore,
             RoutePaths.marketplace,
             RoutePaths.filters,
+            RoutePaths.marketplaceFilters, // Authorized Public Route
             RoutePaths.profile,
           ].contains(state.uri.path) ||
           state.uri.path.startsWith('/gym/');
@@ -240,13 +244,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // ARCHITECTURE FIX: Reordered branches. Explore is now Index 2 (Center)
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             MainShellScreen(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(
-            // Index 0: Home
             routes: [
               GoRoute(
                 path: RoutePaths.home,
@@ -255,7 +257,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
           StatefulShellBranch(
-            // Index 1: Marketplace
             routes: [
               GoRoute(
                 path: RoutePaths.marketplace,
@@ -264,7 +265,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
           StatefulShellBranch(
-            // Index 2: Explore (CENTER PROMINENT)
             routes: [
               GoRoute(
                 path: RoutePaths.explore,
@@ -273,7 +273,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
           StatefulShellBranch(
-            // Index 3: Saved
             routes: [
               GoRoute(
                 path: RoutePaths.saved,
@@ -283,7 +282,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
           StatefulShellBranch(
-            // Index 4: Profile
             routes: [
               GoRoute(
                 path: RoutePaths.profile,
@@ -305,6 +303,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.filters,
         builder: (context, state) => const ExploreFiltersScreen(),
+      ),
+      // ARCHITECTURE FIX: Appended Marketplace Filters Route
+      GoRoute(
+        path: RoutePaths.marketplaceFilters,
+        builder: (context, state) => const MarketplaceFiltersScreen(),
       ),
     ],
     errorBuilder: (context, state) {

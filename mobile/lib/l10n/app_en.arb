@@ -474,5 +474,11 @@
   "dealSummary": "Deal Summary",
   "youSaved": "You saved",
   "continueToCheckout": "Proceed to Checkout",
-  "viewGymDetails": "View Gym Facilities"
+  "viewGymDetails": "View Gym Facilities",
+  "minDaysLeft": "Minimum Days Left",
+  "minDiscount": "Minimum Discount",
+  "highestDiscount": "Highest Discount",
+  "longestDuration": "Longest Duration",
+  "lowestPrice": "Lowest Price",
+  "searchResale": "Search gyms or subscriptions..."
 }

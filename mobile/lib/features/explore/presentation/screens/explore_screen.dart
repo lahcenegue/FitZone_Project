@@ -7,6 +7,7 @@ import 'package:logging/logging.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/app_constants.dart';
+import '../../../../core/presentation/widgets/premium_search_bar.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/routing/app_router.dart';
@@ -15,7 +16,6 @@ import '../../../../core/storage/storage_provider.dart';
 import '../../../../core/database/database_service.dart';
 import '../../../../l10n/app_localizations.dart';
 
-import '../widgets/explore_search_bar.dart';
 import '../widgets/map_zoom_controls.dart';
 import '../widgets/map_location_button.dart';
 import '../widgets/places_horizontal_list.dart';
@@ -128,7 +128,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       final BitmapDescriptor customIcon =
           await MapMarkerGenerator.createCustomMarker(
             markerColor: baseColor,
-            logoUrl: place.branchLogo ?? '', // Using correct new field name
+            logoUrl: place.branchLogo ?? '',
           );
 
       newMarkers.add(
@@ -144,7 +144,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
         ),
       );
 
-      // ARCHITECTURE FIX: Using withValues instead of deprecated withOpacity
       newCircles.add(
         Circle(
           circleId: CircleId('circle_outer_${place.id}'),
@@ -198,7 +197,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final selectedPlace = ref.watch(selectedPlaceProvider);
     final locationState = ref.watch(userLocationProvider);
 
-    // Initial map position
+    // Fetch current explore filter state to pass to the PremiumSearchBar
+    final filterState = ref.watch(exploreFilterProvider);
+
     final LatLng initialPos =
         locationState.location ??
         ref.read(storageServiceProvider).getLastLocation() ??
@@ -216,7 +217,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       next.whenData((places) => _generateMapItems(places, colors));
     });
 
-    // Handle Delayed GPS Auto Panning
     ref.listen<LocationState>(userLocationProvider, (previous, next) async {
       if (previous?.location == null && next.location != null) {
         try {
@@ -235,7 +235,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       }
     });
 
-    // Handle Auto Panning on City Filter Change
     ref.listen<String?>(exploreFilterProvider.select((s) => s.cityId), (
       prev,
       currentCityId,
@@ -279,7 +278,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       body: Stack(
         children: [
           GoogleMap(
-            // ARCHITECTURE FIX: Inject Map Style directly using the style property
             style: isDarkMode
                 ? AppConstants.darkMapStyle
                 : AppConstants.lightMapStyle,
@@ -312,7 +310,26 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             right: Dimensions.spacingMedium,
             child: Column(
               children: [
-                ExploreSearchBar(colors: colors),
+                // ARCHITECTURE FIX: Properly instantiating the generalized PremiumSearchBar
+                PremiumSearchBar(
+                  colors: colors,
+                  hintText: l10n.searchPlaces,
+                  initialQuery: filterState.query ?? '',
+                  activeFilterCount: filterState.activeFilterCount,
+                  onSearchSubmitted: (query) {
+                    ref
+                        .read(exploreFilterProvider.notifier)
+                        .updateFilters(filterState.copyWith(query: query));
+                  },
+                  onClearTapped: () {
+                    ref
+                        .read(exploreFilterProvider.notifier)
+                        .updateFilters(filterState.copyWith(clearQuery: true));
+                  },
+                  onFilterTapped: () {
+                    context.push(RoutePaths.filters);
+                  },
+                ),
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeInOut,
@@ -327,7 +344,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         horizontal: Dimensions.spacingMedium,
                         vertical: Dimensions.spacingSmall,
                       ),
-                      // ARCHITECTURE FIX: Replace withOpacity with withValues
                       color: colors.surface.withValues(alpha: 0.95),
                       child: Row(
                         children: [

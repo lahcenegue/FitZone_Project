@@ -1355,4 +1355,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewGymDetails => 'View Gym Facilities';
+
+  @override
+  String get minDaysLeft => 'Minimum Days Left';
+
+  @override
+  String get minDiscount => 'Minimum Discount';
+
+  @override
+  String get highestDiscount => 'Highest Discount';
+
+  @override
+  String get longestDuration => 'Longest Duration';
+
+  @override
+  String get lowestPrice => 'Lowest Price';
+
+  @override
+  String get searchResale => 'Search gyms or subscriptions...';
 }

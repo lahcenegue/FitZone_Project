@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 
 import '../../../../core/presentation/widgets/custom_empty_state.dart';
+import '../../../../core/presentation/widgets/premium_search_bar.dart';
+import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme_provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../providers/marketplace_providers.dart';
-import '../widgets/resale_item_card.dart';
 import '../widgets/resale_item_bottom_sheet.dart';
+import '../widgets/resale_item_card.dart';
 
 class MarketplaceScreen extends ConsumerStatefulWidget {
   const MarketplaceScreen({super.key});
@@ -45,7 +48,10 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   Widget build(BuildContext context) {
     final AppColors colors = ref.watch(appThemeProvider);
     final AppLocalizations l10n = AppLocalizations.of(context)!;
+
+    // ARCHITECTURE FIX: Watch both data and filter states
     final marketplaceState = ref.watch(marketplaceControllerProvider);
+    final filterState = ref.watch(marketplaceFilterProvider);
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -60,6 +66,42 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             fontWeight: FontWeight.w900,
             fontSize: Dimensions.fontTitleLarge,
             letterSpacing: -0.5,
+          ),
+        ),
+        // ARCHITECTURE FIX: Integrated Premium Search Bar
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(
+            Dimensions.searchBarHeight + Dimensions.spacingMedium,
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              Dimensions.spacingLarge,
+              0,
+              Dimensions.spacingLarge,
+              Dimensions.spacingMedium,
+            ),
+            child: PremiumSearchBar(
+              colors: colors,
+              hintText: l10n.searchResale,
+              initialQuery: filterState.query ?? '',
+              activeFilterCount: filterState.activeFilterCount,
+              onSearchSubmitted: (query) {
+                _logger.info('Search query submitted: $query');
+                ref
+                    .read(marketplaceFilterProvider.notifier)
+                    .updateFilters(filterState.copyWith(query: query));
+              },
+              onClearTapped: () {
+                _logger.info('Search query cleared');
+                ref
+                    .read(marketplaceFilterProvider.notifier)
+                    .updateFilters(filterState.copyWith(clearQuery: true));
+              },
+              onFilterTapped: () {
+                _logger.info('Navigating to Marketplace Filters');
+                context.push(RoutePaths.marketplaceFilters);
+              },
+            ),
           ),
         ),
       ),
@@ -118,10 +160,10 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                   parent: BouncingScrollPhysics(),
                 ),
                 padding: EdgeInsets.only(
-                  top: Dimensions.spacingLarge,
+                  top: Dimensions.spacingMedium,
                   left: Dimensions.spacingLarge,
                   right: Dimensions.spacingLarge,
-                  // ARCHITECTURE FIX: Extra padding at bottom to prevent floating nav bar intersection
+                  // ARCHITECTURE FIX: Bottom padding prevents overlapping with floating nav dock
                   bottom: Dimensions.spacingExtraLarge * 4,
                 ),
                 itemCount: state.items.length + (state.isLoadMore ? 1 : 0),

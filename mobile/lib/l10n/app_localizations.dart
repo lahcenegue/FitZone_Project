@@ -2677,6 +2677,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View Gym Facilities'**
   String get viewGymDetails;
+
+  /// No description provided for @minDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum Days Left'**
+  String get minDaysLeft;
+
+  /// No description provided for @minDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum Discount'**
+  String get minDiscount;
+
+  /// No description provided for @highestDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest Discount'**
+  String get highestDiscount;
+
+  /// No description provided for @longestDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest Duration'**
+  String get longestDuration;
+
+  /// No description provided for @lowestPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest Price'**
+  String get lowestPrice;
+
+  /// No description provided for @searchResale.
+  ///
+  /// In en, this message translates to:
+  /// **'Search gyms or subscriptions...'**
+  String get searchResale;
 }
 
 class _AppLocalizationsDelegate

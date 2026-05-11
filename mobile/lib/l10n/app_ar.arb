@@ -457,5 +457,11 @@
   "dealSummary": "ملخص الصفقة",
   "youSaved": "لقد وفرت",
   "continueToCheckout": "متابعة الشراء",
-  "viewGymDetails": "معاينة مرافق الصالة"
+  "viewGymDetails": "معاينة مرافق الصالة",
+  "minDaysLeft": "الحد الأدنى للأيام المتبقية",
+  "minDiscount": "الحد الأدنى للخصم",
+  "highestDiscount": "أعلى خصم",
+  "longestDuration": "أطول مدة",
+  "lowestPrice": "الأرخص",
+  "searchResale": "ابحث عن صالة أو اشتراك..."
 }

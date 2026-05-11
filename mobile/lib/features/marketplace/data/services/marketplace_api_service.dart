@@ -11,19 +11,37 @@ class MarketplaceApiService {
 
   Future<PaginatedResaleItems> discoverResaleItems({
     int page = 1,
+    String? q,
+    String? city,
+    String? gender,
+    double? minPrice,
+    double? maxPrice,
+    int? minDays,
+    int? minDiscount,
     double? userLat,
     double? userLng,
+    double? radiusKm,
+    String? sortBy,
   }) async {
     try {
-      _logger.info(
-        'Fetching resale items from API: ${ApiConstants.resaleDiscover}',
-      );
-
       final Map<String, dynamic> queryParams = {'page': page};
+
+      if (q != null && q.trim().isNotEmpty) queryParams['q'] = q.trim();
+      if (city != null && city.isNotEmpty) queryParams['city'] = city;
+      if (gender != null && gender.isNotEmpty) queryParams['gender'] = gender;
+      if (minPrice != null) queryParams['min_price'] = minPrice;
+      if (maxPrice != null) queryParams['max_price'] = maxPrice;
+      if (minDays != null) queryParams['min_days'] = minDays;
+      if (minDiscount != null) queryParams['min_discount'] = minDiscount;
+      if (sortBy != null && sortBy.isNotEmpty) queryParams['sort_by'] = sortBy;
+
       if (userLat != null && userLng != null) {
-        queryParams['lat'] = userLat;
-        queryParams['lng'] = userLng;
+        queryParams['user_lat'] = userLat;
+        queryParams['user_lng'] = userLng;
+        if (radiusKm != null) queryParams['radius_km'] = radiusKm;
       }
+
+      _logger.info('Fetching resale items with params: $queryParams');
 
       final response = await _dio.get(
         ApiConstants.resaleDiscover,
