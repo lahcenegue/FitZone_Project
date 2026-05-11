@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
+from django.core.paginator import Paginator, EmptyPage
 
 from .serializers import (
     UserRegistrationSerializer, 
@@ -294,14 +295,45 @@ class UserSubscriptionsAPIView(APIView):
     """
     GET /api/v1/users/my-subscriptions/
     Retrieves an enriched unified list of all subscriptions for the user.
+    Output is strictly formatted with standard Pagination and Meta objects.
     """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
             subs_data = UserDashboardService.get_all_subscriptions(request.user, request=request)
-            serializer = AggregatedSubscriptionSerializer(subs_data, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+            page_number = request.query_params.get('page', 1)
+            # Defaulting to 20 items per page for consistency
+            paginator = Paginator(subs_data, 20)
+            
+            try:
+                page_obj = paginator.page(page_number)
+            except EmptyPage:
+                return Response({
+                    "results": [],
+                    "meta": {
+                        "total_items": paginator.count,
+                        "total_pages": paginator.num_pages,
+                        "current_page": int(page_number),
+                        "has_next": False,
+                        "has_previous": False
+                    }
+                }, status=status.HTTP_200_OK)
+
+            serializer = AggregatedSubscriptionSerializer(page_obj.object_list, many=True)
+            
+            return Response({
+                "results": serializer.data,
+                "meta": {
+                    "total_items": paginator.count,
+                    "total_pages": paginator.num_pages,
+                    "current_page": page_obj.number,
+                    "has_next": page_obj.has_next(),
+                    "has_previous": page_obj.has_previous(),
+                }
+            }, status=status.HTTP_200_OK)
+
         except Exception as e:
             logger.error(f"Error fetching subscriptions for {request.user.email}: {str(e)}", exc_info=True)
             return Response(

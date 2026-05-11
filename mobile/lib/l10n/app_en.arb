@@ -436,5 +436,23 @@
   "@highCrowd": {
     "description": "High crowd level option"
   },
-  "priceRange": "Price Range"
+  "priceRange": "Price Range",
+  "pendingEscrowFunds": "Pending Escrow",
+  "@pendingEscrowFunds": {
+    "description": "Funds held in escrow pending release"
+  },
+  "unlocksOn": "Unlocks on:",
+  "@unlocksOn": {
+    "description": "Date when the escrow funds will be released"
+  },
+  "grossEarnings": "Gross Earnings",
+  "availableFunds": "Available Funds",
+  "escrowFunds": "Escrow Funds",
+  "consumedFunds": "Consumed Funds",
+  "withdrawnFunds": "Withdrawals",
+  "subscriptionResaleRevenue": "Subscription Resale Revenue",
+  "pendingResaleFunds": "Pending Resale Funds",
+  "bankWithdrawalRequest": "Bank Withdrawal Request",
+  "statusEscrow": "Escrow Hold",
+  "pendingBalance": "Pending"
 }

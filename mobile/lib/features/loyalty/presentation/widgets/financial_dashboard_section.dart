@@ -32,11 +32,9 @@ class FinancialDashboardSection extends ConsumerWidget {
         _buildPremiumVirtualCard(context),
         SizedBox(height: Dimensions.spacingExtraLarge),
 
-        // ARCHITECTURE FIX: Cleaned Quick Actions - Removed Redundant Bank Button
         _buildQuickActionsRow(context),
         SizedBox(height: Dimensions.spacingExtraLarge),
 
-        // ARCHITECTURE FIX: Smart Banner that adapts to Add/Edit states
         _buildSmartBankBanner(context),
 
         SizedBox(height: Dimensions.spacingExtraLarge * 2),
@@ -67,12 +65,10 @@ class FinancialDashboardSection extends ConsumerWidget {
           ),
         ],
       ),
-      // ARCHITECTURE FIX: ClipRRect ensures the watermark does not break card boundaries
       child: ClipRRect(
         borderRadius: BorderRadius.circular(Dimensions.borderRadiusLarge * 1.5),
         child: Stack(
           children: [
-            // Elegant Watermark correctly positioned
             Positioned(
               right: isRTL ? null : -5,
               left: isRTL ? -5 : null,
@@ -136,6 +132,42 @@ class FinancialDashboardSection extends ConsumerWidget {
                       ],
                     ),
                   ),
+
+                  // ARCHITECTURE FIX: Elegant Pending Balance Indicator added below main balance
+                  if (wallet.pendingFiatBalance > 0) ...[
+                    SizedBox(height: Dimensions.spacingMedium),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Dimensions.spacingMedium,
+                        vertical: Dimensions.spacingTiny,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.surface.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.radiusPill,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.lock_clock_rounded,
+                            color: colors.surface.withValues(alpha: 0.9),
+                            size: Dimensions.iconSmall,
+                          ),
+                          SizedBox(width: Dimensions.spacingSmall),
+                          Text(
+                            '${l10n.pendingBalance}: ${wallet.pendingFiatBalance.toStringAsFixed(2)} ${l10n.currency}',
+                            style: TextStyle(
+                              color: colors.surface.withValues(alpha: 0.9),
+                              fontSize: Dimensions.fontBodySmall,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -145,7 +177,6 @@ class FinancialDashboardSection extends ConsumerWidget {
     );
   }
 
-  /// Clean, centralized actions for money operations only
   Widget _buildQuickActionsRow(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -168,9 +199,7 @@ class FinancialDashboardSection extends ConsumerWidget {
             }
           },
         ),
-        SizedBox(
-          width: Dimensions.spacingExtraLarge * 2,
-        ), // Spacing between the two actions
+        SizedBox(width: Dimensions.spacingExtraLarge * 2),
         _buildActionItem(
           icon: Icons.receipt_long_rounded,
           label: l10n.quickActionHistory,
@@ -226,7 +255,6 @@ class FinancialDashboardSection extends ConsumerWidget {
     );
   }
 
-  /// Smart banner: Adapts its text and UI based on whether an account exists
   Widget _buildSmartBankBanner(BuildContext context) {
     final BankAccount? bankAccount = wallet.bankAccount;
     final bool hasBank = bankAccount != null;

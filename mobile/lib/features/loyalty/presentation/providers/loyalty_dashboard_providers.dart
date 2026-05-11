@@ -59,7 +59,11 @@ Future<PaginatedTransactions> filteredTransactions(
   String? type,
 }) async {
   final apiService = ref.watch(loyaltyApiServiceProvider);
-  return await apiService.getTransactions(limit: limit, page: page, type: type);
+  return await apiService.getTransactions(
+    limit: limit,
+    page: page,
+    filter: type,
+  );
 }
 
 @riverpod

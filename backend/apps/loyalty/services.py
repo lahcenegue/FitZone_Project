@@ -175,7 +175,6 @@ class LoyaltyService:
 
     @staticmethod
     def calculate_milestone_progress(user) -> dict:
-        """Calculates and returns the user's progress towards loyalty milestones."""
         wallet, created = CustomerWallet.objects.get_or_create(user=user)
         current_lifetime_pts = wallet.lifetime_points
 
@@ -237,10 +236,19 @@ class LoyaltyService:
                 "beneficiary_name": bank.beneficiary_name
             }
 
+        # Calculate pending escrow balance from Resale Market
+        from apps.resale.models import ResaleTransaction, ResaleTransactionStatus
+        from django.db.models import Sum
+        pending_escrow = ResaleTransaction.objects.filter(
+            listing__seller=user,
+            status=ResaleTransactionStatus.ESCROW
+        ).aggregate(total=Sum('seller_earnings'))['total'] or Decimal('0.00')
+
         return {
             "spendable_points": wallet.points_balance,
             "lifetime_points": wallet.lifetime_points,
             "fiat_balance": wallet.fiat_balance,
+            "pending_fiat_balance": float(pending_escrow),
             "unlocked_rewards_count": unlocked_rewards_count,
             "bank_account": bank_account_data
         }

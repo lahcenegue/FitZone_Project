@@ -1,5 +1,6 @@
 import logging
 from decimal import Decimal
+from datetime import timedelta
 from django.db.models import Sum
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
@@ -11,16 +12,17 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from apps.loyalty.services import LoyaltyService
-from apps.loyalty.models import PointPackage, Milestone, UserMilestone, WalletTransaction, TransactionStatus, TransactionType
+from apps.loyalty.models import PointPackage, Milestone, UserMilestone, WalletTransaction, TransactionStatus, TransactionType, CustomerWallet
+from apps.resale.models import ResaleTransaction, ResaleGlobalSetting
 from .serializers import (
     PurchasePointsSerializer, MilestoneClaimSerializer,
     PointPackageSerializer, MilestoneSerializer, UserMilestoneSerializer,
-    WalletTransactionSerializer, PointsHistorySerializer, UserBankAccountSerializer, WithdrawalRequestSerializer
+    WalletTransactionSerializer, PointsHistorySerializer, UserBankAccountSerializer, 
+    WithdrawalRequestSerializer, AggregatedFiatTransactionSerializer
 )
 
 logger = logging.getLogger(__name__)
 
-# تمت إعادة الكلاس المفقود إلى مكانه الصحيح
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = 'limit'
@@ -52,9 +54,6 @@ class MilestoneRoadmapAPIView(ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserMilestonesAPIView(ListAPIView):
-    """
-    Inventory of user rewards. ONLY shows Claimed rewards.
-    """
     permission_classes = [IsAuthenticated]
     serializer_class = UserMilestoneSerializer
     pagination_class = StandardResultsSetPagination
@@ -88,60 +87,149 @@ class UserMilestonesSummaryAPIView(APIView):
         return Response(response_data, status=status.HTTP_200_OK)
 
 class WalletTransactionsAPIView(ListAPIView):
+    """
+    Aggregates completed/pending Wallet transactions AND 
+    pending ESCROW Resale transactions with proper filtering and UI mapping.
+    Filters supported: all, income, withdrawals, consumed.
+    """
     permission_classes = [IsAuthenticated]
-    serializer_class = WalletTransactionSerializer
+    serializer_class = AggregatedFiatTransactionSerializer
     pagination_class = StandardResultsSetPagination
 
-    def get_queryset(self):
-        queryset = WalletTransaction.objects.exclude(fiat_amount=0).filter(
-            wallet__user=self.request.user
-        ).order_by('-created_at')
+    def _get_status_label(self, status_val: str) -> str:
+        mapping = {
+            'completed': str(_("Completed")),
+            'pending': str(_("Processing")),
+            'failed': str(_("Failed")),
+            'escrow': str(_("Escrow Hold")),
+            'refunded': str(_("Refunded"))
+        }
+        return mapping.get(status_val, str(_(status_val.title())))
 
-        status_filter = self.request.query_params.get('status')
-        type_filter = self.request.query_params.get('type')
+    def list(self, request, *args, **kwargs):
+        filter_type = request.query_params.get('filter', 'all').lower()
+        combined_transactions = []
+        
+        # 1. Fetch Wallet Transactions
+        wt_qs = WalletTransaction.objects.exclude(fiat_amount=0).filter(wallet__user=request.user)
+        
+        if filter_type == 'income':
+            wt_qs = wt_qs.filter(fiat_amount__gt=0)
+        elif filter_type == 'withdrawals':
+            wt_qs = wt_qs.filter(transaction_type=TransactionType.WITHDRAW_FIAT)
+        elif filter_type == 'consumed':
+            wt_qs = wt_qs.filter(fiat_amount__lt=0).exclude(transaction_type=TransactionType.WITHDRAW_FIAT)
+                
+        for wt in wt_qs:
+            t_type = wt.transaction_type
+            
+            # Map type, title, and impact based on business logic
+            if t_type == TransactionType.WITHDRAW_FIAT:
+                title = str(_("Bank Withdrawal Request"))
+                trans_type = "withdrawal"
+                impact = "out"
+            elif t_type == TransactionType.SELL_SUBSCRIPTION:
+                title = str(_("Subscription Resale Revenue"))
+                trans_type = "deposit"
+                impact = "in"
+            elif t_type == TransactionType.REFUND:
+                title = str(_("Refunded Amount"))
+                trans_type = "refund"
+                impact = "in"
+            else:
+                if wt.fiat_amount < 0:
+                    title = str(_("In-App Purchase"))
+                    trans_type = "purchase"
+                    impact = "out"
+                else:
+                    title = str(_(wt.get_transaction_type_display()))
+                    trans_type = "deposit"
+                    impact = "in"
+            
+            combined_transactions.append({
+                "id": wt.id,
+                "title": title,
+                "amount": abs(wt.fiat_amount),
+                "type": trans_type,
+                "status": wt.status,
+                "status_label": self._get_status_label(wt.status),
+                "created_at": wt.created_at,
+                "expected_release_date": None,
+                "impact": impact
+            })
+            
+        # 2. Fetch Pending Resale Transactions (Escrow)
+        if filter_type in ['all', 'income']:
+            rt_qs = ResaleTransaction.objects.filter(listing__seller=request.user, status='escrow')
+            resale_settings = ResaleGlobalSetting.load()
+            hold_hours = resale_settings.escrow_hold_hours
+            
+            for rt in rt_qs:
+                expected_release = rt.purchased_at + timedelta(hours=hold_hours)
+                combined_transactions.append({
+                    "id": rt.id,
+                    "title": str(_("Pending Resale Funds")),
+                    "amount": abs(rt.seller_earnings),
+                    "type": "deposit",
+                    "status": "escrow",
+                    "status_label": self._get_status_label("escrow"),
+                    "created_at": rt.purchased_at,
+                    "expected_release_date": expected_release,
+                    "impact": "in"
+                })
+                    
+        # Sort combined list by date descending
+        combined_transactions.sort(key=lambda x: x['created_at'], reverse=True)
+        
+        page = self.paginate_queryset(combined_transactions)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
-        if status_filter:
-            queryset = queryset.filter(status=status_filter)
-
-        if type_filter:
-            if type_filter == 'deposit':
-                queryset = queryset.filter(transaction_type__in=['sell_sub', 'refund'])
-            elif type_filter == 'withdrawal':
-                queryset = queryset.filter(transaction_type='withdraw_fiat')
-
-        return queryset
+        serializer = self.get_serializer(combined_transactions, many=True)
+        return Response(serializer.data)
 
 class TransactionsSummaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        transactions = WalletTransaction.objects.filter(wallet__user=request.user)
+        wallet, _ = CustomerWallet.objects.get_or_create(user=request.user)
+        
+        # 1. Total pending escrow from active resales
+        pending_escrow = ResaleTransaction.objects.filter(
+            listing__seller=request.user,
+            status='escrow'
+        ).aggregate(total=Sum('seller_earnings'))['total'] or Decimal('0.00')
 
-        fiat_earned = transactions.filter(
+        # 2. Total actually earned & deposited into the wallet
+        completed_earnings = WalletTransaction.objects.filter(
+            wallet__user=request.user,
             transaction_type__in=[TransactionType.SELL_SUBSCRIPTION, TransactionType.REFUND],
             status=TransactionStatus.COMPLETED
         ).aggregate(total=Sum('fiat_amount'))['total'] or Decimal('0.00')
 
-        fiat_spent = transactions.filter(
-            transaction_type__in=[TransactionType.WITHDRAW_FIAT],
+        gross_earnings = completed_earnings + pending_escrow
+
+        # 3. Total consumed inside app (negative fiat amounts excluding withdrawals)
+        total_consumed = WalletTransaction.objects.filter(
+            wallet__user=request.user,
+            fiat_amount__lt=0,
             status=TransactionStatus.COMPLETED
-        ).aggregate(total=Sum('fiat_amount'))['total'] or Decimal('0.00')
+        ).exclude(transaction_type=TransactionType.WITHDRAW_FIAT).aggregate(total=Sum('fiat_amount'))['total'] or Decimal('0.00')
 
-        pending_withdrawals = transactions.filter(
-            transaction_type=TransactionType.WITHDRAW_FIAT,
-            status=TransactionStatus.PENDING
-        ).aggregate(total=Sum('fiat_amount'))['total'] or Decimal('0.00')
-
-        completed_withdrawals = transactions.filter(
+        # 4. Total withdrawn
+        total_withdrawn = WalletTransaction.objects.filter(
+            wallet__user=request.user,
             transaction_type=TransactionType.WITHDRAW_FIAT,
             status=TransactionStatus.COMPLETED
         ).aggregate(total=Sum('fiat_amount'))['total'] or Decimal('0.00')
 
         response_data = {
-            "total_earned": float(fiat_earned),
-            "total_spent": abs(float(fiat_spent)),
-            "pending_withdrawals": abs(float(pending_withdrawals)),
-            "completed_withdrawals": abs(float(completed_withdrawals))
+            "gross_earnings": float(gross_earnings),
+            "available_funds": float(wallet.fiat_balance),
+            "pending_escrow": float(pending_escrow),
+            "total_consumed": abs(float(total_consumed)),
+            "total_withdrawn": abs(float(total_withdrawn))
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
@@ -293,7 +381,6 @@ class WithdrawalAPIView(APIView):
             )
 
 class ExtendSubscriptionAPIView(APIView):
-    """Endpoint for user to select which subscription to extend using their reward."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -320,7 +407,6 @@ class ExtendSubscriptionAPIView(APIView):
             return Response({"detail": str(_("An internal server error occurred."))}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ScanGiftQRAPIView(APIView):
-    """Endpoint for Gym/Store Staff to scan physical gifts and hand them over."""
     permission_classes = [IsAuthenticated] 
 
     def post(self, request):

@@ -365,7 +365,7 @@ final class FilteredTransactionsProvider
 }
 
 String _$filteredTransactionsHash() =>
-    r'9fda46986e625315b2961be5762f0fb86e44340d';
+    r'd3e8b350e42eef8d424c37e77e6117356f94ff88';
 
 final class FilteredTransactionsFamily extends $Family
     with

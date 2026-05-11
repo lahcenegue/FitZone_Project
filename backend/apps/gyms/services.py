@@ -70,10 +70,6 @@ class GymAccessService:
 
     @staticmethod
     def _check_provider_suspension(user, provider):
-        """
-        Checks if the user has any suspended subscriptions with the given provider.
-        If yes, blocks access to all branches of this provider.
-        """
         has_suspended = GymSubscription.objects.filter(
             user=user, 
             plan__provider=provider, 
@@ -86,10 +82,6 @@ class GymAccessService:
     @staticmethod
     @transaction.atomic
     def process_qr_scan(*, qr_code_id: str, branch_id: int) -> dict:
-        """
-        Validates QR code. Checks if it's a Subscription QR or a Roaming Pass QR.
-        Burns the roaming pass immediately upon successful entry.
-        """
         branch = GymBranch.objects.get(id=branch_id)
 
         try:
@@ -111,7 +103,12 @@ class GymAccessService:
         today = timezone.now().date()
         target_sub = subscription
 
-        if subscription.status != "active" or today < subscription.start_date or today > subscription.end_date:
+        # Auto-activate scheduled subscriptions if their start date has arrived
+        if target_sub.status == "scheduled" and target_sub.start_date <= today and target_sub.end_date >= today:
+            target_sub.status = "active"
+            target_sub.save(update_fields=['status'])
+
+        if target_sub.status != "active" or today < target_sub.start_date or today > target_sub.end_date:
             active_fallback = GymSubscription.objects.filter(
                 user=subscription.user,
                 plan__branches=branch,
@@ -281,20 +278,24 @@ class GymSubscriptionService:
             )
 
         now = timezone.now().date()
+        
+        # IMPLEMENTING QUEUING SYSTEM
         existing_sub = GymSubscription.objects.filter(
-            user=user, plan=plan, status="active"
+            user=user, plan=plan, status__in=["active", "scheduled"]
         ).order_by('-end_date').first()
 
         if existing_sub and existing_sub.end_date >= now:
             start_date = existing_sub.end_date + timedelta(days=1)
+            initial_status = "scheduled"
         else:
             start_date = now
+            initial_status = "active"
 
         end_date = start_date + timedelta(days=plan.duration_days - 1)
 
         subscription = GymSubscription.objects.create(
             user=user, plan=plan, payment=payment_txn,
-            start_date=start_date, end_date=end_date, status="active"
+            start_date=start_date, end_date=end_date, status=initial_status
         )
 
         provider = plan.provider
@@ -335,7 +336,7 @@ class GymSubscriptionService:
                 from apps.loyalty.services import LoyaltyService
                 LoyaltyService.check_and_unlock_milestones(user)
 
-        logger.info(f"Subscription {subscription.id} successfully created for user {getattr(user, 'email', '')}.")
+        logger.info(f"Subscription {subscription.id} successfully created with status '{initial_status}' for user {getattr(user, 'email', '')}.")
         return subscription
 
     @staticmethod

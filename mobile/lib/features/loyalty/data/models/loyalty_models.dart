@@ -1,25 +1,20 @@
 import 'package:logging/logging.dart';
 
-// ARCHITECTURE FIX: Added Reward Payload to handle polymorphic fulfillment types
 class RewardPayload {
   final String fulfillmentType;
 
-  // Coupon Payload
   final String? couponCode;
   final String? expiresAt;
   final double? discountValue;
   final String? couponType;
 
-  // Roaming Pass Payload
   final int? visitsGranted;
   final String? qrCodeSignature;
   final String? qrId;
 
-  // Subscription Extension Payload
   final int? daysAdded;
   final String? status;
 
-  // Manual/Physical Payload
   final String? itemName;
 
   const RewardPayload({
@@ -334,7 +329,6 @@ class BankAccount {
   }
 }
 
-// ARCHITECTURE FIX: New Model to handle the separate Roadmap Meta Progress
 class RoadmapMetaProgress {
   final int lifetimePoints;
   final String currentMilestoneTitle;
@@ -377,7 +371,6 @@ class RoadmapMetaProgress {
   }
 }
 
-// ARCHITECTURE FIX: New Combined Response Model for /milestones/ endpoint
 class LoyaltyRoadmapResponse {
   final RoadmapMetaProgress metaProgress;
   final List<LoyaltyMilestone> milestones;
@@ -409,11 +402,12 @@ class LoyaltyRoadmapResponse {
   }
 }
 
-// ARCHITECTURE FIX: Cleaned Wallet Summary without Track details
 class WalletSummary {
   final int spendablePoints;
   final int lifetimePoints;
   final double fiatBalance;
+  final double
+  pendingFiatBalance; // ARCHITECTURE FIX: Added pending fiat balance
   final int unlockedRewardsCount;
   final BankAccount? bankAccount;
 
@@ -421,6 +415,7 @@ class WalletSummary {
     required this.spendablePoints,
     required this.lifetimePoints,
     required this.fiatBalance,
+    required this.pendingFiatBalance,
     required this.unlockedRewardsCount,
     this.bankAccount,
   });
@@ -435,6 +430,11 @@ class WalletSummary {
             int.tryParse(json['lifetime_points']?.toString() ?? '0') ?? 0,
         fiatBalance:
             double.tryParse(json['fiat_balance']?.toString() ?? '0.0') ?? 0.0,
+        pendingFiatBalance:
+            double.tryParse(
+              json['pending_fiat_balance']?.toString() ?? '0.0',
+            ) ??
+            0.0,
         unlockedRewardsCount:
             int.tryParse(json['unlocked_rewards_count']?.toString() ?? '0') ??
             0,
@@ -455,7 +455,10 @@ class FinancialTransaction {
   final String amount;
   final String type;
   final String status;
+  final String? statusLabel;
   final String createdAt;
+  final String? expectedReleaseDate;
+  final String impact;
 
   const FinancialTransaction({
     required this.id,
@@ -463,7 +466,10 @@ class FinancialTransaction {
     required this.amount,
     required this.type,
     required this.status,
+    this.statusLabel,
     required this.createdAt,
+    this.expectedReleaseDate,
+    required this.impact,
   });
 
   factory FinancialTransaction.fromJson(Map<String, dynamic> json) {
@@ -475,7 +481,10 @@ class FinancialTransaction {
         amount: json['amount']?.toString() ?? '',
         type: json['type']?.toString() ?? '',
         status: json['status']?.toString() ?? '',
+        statusLabel: json['status_label']?.toString(),
         createdAt: json['created_at']?.toString() ?? '',
+        expectedReleaseDate: json['expected_release_date']?.toString(),
+        impact: json['impact']?.toString() ?? 'in',
       );
     } catch (e, stackTrace) {
       logger.severe('Error parsing FinancialTransaction', e, stackTrace);
@@ -485,26 +494,27 @@ class FinancialTransaction {
 }
 
 class TransactionSummary {
-  final double totalEarned;
-  final double totalSpent;
-  final double pendingWithdrawals;
-  final double completedWithdrawals;
+  final double grossEarnings;
+  final double availableFunds;
+  final double pendingEscrow;
+  final double totalConsumed;
+  final double totalWithdrawn;
 
   TransactionSummary({
-    required this.totalEarned,
-    required this.totalSpent,
-    required this.pendingWithdrawals,
-    required this.completedWithdrawals,
+    required this.grossEarnings,
+    required this.availableFunds,
+    required this.pendingEscrow,
+    required this.totalConsumed,
+    required this.totalWithdrawn,
   });
 
   factory TransactionSummary.fromJson(Map<String, dynamic> json) {
     return TransactionSummary(
-      totalEarned: (json['total_earned'] as num?)?.toDouble() ?? 0.0,
-      totalSpent: (json['total_spent'] as num?)?.toDouble() ?? 0.0,
-      pendingWithdrawals:
-          (json['pending_withdrawals'] as num?)?.toDouble() ?? 0.0,
-      completedWithdrawals:
-          (json['completed_withdrawals'] as num?)?.toDouble() ?? 0.0,
+      grossEarnings: (json['gross_earnings'] as num?)?.toDouble() ?? 0.0,
+      availableFunds: (json['available_funds'] as num?)?.toDouble() ?? 0.0,
+      pendingEscrow: (json['pending_escrow'] as num?)?.toDouble() ?? 0.0,
+      totalConsumed: (json['total_consumed'] as num?)?.toDouble() ?? 0.0,
+      totalWithdrawn: (json['total_withdrawn'] as num?)?.toDouble() ?? 0.0,
     );
   }
 }

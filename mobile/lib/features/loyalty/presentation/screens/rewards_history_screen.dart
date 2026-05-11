@@ -143,7 +143,6 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final String currentLocale = Localizations.localeOf(context).languageCode;
 
-    // ARCHITECTURE FIX: Changed 'claimed' to 'active' to match the backend API expectations
     final Map<String, String> filterOptions = {
       'all': l10n.all,
       'active': l10n.rewardAvailable,
@@ -247,7 +246,7 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
                       ).format(earnedDate);
                       final String formattedDate = _normalizeNumbers(rawDate);
 
-                      final Color statusColor = reward.isConsumed
+                      final Color themeColor = reward.isConsumed
                           ? colors.iconGrey
                           : colors.success;
                       final String statusText = reward.isConsumed
@@ -257,16 +256,18 @@ class _RewardsHistoryScreenState extends ConsumerState<RewardsHistoryScreen> {
                           ? Icons.check_circle_rounded
                           : Icons.card_giftcard_rounded;
 
+                      final String title =
+                          reward.milestone.reward?.name ??
+                          reward.milestone.title;
+
                       return PremiumHistoryCard(
-                        title:
-                            reward.milestone.reward?.name ??
-                            reward.milestone.title,
-                        subtitle: formattedDate,
-                        trailingText: statusText,
+                        title: title,
+                        date: formattedDate,
+                        statusLabel: statusText,
+                        amount: '',
                         icon: icon,
-                        color: statusColor,
+                        themeColor: themeColor,
                         colors: colors,
-                        // ARCHITECTURE FIX: Awaiting the BottomSheet result to trigger local refresh upon consumption
                         onTap: () async {
                           final bool? shouldRefresh =
                               await showModalBottomSheet<bool>(

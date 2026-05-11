@@ -425,5 +425,17 @@
   "lowCrowd": "منخفض",
   "mediumCrowd": "متوسط",
   "highCrowd": "مرتفع",
-  "priceRange": "النطاق السعري"
+  "priceRange": "النطاق السعري",
+  "pendingEscrowFunds": "أموال قيد الضمان",
+  "unlocksOn": "تاريخ التحرير:",
+  "grossEarnings": "إجمالي المكسب",
+  "availableFunds": "أموال متاحة",
+  "escrowFunds": "أموال محجوزة",
+  "consumedFunds": "أموال مستهلكة",
+  "withdrawnFunds": "أموال مسحوبة",
+  "subscriptionResaleRevenue": "عائدات بيع الاشتراك",
+  "pendingResaleFunds": "أموال بيع قيد الانتظار",
+  "bankWithdrawalRequest": "طلب سحب بنكي",
+  "statusEscrow": "معلق للضمان",
+  "pendingBalance": "رصيد محجوز"
 }

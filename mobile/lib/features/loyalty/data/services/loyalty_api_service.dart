@@ -185,17 +185,19 @@ class LoyaltyApiService {
   Future<PaginatedTransactions> getTransactions({
     int? limit,
     int? page,
-    String? type,
+    String?
+    filter, // ARCHITECTURE FIX: Changed from 'type' to 'filter' to match backend
   }) async {
     try {
       _logger.info(
-        'Fetching Transactions History with params: limit=$limit, page=$page, type=$type',
+        'Fetching Transactions History with params: limit=$limit, page=$page, filter=$filter',
       );
 
       final Map<String, dynamic> queryParams = {};
       if (limit != null) queryParams['limit'] = limit;
       if (page != null) queryParams['page'] = page;
-      if (type != null && type != 'all') queryParams['type'] = type;
+      // ARCHITECTURE FIX: Sending the parameter as 'filter'
+      if (filter != null && filter != 'all') queryParams['filter'] = filter;
 
       final response = await _dio.get(
         _transactionsUrl,
@@ -245,7 +247,6 @@ class LoyaltyApiService {
     }
   }
 
-  // ARCHITECTURE FIX: Parse the new ClaimResponse containing RewardPayload
   Future<ClaimRewardResponse> claimReward({
     required int userMilestoneId,
   }) async {
@@ -270,7 +271,6 @@ class LoyaltyApiService {
     }
   }
 
-  // NEW ENDPOINT: Extend Subscription
   Future<bool> extendSubscription({
     required int userMilestoneId,
     required int subscriptionId,
@@ -327,7 +327,6 @@ class LoyaltyApiService {
     }
   }
 
-  // ARCHITECTURE FIX: Updated to parse the new Combined Response
   Future<LoyaltyRoadmapResponse> getUserRoadmap() async {
     try {
       _logger.info('Fetching User Specific Roadmap from API: $_roadmapUrl');

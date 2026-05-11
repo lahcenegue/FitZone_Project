@@ -290,6 +290,7 @@ class PlanFeature(models.Model):
 class GymSubscription(models.Model):
     SUBSCRIPTION_STATUS = [
         ("active", _("Active")),
+        ("scheduled", _("Scheduled")),
         ("expired", _("Expired")),
         ("cancelled", _("Cancelled")),
         ("suspended", _("Suspended (Disputed)")),
@@ -334,7 +335,6 @@ class GymSubscription(models.Model):
         return signer.sign(raw_data)
 
 
-# NEW: Dedicated model for one-time Roaming Passes
 class RoamingPass(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="roaming_passes")
     branch = models.ForeignKey('GymBranch', on_delete=models.CASCADE, related_name="roaming_passes")

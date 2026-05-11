@@ -27,6 +27,8 @@ urlpatterns = [
 
     # Core Endpoints (/api/v1/init/ and /api/v1/cities/)
     path("api/v1/", include("apps.core.api.urls")),
+
+    path("api/v1/resale/", include("apps.resale.api.urls")),
 ]
 
 # ---------------------------------------------------------------------------

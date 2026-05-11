@@ -1234,4 +1234,40 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get priceRange => 'النطاق السعري';
+
+  @override
+  String get pendingEscrowFunds => 'أموال قيد الضمان';
+
+  @override
+  String get unlocksOn => 'تاريخ التحرير:';
+
+  @override
+  String get grossEarnings => 'إجمالي المكسب';
+
+  @override
+  String get availableFunds => 'أموال متاحة';
+
+  @override
+  String get escrowFunds => 'أموال محجوزة';
+
+  @override
+  String get consumedFunds => 'أموال مستهلكة';
+
+  @override
+  String get withdrawnFunds => 'أموال مسحوبة';
+
+  @override
+  String get subscriptionResaleRevenue => 'عائدات بيع الاشتراك';
+
+  @override
+  String get pendingResaleFunds => 'أموال بيع قيد الانتظار';
+
+  @override
+  String get bankWithdrawalRequest => 'طلب سحب بنكي';
+
+  @override
+  String get statusEscrow => 'معلق للضمان';
+
+  @override
+  String get pendingBalance => 'رصيد محجوز';
 }

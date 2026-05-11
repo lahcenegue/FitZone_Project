@@ -13,7 +13,7 @@ import '../../data/models/loyalty_models.dart';
 import '../providers/loyalty_dashboard_providers.dart';
 import '../widgets/dynamic_filter_row.dart';
 import '../widgets/stat_summary_card.dart';
-import '../widgets/premium_history_card.dart'; // IMPORTED REUSABLE WIDGET
+import '../widgets/premium_history_card.dart';
 
 class PointsHistoryScreen extends ConsumerStatefulWidget {
   const PointsHistoryScreen({super.key});
@@ -231,22 +231,29 @@ class _PointsHistoryScreenState extends ConsumerState<PointsHistoryScreen> {
                         Localizations.localeOf(context).languageCode,
                       ).format(date);
 
-                      final Color badgeColor = isEarn
+                      final Color themeColor = isEarn
                           ? colors.success
                           : colors.warning;
+
+                      // ARCHITECTURE FIX: Using .abs() to strip any negative sign coming from backend before prepending ours
                       final String amountText =
-                          '${isEarn ? '+' : '-'}${tx.amount}';
+                          '${isEarn ? '+' : '-'}${tx.amount.abs()}';
+
                       final IconData icon = isEarn
                           ? Icons.add_rounded
                           : Icons.remove_rounded;
 
-                      // ARCHITECTURE FIX: Using the DRY PremiumHistoryCard
+                      final String statusLabel = isEarn
+                          ? l10n.pointsEarned
+                          : l10n.pointsRedeemed;
+
                       return PremiumHistoryCard(
                         title: tx.title,
-                        subtitle: formattedDate,
-                        trailingText: amountText,
+                        date: formattedDate,
+                        statusLabel: statusLabel,
+                        amount: amountText,
                         icon: icon,
-                        color: badgeColor,
+                        themeColor: themeColor,
                         colors: colors,
                       );
                     }, childCount: _transactions.length + (_hasMore ? 1 : 0)),

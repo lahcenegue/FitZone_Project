@@ -23,13 +23,11 @@ class MilestoneRewardSerializer(serializers.ModelSerializer):
         return str(_(obj.name))
 
     def get_coupon_type(self, obj):
-        """Fetches the specific coupon type from the related definition."""
         if obj.action_type == 'gen_coupon' and hasattr(obj, 'coupon_definition') and obj.coupon_definition:
             return obj.coupon_definition.coupon_type
         return None
 
     def get_discount_value(self, obj):
-        """Fetches the specific discount value from the related definition."""
         if obj.action_type == 'gen_coupon' and hasattr(obj, 'coupon_definition') and obj.coupon_definition:
             return float(obj.coupon_definition.discount_value)
         return None
@@ -51,10 +49,6 @@ class MilestoneSerializer(serializers.ModelSerializer):
         return str(_(obj.description))
         
     def get_user_milestone_data(self, obj):
-        """
-        Smart Method: Returns personalized data if an authenticated token is provided.
-        Returns None for public requests without a token.
-        """
         request = self.context.get('request')
         
         if not request or not request.user.is_authenticated:
@@ -112,6 +106,18 @@ class MilestoneClaimSerializer(serializers.Serializer):
 class MilestoneUsageSerializer(serializers.Serializer):
     user_milestone_id = serializers.IntegerField()
     consumed_details = serializers.JSONField(required=False, allow_null=True)
+
+# UPDATED: Enriched Serializer for the merged UI requirements
+class AggregatedFiatTransactionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+    type = serializers.CharField()
+    status = serializers.CharField()
+    status_label = serializers.CharField()
+    created_at = serializers.DateTimeField()
+    expected_release_date = serializers.DateTimeField(required=False, allow_null=True)
+    impact = serializers.CharField()
 
 class WalletTransactionSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()

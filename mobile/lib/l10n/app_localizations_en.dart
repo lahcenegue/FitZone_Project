@@ -1258,4 +1258,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get priceRange => 'Price Range';
+
+  @override
+  String get pendingEscrowFunds => 'Pending Escrow';
+
+  @override
+  String get unlocksOn => 'Unlocks on:';
+
+  @override
+  String get grossEarnings => 'Gross Earnings';
+
+  @override
+  String get availableFunds => 'Available Funds';
+
+  @override
+  String get escrowFunds => 'Escrow Funds';
+
+  @override
+  String get consumedFunds => 'Consumed Funds';
+
+  @override
+  String get withdrawnFunds => 'Withdrawals';
+
+  @override
+  String get subscriptionResaleRevenue => 'Subscription Resale Revenue';
+
+  @override
+  String get pendingResaleFunds => 'Pending Resale Funds';
+
+  @override
+  String get bankWithdrawalRequest => 'Bank Withdrawal Request';
+
+  @override
+  String get statusEscrow => 'Escrow Hold';
+
+  @override
+  String get pendingBalance => 'Pending';
 }

@@ -2485,6 +2485,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Price Range'**
   String get priceRange;
+
+  /// Funds held in escrow pending release
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Escrow'**
+  String get pendingEscrowFunds;
+
+  /// Date when the escrow funds will be released
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocks on:'**
+  String get unlocksOn;
+
+  /// No description provided for @grossEarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Gross Earnings'**
+  String get grossEarnings;
+
+  /// No description provided for @availableFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Funds'**
+  String get availableFunds;
+
+  /// No description provided for @escrowFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Escrow Funds'**
+  String get escrowFunds;
+
+  /// No description provided for @consumedFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Consumed Funds'**
+  String get consumedFunds;
+
+  /// No description provided for @withdrawnFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawals'**
+  String get withdrawnFunds;
+
+  /// No description provided for @subscriptionResaleRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Resale Revenue'**
+  String get subscriptionResaleRevenue;
+
+  /// No description provided for @pendingResaleFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Resale Funds'**
+  String get pendingResaleFunds;
+
+  /// No description provided for @bankWithdrawalRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Withdrawal Request'**
+  String get bankWithdrawalRequest;
+
+  /// No description provided for @statusEscrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Escrow Hold'**
+  String get statusEscrow;
+
+  /// No description provided for @pendingBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pendingBalance;
 }
 
 class _AppLocalizationsDelegate

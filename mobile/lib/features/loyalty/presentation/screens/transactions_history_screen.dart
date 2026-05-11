@@ -13,7 +13,7 @@ import '../../data/models/loyalty_models.dart';
 import '../providers/loyalty_dashboard_providers.dart';
 import '../widgets/dynamic_filter_row.dart';
 import '../widgets/stat_summary_card.dart';
-import '../widgets/premium_history_card.dart'; // IMPORTED REUSABLE WIDGET
+import '../widgets/premium_history_card.dart';
 
 class TransactionsHistoryScreen extends ConsumerStatefulWidget {
   const TransactionsHistoryScreen({super.key});
@@ -81,7 +81,7 @@ class _TransactionsHistoryScreenState
       final response = await apiService.getTransactions(
         limit: _itemsPerPage,
         page: _page,
-        type: typeParam,
+        filter: typeParam,
       );
 
       if (mounted) {
@@ -127,6 +127,34 @@ class _TransactionsHistoryScreenState
     );
   }
 
+  String _getLocalizedTitle(String backendTitle, AppLocalizations l10n) {
+    switch (backendTitle) {
+      case 'Subscription Resale Revenue':
+        return l10n.subscriptionResaleRevenue;
+      case 'Pending Resale Funds':
+        return l10n.pendingResaleFunds;
+      case 'Bank Withdrawal Request':
+        return l10n.bankWithdrawalRequest;
+      default:
+        return backendTitle;
+    }
+  }
+
+  String _getLocalizedStatus(String status, AppLocalizations l10n) {
+    switch (status) {
+      case 'completed':
+        return l10n.statusCompleted;
+      case 'pending':
+        return l10n.statusPending;
+      case 'escrow':
+        return l10n.statusEscrow;
+      case 'failed':
+        return l10n.statusFailed;
+      default:
+        return status;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppColors colors = ref.watch(appThemeProvider);
@@ -134,9 +162,8 @@ class _TransactionsHistoryScreenState
 
     final Map<String, String> filterOptions = {
       'all': l10n.all,
-      'deposit': l10n.deposits,
-      'withdrawal': l10n.withdrawals,
-      'refund': l10n.refunds,
+      'income': l10n.deposits,
+      'withdrawals': l10n.withdrawals,
     };
 
     return Scaffold(
@@ -224,43 +251,78 @@ class _TransactionsHistoryScreenState
                       }
 
                       final tx = _transactions[index];
-                      final bool isDeposit =
-                          tx.type == 'deposit' || tx.type == 'refund';
-                      final bool isPending = tx.status == 'pending';
-                      final bool isFailed = tx.status == 'failed';
 
-                      Color badgeColor;
+                      // ARCHITECTURE FIX: Derive one unified color per transaction
+                      Color themeColor;
                       IconData iconData;
+                      String amountPrefix = '';
 
-                      if (isPending) {
-                        badgeColor = colors.warning;
-                        iconData = Icons.hourglass_empty_rounded;
-                      } else if (isFailed) {
-                        badgeColor = colors.error;
-                        iconData = Icons.error_outline_rounded;
-                      } else if (isDeposit) {
-                        badgeColor = colors.success;
-                        iconData = Icons.arrow_downward_rounded;
+                      if (tx.impact == 'in') {
+                        amountPrefix = '+';
+                        if (tx.status == 'completed') {
+                          themeColor = colors.success;
+                          iconData = Icons.arrow_downward_rounded;
+                        } else {
+                          themeColor = colors.iconGrey;
+                          iconData = Icons.lock_clock_rounded;
+                        }
                       } else {
-                        badgeColor = colors.error;
-                        iconData = Icons.arrow_upward_rounded;
+                        amountPrefix = '-';
+                        if (tx.status == 'completed') {
+                          themeColor = colors.primary;
+                          iconData = Icons.account_balance_wallet_rounded;
+                        } else if (tx.status == 'pending') {
+                          themeColor = colors.warning;
+                          iconData = Icons.hourglass_empty_rounded;
+                        } else {
+                          themeColor = colors.error;
+                          iconData = Icons.error_outline_rounded;
+                        }
                       }
 
                       final DateTime date =
                           DateTime.tryParse(tx.createdAt)?.toLocal() ??
                           DateTime.now();
-                      final String formattedDate = DateFormat(
+
+                      final String cleanDate = DateFormat(
                         'MMM dd, yyyy • hh:mm a',
                         Localizations.localeOf(context).languageCode,
                       ).format(date);
 
-                      // ARCHITECTURE FIX: Using the DRY PremiumHistoryCard
+                      final String localizedStatus = _getLocalizedStatus(
+                        tx.status,
+                        l10n,
+                      );
+                      final String localizedTitle = _getLocalizedTitle(
+                        tx.title,
+                        l10n,
+                      );
+
+                      String? releaseDateText;
+                      if (tx.impact == 'in' &&
+                          tx.status == 'escrow' &&
+                          tx.expectedReleaseDate != null) {
+                        final DateTime releaseDate =
+                            DateTime.tryParse(
+                              tx.expectedReleaseDate!,
+                            )?.toLocal() ??
+                            DateTime.now();
+                        final String formattedRelease = DateFormat(
+                          'MMM dd, yyyy',
+                          Localizations.localeOf(context).languageCode,
+                        ).format(releaseDate);
+
+                        releaseDateText = '${l10n.unlocksOn} $formattedRelease';
+                      }
+
                       return PremiumHistoryCard(
-                        title: tx.title,
-                        subtitle: formattedDate,
-                        trailingText: '${tx.amount} ${l10n.currency}',
+                        title: localizedTitle,
+                        date: cleanDate,
+                        statusLabel: localizedStatus,
+                        releaseDateText: releaseDateText,
+                        amount: '$amountPrefix${tx.amount}',
                         icon: iconData,
-                        color: badgeColor,
+                        themeColor: themeColor,
                         colors: colors,
                       );
                     }, childCount: _transactions.length + (_hasMore ? 1 : 0)),
@@ -284,16 +346,8 @@ class _TransactionsHistoryScreenState
       loading: () => const SizedBox.shrink(),
       error: (e, _) => const SizedBox.shrink(),
       data: (summary) {
-        final double totalTransactions =
-            summary.totalEarned + summary.totalSpent;
-        final double safeTotalTransactions = totalTransactions > 0
-            ? totalTransactions
-            : 1.0;
-
-        final double totalWithdrawals =
-            summary.pendingWithdrawals + summary.completedWithdrawals;
-        final double safeTotalWithdrawals = totalWithdrawals > 0
-            ? totalWithdrawals
+        final double safeGrandTotal = summary.grossEarnings > 0
+            ? summary.grossEarnings
             : 1.0;
 
         return SingleChildScrollView(
@@ -303,34 +357,58 @@ class _TransactionsHistoryScreenState
           child: Row(
             children: [
               StatSummaryCard(
-                title: l10n.totalEarned,
-                value: '${summary.totalEarned.toStringAsFixed(0)} ${l10n.sar}',
-                icon: Icons.arrow_downward_rounded,
+                title: l10n.grossEarnings,
+                value:
+                    '${summary.grossEarnings.toStringAsFixed(0)} ${l10n.sar}',
+                icon: Icons.account_balance_rounded,
                 color: colors.success,
                 colors: colors,
-                currentValue: summary.totalEarned,
-                totalValue: safeTotalTransactions,
+                currentValue: summary.grossEarnings,
+                totalValue: safeGrandTotal,
               ),
               SizedBox(width: Dimensions.spacingMedium),
               StatSummaryCard(
-                title: l10n.totalSpent,
-                value: '${summary.totalSpent.toStringAsFixed(0)} ${l10n.sar}',
-                icon: Icons.arrow_upward_rounded,
-                color: colors.error,
-                colors: colors,
-                currentValue: summary.totalSpent,
-                totalValue: safeTotalTransactions,
-              ),
-              SizedBox(width: Dimensions.spacingMedium),
-              StatSummaryCard(
-                title: l10n.pendingWithdrawals,
+                title: l10n.availableFunds,
                 value:
-                    '${summary.pendingWithdrawals.toStringAsFixed(0)} ${l10n.sar}',
-                icon: Icons.hourglass_empty_rounded,
+                    '${summary.availableFunds.toStringAsFixed(0)} ${l10n.sar}',
+                icon: Icons.check_circle_outline_rounded,
+                color: colors.primary,
+                colors: colors,
+                currentValue: summary.availableFunds,
+                totalValue: safeGrandTotal,
+              ),
+              SizedBox(width: Dimensions.spacingMedium),
+              StatSummaryCard(
+                title: l10n.escrowFunds,
+                value:
+                    '${summary.pendingEscrow.toStringAsFixed(0)} ${l10n.sar}',
+                icon: Icons.lock_clock_rounded,
                 color: colors.warning,
                 colors: colors,
-                currentValue: summary.pendingWithdrawals,
-                totalValue: safeTotalWithdrawals,
+                currentValue: summary.pendingEscrow,
+                totalValue: safeGrandTotal,
+              ),
+              SizedBox(width: Dimensions.spacingMedium),
+              StatSummaryCard(
+                title: l10n.consumedFunds,
+                value:
+                    '${summary.totalConsumed.toStringAsFixed(0)} ${l10n.sar}',
+                icon: Icons.shopping_bag_outlined,
+                color: colors.error,
+                colors: colors,
+                currentValue: summary.totalConsumed,
+                totalValue: safeGrandTotal,
+              ),
+              SizedBox(width: Dimensions.spacingMedium),
+              StatSummaryCard(
+                title: l10n.withdrawnFunds,
+                value:
+                    '${summary.totalWithdrawn.toStringAsFixed(0)} ${l10n.sar}',
+                icon: Icons.outbox_rounded,
+                color: colors.textSecondary,
+                colors: colors,
+                currentValue: summary.totalWithdrawn,
+                totalValue: safeGrandTotal,
               ),
             ],
           ),

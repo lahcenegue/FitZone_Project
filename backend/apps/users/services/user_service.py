@@ -217,7 +217,6 @@ FitZone Team
         
         token_obj.delete()
 
-
     @staticmethod
     @transaction.atomic
     def change_password(user, old_password, new_password):
@@ -281,7 +280,6 @@ FitZone Team
 
         return user, email_changed
     
-    
     @staticmethod
     @transaction.atomic
     def delete_user_account(user, password):
@@ -307,20 +305,36 @@ class UserDashboardService:
         """
         Fetches all active and historical subscriptions (including Roaming Passes) 
         with full metadata, unified into a single list.
+        Supports advanced filtering via 'status' query parameter.
         """
         unified_subscriptions = []
         from django.utils import timezone
         now_date = timezone.now().date()
+        
+        status_filter = request.query_params.get('status') if request else None
 
         # 1. Fetch Regular Gym Subscriptions
         from apps.gyms.models import GymSubscription
         gym_subs = GymSubscription.objects.filter(user=user).select_related(
             'plan', 'plan__provider'
-        ).prefetch_related('plan__branches').order_by('-end_date')
+        ).prefetch_related('plan__branches', 'resale_listing').order_by('-end_date')
+
+        # Apply Filters securely
+        if status_filter == 'active':
+            gym_subs = gym_subs.filter(status='active')
+        elif status_filter == 'scheduled':
+            gym_subs = gym_subs.filter(status='scheduled')
+        elif status_filter == 'listed':
+            gym_subs = gym_subs.filter(status='active', resale_listing__status='active')
+        elif status_filter == 'history':
+            gym_subs = gym_subs.filter(status__in=['expired', 'cancelled', 'suspended', 'transferred'])
 
         for sub in gym_subs:
             plan = sub.plan
             branch = plan.branches.first()
+            
+            is_listed = hasattr(sub, 'resale_listing') and sub.resale_listing.status == 'active'
+            resale_listing_id = sub.resale_listing.id if is_listed else None
             
             sub_entry = {
                 "id": sub.id,
@@ -338,7 +352,9 @@ class UserDashboardService:
                 "start_date": sub.start_date,
                 "end_date": sub.end_date,
                 "branch_logo": None,
-                "plan_name": plan.name  # NEW FIELD ADDED
+                "plan_name": plan.name,
+                "is_listed": is_listed,
+                "resale_listing_id": resale_listing_id
             }
 
             if branch and getattr(branch, 'branch_logo', None) and getattr(branch.branch_logo, 'url', None) and request:
@@ -354,12 +370,18 @@ class UserDashboardService:
             'branch', 'branch__provider'
         ).order_by('-purchased_at')
 
+        # Apply Filters to roaming passes
+        if status_filter == 'active':
+            roaming_passes = roaming_passes.filter(is_used=False)
+        elif status_filter == 'history':
+            roaming_passes = roaming_passes.filter(is_used=True)
+        elif status_filter in ['scheduled', 'listed']:
+            roaming_passes = roaming_passes.none()
+
         for rp in roaming_passes:
             branch = rp.branch
             provider = branch.provider
             
-            # Determine status based on 'is_used'. Roaming passes don't technically "expire"
-            # but we treat them as active if not used.
             status_val = "expired" if rp.is_used else "active"
             
             rp_entry = {
@@ -376,9 +398,11 @@ class UserDashboardService:
                 "status": status_val,
                 "qr_code_signature": rp.get_signed_qr_code(),
                 "start_date": rp.purchased_at.date(),
-                "end_date": rp.purchased_at.date(), # Roaming pass is a 1-day pass technically
+                "end_date": rp.purchased_at.date(),
                 "branch_logo": None,
-                "plan_name": "One-Time Roaming Pass"  # NEW FIELD ADDED
+                "plan_name": "One-Time Roaming Pass",
+                "is_listed": False,
+                "resale_listing_id": None
             }
 
             if getattr(branch, 'branch_logo', None) and getattr(branch.branch_logo, 'url', None) and request:
@@ -388,7 +412,5 @@ class UserDashboardService:
 
             unified_subscriptions.append(rp_entry)
 
-        # Sort the unified list by end_date (most recent first)
         unified_subscriptions.sort(key=lambda x: x["end_date"], reverse=True)
-        
         return unified_subscriptions
