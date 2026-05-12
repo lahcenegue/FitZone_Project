@@ -304,7 +304,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               setState(() => _selectedGatewayId = method.id),
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),

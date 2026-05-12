@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'global/css/output.css' %}" />
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex w-full bg-bg text-text-primary overflow-hidden font-latin" id="dashboard-wrapper">
+    
+    <div id="mobile-overlay" class="fixed inset-0 bg-[rgba(15,23,42,0.5)] backdrop-blur-sm z-30 hidden transition-opacity lg:hidden" onclick="toggleSidebar()"></div>
+
+    <aside id="main-sidebar" class="fixed inset-y-0 left-0 rtl:left-auto rtl:right-0 z-40 w-[290px] flex-shrink-0 bg-surface border-r rtl:border-r-0 rtl:border-l border-border flex flex-col transition-transform duration-300 transform -translate-x-full rtl:translate-x-full lg:relative lg:translate-x-0 rtl:lg:translate-x-0">
+        
+        <div class="h-28 flex items-center justify-center border-b border-border px-8 shrink-0">
+            <img src="{% static 'global/img/logo.png' %}" alt="FitZone Mastermind" class="h-11 object-contain" />
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-8 flex flex-col gap-8 custom-scrollbar">
+            
+            <div class="flex flex-col gap-2">
+                <p class="px-8 text-[11.5px] font-black text-text-muted uppercase tracking-widest mb-1">{% trans "Core" %}</p>
+                
+                <a href="{% url 'dashboard:home' %}" class="flex items-center gap-4 px-5 py-3.5 mx-5 rounded-2xl text-[14px] transition-all duration-300 {% if request.resolver_match.url_name == 'home' %}bg-primary text-surface font-bold shadow-primary-sm{% else %}text-text-secondary font-medium hover:bg-bg hover:text-primary{% endif %}">
+                    <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    <span>{% trans "Dashboard" %}</span>
+                </a>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <p class="px-8 text-[11.5px] font-black text-text-muted uppercase tracking-widest mb-1">{% trans "Ecosystem" %}</p>
+                
+                <a href="#" class="flex items-center gap-4 px-5 py-3.5 mx-5 rounded-2xl text-[14px] font-medium transition-all duration-300 text-text-secondary hover:bg-bg hover:text-primary">
+                    <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    <span>{% trans "Gyms & Providers" %}</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-4 px-5 py-3.5 mx-5 rounded-2xl text-[14px] font-medium transition-all duration-300 text-text-secondary hover:bg-bg hover:text-primary">
+                    <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span>{% trans "Resale Market" %}</span>
+                    <span class="ms-auto flex items-center justify-center bg-primary text-surface text-[11px] px-2.5 py-0.5 rounded-full font-black shadow-primary-sm">12</span>
+                </a>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <p class="px-8 text-[11.5px] font-black text-text-muted uppercase tracking-widest mb-1">{% trans "Administration" %}</p>
+                
+                <a href="#" class="flex items-center gap-4 px-5 py-3.5 mx-5 rounded-2xl text-[14px] font-medium transition-all duration-300 text-text-secondary hover:bg-bg hover:text-primary">
+                    <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <span>{% trans "Users & Roles" %}</span>
+                </a>
+
+                <a href="{% url 'dashboard:settings' %}" class="flex items-center gap-4 px-5 py-3.5 mx-5 rounded-2xl text-[14px] transition-all duration-300 {% if request.resolver_match.url_name == 'settings' %}bg-primary text-surface font-bold shadow-primary-sm{% else %}text-text-secondary font-medium hover:bg-bg hover:text-primary{% endif %}">
+                    <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span>{% trans "Global Settings" %}</span>
+                </a>
+            </div>
+            
+        </nav>
+        
+        <div class="p-6 border-t border-border shrink-0 flex flex-col gap-4">
+            <form method="post" action="{% url 'dashboard:logout' %}" class="w-full m-0 p-0">
+                {% csrf_token %}
+                <button type="submit" class="flex items-center justify-center gap-3 px-5 py-3.5 w-full rounded-2xl text-[14px] font-bold text-error bg-bg border border-error-light hover:bg-error-light transition-all duration-300 shadow-sm">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    <span>{% trans "Log Out" %}</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative z-10 w-full">
+        
+        <header class="h-28 bg-bg flex items-center justify-between px-6 lg:px-12 flex-shrink-0 z-20">
+            
+            <div class="flex items-center gap-5">
+                <button onclick="toggleSidebar()" class="lg:hidden w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-text-secondary hover:text-primary transition-colors shadow-sm">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                
+                {% block topbar_heading %}
+                <div class="hidden sm:flex flex-col">
+                    <h1 class="text-2xl font-black text-text-primary tracking-tight">{{ page_title|default:"Mastermind" }}</h1>
+                    <p class="text-sm text-text-muted font-medium mt-1">{% trans "Welcome back," %} {{ request.user.full_name|default:request.user.email }}</p>
+                </div>
+                {% endblock %}
+            </div>
+            
+            <div class="flex items-center gap-4 md:gap-6">
+                
+                <div class="relative" id="topbarLangSw">
+                    <button onclick="toggleDropdown('langMenu')" class="flex items-center gap-3 px-5 h-12 rounded-2xl bg-surface border border-border text-text-secondary hover:border-primary hover:text-primary transition-all duration-300 shadow-sm focus:outline-none">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                            <span class="font-bold text-[14px] font-arabic">العربية</span>
+                        {% else %}
+                            <span class="font-bold text-[14px] font-latin">English</span>
+                        {% endif %}
+                        <svg class="w-4 h-4 shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                    </button>
+
+                    <div id="langMenu" class="absolute top-[120%] rtl:left-0 ltr:right-0 min-w-[180px] bg-surface border border-border rounded-2xl shadow-xl opacity-0 pointer-events-none transform scale-95 transition-all duration-200 z-50 overflow-hidden">
+                        {% get_available_languages as LANGUAGES %}
+                        {% for lang in LANGUAGES %}
+                            <form action="{% url 'set_language' %}" method="post" class="m-0 p-0">
+                                {% csrf_token %}
+                                <input name="next" type="hidden" class="lang-sw-next" value="" />
+                                <button type="submit" name="language" value="{{ lang.0 }}" class="w-full text-start px-5 py-4 text-[14px] font-bold transition-colors {% if lang.0 == LANGUAGE_CODE %}bg-primary-light text-primary{% else %}text-text-secondary hover:bg-bg{% endif %}">
+                                    {{ lang.1 }}
+                                </button>
+                            </form>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button onclick="toggleDarkMode()" class="w-12 h-12 rounded-2xl bg-surface border border-border flex items-center justify-center text-text-secondary hover:border-primary hover:text-primary transition-all duration-300 shadow-sm">
+                    <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+
+                <div class="hidden sm:block w-px h-8 bg-border mx-2"></div>
+
+                <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-surface text-[16px] font-black uppercase shadow-primary-md border-2 border-surface shrink-0 cursor-pointer hover:-translate-y-0.5 transition-all duration-300">
+                    {{ request.user.email|make_list|first|default:"A" }}
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto px-6 lg:px-12 pb-12 bg-bg">
+            <div id="alerts-container" class="mb-8">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="p-4 rounded-2xl mb-3 font-bold text-[14px] flex items-center gap-3 {% if message.tags == 'error' %}bg-error-light text-error border border-error-light{% else %}bg-success-light text-success border border-success-light{% endif %} shadow-sm">
+                            <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+</div>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('main-sidebar');
+        const overlay = document.getElementById('mobile-overlay');
+        const isRtl = document.documentElement.dir === 'rtl';
+        const hideClass = isRtl ? 'translate-x-full' : '-translate-x-full';
+        
+        if (sidebar.classList.contains(hideClass)) {
+            sidebar.classList.remove(hideClass);
+            sidebar.classList.add('translate-x-0');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('block');
+        } else {
+            sidebar.classList.add(hideClass);
+            sidebar.classList.remove('translate-x-0');
+            overlay.classList.remove('block');
+            overlay.classList.add('hidden');
+        }
+    }
+
+    function toggleDropdown(menuId) {
+        const menu = document.getElementById(menuId);
+        if (menu.classList.contains('opacity-0')) {
+            menu.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+            menu.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
+        } else {
+            closeDropdowns();
+        }
+    }
+
+    function closeDropdowns() {
+        const menu = document.getElementById('langMenu');
+        if (menu && !menu.classList.contains('opacity-0')) {
+            menu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+            menu.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+        }
+    }
+
+    document.addEventListener('click', (event) => {
+        const langContainer = document.getElementById('topbarLangSw');
+        if (langContainer && !langContainer.contains(event.target)) {
+            closeDropdowns();
+        }
+    });
+
+    function toggleDarkMode() {
+        const html = document.documentElement;
+        if (html.getAttribute('data-theme') === 'dark') {
+            html.setAttribute('data-theme', 'light');
+            localStorage.setItem('fitzone_theme', 'light');
+        } else {
+            html.setAttribute('data-theme', 'dark');
+            localStorage.setItem('fitzone_theme', 'dark');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('fitzone_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        const cleanPath = window.location.pathname.replace(/^\/[a-z]{2}(\/|$)/, '/');
+        document.querySelectorAll('.lang-sw-next').forEach(el => {
+            el.value = cleanPath;
+        });
+
+        setTimeout(() => {
+            const alerts = document.getElementById('alerts-container');
+            if (alerts) {
+                alerts.style.opacity = '0';
+                alerts.style.transition = 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+                setTimeout(() => alerts.remove(), 600);
+            }
+        }, 5000);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "auth/base_auth.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Mastermind Authentication" %} — FitZone{% endblock %}
+
+{% block page_css %}
+<style>
+/* Overriding the default Auth Theme to Mastermind Primary (Indigo/Purple) */
+:root {
+  --auth-theme-hex: var(--color-primary);
+  --auth-theme-rgb: 99, 102, 241;
+  --auth-theme-hover: #4338CA;
+}
+</style>
+{% endblock %}
+
+{% block welcome_label %}{% trans "Mastermind Portal" %}{% endblock %}
+{% block welcome_heading %}{% trans "System Control" %}{% endblock %}
+{% block tagline %}{% trans "Global Administration Ecosystem" %}{% endblock %}
+{% block logo_alt %}FitZone Mastermind{% endblock %}
+
+{% block live_badge %}
+{% endblock %}
+
+{% block content %}
+<div class="card-icon">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+  </svg>
+</div>
+
+<h2 class="card-title">{% trans "Admin Authentication" %}</h2>
+<p class="card-sub">{% trans "Enter your Mastermind credentials to access the ecosystem." %}</p>
+
+<form method="post" action="{% url 'dashboard:login' %}" novalidate>
+  {% csrf_token %}
+  
+  <div class="f-group">
+    <div class="f-label">
+      <label for="inp-email">{% trans "Admin Email" %}</label>
+    </div>
+    <div class="fi-wrap">
+      <span class="fi-ico">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </span>
+      <input class="f-input {% if form.username.errors %}is-error{% endif %}" type="email" name="username" id="inp-email" placeholder="admin@fitzone.sa" autocomplete="email" required value="{{ form.username.value|default:'' }}"/>
+    </div>
+  </div>
+
+  <div class="f-group">
+    <div class="f-label">
+      <label for="inp-pw">{% trans "Passcode" %}</label>
+    </div>
+    <div class="fi-wrap">
+      <span class="fi-ico">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </span>
+      <input class="f-input {% if form.password.errors %}is-error{% endif %}" type="password" name="password" id="inp-pw" placeholder="••••••••" autocomplete="current-password" required/>
+      <button class="pw-eye" onclick="togglePw(this)" type="button">
+        <svg class="eye-on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        <svg class="eye-off" style="display:none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+          <line x1="1" y1="1" x2="23" y2="23"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <button class="btn-primary" type="submit">
+    <span>{% trans "Authenticate" %}</span>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12"/>
+      <polyline points="12 5 19 12 12 19"/>
+    </svg>
+  </button>
+</form>
+{% endblock content %}

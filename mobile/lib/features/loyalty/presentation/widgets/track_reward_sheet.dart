@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -38,8 +37,9 @@ class _TrackRewardSheetState extends ConsumerState<TrackRewardSheet> {
 
   Future<void> _handleClaimReward() async {
     if (widget.userMilestoneData == null ||
-        widget.userMilestoneData!.userMilestoneId == null)
+        widget.userMilestoneData!.userMilestoneId == null) {
       return;
+    }
 
     setState(() => _isLoading = true);
     try {

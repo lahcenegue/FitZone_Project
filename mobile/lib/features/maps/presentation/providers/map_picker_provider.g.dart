@@ -45,7 +45,7 @@ final class MapPickerControllerProvider
 }
 
 String _$mapPickerControllerHash() =>
-    r'28c46122b340a52fd3771a805fb4ddeeedf9668b';
+    r'9f0a14db37a920acd2b2da45b0178c11557b01ca';
 
 /// Controls the logic and state mutations for the Hybrid Map Picker.
 

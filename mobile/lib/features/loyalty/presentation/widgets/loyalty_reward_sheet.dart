@@ -774,8 +774,9 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet> {
                                         ),
                                     loadingBuilder:
                                         (context, child, loadingProgress) {
-                                          if (loadingProgress == null)
+                                          if (loadingProgress == null) {
                                             return child;
+                                          }
                                           return Center(
                                             child: SizedBox(
                                               width: Dimensions.iconMedium,
@@ -1006,8 +1007,9 @@ class _LoyaltyRewardSheetState extends ConsumerState<LoyaltyRewardSheet> {
     if (type == 'bogo') return widget.l10n.bogoDiscount;
     if (type == 'free_item') return widget.l10n.freeItem;
     if (type == 'percentage') return '${value.toStringAsFixed(0)}%';
-    if (type == 'fixed_amount')
+    if (type == 'fixed_amount') {
       return '${value.toStringAsFixed(0)} ${widget.l10n.currency}';
+    }
     return value.toStringAsFixed(0);
   }
 

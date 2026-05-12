@@ -744,7 +744,7 @@ class _ExploreFiltersScreenState extends ConsumerState<ExploreFiltersScreen> {
           ),
           Switch(
             value: _localState.isOpen,
-            activeColor: Colors.white,
+            activeThumbColor: Colors.white,
             activeTrackColor: colors.primary,
             inactiveThumbColor: colors.iconGrey,
             inactiveTrackColor: colors.iconGrey.withValues(alpha: 0.15),

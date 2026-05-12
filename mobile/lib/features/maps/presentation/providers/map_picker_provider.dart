@@ -99,12 +99,15 @@ class MapPickerController extends _$MapPickerController {
         final List<String> addressParts = [];
 
         // Build a clean, readable address structure
-        if (place.subLocality != null && place.subLocality!.isNotEmpty)
+        if (place.subLocality != null && place.subLocality!.isNotEmpty) {
           addressParts.add(place.subLocality!);
-        if (place.locality != null && place.locality!.isNotEmpty)
+        }
+        if (place.locality != null && place.locality!.isNotEmpty) {
           addressParts.add(place.locality!);
-        if (addressParts.isEmpty && place.street != null)
+        }
+        if (addressParts.isEmpty && place.street != null) {
           addressParts.add(place.street!);
+        }
 
         state = state.copyWith(
           currentAddress: addressParts.join(', '),

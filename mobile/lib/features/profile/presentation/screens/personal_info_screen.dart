@@ -498,7 +498,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
         SizedBox(height: Dimensions.spacingSmall),
         staticDataAsync.when(
           loading: () => const LinearProgressIndicator(),
-          error: (_, __) => Text(
+          error: (_, _) => Text(
             'Error loading cities',
             style: TextStyle(color: colors.error),
           ),

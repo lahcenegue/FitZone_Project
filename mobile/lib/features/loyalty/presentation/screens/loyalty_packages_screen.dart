@@ -118,7 +118,7 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
       ),
       physics: const BouncingScrollPhysics(),
       itemCount: packages.length,
-      separatorBuilder: (_, __) => SizedBox(height: Dimensions.spacingMedium),
+      separatorBuilder: (_, _) => SizedBox(height: Dimensions.spacingMedium),
       itemBuilder: (context, index) {
         final package = packages[index];
         final bool isSelected = _selectedPackage?.id == package.id;

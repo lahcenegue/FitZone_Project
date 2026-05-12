@@ -105,7 +105,7 @@ class MySubscriptionsScreen extends ConsumerWidget {
                   parent: BouncingScrollPhysics(),
                 ),
                 itemCount: subs.length,
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (_, _) =>
                     SizedBox(height: Dimensions.spacingLarge),
                 itemBuilder: (context, index) {
                   final sub = subs[index];

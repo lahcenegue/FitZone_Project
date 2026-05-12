@@ -220,7 +220,7 @@ class _MapPickerScreenState extends ConsumerState<MapPickerScreen> {
         shrinkWrap: true,
         padding: EdgeInsets.zero,
         itemCount: state.searchResults.length,
-        separatorBuilder: (_, __) => Divider(
+        separatorBuilder: (_, _) => Divider(
           height: Dimensions.dividerHeight,
           color: colors.iconGrey.withOpacity(0.2),
         ),

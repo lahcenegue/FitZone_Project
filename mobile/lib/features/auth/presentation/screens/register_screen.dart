@@ -367,11 +367,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   ) {
     return staticDataAsync.when(
       loading: () => const Center(child: LinearProgressIndicator()),
-      error: (_, __) =>
+      error: (_, _) =>
           Text('Failed to load cities', style: TextStyle(color: colors.error)),
       data: (data) {
         return DropdownButtonFormField<String>(
-          value: formState.city,
+          initialValue: formState.city,
           dropdownColor: colors.surface,
           icon: Icon(Icons.keyboard_arrow_down_rounded, color: colors.iconGrey),
           decoration: InputDecoration(
