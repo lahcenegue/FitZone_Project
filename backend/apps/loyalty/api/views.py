@@ -1,3 +1,5 @@
+# apps/loyalty/api/views.py
+
 import logging
 from decimal import Decimal
 from datetime import timedelta
@@ -33,6 +35,20 @@ class PointPackageListAPIView(ListAPIView):
     queryset = PointPackage.objects.filter(is_active=True).order_by('price')
     serializer_class = PointPackageSerializer
     pagination_class = None
+
+    def get_serializer_context(self):
+        """
+        Dynamically calculate the 'Best Seller' package to avoid N+1 queries in the serializer.
+        A package is considered a best seller only if it has at least 1 purchase.
+        """
+        context = super().get_serializer_context()
+        best_seller = PointPackage.objects.filter(
+            is_active=True, 
+            total_purchases__gt=0
+        ).order_by('-total_purchases').first()
+        
+        context['best_seller_id'] = best_seller.id if best_seller else None
+        return context
 
 class MilestoneRoadmapAPIView(ListAPIView):
     permission_classes = [AllowAny]
@@ -123,7 +139,6 @@ class WalletTransactionsAPIView(ListAPIView):
         for wt in wt_qs:
             t_type = wt.transaction_type
             
-            # Map type, title, and impact based on business logic
             if t_type == TransactionType.WITHDRAW_FIAT:
                 title = str(_("Bank Withdrawal Request"))
                 trans_type = "withdrawal"

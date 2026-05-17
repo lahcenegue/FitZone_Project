@@ -1,0 +1,407 @@
+{# templates/dashboard/loyalty/claims_ledger.html #}
+{% extends "dashboard/layout.html" %}
+{% load i18n humanize %}
+
+{% block content %}
+<div class="flex flex-col pb-12">
+
+    {% trans "Comprehensive user-centric command center to monitor milestones and reward lifecycle states." as subtitle_trans %}
+    {% include "dashboard/components/page_header.html" with title=page_title subtitle=subtitle_trans %}
+
+    <div id="kpi-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 transition-opacity duration-300">
+        {% include "dashboard/components/stat_card.html" with title=_("Total Target Actions") value=stats.total_records subtitle=_("Matched milestone records") icon_svg='<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>' icon_bg_class="bg-primary/15 border border-primary/30 text-primary" %}
+        {% include "dashboard/components/stat_card.html" with title=_("Unlocked Pending") value=stats.unlocked_count subtitle=_("Reached but unclaimed") icon_svg='<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>' icon_bg_class="bg-amber-500/15 border border-amber-500/30 text-amber-500" %}
+        {% include "dashboard/components/stat_card.html" with title=_("Claimed Active") value=stats.claimed_count subtitle=_("Issued pending consumption") icon_svg='<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path></svg>' icon_bg_class="bg-blue-500/15 border border-blue-500/30 text-blue-500" %}
+        {% include "dashboard/components/stat_card.html" with title=_("Effective Redemptions") value=stats.consumed_count subtitle=_("Fulfillment success scale") chart_percentage=stats.consumption_rate chart_color="#10B981" icon_svg='<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' icon_bg_class="bg-emerald-500/15 border border-emerald-500/30 text-emerald-500" %}
+    </div>
+
+    <div class="bg-surface border border-border/60 rounded-[16px] p-2.5 flex flex-col xl:flex-row items-center gap-3 shadow-sm mb-6 mt-6">
+        <form method="get" class="w-full flex flex-col xl:flex-row gap-3" id="filter-form" onsubmit="return false;">
+            
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 start-4 flex items-center pointer-events-none text-text-muted">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" name="q" id="search-input" value="{{ current_filters.q }}" autocomplete="off" placeholder="{% trans 'Search customer profile or milestones...' %}" class="w-full h-11 bg-bg border border-transparent text-text-primary text-[13px] font-bold rounded-[12px] ps-11 pe-4 focus:border-primary/30 outline-none transition-all">
+                <div id="ajax-loader" class="absolute inset-y-0 end-4 flex items-center opacity-0 transition-opacity">
+                    <div class="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap lg:flex-nowrap items-center gap-3 w-full xl:w-auto shrink-0">
+                
+                <div class="custom-select-wrapper relative w-full lg:w-40">
+                    <input type="hidden" name="status" id="status-input" value="{{ current_filters.status|default:'' }}">
+                    <div class="select-trigger h-11 bg-bg border border-transparent rounded-[12px] px-4 flex items-center justify-between cursor-pointer hover:border-primary/20 transition-all">
+                        <span class="text-[12px] font-black uppercase tracking-widest text-text-secondary select-label">{% trans "Status: All" %}</span>
+                        <svg class="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="select-dropdown absolute top-full start-0 w-full mt-1.5 bg-surface border border-border rounded-xl shadow-lg hidden z-50 py-1.5">
+                        <div class="select-option px-4 py-2.5 text-[12px] font-bold hover:bg-bg cursor-pointer transition-colors" data-value="">{% trans "Status: All" %}</div>
+                        <div class="select-option px-4 py-2.5 text-[12px] font-bold hover:bg-bg cursor-pointer transition-colors text-amber-500" data-value="unlocked">{% trans "Unlocked" %}</div>
+                        <div class="select-option px-4 py-2.5 text-[12px] font-bold hover:bg-bg cursor-pointer transition-colors text-blue-500" data-value="claimed">{% trans "Claimed" %}</div>
+                        <div class="select-option px-4 py-2.5 text-[12px] font-bold hover:bg-bg cursor-pointer transition-colors text-emerald-500" data-value="consumed">{% trans "Consumed" %}</div>
+                    </div>
+                </div>
+
+                <div class="custom-select-wrapper relative w-full lg:w-48">
+                    <input type="hidden" name="milestone" id="milestone-input" value="{{ current_filters.milestone|default:'' }}">
+                    <div class="select-trigger h-11 bg-bg border border-transparent rounded-[12px] px-4 flex items-center justify-between cursor-pointer hover:border-primary/20 transition-all">
+                        <span class="text-[12px] font-black uppercase tracking-widest text-text-secondary select-label">{% trans "Milestone: All" %}</span>
+                        <svg class="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="select-dropdown absolute top-full start-0 w-full mt-1.5 bg-surface border border-border rounded-xl shadow-lg hidden z-50 py-1.5 max-h-60 overflow-y-auto custom-scrollbar">
+                        <div class="select-option px-4 py-2.5 text-[12px] font-bold hover:bg-bg cursor-pointer transition-colors" data-value="">{% trans "Milestone: All" %}</div>
+                        {% for ms in available_milestones %}
+                            <div class="select-option px-4 py-2.5 text-[12px] font-bold hover:bg-bg cursor-pointer transition-colors" data-value="{{ ms.id }}">{{ ms.title }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="custom-select-wrapper relative w-full lg:w-48">
+                    <input type="hidden" name="reward" id="reward-input" value="{{ current_filters.reward|default:'' }}">
+                    <div class="select-trigger h-11 bg-bg border border-transparent rounded-[12px] px-4 flex items-center justify-between cursor-pointer hover:border-primary/20 transition-all">
+                        <span class="text-[12px] font-black uppercase tracking-widest text-text-secondary select-label">{% trans "Reward: All" %}</span>
+                        <svg class="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="select-dropdown absolute top-full start-0 w-full mt-1.5 bg-surface border border-border rounded-xl shadow-lg hidden z-50 py-1.5 max-h-60 overflow-y-auto custom-scrollbar">
+                        <div class="select-option px-4 py-2.5 text-[12px] font-bold hover:bg-bg cursor-pointer transition-colors" data-value="">{% trans "Reward: All" %}</div>
+                        {% for rw in available_rewards %}
+                            <div class="select-option px-4 py-2.5 text-[12px] font-bold hover:bg-bg cursor-pointer transition-colors" data-value="{{ rw.id }}">{{ rw.name }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button type="button" id="clear-filters-btn" class="h-11 px-5 flex items-center justify-center gap-2 bg-error/10 border border-error/20 text-error hover:bg-error hover:text-white rounded-[12px] transition-all shadow-sm text-[12px] font-black uppercase tracking-widest w-full lg:w-auto {% if not current_filters.q and not current_filters.status and not current_filters.milestone and not current_filters.reward %}hidden{% endif %}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <span>{% trans "Clear" %}</span>
+                </button>
+
+            </div>
+        </form>
+    </div>
+
+    <div id="table-container" class="transition-opacity duration-300">
+        {% if customers %}
+        <div class="bg-surface border border-border/60 shadow-sm rounded-[24px] overflow-hidden">
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-start border-collapse min-w-[900px]">
+                    <thead>
+                        <tr class="bg-bg border-b border-border/40 text-[11px] font-black text-text-muted uppercase tracking-widest">
+                            <th class="px-6 py-5 text-start whitespace-nowrap w-[25%]">{% trans "Customer Profile" %}</th>
+                            <th class="px-6 py-5 text-center whitespace-nowrap">{% trans "Lifetime Balance" %}</th>
+                            <th class="px-6 py-5 text-center whitespace-nowrap">{% trans "Filtered Matches" %}</th>
+                            <th class="px-6 py-5 text-center whitespace-nowrap">{% trans "Total Active Claims" %}</th>
+                            <th class="px-6 py-5 text-end whitespace-nowrap">{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-[13px] font-medium text-text-secondary">
+                        {% for customer in customers %}
+                        <tr class="border-b border-border/20 hover:bg-bg/40 transition-colors cursor-pointer group" onclick="toggleAccordion('row-{{ customer.id }}', this)">
+                            
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-[12px] bg-primary/10 text-primary flex items-center justify-center font-black text-[14px] uppercase shrink-0 shadow-sm">
+                                        {{ customer.email|make_list|first|default:"U" }}
+                                    </div>
+                                    <div class="flex flex-col overflow-hidden max-w-[200px]">
+                                        <span class="font-black text-[14px] text-text-primary truncate" dir="auto">{{ customer.full_name|default:customer.email }}</span>
+                                        {% if customer.full_name %}
+                                        <span class="text-[11px] font-bold text-text-muted truncate" dir="ltr">{{ customer.email }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex items-center justify-center gap-1.5" dir="ltr">
+                                    <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                    <span class="font-black text-text-primary text-[14px]">{{ customer.customer_wallet.lifetime_points|intcomma|default:"0" }}</span>
+                                    <span class="text-[10px] font-bold text-text-muted uppercase">PTS</span>
+                                </div>
+                            </td>
+
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center justify-center font-bold text-text-primary bg-bg border border-border/40 px-2.5 py-1 rounded-md text-[12px] whitespace-nowrap min-w-[70px]">
+                                    {{ customer.unlocked_milestones.all|length }} {% trans "Items" %}
+                                </span>
+                            </td>
+
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center justify-center font-bold text-blue-500 bg-blue-500/5 border border-blue-500/10 px-2.5 py-1 rounded-md text-[12px] whitespace-nowrap min-w-[70px]">
+                                    {{ customer.active_claims_count }} {% trans "Pending" %}
+                                </span>
+                            </td>
+
+                            <td class="px-6 py-4">
+                                <div class="flex justify-end">
+                                    <button class="w-9 h-9 rounded-xl bg-bg border border-border inline-flex items-center justify-center text-text-muted group-hover:text-primary transition-all duration-300 transform accordion-arrow">
+                                        <svg class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                </div>
+                            </td>
+
+                        </tr>
+
+                        <tr id="row-{{ customer.id }}" class="hidden bg-bg/30 border-b border-border/40 shadow-inner">
+                            <td colspan="5" class="p-0">
+                                <div class="p-6 md:px-12">
+                                    <div class="flex items-center gap-2 mb-4 text-text-muted">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <h4 class="text-[12px] font-black uppercase tracking-widest">{% trans "Loyalty Roadmap History" %}</h4>
+                                    </div>
+                                    
+                                    {% if customer.unlocked_milestones.all %}
+                                        <div class="relative border-s-2 border-border/50 ms-4 lg:ms-8 mt-4 mb-2">
+                                            {% for history in customer.unlocked_milestones.all %}
+                                            <div class="relative ps-6 sm:ps-8 pb-6 last:pb-0">
+                                                
+                                                <div class="absolute -start-[5px] top-1.5 w-2.5 h-2.5 rounded-full ring-4 ring-bg {% if history.is_consumed %}bg-emerald-500{% elif history.is_claimed %}bg-blue-500{% else %}bg-amber-500{% endif %}"></div>
+
+                                                <div class="bg-surface border border-border/50 rounded-[16px] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow">
+                                                    
+                                                    <div class="flex flex-col gap-1">
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="font-black text-text-primary text-[15px]">{{ history.milestone.title }}</span>
+                                                            <span class="sm:hidden px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest {% if history.is_consumed %}bg-emerald-500/10 text-emerald-500 border border-emerald-500/10{% elif history.is_claimed %}bg-blue-500/10 text-blue-500 border border-blue-500/10{% else %}bg-amber-500/10 text-amber-500 border border-amber-500/10{% endif %}">
+                                                                {% if history.is_consumed %}{% trans "Consumed" %}{% elif history.is_claimed %}{% trans "Claimed" %}{% else %}{% trans "Unlocked" %}{% endif %}
+                                                            </span>
+                                                        </div>
+                                                        <div class="flex items-center gap-1.5 text-text-muted">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                                            <span class="text-[12px] font-bold">{{ history.milestone.reward.name|default:"No Reward Linked" }}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="flex items-center gap-6">
+                                                        <div class="flex flex-col text-[11.5px] font-bold gap-1 text-end">
+                                                            <div class="flex items-center justify-end gap-2 text-text-muted">
+                                                                <span>{% trans "Reached:" %}</span>
+                                                                <span class="text-text-secondary font-black font-latin">{{ history.unlocked_at|date:"Y-m-d" }}</span>
+                                                            </div>
+                                                            {% if history.is_claimed %}
+                                                            <div class="flex items-center justify-end gap-2 text-text-muted">
+                                                                <span>{% trans "Claimed:" %}</span>
+                                                                <span class="text-blue-500 font-black font-latin">{{ history.claimed_at|date:"Y-m-d" }}</span>
+                                                            </div>
+                                                            {% endif %}
+                                                            {% if history.is_consumed %}
+                                                            <div class="flex items-center justify-end gap-2 text-text-muted">
+                                                                <span>{% trans "Consumed:" %}</span>
+                                                                <span class="text-emerald-500 font-black font-latin">{{ history.consumed_at|date:"Y-m-d" }}</span>
+                                                            </div>
+                                                            {% endif %}
+                                                        </div>
+
+                                                        <div class="hidden sm:flex shrink-0 w-24 justify-end">
+                                                            {% if history.is_consumed %}
+                                                                <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/10">{% trans "Consumed" %}</span>
+                                                            {% elif history.is_claimed %}
+                                                                <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-500 border border-blue-500/10">{% trans "Claimed" %}</span>
+                                                            {% else %}
+                                                                <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-amber-500/10 text-amber-500 border border-amber-500/10">{% trans "Unlocked" %}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="flex items-center justify-center p-6 bg-surface border border-border/50 rounded-xl">
+                                            <p class="text-[13px] font-bold text-text-muted italic">{% trans "No milestone transactions found for this user." %}</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <div class="p-4 border-t border-border/40 bg-bg flex justify-between items-center">
+                <span class="text-[12px] font-bold text-text-muted">
+                    {% trans "Showing profile page" %} {{ page_obj.number }} {% trans "of" %} {{ page_obj.paginator.num_pages }}
+                </span>
+                <div class="flex gap-2">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="ajax-pagination-link w-8 h-8 rounded-lg bg-surface border border-border flex items-center justify-center text-text-secondary hover:text-primary transition-colors">
+                            <svg class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                        </a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="ajax-pagination-link w-8 h-8 rounded-lg bg-surface border border-border flex items-center justify-center text-text-secondary hover:text-primary transition-colors">
+                            <svg class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% else %}
+        <div class="flex flex-col items-center justify-center p-16 bg-surface border border-border rounded-[32px] text-center shadow-sm mt-2">
+            <div class="w-20 h-20 rounded-full bg-primary-light flex items-center justify-center text-primary mb-4">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <h3 class="text-xl font-black text-text-primary mb-2">{% trans "No Customers Matched" %}</h3>
+            <p class="text-[13px] font-bold text-text-muted max-w-sm">{% trans "No individual customer profiles match the specified filters." %}</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+function toggleAccordion(rowId, triggerElement) {
+    const targetRow = document.getElementById(rowId);
+    const arrowSvg = triggerElement.querySelector('.accordion-arrow svg');
+    
+    if (targetRow.classList.contains('hidden')) {
+        targetRow.classList.remove('hidden');
+        if (arrowSvg) arrowSvg.classList.add('rotate-180');
+    } else {
+        targetRow.classList.add('hidden');
+        if (arrowSvg) arrowSvg.classList.remove('rotate-180');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+    const form = document.getElementById('filter-form');
+    const searchInput = document.getElementById('search-input');
+    const ajaxLoader = document.getElementById('ajax-loader');
+    const kpiContainer = document.getElementById('kpi-container');
+    const tableContainer = document.getElementById('table-container');
+    const clearBtn = document.getElementById('clear-filters-btn');
+    const wrappers = document.querySelectorAll('.custom-select-wrapper');
+
+    let debounceTimer;
+
+    function fetchResults(customUrl = null) {
+        // Safe URL parsing for relative paths
+        const url = customUrl ? new URL(customUrl, window.location.origin) : new URL(window.location.href);
+        
+        if (!customUrl) {
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            for (const [key, value] of formData.entries()) {
+                if (value.trim() !== '') params.append(key, value);
+            }
+            url.search = params.toString();
+        }
+
+        // Show Loaders
+        ajaxLoader.classList.remove('opacity-0');
+        if(kpiContainer) kpiContainer.style.opacity = '0.4';
+        if(tableContainer) tableContainer.style.opacity = '0.4';
+
+        // Toggle Clear Button
+        if (url.searchParams.toString() !== '') {
+            clearBtn.classList.remove('hidden');
+        } else {
+            clearBtn.classList.add('hidden');
+        }
+
+        // Execute AJAX Fetch
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // 1. Update KPIs
+            const newKpi = doc.getElementById('kpi-container');
+            if (newKpi && kpiContainer) kpiContainer.innerHTML = newKpi.innerHTML;
+            
+            // 2. Update Table
+            const newTable = doc.getElementById('table-container');
+            if (newTable && tableContainer) tableContainer.innerHTML = newTable.innerHTML;
+            
+            // Push State silently
+            window.history.pushState({}, '', url);
+        })
+        .catch(error => console.error('Error fetching data:', error))
+        .finally(() => {
+            ajaxLoader.classList.add('opacity-0');
+            if(kpiContainer) kpiContainer.style.opacity = '1';
+            if(tableContainer) tableContainer.style.opacity = '1';
+        });
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        fetchResults();
+    });
+
+    wrappers.forEach(wrapper => {
+        const trigger = wrapper.querySelector('.select-trigger');
+        const label = wrapper.querySelector('.select-label');
+        const dropdown = wrapper.querySelector('.select-dropdown');
+        const hiddenInput = wrapper.querySelector('input[type="hidden"]');
+        const options = wrapper.querySelectorAll('.select-option');
+
+        options.forEach(opt => {
+            if(opt.dataset.value === hiddenInput.value) { label.textContent = opt.textContent; }
+        });
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.select-dropdown').forEach(d => {
+                if(d !== dropdown) d.classList.add('hidden');
+            });
+            dropdown.classList.toggle('hidden');
+        });
+
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                hiddenInput.value = option.dataset.value;
+                label.textContent = option.textContent;
+                dropdown.classList.add('hidden');
+                fetchResults();
+            });
+        });
+    });
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.select-dropdown').forEach(d => d.classList.add('hidden'));
+    });
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            fetchResults();
+        }, 400); 
+    });
+
+    clearBtn.addEventListener('click', function() {
+        document.querySelectorAll('input[type="hidden"]').forEach(input => input.value = '');
+        searchInput.value = '';
+        document.querySelectorAll('.select-option[data-value=""]').forEach(opt => {
+            const wrapper = opt.closest('.custom-select-wrapper');
+            if (wrapper) wrapper.querySelector('.select-label').textContent = opt.textContent;
+        });
+        fetchResults(window.location.pathname);
+    });
+
+    document.addEventListener('click', function(e) {
+        const pageLink = e.target.closest('.ajax-pagination-link');
+        if (pageLink) {
+            e.preventDefault();
+            const url = new URL(pageLink.href, window.location.origin);
+            const formData = new FormData(form);
+            for (const [key, value] of formData.entries()) {
+                if (value.trim() !== '' && !url.searchParams.has(key)) {
+                    url.searchParams.append(key, value);
+                }
+            }
+            fetchResults(url.href);
+        }
+    });
+
+});
+</script>
+{% endblock %}

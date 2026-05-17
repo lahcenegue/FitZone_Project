@@ -119,6 +119,21 @@ class RegisterForm extends _$RegisterForm {
 
   @override
   RegisterFormState build() {
+    // ARCHITECTURE FIX: Make location reactive. If GPS locks late, update form automatically.
+    ref.listen(userLocationProvider, (previous, next) {
+      if (next.location != null && state.address.isEmpty) {
+        state = state.copyWith(
+          lat: next.location!.latitude,
+          lng: next.location!.longitude,
+          isFetchingLocation: true,
+        );
+        _getAddressFromLatLng(
+          next.location!.latitude,
+          next.location!.longitude,
+        );
+      }
+    });
+
     final locationState = ref.read(userLocationProvider);
     final bool hasLocation = locationState.location != null;
 

@@ -1,0 +1,42 @@
+{# templates/dashboard/components/stat_card.html #}
+<div class="bg-surface border border-border/60 rounded-[20px] p-4 flex flex-col justify-between shadow-sm relative overflow-hidden min-h-[110px] group hover:shadow-md transition-all duration-300">
+    
+    <div class="absolute end-0 inset-y-4 w-1.5 rounded-s-full opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:w-2" style="background-color: {{ chart_color|default:'var(--color-primary)' }};"></div>
+
+    {% if chart_percentage %}
+    <div class="absolute end-4 top-3 w-[68px] h-[68px] flex items-center justify-center z-0">
+        <svg viewBox="0 0 36 36" class="absolute inset-0 w-full h-full transform -rotate-90 opacity-[0.25] pointer-events-none">
+            <path stroke-width="3.5" stroke="var(--color-border)" fill="none" stroke-linecap="round" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <path stroke-dasharray="{{ chart_percentage|default:0 }}, 100" stroke-width="3.5" fill="none" stroke-linecap="round" style="stroke: {{ chart_color|default:'var(--color-primary)' }};" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+        </svg>
+        <span class="text-[13px] font-black z-10" style="color: {{ chart_color|default:'var(--color-primary)' }};">{{ chart_percentage }}%</span>
+    </div>
+    {% endif %}
+
+    <div class="flex justify-between items-start w-full z-10">
+        {% if icon_svg %}
+        <div class="w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0 shadow-sm {{ icon_bg_class|default:'bg-primary/15 border border-primary/30 text-primary' }}">
+            {{ icon_svg|safe }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="flex flex-col z-10 mt-2 pe-4">
+        <span class="text-[11.5px] font-black text-text-muted uppercase tracking-widest">{{ title }}</span>
+        
+        <div class="flex items-baseline gap-2 text-[40px] font-black text-text-primary leading-none transition-all duration-300" dir="ltr">
+            {{ value }}
+            
+            {% if is_currency %}
+                <span class="w-5 h-5 text-text-muted flex items-center justify-center shrink-0 mb-1">
+                    {% include "components/currency_icon.html" %}
+                </span>
+            {% endif %}
+        </div>
+        
+        {% if subtitle %}
+        <span class="text-[11px] font-bold text-text-secondary mt-1 truncate">{{ subtitle }}</span>
+        {% endif %}
+    </div>
+
+</div>

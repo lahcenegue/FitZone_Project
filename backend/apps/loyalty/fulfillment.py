@@ -19,18 +19,18 @@ class BaseFulfillmentStrategy:
 
 class CouponFulfillmentStrategy(BaseFulfillmentStrategy):
     def execute_fulfillment(self, user, reward, extra_details: Dict[str, Any] = None) -> Dict[str, Any]:
-        coupon_definition = reward.coupon_definition
-        if not coupon_definition or not coupon_definition.is_active:
-            raise ValidationError(_("The associated coupon template is inactive or missing."))
-
-        user_coupon = coupon_definition.create_coupon_for_user(user)
+        # Generate a unique, unguessable coupon code specifically for this loyal user
+        unique_id = str(uuid.uuid4())[:8].upper()
+        unique_code = f"FZ-LYL-{unique_id}"
+        
+        logger.info(f"Loyalty Coupon {unique_code} generated for user {user.id}")
         
         return {
             "fulfillment_type": "coupon",
-            "coupon_code": user_coupon.code,
-            "expires_at": user_coupon.expires_at.isoformat(),
-            "discount_value": float(coupon_definition.discount_value),
-            "coupon_type": coupon_definition.coupon_type
+            "coupon_code": unique_code,
+            "discount_value": float(reward.action_value),
+            "coupon_type": reward.discount_type,
+            "status": "ready_to_use"
         }
 
 
@@ -43,7 +43,7 @@ class RoamingFulfillmentStrategy(BaseFulfillmentStrategy):
         logger.info(f"Roaming QR generated for user {user.id}")
         return {
             "fulfillment_type": "roaming_pass",
-            "visits_granted": reward.action_value,
+            "visits_granted": float(reward.action_value),
             "qr_code_signature": qr_signature,
             "qr_id": unique_id
         }
@@ -53,7 +53,7 @@ class ExtensionFulfillmentStrategy(BaseFulfillmentStrategy):
     def execute_fulfillment(self, user, reward, extra_details: Dict[str, Any] = None) -> Dict[str, Any]:
         return {
             "fulfillment_type": "subscription_extension",
-            "days_added": reward.action_value,
+            "days_added": float(reward.action_value),
             "status": "pending_application"
         }
 

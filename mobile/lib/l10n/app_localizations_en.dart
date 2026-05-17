@@ -1373,4 +1373,97 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchResale => 'Search gyms or subscriptions...';
+
+  @override
+  String get orderDetails => 'Order Details';
+
+  @override
+  String get walletBalance => 'Wallet Balance';
+
+  @override
+  String get useWallet => 'Use wallet balance';
+
+  @override
+  String get rewardPoints => 'Reward Points';
+
+  @override
+  String get redeemPoints => 'Redeem Points';
+
+  @override
+  String get pointsHint => 'Points (e.g., 100)';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get invoiceSummary => 'Invoice Summary';
+
+  @override
+  String get subtotal => 'Subtotal';
+
+  @override
+  String get tax => 'VAT';
+
+  @override
+  String get discount => 'Discount';
+
+  @override
+  String get pointsDeduction => 'Points Deduction';
+
+  @override
+  String get walletDeduction => 'Wallet Deduction';
+
+  @override
+  String get totalToPay => 'Total to Pay';
+
+  @override
+  String get expectedRewards => 'You will earn';
+
+  @override
+  String get processing => 'Processing...';
+
+  @override
+  String get selectPaymentMethod =>
+      'Please select a payment method for the remaining amount';
+
+  @override
+  String get unitDays => 'Days';
+
+  @override
+  String get unitPoints => 'Points';
+
+  @override
+  String get unitVisit => 'Visit';
+
+  @override
+  String get unitItem => 'Item';
+
+  @override
+  String get provider => 'Provider:';
+
+  @override
+  String get enterCouponSubtitle => 'Enter your promo code if any';
+
+  @override
+  String get couponHint => 'Promo Code';
+
+  @override
+  String get maxBtn => 'Max';
+
+  @override
+  String get couponCampaignPaused =>
+      'This marketing campaign is currently paused.';
+
+  @override
+  String get couponExhausted => 'Invalid or previously used coupon code.';
+
+  @override
+  String get couponAppliedSuccess => 'Coupon applied successfully!';
+
+  @override
+  String get removeBtn => 'Remove';
+
+  @override
+  String get walletCoversTotal =>
+      'Wallet balance covers the total, no payment card needed.';
 }

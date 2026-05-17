@@ -1,0 +1,290 @@
+{# templates/dashboard/loyalty/milestone_form.html #}
+{% extends "dashboard/layout.html" %}
+{% load i18n humanize %}
+
+{% block content %}
+<div class="flex flex-col gap-8 pb-12">
+
+    {% url 'dashboard:milestones_list' as list_url %}
+    {% trans "Set up a progression tier and assign a reward for reaching it." as subtitle_trans %}
+    {% trans "Back to List" as action_text_trans %}
+    {% include "dashboard/components/page_header.html" with title=page_title subtitle=subtitle_trans action_url=list_url action_text=action_text_trans action_icon='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>' %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <div class="lg:col-span-8">
+            <form method="post" class="bg-surface border border-border shadow-sm rounded-2xl p-8 flex flex-col gap-6" id="milestone-form">
+                {% csrf_token %}
+                
+                <div class="flex items-center gap-3 border-b border-border/50 pb-4 mb-2">
+                    <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    </div>
+                    <h2 class="text-lg font-black text-text-primary">{{ page_title }}</h2>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Milestone Title" %} <span class="text-error">*</span></label>
+                    {{ form.title }}
+                    {% if form.title.errors %}<span class="text-error text-xs font-bold">{{ form.title.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
+                    
+                    <div class="flex flex-col gap-2 w-full">
+                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Required Lifetime Points" %} <span class="text-error">*</span></label>
+                        <div class="relative flex items-center">
+                            {{ form.required_lifetime_points }}
+                            <div class="absolute inset-y-0 end-4 flex items-center pointer-events-none">
+                                <span class="text-[12px] font-black text-text-muted uppercase">{% trans "PTS" %}</span>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-text-muted mt-1">{% trans "Cumulative points needed to unlock this tier." %}</p>
+                        {% if form.required_lifetime_points.errors %}<span class="text-error text-xs font-bold">{{ form.required_lifetime_points.errors.0 }}</span>{% endif %}
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Linked Reward" %}</label>
+                        <div class="custom-select-wrapper relative w-full">
+                            <input type="hidden" name="reward" id="id_reward" value="{{ form.reward.value|default:'' }}">
+                            <div class="select-trigger h-[48px] bg-bg border border-border rounded-[12px] px-4 flex items-center justify-between cursor-pointer hover:border-primary/50 transition-all shadow-sm">
+                                <span class="text-[14px] font-bold text-text-primary select-label">{% trans "Select a reward..." %}</span>
+                                <svg class="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                            <div class="select-dropdown absolute top-full start-0 w-full mt-1.5 bg-surface border border-border rounded-xl shadow-lg hidden z-50 py-1.5 max-h-60 overflow-y-auto custom-scrollbar">
+                                <div class="select-option px-4 py-2.5 text-[13px] font-bold hover:bg-bg cursor-pointer transition-colors" data-value="">{% trans "None (Milestone Only)" %}</div>
+                                {% for choice_val, choice_label in form.fields.reward.choices %}
+                                    {% if choice_val %}
+                                        <div class="select-option px-4 py-2.5 text-[13px] font-bold hover:bg-bg cursor-pointer transition-colors" data-value="{{ choice_val }}">{{ choice_label }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-text-muted mt-1">{% trans "Optional: Select the reward granted upon reaching this milestone." %}</p>
+                        {% if form.reward.errors %}<span class="text-error text-xs font-bold">{{ form.reward.errors.0 }}</span>{% endif %}
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2 mt-2">
+                    <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Description" %}</label>
+                    {{ form.description }}
+                    <p class="text-[11px] text-text-muted mt-1 text-end">{% trans "Internal note about this tier (optional)." %}</p>
+                    {% if form.description.errors %}<span class="text-error text-xs font-bold">{{ form.description.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="flex items-center justify-between p-4 bg-bg border border-border rounded-xl mt-4">
+                    <div class="flex flex-col">
+                        <span class="text-[13px] font-black text-text-primary">{% trans "Active Status" %}</span>
+                        <span class="text-[11.5px] text-text-muted">{% trans "Make this milestone part of the progression roadmap." %}</span>
+                    </div>
+                    <label class="ui-switch m-0">
+                        {{ form.is_active }}
+                        <span class="ui-slider"></span>
+                    </label>
+                </div>
+
+                <div class="border-t border-border/50 pt-6 mt-2 flex items-center gap-4">
+                    <button type="submit" class="btn-action btn-primary px-8 py-3.5 rounded-xl shadow-md">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                        <span>{{ action_title }}</span>
+                    </button>
+                    <a href="{% url 'dashboard:milestones_list' %}" class="btn-action bg-bg text-text-secondary border border-border hover:bg-border px-8 py-3.5 rounded-xl transition-colors">
+                        {% trans "Cancel" %}
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="lg:col-span-4 sticky top-6">
+            <div class="bg-surface border border-border shadow-sm rounded-[24px] p-6 flex flex-col items-center">
+                
+                <div class="flex items-center gap-2 mb-6 w-full justify-center">
+                    <h3 class="text-[14px] font-black text-text-primary">{% trans "Tier Preview" %}</h3>
+                    <svg class="w-5 h-5 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                </div>
+
+                <div class="relative w-full rounded-[20px] p-6 flex flex-col shadow-lg overflow-hidden transition-all duration-300" id="preview-card" style="background: linear-gradient(135deg, #1e1b4b, #312e81);">
+                    
+                    <div class="absolute -end-4 -top-4 opacity-10 text-white pointer-events-none transition-opacity duration-300" id="preview-bg-icon">
+                        <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
+                    </div>
+
+                    <div class="flex justify-between items-center z-10 mb-6">
+                        <span class="px-2.5 py-1 rounded text-[9px] font-black uppercase tracking-widest text-white shadow-sm border" id="preview-status" style="background-color: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);">
+                            {% trans "ACTIVE" %}
+                        </span>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-indigo-200">
+                            {% trans "MILESTONE TIER" %}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-4 z-10 mb-8">
+                        <div class="w-14 h-14 rounded-full flex items-center justify-center shadow-md border-[3px] transition-all duration-300 shrink-0" id="preview-main-icon-container" style="background: linear-gradient(to right, #f59e0b, #f97316); border-color: rgba(255,255,255,0.3);">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
+                        </div>
+                        <div class="flex flex-col overflow-hidden">
+                            <h4 class="text-[20px] font-black text-white leading-tight truncate w-full" id="preview-title" dir="auto">{% trans "TIER NAME" %}</h4>
+                            <div class="flex items-center gap-1.5 mt-1 text-indigo-200" dir="ltr">
+                                <span class="text-[13px] font-black" id="preview-points">0</span>
+                                <span class="text-[10px] font-bold uppercase tracking-wider">{% trans "PTS REQUIRED" %}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-full rounded-xl p-3 flex items-center gap-3 z-10 transition-all duration-300" id="preview-reward-box" style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300" id="preview-reward-icon-bg" style="background-color: rgba(255,255,255,0.1);">
+                            <svg class="w-5 h-5 transition-all duration-300 text-white" id="preview-reward-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        </div>
+                        <div class="flex flex-col overflow-hidden">
+                            <span class="text-[9px] font-black text-indigo-300 uppercase tracking-widest">{% trans "Bonus Reward" %}</span>
+                            <span class="text-[12px] font-bold text-white truncate mt-0.5" id="preview-reward-name">{% trans "No Reward Attached" %}</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .float-input {
+        width: 100%;
+        height: 48px;
+        padding: 0 16px;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        background-color: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        outline: none;
+    }
+    .float-input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        background-color: var(--color-surface);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // 1. Custom Select Initialization (Uniform UI)
+    const wrappers = document.querySelectorAll('.custom-select-wrapper');
+    wrappers.forEach(wrapper => {
+        const trigger = wrapper.querySelector('.select-trigger');
+        const label = wrapper.querySelector('.select-label');
+        const dropdown = wrapper.querySelector('.select-dropdown');
+        const hiddenInput = wrapper.querySelector('input[type="hidden"]');
+        const options = wrapper.querySelectorAll('.select-option');
+
+        options.forEach(opt => {
+            if(opt.dataset.value === hiddenInput.value) { label.textContent = opt.textContent; }
+        });
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.select-dropdown').forEach(d => {
+                if(d !== dropdown) d.classList.add('hidden');
+            });
+            dropdown.classList.toggle('hidden');
+        });
+
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                hiddenInput.value = option.dataset.value;
+                label.textContent = option.textContent;
+                dropdown.classList.add('hidden');
+                hiddenInput.dispatchEvent(new Event('change')); // Trigger Preview Update
+            });
+        });
+    });
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.select-dropdown').forEach(d => d.classList.add('hidden'));
+    });
+
+    // 2. Form Fields for Preview
+    const inputTitle = document.getElementById('id_title');
+    const inputPoints = document.getElementById('id_required_lifetime_points');
+    const inputReward = document.getElementById('id_reward');
+    const inputActive = document.getElementById('id_is_active');
+    
+    // 3. Preview DOM Elements
+    const prevTitle = document.getElementById('preview-title');
+    const prevPoints = document.getElementById('preview-points');
+    const prevStatus = document.getElementById('preview-status');
+    const prevCard = document.getElementById('preview-card');
+    const prevMainIcon = document.getElementById('preview-main-icon-container');
+    const prevBgIcon = document.getElementById('preview-bg-icon');
+    
+    const prevRewardName = document.getElementById('preview-reward-name');
+    const prevRewardBox = document.getElementById('preview-reward-box');
+    const prevRewardIconBg = document.getElementById('preview-reward-icon-bg');
+    const prevRewardIcon = document.getElementById('preview-reward-icon');
+
+    // 4. Update Function
+    function updatePreview() {
+        // Update Title
+        prevTitle.textContent = inputTitle.value.trim() || "{% trans 'TIER NAME' %}";
+
+        // Update Points (with formatting)
+        const pointsVal = parseInt(inputPoints.value) || 0;
+        prevPoints.textContent = pointsVal.toLocaleString();
+
+        // Update Reward Info
+        const selectedRewardText = document.querySelector('#id_reward').parentElement.querySelector('.select-label').textContent;
+        const rewardValue = inputReward.value;
+
+        if (rewardValue && rewardValue !== "") {
+            prevRewardName.textContent = selectedRewardText;
+            prevRewardBox.style.backgroundColor = "rgba(255,255,255,0.15)";
+            prevRewardBox.style.borderColor = "rgba(255,255,255,0.3)";
+            prevRewardIconBg.style.backgroundColor = "#10B981"; // Emerald color for reward
+            prevRewardIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>';
+        } else {
+            prevRewardName.textContent = "{% trans 'No Reward Attached' %}";
+            prevRewardBox.style.backgroundColor = "rgba(255,255,255,0.05)";
+            prevRewardBox.style.borderColor = "rgba(255,255,255,0.1)";
+            prevRewardIconBg.style.backgroundColor = "rgba(255,255,255,0.1)";
+            prevRewardIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>';
+        }
+
+        // Update Active/Paused Visual State
+        if (inputActive && inputActive.checked) {
+            prevStatus.textContent = "{% trans 'ACTIVE' %}";
+            prevStatus.style.backgroundColor = "rgba(16, 185, 129, 0.2)"; // Emerald tint
+            prevStatus.style.borderColor = "rgba(16, 185, 129, 0.4)";
+            prevStatus.style.color = "#34d399";
+            
+            prevCard.style.background = "linear-gradient(135deg, #1e1b4b, #312e81)"; // Deep Indigo
+            prevMainIcon.style.background = "linear-gradient(to right, #f59e0b, #f97316)"; // Bright Orange
+            prevBgIcon.style.opacity = "0.1";
+        } else {
+            prevStatus.textContent = "{% trans 'PAUSED' %}";
+            prevStatus.style.backgroundColor = "rgba(255,255,255,0.1)";
+            prevStatus.style.borderColor = "rgba(255,255,255,0.2)";
+            prevStatus.style.color = "#cbd5e1";
+            
+            prevCard.style.background = "linear-gradient(135deg, #334155, #475569)"; // Slate Grayscale
+            prevMainIcon.style.background = "linear-gradient(to right, #94a3b8, #cbd5e1)"; // Gray
+            prevBgIcon.style.opacity = "0.05";
+        }
+    }
+
+    // 5. Bind Listeners
+    [inputTitle, inputPoints, inputReward, inputActive].forEach(input => {
+        if (input) {
+            input.addEventListener('input', updatePreview);
+            input.addEventListener('change', updatePreview);
+        }
+    });
+
+    // Init state on page load
+    updatePreview();
+});
+</script>
+{% endblock %}

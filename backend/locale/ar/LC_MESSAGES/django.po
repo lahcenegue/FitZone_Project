@@ -2,682 +2,1697 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-09 10:45+0300\n"
+"POT-Creation-Date: 2026-05-13 20:10+0300\n"
 "Language: ar\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
-#: apps/dashboard/apps.py:12 templates/provider_portal/base.html:159
-#: templates/provider_portal/dashboard/dashboard.html:4
-msgid "Dashboard"
-msgstr "لوحة التحكم"
+#: apps/core/constants.py:8 apps/gyms/models.py:207
+msgid "Sunday"
+msgstr "الأحد"
 
-#: apps/gyms/apps.py:12
-msgid "Gyms"
-msgstr ""
+#: apps/core/constants.py:9 apps/gyms/models.py:201
+msgid "Monday"
+msgstr "الإثنين"
 
-#: apps/gyms/models.py:20
-msgid "Amenity Name"
-msgstr ""
+#: apps/core/constants.py:10 apps/gyms/models.py:202
+msgid "Tuesday"
+msgstr "الثلاثاء"
 
-#: apps/gyms/models.py:22
-msgid "Icon Name for Mobile App"
-msgstr ""
+#: apps/core/constants.py:11 apps/gyms/models.py:203
+msgid "Wednesday"
+msgstr "الأربعاء"
 
-#: apps/gyms/models.py:34
-#, fuzzy
-#| msgid "Branches"
-msgid "Branch Name"
-msgstr "الفروع"
+#: apps/core/constants.py:12 apps/gyms/models.py:204
+msgid "Thursday"
+msgstr "الخميس"
 
-#: apps/gyms/models.py:35 apps/provider_portal/forms/gym_forms.py:68
-#, fuzzy
-#| msgid "Branches & subscriptions"
-msgid "Branch Description"
-msgstr "الفروع والاشتراكات"
+#: apps/core/constants.py:13 apps/gyms/models.py:205
+msgid "Friday"
+msgstr "الجمعة"
 
-#: apps/gyms/models.py:38
-#, fuzzy
-#| msgid "Phone number"
-msgid "Branch Phone Number"
-msgstr "رقم الهاتف"
+#: apps/core/constants.py:14 apps/gyms/models.py:206
+msgid "Saturday"
+msgstr "السبت"
 
-#: apps/gyms/models.py:39
-msgid "Opening Time"
-msgstr ""
-
-#: apps/gyms/models.py:40
-msgid "Closing Time"
-msgstr ""
-
-#: apps/gyms/models.py:43
-#, fuzzy
-#| msgid "Address"
-msgid "Full Address"
-msgstr "العنوان"
-
-#: apps/gyms/models.py:45
-msgid "Map Coordinates"
-msgstr ""
-
-#: apps/gyms/models.py:52
-msgid "Branch Specific Logo"
-msgstr ""
-
-#: apps/gyms/models.py:59
-#, fuzzy
-#| msgid "Active"
-msgid "Is Active"
-msgstr "نشط"
-
-#: apps/gyms/models.py:70
-msgid "Will be used as the cover image on the app."
-msgstr ""
-
-#: apps/gyms/models.py:84
-#, fuzzy
-#| msgid "Plan name"
-msgid "Plan Name"
-msgstr "اسم الخطة"
-
-#: apps/gyms/models.py:85
-#, fuzzy
-#| msgid "Description"
-msgid "Plan Description"
-msgstr "الوصف"
-
-#: apps/gyms/models.py:86
-#, fuzzy
-#| msgid "Price (SAR)"
-msgid "Price"
-msgstr "السعر (ريال)"
-
-#: apps/gyms/models.py:87
-#, fuzzy
-#| msgid "Duration (days)"
-msgid "Duration in Days"
-msgstr "المدة (بالأيام)"
-
-#: apps/gyms/models.py:99
-#, fuzzy
-#| msgid "Features"
-msgid "Feature Name"
-msgstr "المميزات"
-
-#: apps/gyms/models.py:111 apps/provider_portal/forms/gym_forms.py:62
-#: apps/provider_portal/forms/gym_forms.py:166 apps/providers/constants.py:66
-#: apps/users/models.py:166
-#: templates/provider_portal/gym/branches/list.html:116
-msgid "Active"
-msgstr "نشط"
-
-#: apps/gyms/models.py:112
-msgid "Expired"
-msgstr ""
-
-#: apps/gyms/models.py:113
-msgid "Cancelled"
-msgstr ""
-
-#: apps/gyms/models.py:114
-#, fuzzy
-#| msgid "Transferable (can be resold)"
-msgid "Transferred/Resold"
-msgstr "قابل للتحويل (يمكن إعادة بيعه)"
-
-#: apps/gyms/models.py:120
-#, fuzzy
-#| msgid "Start"
-msgid "Start Date"
-msgstr "البداية"
-
-#: apps/gyms/models.py:121
-msgid "End Date"
-msgstr ""
-
-#: apps/gyms/models.py:131
-msgid "QR Code Identifier"
-msgstr ""
-
-#: apps/gyms/models.py:137
-msgid "Indicates if this subscription was sold to another user."
-msgstr ""
-
-#: apps/gyms/models.py:152
-msgid "Check-in Time"
-msgstr ""
-
-#: apps/gyms/models.py:153
-msgid "Check-out Time"
-msgstr ""
-
-#: apps/gyms/models.py:168
-msgid "Auto Checkout Duration (Hours)"
-msgstr ""
-
-#: apps/gyms/models.py:169
-msgid "How many hours before a visitor is automatically checked out."
-msgstr ""
-
-#: apps/gyms/models.py:173
-msgid "Gym Global Setting"
-msgstr ""
-
-#: apps/gyms/models.py:174 apps/gyms/models.py:188
-msgid "Gym Global Settings"
-msgstr ""
-
-#: apps/notifications/apps.py:12 templates/provider_portal/base.html:253
-msgid "Notifications"
-msgstr "الإشعارات"
-
-#: apps/payments/apps.py:12
-msgid "Payments"
-msgstr ""
-
-#: apps/provider_portal/apps.py:12
-#: templates/provider_portal/auth/base_auth.html:523
-#: templates/provider_portal/base.html:4
-msgid "Provider Portal"
-msgstr "بوابة مزودي الخدمات"
-
-#: apps/provider_portal/constants.py:47
+#: apps/core/constants.py:18
 msgid "Riyadh"
 msgstr "الرياض"
 
-#: apps/provider_portal/constants.py:48
+#: apps/core/constants.py:19
 msgid "Jeddah"
 msgstr "جدة"
 
-#: apps/provider_portal/constants.py:49
+#: apps/core/constants.py:20
 msgid "Mecca"
 msgstr "مكة المكرمة"
 
-#: apps/provider_portal/constants.py:50
+#: apps/core/constants.py:21
 msgid "Medina"
 msgstr "المدينة المنورة"
 
-#: apps/provider_portal/constants.py:51
+#: apps/core/constants.py:22
 msgid "Dammam"
 msgstr "الدمام"
 
-#: apps/provider_portal/constants.py:52
-msgid "Al Khobar"
+#: apps/core/constants.py:23
+msgid "Khobar"
 msgstr "الخبر"
 
-#: apps/provider_portal/constants.py:53
+#: apps/core/constants.py:24
 msgid "Dhahran"
 msgstr "الظهران"
 
-#: apps/provider_portal/constants.py:54
+#: apps/core/constants.py:25
 msgid "Tabuk"
 msgstr "تبوك"
 
-#: apps/provider_portal/constants.py:55
+#: apps/core/constants.py:26
 msgid "Abha"
 msgstr "أبها"
 
-#: apps/provider_portal/constants.py:56
+#: apps/core/constants.py:27
 msgid "Khamis Mushait"
 msgstr "خميس مشيط"
 
-#: apps/provider_portal/constants.py:57
+#: apps/core/constants.py:28
 msgid "Hail"
 msgstr "حائل"
 
-#: apps/provider_portal/constants.py:58
+#: apps/core/constants.py:29
 msgid "Najran"
 msgstr "نجران"
 
-#: apps/provider_portal/constants.py:59
+#: apps/core/constants.py:30
 msgid "Jubail"
 msgstr "الجبيل"
 
-#: apps/provider_portal/constants.py:60
+#: apps/core/constants.py:31
 msgid "Yanbu"
 msgstr "ينبع"
 
-#: apps/provider_portal/constants.py:61
+#: apps/core/constants.py:32
 msgid "Taif"
 msgstr "الطائف"
 
-#: apps/provider_portal/constants.py:62
+#: apps/core/constants.py:33
 msgid "Buraidah"
 msgstr "بريدة"
 
-#: apps/provider_portal/constants.py:63
+#: apps/core/constants.py:34
 msgid "Qatif"
 msgstr "القطيف"
 
-#: apps/provider_portal/constants.py:64
-msgid "Al Hofuf"
-msgstr "الأحساء"
+#: apps/core/constants.py:35
+msgid "Hofuf"
+msgstr "الهفوف"
 
-#: apps/provider_portal/constants.py:65
+#: apps/core/constants.py:36
 msgid "Jizan"
 msgstr "جازان"
 
-#: apps/provider_portal/constants.py:66
+#: apps/core/constants.py:37
 msgid "Arar"
 msgstr "عرعر"
 
-#: apps/provider_portal/constants.py:114
-#: templates/provider_portal/gym/branches/form.html:170
-msgid "Sunday"
-msgstr ""
+#: apps/core/constants.py:41
+#: templates/provider_portal/gym/branches/detail.html:103
+#: templates/provider_portal/gym/branches/form.html:337
+msgid "Men Only"
+msgstr "رجال فقط"
 
-#: apps/provider_portal/constants.py:115
-#: templates/provider_portal/gym/branches/form.html:171
-msgid "Monday"
-msgstr ""
+#: apps/core/constants.py:42
+#: templates/provider_portal/gym/branches/detail.html:113
+#: templates/provider_portal/gym/branches/form.html:338
+msgid "Women Only"
+msgstr "نساء فقط"
 
-#: apps/provider_portal/constants.py:116
-#: templates/provider_portal/gym/branches/form.html:172
-msgid "Tuesday"
-msgstr ""
+#: apps/core/constants.py:43
+#: templates/provider_portal/gym/branches/form.html:336
+msgid "Mixed / Both"
+msgstr "مختلط / كلاهما"
 
-#: apps/provider_portal/constants.py:117
-#: templates/provider_portal/gym/branches/form.html:173
-msgid "Wednesday"
-msgstr ""
+#: apps/core/constants.py:47 apps/providers/constants.py:5
+#: templates/provider_portal/auth/register.html:128
+msgid "Gym"
+msgstr "صالة رياضية"
 
-#: apps/provider_portal/constants.py:118
-#: templates/provider_portal/gym/branches/form.html:174
-msgid "Thursday"
-msgstr ""
+#: apps/core/models.py:10 apps/dashboard/forms.py:31
+msgid "Sports Data Version"
+msgstr "إصدار بيانات الرياضات"
 
-#: apps/provider_portal/constants.py:119
-#: templates/provider_portal/gym/branches/form.html:175
-msgid "Friday"
-msgstr ""
+#: apps/core/models.py:11 apps/dashboard/forms.py:32
+msgid "Amenities Data Version"
+msgstr "إصدار بيانات المرافق"
 
-#: apps/provider_portal/constants.py:120
-#: templates/provider_portal/gym/branches/form.html:176
-msgid "Saturday"
-msgstr ""
+#: apps/core/models.py:12 apps/dashboard/forms.py:33
+msgid "Cities Data Version"
+msgstr "إصدار بيانات المدن"
 
-#: apps/provider_portal/decorators.py:52
-msgid "Your account is under review. You cannot access this feature yet."
-msgstr ""
+#: apps/core/models.py:13 apps/dashboard/forms.py:34
+msgid "Service Types Version"
+msgstr "إصدار بيانات أنواع الخدمات"
 
-#: apps/provider_portal/decorators.py:67
-msgid "You do not have permission to access this page."
-msgstr ""
+#: apps/core/models.py:16 apps/dashboard/forms.py:27
+msgid "Android App Version"
+msgstr "إصدار تطبيق أندرويد"
 
-#: apps/provider_portal/forms/auth_forms.py:34
-#: apps/provider_portal/forms/profile_forms.py:22
-#: apps/providers/serializers.py:37 apps/users/models.py:101
-#: templates/provider_portal/auth/register.html:40
-msgid "Full name"
-msgstr "الاسم الكامل"
+#: apps/core/models.py:17 apps/dashboard/forms.py:28
+msgid "iOS App Version"
+msgstr "إصدار تطبيق iOS"
 
-#: apps/provider_portal/forms/auth_forms.py:37
-msgid "Enter your full name"
-msgstr "أدخل اسمك الكامل"
+#: apps/core/models.py:18 apps/dashboard/forms.py:29
+msgid "Force App Update"
+msgstr "إجبار تحديث التطبيق"
 
-#: apps/provider_portal/forms/auth_forms.py:42
-#: apps/provider_portal/forms/auth_forms.py:201
-#: apps/providers/serializers.py:24 apps/providers/serializers.py:88
-#: apps/providers/serializers.py:131 apps/users/models.py:96
-#: templates/provider_portal/auth/register.html:49
-msgid "Email address"
-msgstr "البريد الإلكتروني"
+#: apps/core/models.py:19 apps/dashboard/forms.py:30
+msgid "Update Message"
+msgstr "رسالة التحديث"
 
-#: apps/provider_portal/forms/auth_forms.py:44
-#: apps/provider_portal/forms/auth_forms.py:203
-msgid "example@domain.com"
-msgstr ""
+#: apps/core/models.py:24 apps/core/models.py:25
+msgid "App Configuration"
+msgstr "إعدادات التطبيق"
 
-#: apps/provider_portal/forms/auth_forms.py:49
-#: apps/provider_portal/forms/profile_forms.py:27
-#: apps/providers/serializers.py:40 apps/users/models.py:105
-#: templates/provider_portal/auth/register.html:58
-msgid "Phone number"
-msgstr "رقم الهاتف"
-
-#: apps/provider_portal/forms/auth_forms.py:52
-#: apps/provider_portal/forms/gym_forms.py:59
-#: apps/provider_portal/forms/profile_forms.py:30
-msgid "05XXXXXXXX"
-msgstr ""
-
-#: apps/provider_portal/forms/auth_forms.py:57
-#: apps/provider_portal/forms/auth_forms.py:208
-#: apps/providers/serializers.py:26 apps/providers/serializers.py:133
-#: templates/provider_portal/auth/login.html:38
-#: templates/provider_portal/auth/register.html:67
-msgid "Password"
-msgstr "كلمة المرور"
-
-#: apps/provider_portal/forms/auth_forms.py:59
-msgid "Minimum 8 characters"
-msgstr "٨ أحرف على الأقل"
-
-#: apps/provider_portal/forms/auth_forms.py:64 apps/providers/serializers.py:32
-#: templates/provider_portal/auth/register.html:82
-msgid "Confirm password"
-msgstr "تأكيد كلمة المرور"
-
-#: apps/provider_portal/forms/auth_forms.py:66
-msgid "Repeat your password"
-msgstr "أعد إدخال كلمة المرور"
-
-#: apps/provider_portal/forms/auth_forms.py:76
-#: apps/provider_portal/services/auth_service.py:73
-msgid "This email address is already registered."
-msgstr "هذا البريد الإلكتروني مسجل بالفعل."
-
-#: apps/provider_portal/forms/auth_forms.py:97
-#: apps/provider_portal/forms/profile_forms.py:50
-msgid "Enter a valid Saudi phone number (e.g. 0512345678)."
-msgstr "أدخل رقم هاتف سعودياً صحيحاً (مثال: 0512345678)."
-
-#: apps/provider_portal/forms/auth_forms.py:106
-#: apps/provider_portal/forms/profile_forms.py:170
-#, python-format
-msgid "Password must be at least %(min)d characters long."
-msgstr "يجب أن تتكون كلمة المرور من %(min)d أحرف على الأقل."
-
-#: apps/provider_portal/forms/auth_forms.py:118
-#: apps/provider_portal/forms/profile_forms.py:182
-msgid "Passwords do not match."
-msgstr "كلمتا المرور غير متطابقتين."
-
-#: apps/provider_portal/forms/auth_forms.py:129 apps/providers/models.py:75
-#: apps/providers/serializers.py:44
-#, fuzzy
-#| msgid "Provider"
-msgid "Provider type"
-msgstr "مزود خدمة"
-
-#: apps/provider_portal/forms/auth_forms.py:139
-msgid "Please select a valid provider type."
-msgstr "يرجى اختيار نوع مزود خدمة صحيح."
-
-#: apps/provider_portal/forms/auth_forms.py:150
-#: apps/provider_portal/forms/profile_forms.py:62 apps/providers/models.py:92
-#: apps/providers/serializers.py:47
-#: templates/provider_portal/auth/register.html:191
-msgid "Business name"
-msgstr "اسم النشاط التجاري"
-
-#: apps/provider_portal/forms/auth_forms.py:153
-#, fuzzy
-#| msgid "Your brand name"
-msgid "Your gym, studio, or brand name"
-msgstr "اسم علامتك التجارية"
-
-#: apps/provider_portal/forms/auth_forms.py:157
-#: apps/provider_portal/forms/gym_forms.py:29
-#: apps/provider_portal/forms/profile_forms.py:72 apps/providers/models.py:117
-#: apps/providers/serializers.py:52 apps/users/models.py:150
-#: templates/provider_portal/auth/register.html:200
+#: apps/core/models.py:61 apps/gyms/models.py:105
+#: apps/provider_portal/forms/auth_forms.py:154
+#: apps/provider_portal/forms/gym_forms.py:25
+#: apps/provider_portal/forms/profile_forms.py:77 apps/providers/models.py:111
+#: apps/users/models.py:168 templates/provider_portal/auth/register.html:200
 #: templates/provider_portal/auth/register.html:293
 msgid "City"
 msgstr "المدينة"
 
-#: apps/provider_portal/forms/auth_forms.py:158
-#: apps/provider_portal/forms/gym_forms.py:30
-#: apps/provider_portal/forms/profile_forms.py:73
-#: templates/provider_portal/auth/register.html:204
-msgid "Select a city"
-msgstr "اختر مدينة"
+#: apps/core/models.py:62
+msgid "Cities"
+msgstr "المدن"
 
-#: apps/provider_portal/forms/auth_forms.py:161
-#: apps/provider_portal/forms/profile_forms.py:84 apps/providers/models.py:130
-msgid "Commercial registration number"
-msgstr "رقم السجل التجاري"
+#: apps/coupons/models.py:19
+msgid "Percentage Discount (%)"
+msgstr "خصم نسبة مئوية (%)"
 
-#: apps/provider_portal/forms/auth_forms.py:165
-#, fuzzy
-#| msgid "CR number"
-msgid "CR number (optional)"
-msgstr "رقم السجل التجاري"
+#: apps/coupons/models.py:20
+msgid "Fixed Amount Discount (SAR)"
+msgstr "خصم مبلغ ثابت (ريال)"
 
-#: apps/provider_portal/forms/auth_forms.py:169
-#: apps/provider_portal/forms/profile_forms.py:89 apps/providers/models.py:136
-msgid "Tax ID number"
-msgstr "الرقم الضريبي"
+#: apps/coupons/models.py:21
+msgid "Free Shipping"
+msgstr "شحن مجاني"
 
-#: apps/provider_portal/forms/auth_forms.py:173
-#, fuzzy
-#| msgid "Commercial registration number"
-msgid "VAT registration number (optional)"
-msgstr "رقم السجل التجاري"
+#: apps/coupons/models.py:22
+msgid "Buy One Get One Free (BOGO)"
+msgstr "اشتر واحد واحصل على الثاني مجاناً (BOGO)"
 
-#: apps/provider_portal/forms/auth_forms.py:177
-#, fuzzy
-#| msgid "Description"
-msgid "Brief description"
-msgstr "الوصف"
+#: apps/coupons/models.py:23
+msgid "Free Specific Item"
+msgstr "منتج مجاني محدد"
 
-#: apps/provider_portal/forms/auth_forms.py:182
-#, fuzzy
-#| msgid "What makes your service unique?"
-msgid "Tell clients what makes your service unique"
-msgstr "ما الذي يميز خدمتك؟"
+#: apps/coupons/models.py:27
+msgid "Internal Title"
+msgstr "العنوان الداخلي"
 
-#: apps/provider_portal/forms/auth_forms.py:190
-#: apps/provider_portal/forms/profile_forms.py:103
-msgid "Please select your city."
-msgstr "يرجى اختيار مدينتك."
+#: apps/coupons/models.py:34
+msgid "Discount Value"
+msgstr "قيمة الخصم"
 
-#: apps/provider_portal/forms/auth_forms.py:210
-#, fuzzy
-#| msgid "Confirm password"
-msgid "Your password"
-msgstr "تأكيد كلمة المرور"
+#: apps/coupons/models.py:35
+msgid ""
+"Value based on type (e.g., 20 for 20%, or 50 for 50 SAR. Use 0 for Free "
+"Shipping/BOGO)."
+msgstr "القيمة تعتمد على النوع (مثال: 20 لـ 20٪، أو 50 لـ 50 ريال. استخدم 0 للشحن المجاني/BOGO)."
 
-#: apps/provider_portal/forms/gym_forms.py:22
-#, fuzzy
-#| msgid "Bank name"
-msgid "Branch name"
-msgstr "اسم البنك"
+#: apps/coupons/models.py:40
+msgid "Validity Duration (Days)"
+msgstr "مدة الصلاحية (بالأيام)"
 
-#: apps/provider_portal/forms/gym_forms.py:25
-msgid "e.g. Main Branch - Riyadh"
-msgstr ""
+#: apps/coupons/models.py:41
+msgid ""
+"How many days the coupon remains valid after being generated for a user."
+msgstr "عدد الأيام التي يظل فيها الكوبون صالحاً بعد إنشائه للمستخدم."
 
-#: apps/provider_portal/forms/gym_forms.py:33
-#: apps/provider_portal/forms/profile_forms.py:76 apps/providers/models.py:122
-#: apps/providers/serializers.py:54 apps/users/models.py:144
-msgid "Address"
-msgstr "العنوان"
+#: apps/coupons/models.py:47
+msgid "Dynamic Rules & Constraints"
+msgstr "القواعد والقيود الديناميكية"
 
-#: apps/provider_portal/forms/gym_forms.py:37
-msgid "Will be auto-filled from the map"
-msgstr ""
+#: apps/coupons/models.py:48
+msgid ""
+"JSON format for extra flexibility. e.g., {'min_cart_value': 100, "
+"'target_product_id': 5}"
+msgstr "تنسيق JSON لمرونة إضافية. مثال: {'min_cart_value': 100, 'target_product_id': 5}"
 
-#: apps/provider_portal/forms/gym_forms.py:42
-msgid "Latitude"
-msgstr ""
+#: apps/coupons/models.py:51 apps/gyms/models.py:136 apps/loyalty/models.py:68
+#: apps/provider_portal/forms/gym_forms.py:212
+msgid "Is Active"
+msgstr "نشط"
 
-#: apps/provider_portal/forms/gym_forms.py:49
-msgid "Longitude"
-msgstr ""
+#: apps/coupons/models.py:56
+msgid "Coupon Definition"
+msgstr "تعريف الكوبون"
 
-#: apps/provider_portal/forms/gym_forms.py:56
-#, fuzzy
-#| msgid "Phone number"
-msgid "Branch phone number"
-msgstr "رقم الهاتف"
+#: apps/coupons/models.py:57
+msgid "Coupon Definitions"
+msgstr "تعريفات الكوبونات"
 
-#: apps/provider_portal/forms/gym_forms.py:72
-msgid "Describe this branch, its atmosphere, and rules..."
-msgstr ""
+#: apps/coupons/models.py:65
+msgid "Percentage discount cannot exceed 100."
+msgstr "نسبة الخصم المئوية لا يمكن أن تتجاوز 100."
 
-#: apps/provider_portal/forms/gym_forms.py:80
-msgid "Branch Logo (Optional)"
-msgstr ""
+#: apps/coupons/models.py:69
+msgid "This coupon type requires a discount value greater than 0."
+msgstr "هذا النوع من الكوبونات يتطلب قيمة خصم أكبر من 0."
 
-#: apps/provider_portal/forms/gym_forms.py:86
-msgid "Sunday open"
-msgstr ""
+#: apps/coupons/models.py:82
+msgid "Cannot generate a coupon from an inactive definition."
+msgstr "لا يمكن إنشاء كوبون من تعريف غير نشط."
 
-#: apps/provider_portal/forms/gym_forms.py:87
-msgid "Sunday close"
-msgstr ""
+#: apps/coupons/models.py:102
+msgid "Coupon Code"
+msgstr "رمز الكوبون"
 
-#: apps/provider_portal/forms/gym_forms.py:88
-msgid "Monday open"
-msgstr ""
+#: apps/coupons/models.py:104 apps/gyms/models.py:358
+msgid "Is Used"
+msgstr "مُستخدم"
 
-#: apps/provider_portal/forms/gym_forms.py:89
-msgid "Monday close"
-msgstr ""
+#: apps/coupons/models.py:105 apps/gyms/models.py:361
+msgid "Used At"
+msgstr "تاريخ الاستخدام"
 
-#: apps/provider_portal/forms/gym_forms.py:90
-msgid "Tuesday open"
-msgstr ""
+#: apps/coupons/models.py:106
+msgid "Expiration Date"
+msgstr "تاريخ الانتهاء"
 
-#: apps/provider_portal/forms/gym_forms.py:91
-msgid "Tuesday close"
-msgstr ""
+#: apps/coupons/models.py:111
+msgid "User Coupon"
+msgstr "كوبون المستخدم"
 
-#: apps/provider_portal/forms/gym_forms.py:92
-msgid "Wednesday open"
-msgstr ""
+#: apps/coupons/models.py:112
+msgid "User Coupons"
+msgstr "كوبونات المستخدم"
 
-#: apps/provider_portal/forms/gym_forms.py:93
-msgid "Wednesday close"
-msgstr ""
+#: apps/coupons/models.py:121
+msgid "This coupon has already been used."
+msgstr "هذا الكوبون مُستخدم بالفعل."
 
-#: apps/provider_portal/forms/gym_forms.py:94
-msgid "Thursday open"
-msgstr ""
+#: apps/coupons/models.py:123
+msgid "This coupon has expired."
+msgstr "انتهت صلاحية هذا الكوبون."
 
-#: apps/provider_portal/forms/gym_forms.py:95
-msgid "Thursday close"
-msgstr ""
+#: apps/coupons/models.py:125
+msgid "The base definition for this coupon is no longer active."
+msgstr "التعريف الأساسي لهذا الكوبون لم يعد نشطاً."
 
-#: apps/provider_portal/forms/gym_forms.py:96
-msgid "Friday open"
-msgstr ""
+#: apps/dashboard/apps.py:12 templates/dashboard/layout.html:26
+#: templates/provider_portal/provider_base.html:328
+msgid "Dashboard"
+msgstr "لوحة التحكم"
 
-#: apps/provider_portal/forms/gym_forms.py:97
-msgid "Friday close"
-msgstr ""
+#: apps/dashboard/forms.py:37
+msgid "Gym Earn Rate"
+msgstr "معدل اكتساب الصالة الرياضية"
 
-#: apps/provider_portal/forms/gym_forms.py:98
-msgid "Saturday open"
-msgstr ""
+#: apps/dashboard/forms.py:38
+msgid "Trainer Earn Rate"
+msgstr "معدل اكتساب المدرب"
 
-#: apps/provider_portal/forms/gym_forms.py:99
-msgid "Saturday close"
-msgstr ""
+#: apps/dashboard/forms.py:39
+msgid "Store Earn Rate"
+msgstr "معدل اكتساب المتجر"
 
-#: apps/provider_portal/forms/gym_forms.py:105
-#, fuzzy
-#| msgid "Please select your city."
-msgid "Please select a city."
-msgstr "يرجى اختيار مدينتك."
+#: apps/dashboard/forms.py:40
+msgid "Restaurant Earn Rate"
+msgstr "معدل اكتساب المطعم"
 
-#: apps/provider_portal/forms/gym_forms.py:117
-msgid "Closing time must be after opening time."
-msgstr ""
+#: apps/dashboard/forms.py:41
+msgid "Point to Fiat Rate"
+msgstr "معدل تحويل النقاط إلى رصيد نقدي"
 
-#: apps/provider_portal/forms/gym_forms.py:129
-msgid "Plan name"
+#: apps/dashboard/forms.py:44 apps/loyalty/models.py:25
+msgid "Max Points Discount: Gym Plans (%)"
+msgstr "الحد الأقصى لخصم النقاط: خطط الصالات (%)"
+
+#: apps/dashboard/forms.py:45 apps/loyalty/models.py:26
+msgid "Max Points Discount: Roaming (%)"
+msgstr "الحد الأقصى لخصم النقاط: التجوال (%)"
+
+#: apps/dashboard/forms.py:46 apps/loyalty/models.py:27
+msgid "Max Points Discount: Resale Market (%)"
+msgstr "الحد الأقصى لخصم النقاط: السوق الثانوي (%)"
+
+#: apps/dashboard/forms.py:47
+msgid "Max Points Discount: Point Packages (%)"
+msgstr "الحد الأقصى لخصم النقاط: باقات النقاط (%)"
+
+#: apps/dashboard/forms.py:49 apps/gyms/models.py:422
+msgid "Auto Checkout Duration (Hours)"
+msgstr "مدة تسجيل الخروج التلقائي (بالساعات)"
+
+#: apps/dashboard/forms.py:50
+msgid "Gym Points Conversion Rate"
+msgstr "معدل تحويل نقاط الصالات الرياضية"
+
+#: apps/dashboard/forms.py:51 apps/gyms/models.py:444
+msgid "Roaming Commission Discount (%)"
+msgstr "خصم عمولة التجوال (%)"
+
+#: apps/dashboard/forms.py:53 apps/resale/models.py:26
+msgid "App Commission (%)"
+msgstr "عمولة التطبيق (%)"
+
+#: apps/dashboard/forms.py:54 apps/resale/models.py:33
+msgid "Immediate Depreciation (%)"
+msgstr "الاستهلاك الفوري (%)"
+
+#: apps/dashboard/forms.py:55 apps/resale/models.py:38
+msgid "Minimum Days Buffer"
+msgstr "الحد الأدنى للأيام المتبقية"
+
+#: apps/dashboard/forms.py:56 apps/resale/models.py:43
+msgid "Escrow Hold Duration (Hours)"
+msgstr "مدة الاحتجاز في الضمان (بالساعات)"
+
+#: apps/dashboard/forms.py:59
+msgid "Global VAT Percentage (%)"
+msgstr "النسبة العامة لضريبة القيمة المضافة (%)"
+
+#: apps/dashboard/forms.py:60
+msgid "Gym Earnings Hold Period (Days)"
+msgstr "فترة احتجاز أرباح الصالة الرياضية (بالأيام)"
+
+#: apps/dashboard/forms.py:61
+msgid "Provider Earnings Hold Period (Days)"
+msgstr "فترة احتجاز أرباح مزود الخدمة (بالأيام)"
+
+#: apps/dashboard/forms.py:160
+msgid "A critical error occurred while saving the settings."
+msgstr "حدث خطأ حرج أثناء حفظ الإعدادات."
+
+#: apps/dashboard/mixins.py:16
+msgid "Please login to access the Mastermind Dashboard."
+msgstr "يرجى تسجيل الدخول للوصول إلى لوحة التحكم الرئيسية (Mastermind)."
+
+#: apps/dashboard/mixins.py:18
+msgid "Access Denied. Mastermind privileges required."
+msgstr "تم رفض الوصول. مطلوب صلاحيات لوحة التحكم الرئيسية (Mastermind)."
+
+#: apps/dashboard/views.py:52
+msgid "System configurations have been updated successfully."
+msgstr "تم تحديث إعدادات النظام بنجاح."
+
+#: apps/gyms/admin.py:22
+msgid "Pending Tier Request"
+msgstr "طلب ترقية معلق"
+
+#: apps/gyms/admin.py:23
+msgid "Pending Tier Requests"
+msgstr "طلبات الترقية المعلقة"
+
+#: apps/gyms/admin.py:75
+msgid "Approve selected tier upgrades"
+msgstr "الموافقة على ترقيات المستوى المحددة"
+
+#: apps/gyms/admin.py:86
+msgid "Reject selected tier upgrades"
+msgstr "رفض ترقيات المستوى المحددة"
+
+#: apps/gyms/api/serializers.py:415 apps/gyms/serializers.py:411
+msgid "Number of loyalty points to redeem for a discount."
+msgstr "عدد نقاط الولاء المراد استبدالها بخصم."
+
+#: apps/gyms/api/serializers.py:441 apps/gyms/serializers.py:437
+msgid "Must pay entirely with points or entirely with fiat."
+msgstr "يجب الدفع بالكامل بالنقاط أو بالكامل بالرصيد النقدي."
+
+#: apps/gyms/api/serializers.py:452 apps/gyms/serializers.py:448
+msgid "Gateway is required when paying with fiat."
+msgstr "بوابة الدفع مطلوبة عند الدفع النقدي."
+
+#: apps/gyms/api/serializers.py:480 apps/gyms/serializers.py:476
+msgid "The full signed QR string scanned from the user app."
+msgstr "النص الكامل لرمز الاستجابة السريعة (QR) الممسوح من تطبيق المستخدم."
+
+#: apps/gyms/api/serializers.py:494 apps/gyms/serializers.py:490
+msgid "Invalid QR code format. Unrecognized prefix."
+msgstr "تنسيق رمز QR غير صالح. البادئة غير معروفة."
+
+#: apps/gyms/api/serializers.py:499 apps/gyms/serializers.py:495
+#: apps/provider_portal/views/gym_views.py:606
+msgid "QR code signature is invalid or tampered."
+msgstr "توقيع رمز QR غير صالح أو تم التلاعب به."
+
+#: apps/gyms/api/views.py:244 apps/provider_portal/views/gym_views.py:678
+msgid "Access Denied"
+msgstr "تم رفض الوصول"
+
+#: apps/gyms/apps.py:12
+msgid "Gyms"
+msgstr "الصالات الرياضية"
+
+#: apps/gyms/models.py:22
+msgid "Tier Name"
+msgstr "اسم المستوى"
+
+#: apps/gyms/models.py:25
+msgid "Hierarchy Level"
+msgstr "درجة التسلسل الهرمي"
+
+#: apps/gyms/models.py:26
+msgid "Higher integer means higher tier (e.g., 1=Basic, 4=VIP)."
+msgstr "الرقم الأكبر يعني مستوى أعلى (مثال: 1=أساسي، 4=VIP)."
+
+#: apps/gyms/models.py:28
+msgid "Tier Description"
+msgstr "وصف المستوى"
+
+#: apps/gyms/models.py:31
+msgid "Gym Tier"
+msgstr "مستوى الصالة الرياضية"
+
+#: apps/gyms/models.py:32
+msgid "Gym Tiers"
+msgstr "مستويات الصالات الرياضية"
+
+#: apps/gyms/models.py:44 apps/payments/models.py:134
+#: apps/providers/models.py:220 apps/providers/models.py:443
+#: apps/users/models.py:29 templates/provider_portal/auth/register.html:279
+msgid "Provider"
+msgstr "مزود خدمة"
+
+#: apps/gyms/models.py:48
+msgid "Free Visits Balance"
+msgstr "رصيد الزيارات المجانية"
+
+#: apps/gyms/models.py:49
+msgid "Available free visits to offset roaming entry costs."
+msgstr "الزيارات المجانية المتاحة لتعويض تكاليف الدخول بنظام التجوال."
+
+#: apps/gyms/models.py:51
+msgid "Total Earned Visits"
+msgstr "إجمالي الزيارات المكتسبة"
+
+#: apps/gyms/models.py:52
+msgid "Total Consumed Visits"
+msgstr "إجمالي الزيارات المستهلكة"
+
+#: apps/gyms/models.py:56
+msgid "Provider Roaming Pool"
+msgstr "رصيد تجوال مزود الخدمة"
+
+#: apps/gyms/models.py:57
+msgid "Provider Roaming Pools"
+msgstr "أرصدة تجوال مزودي الخدمات"
+
+#: apps/gyms/models.py:68 apps/gyms/models.py:80
+msgid "Default Name"
+msgstr "الاسم الافتراضي"
+
+#: apps/gyms/models.py:93 templates/provider_portal/gym/branches/form.html:171
+msgid "Branch Name"
+msgstr "اسم الفرع"
+
+#: apps/gyms/models.py:94 apps/provider_portal/forms/gym_forms.py:50
+msgid "Branch Description"
+msgstr "وصف الفرع"
+
+#: apps/gyms/models.py:96
+msgid "Branch Phone Number"
+msgstr "رقم هاتف الفرع"
+
+#: apps/gyms/models.py:101
+msgid "Operating Hours"
+msgstr "ساعات العمل"
+
+#: apps/gyms/models.py:102
+msgid "JSON representation of flexible operating hours by day and gender."
+msgstr "تمثيل JSON لساعات العمل المرنة حسب اليوم والجنس."
+
+#: apps/gyms/models.py:106
+msgid "Full Address"
+msgstr "العنوان الكامل"
+
+#: apps/gyms/models.py:107
+msgid "Map Coordinates"
+msgstr "إحداثيات الخريطة"
+
+#: apps/gyms/models.py:113
+msgid "Branch Specific Logo"
+msgstr "الشعار الخاص بالفرع"
+
+#: apps/gyms/models.py:123 apps/provider_portal/forms/gym_forms.py:59
+msgid "Target Gender"
+msgstr "الجنس المستهدف"
+
+#: apps/gyms/models.py:126 apps/provider_portal/forms/gym_forms.py:66
+msgid "Maximum Capacity"
+msgstr "السعة القصوى"
+
+#: apps/gyms/models.py:129
+msgid "Estimated Stay Duration (Minutes)"
+msgstr "مدة البقاء المقدرة (بالدقائق)"
+
+#: apps/gyms/models.py:130
+msgid "Average time a member spends in this branch."
+msgstr "متوسط الوقت الذي يقضيه العضو في هذا الفرع."
+
+#: apps/gyms/models.py:132
+msgid "Percentage threshold for Low crowd (e.g., 30)"
+msgstr "نسبة الحد الأدنى للازدحام المنخفض (مثال: 30)"
+
+#: apps/gyms/models.py:133
+msgid "Percentage threshold for Medium crowd (e.g., 70)"
+msgstr "نسبة الحد الأوسط للازدحام المتوسط (مثال: 70)"
+
+#: apps/gyms/models.py:134
+msgid "Percentage threshold for High crowd (e.g., 95)"
+msgstr "نسبة الحد الأقصى للازدحام العالي (مثال: 95)"
+
+#: apps/gyms/models.py:139
+msgid "Temporarily Closed"
+msgstr "مغلق مؤقتاً"
+
+#: apps/gyms/models.py:140
+msgid ""
+"Check this to override the schedule and show the gym as closed immediately."
+msgstr "حدد هذا لتجاوز الجدول الزمني وإظهار الصالة مغلقة فوراً."
+
+#: apps/gyms/models.py:150
+msgid "Approved Tier"
+msgstr "المستوى المعتمد"
+
+#: apps/gyms/models.py:158
+msgid "Requested Tier (Pending Admin Approval)"
+msgstr "المستوى المطلوب (بانتظار موافقة الإدارة)"
+
+#: apps/gyms/models.py:164 apps/provider_portal/forms/gym_forms.py:108
+msgid "Enable Roaming"
+msgstr "تفعيل التجوال"
+
+#: apps/gyms/models.py:165
+msgid "Check to allow users from other gyms to visit this branch using points."
+msgstr "حدد هذا للسماح لمستخدمي الصالات الأخرى بزيارة هذا الفرع باستخدام النقاط."
+
+#: apps/gyms/models.py:171 apps/provider_portal/forms/gym_forms.py:113
+msgid "Roaming Visit Price (SAR)"
+msgstr "سعر زيارة التجوال (ريال)"
+
+#: apps/gyms/models.py:172
+msgid "Fiat price for a single roaming visit. Converts to points dynamically."
+msgstr "السعر النقدي لزيارة التجوال الواحدة. يتحول إلى نقاط ديناميكياً."
+
+#: apps/gyms/models.py:185 apps/gyms/models.py:213 apps/gyms/models.py:234
+msgid "Branch"
+msgstr "الفرع"
+
+#: apps/gyms/models.py:187
+msgid "Image"
+msgstr "الصورة"
+
+#: apps/gyms/models.py:188
+msgid "Will be used as the cover image on the app."
+msgstr "سيتم استخدامها كصورة الغلاف في التطبيق."
+
+#: apps/gyms/models.py:192
+msgid "Branch Image"
+msgstr "صورة الفرع"
+
+#: apps/gyms/models.py:193
+msgid "Branch Images"
+msgstr "صور الفرع"
+
+#: apps/gyms/models.py:215
+msgid "Day of Week"
+msgstr "يوم الأسبوع"
+
+#: apps/gyms/models.py:216
+msgid "Opening Time"
+msgstr "وقت الافتتاح"
+
+#: apps/gyms/models.py:217
+msgid "Closing Time"
+msgstr "وقت الإغلاق"
+
+#: apps/gyms/models.py:218
+msgid "Is Closed?"
+msgstr "هل هو مغلق؟"
+
+#: apps/gyms/models.py:221
+msgid "Branch Schedule"
+msgstr "جدول عمل الفرع"
+
+#: apps/gyms/models.py:222
+msgid "Branch Schedules"
+msgstr "جداول عمل الفروع"
+
+#: apps/gyms/models.py:240 apps/payments/models.py:35 apps/users/models.py:28
+msgid "Customer"
+msgstr "عميل"
+
+#: apps/gyms/models.py:244
+msgid "Rating"
+msgstr "التقييم"
+
+#: apps/gyms/models.py:246
+msgid "Comment"
+msgstr "التعليق"
+
+#: apps/gyms/models.py:247
+msgid "Created At"
+msgstr "تاريخ الإنشاء"
+
+#: apps/gyms/models.py:250
+msgid "Gym Review"
+msgstr "تقييم الصالة"
+
+#: apps/gyms/models.py:251
+msgid "Gym Reviews"
+msgstr "تقييمات الصالات"
+
+#: apps/gyms/models.py:261 apps/provider_portal/forms/gym_forms.py:156
+#: templates/provider_portal/gym/plans/form.html:43
+#: templates/provider_portal/gym/subscribers/detail.html:135
+#: templates/provider_portal/gym/subscribers/list.html:240
+msgid "Plan Name"
 msgstr "اسم الخطة"
 
-#: apps/provider_portal/forms/gym_forms.py:132
-msgid "e.g. Monthly Premium"
-msgstr "مثال: الخطة الشهرية المميزة"
+#: apps/gyms/models.py:262 apps/provider_portal/forms/gym_forms.py:161
+#: templates/provider_portal/gym/plans/detail.html:91
+msgid "Plan Description"
+msgstr "وصف الخطة"
 
-#: apps/provider_portal/forms/gym_forms.py:136
-#: apps/provider_portal/forms/profile_forms.py:66
-#: apps/provider_portal/forms/restaurant_store_forms.py:33
-#: apps/provider_portal/forms/restaurant_store_forms.py:89
-#: apps/providers/models.py:103 apps/providers/serializers.py:57
-#: templates/provider_portal/auth/register.html:231
-msgid "Description"
-msgstr "الوصف"
+#: apps/gyms/models.py:263 apps/provider_portal/forms/gym_forms.py:172
+#: templates/provider_portal/gym/plans/detail.html:57
+#: templates/provider_portal/gym/plans/form.html:50
+#: templates/provider_portal/gym/plans/list.html:63
+msgid "Price"
+msgstr "السعر"
 
-#: apps/provider_portal/forms/gym_forms.py:141
-msgid "What is included in this plan?"
-msgstr "ما الذي يتضمنه هذا الاشتراك؟"
-
-#: apps/provider_portal/forms/gym_forms.py:145
-msgid "Duration (days)"
+#: apps/gyms/models.py:264 apps/provider_portal/forms/gym_forms.py:167
+msgid "Duration in Days"
 msgstr "المدة (بالأيام)"
 
-#: apps/provider_portal/forms/gym_forms.py:148
-msgid "e.g. 30"
-msgstr "مثال: 30"
+#: apps/gyms/models.py:270
+msgid "Archived Status"
+msgstr "حالة الأرشيف"
 
-#: apps/provider_portal/forms/gym_forms.py:151
+#: apps/gyms/models.py:285
+msgid "Feature Name"
+msgstr "اسم الميزة"
+
+#: apps/gyms/models.py:292 apps/provider_portal/forms/gym_forms.py:46
+#: apps/providers/constants.py:13 apps/users/models.py:184
+#: templates/provider_portal/gym/branches/detail.html:40
+#: templates/provider_portal/gym/branches/detail.html:234
+#: templates/provider_portal/gym/branches/list.html:43
+#: templates/provider_portal/gym/branches/list.html:45
+#: templates/provider_portal/gym/branches/list.html:47
+#: templates/provider_portal/gym/plans/list.html:37
+msgid "Active"
+msgstr "نشط"
+
+#: apps/gyms/models.py:293
+msgid "Scheduled"
+msgstr "مُجدول"
+
+#: apps/gyms/models.py:294
+#: templates/provider_portal/gym/subscribers/list.html:220
+msgid "Expired"
+msgstr "منتهي الصلاحية"
+
+#: apps/gyms/models.py:295
+msgid "Cancelled"
+msgstr "ملغى"
+
+#: apps/gyms/models.py:296
+msgid "Suspended (Disputed)"
+msgstr "موقوف (متنازع عليه)"
+
+#: apps/gyms/models.py:297
+msgid "Transferred/Resold"
+msgstr "محول/معاد بيعه"
+
+#: apps/gyms/models.py:311
+#: templates/provider_portal/gym/subscribers/detail.html:139
+#: templates/provider_portal/gym/subscribers/list.html:174
+#: templates/provider_portal/gym/subscribers/list.html:240
+msgid "Start Date"
+msgstr "تاريخ البدء"
+
+#: apps/gyms/models.py:312
+#: templates/provider_portal/gym/subscribers/detail.html:143
+#: templates/provider_portal/gym/subscribers/list.html:178
+#: templates/provider_portal/gym/subscribers/list.html:240
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
+
+#: apps/gyms/models.py:321 apps/gyms/models.py:356
+msgid "QR Code Identifier"
+msgstr "معرف رمز الاستجابة السريعة (QR)"
+
+#: apps/gyms/models.py:326
+msgid "Indicates if this subscription was sold to another user."
+msgstr "يشير إلى ما إذا كان هذا الاشتراك قد تم بيعه لمستخدم آخر."
+
+#: apps/gyms/models.py:349
+msgid "Points Used"
+msgstr "النقاط المستخدمة"
+
+#: apps/gyms/models.py:350
+msgid "Fiat Paid"
+msgstr "المبلغ النقدي المدفوع"
+
+#: apps/gyms/models.py:360
+msgid "Purchased At"
+msgstr "تاريخ الشراء"
+
+#: apps/gyms/models.py:364
+msgid "Roaming Pass"
+msgstr "تصريح التجوال"
+
+#: apps/gyms/models.py:365
+msgid "Roaming Passes"
+msgstr "تصاريح التجوال"
+
+#: apps/gyms/models.py:379
+msgid "Open (Pending Admin Review)"
+msgstr "مفتوح (بانتظار مراجعة الإدارة)"
+
+#: apps/gyms/models.py:380
+msgid "Resolved (Reinstated)"
+msgstr "تم الحل (مُعاد)"
+
+#: apps/gyms/models.py:381
+msgid "Closed (Subscription Cancelled)"
+msgstr "مغلق (تم إلغاء الاشتراك)"
+
+#: apps/gyms/models.py:388
+msgid "The Provider account that reported the issue."
+msgstr "حساب مزود الخدمة الذي أبلغ عن المشكلة."
+
+#: apps/gyms/models.py:391
+msgid "Dispute Reason"
+msgstr "سبب النزاع"
+
+#: apps/gyms/models.py:394
+msgid "Admin Resolution Note"
+msgstr "ملاحظة الإدارة للحل"
+
+#: apps/gyms/models.py:400
+msgid "Subscription Dispute"
+msgstr "نزاع الاشتراك"
+
+#: apps/gyms/models.py:401
+msgid "Subscription Disputes"
+msgstr "نزاعات الاشتراكات"
+
+#: apps/gyms/models.py:411
+msgid "Check-in Time"
+msgstr "وقت تسجيل الدخول"
+
+#: apps/gyms/models.py:412
+msgid "Check-out Time"
+msgstr "وقت تسجيل الخروج"
+
+#: apps/gyms/models.py:423
+msgid "How many hours before a visitor is automatically checked out."
+msgstr "عدد الساعات قبل تسجيل خروج الزائر تلقائياً."
+
+#: apps/gyms/models.py:429
+msgid "Points Conversion Rate (SAR)"
+msgstr "معدل تحويل النقاط (ريال)"
+
+#: apps/gyms/models.py:430
+msgid ""
+"How many Riyals equal 1 reward point for Gyms. (e.g., 10 means 1 point for "
+"every 10 SAR)."
+msgstr "كم ريالاً يساوي نقطة مكافأة واحدة للصالات الرياضية. (مثال: 10 تعني نقطة واحدة لكل 10 ريال)."
+
+#: apps/gyms/models.py:435 apps/payments/models.py:104
+msgid "Earnings Hold Period (Days)"
+msgstr "فترة احتجاز الأرباح (بالأيام)"
+
+#: apps/gyms/models.py:436
+msgid "Number of days before gym earnings become available for withdrawal."
+msgstr "عدد الأيام قبل أن تصبح أرباح الصالة الرياضية متاحة للسحب."
+
+#: apps/gyms/models.py:445
+msgid ""
+"Percentage discount on the app's commission for branches that enable the "
+"roaming system."
+msgstr "نسبة الخصم على عمولة التطبيق للفروع التي تفعل نظام التجوال."
+
+#: apps/gyms/models.py:449
+msgid "Gym Global Setting"
+msgstr "الإعدادات العامة للصالات الرياضية"
+
+#: apps/gyms/models.py:450 apps/gyms/models.py:462
+msgid "Gym Global Settings"
+msgstr "الإعدادات العامة للصالات الرياضية"
+
+#: apps/loyalty/admin.py:25
+msgid "Roadmap Versioning"
+msgstr "إصدار خارطة الطريق"
+
+#: apps/loyalty/admin.py:28
+msgid "Earning Rates (Spend to get 1 Point)"
+msgstr "معدلات الاكتساب (أنفق لتحصل على نقطة 1)"
+
+#: apps/loyalty/admin.py:31
+msgid "Redemption Rates & Limits"
+msgstr "معدلات وحدود الاستبدال"
+
+#: apps/loyalty/admin.py:67
+msgid "Reward Setup"
+msgstr "إعداد المكافأة"
+
+#: apps/loyalty/admin.py:70
+msgid "Value Configuration"
+msgstr "تكوين القيمة"
+
+#: apps/loyalty/admin.py:103
+msgid "Customer Info"
+msgstr "معلومات العميل"
+
+#: apps/loyalty/admin.py:106
+msgid "Balances"
+msgstr "الأرصدة"
+
+#: apps/loyalty/api/serializers.py:134 apps/loyalty/api/views.py:128
+msgid "Bank Withdrawal Request"
+msgstr "طلب سحب بنكي"
+
+#: apps/loyalty/api/serializers.py:136 apps/loyalty/api/views.py:132
+msgid "Subscription Resale Revenue"
+msgstr "أرباح إعادة بيع الاشتراك"
+
+#: apps/loyalty/api/serializers.py:138
+msgid "Refund Issued"
+msgstr "تم إصدار الاسترداد"
+
+#: apps/loyalty/api/serializers.py:160
+msgid "Points Package Purchase"
+msgstr "شراء باقة نقاط"
+
+#: apps/loyalty/api/serializers.py:162 apps/loyalty/models.py:97
+msgid "Earned from Purchase"
+msgstr "مكتسب من الشراء"
+
+#: apps/loyalty/api/serializers.py:164
+msgid "Roaming Visit Applied"
+msgstr "تم تطبيق زيارة التجوال"
+
+#: apps/loyalty/api/serializers.py:166
+msgid "Discount Coupon Applied"
+msgstr "تم تطبيق كوبون الخصم"
+
+#: apps/loyalty/api/views.py:101 apps/loyalty/models.py:108
+#: apps/payments/models.py:201
+msgid "Completed"
+msgstr "مكتمل"
+
+#: apps/loyalty/api/views.py:102
+msgid "Processing"
+msgstr "قيد المعالجة"
+
+#: apps/loyalty/api/views.py:103 apps/loyalty/models.py:109
+#: apps/payments/models.py:22
+msgid "Failed"
+msgstr "فشل"
+
+#: apps/loyalty/api/views.py:104
+msgid "Escrow Hold"
+msgstr "محتجز في الضمان"
+
+#: apps/loyalty/api/views.py:105 apps/loyalty/models.py:103
+#: apps/loyalty/models.py:110 apps/payments/models.py:23
+msgid "Refunded"
+msgstr "مسترد"
+
+#: apps/loyalty/api/views.py:136
+msgid "Refunded Amount"
+msgstr "المبلغ المسترد"
+
+#: apps/loyalty/api/views.py:141
+msgid "In-App Purchase"
+msgstr "شراء داخل التطبيق"
+
+#: apps/loyalty/api/views.py:171
+msgid "Pending Resale Funds"
+msgstr "أموال إعادة البيع المعلقة"
+
+#: apps/loyalty/api/views.py:306
+msgid "Points purchased successfully."
+msgstr "تم شراء النقاط بنجاح."
+
+#: apps/loyalty/api/views.py:312
+msgid "An internal error occurred during the transaction."
+msgstr "حدث خطأ داخلي أثناء المعاملة."
+
+#: apps/loyalty/api/views.py:330
+msgid "Milestone reward claimed and generated successfully."
+msgstr "تمت المطالبة بمكافأة الإنجاز وإنشاؤها بنجاح."
+
+#: apps/loyalty/api/views.py:337
+msgid "Failed to claim milestone reward."
+msgstr "فشل في المطالبة بمكافأة الإنجاز."
+
+#: apps/loyalty/api/views.py:351
+msgid "Bank account saved successfully."
+msgstr "تم حفظ الحساب البنكي بنجاح."
+
+#: apps/loyalty/api/views.py:369
+msgid "Withdrawal request submitted successfully."
+msgstr "تم إرسال طلب السحب بنجاح."
+
+#: apps/loyalty/api/views.py:379
+msgid "An internal error occurred while processing your withdrawal."
+msgstr "حدث خطأ داخلي أثناء معالجة عملية السحب."
+
+#: apps/loyalty/api/views.py:400
+msgid "Subscription extended successfully."
+msgstr "تم تمديد الاشتراك بنجاح."
+
+#: apps/loyalty/api/views.py:407 apps/loyalty/api/views.py:430
+#: apps/provider_portal/views/gym_views.py:764
+msgid "An internal server error occurred."
+msgstr "حدث خطأ داخلي في الخادم."
+
+#: apps/loyalty/api/views.py:423
+msgid "Gift consumed successfully. You can hand over the item."
+msgstr "تم استهلاك الهدية بنجاح. يمكنك تسليم العنصر."
+
+#: apps/loyalty/fulfillment.py:24
+msgid "The associated coupon template is inactive or missing."
+msgstr "قالب الكوبون المرتبط غير نشط أو مفقود."
+
+#: apps/loyalty/fulfillment.py:89
+msgid "A valid fulfillment strategy was not found."
+msgstr "لم يتم العثور على استراتيجية تسليم صالحة."
+
+#: apps/loyalty/models.py:18
+msgid "Roadmap Version"
+msgstr "إصدار خارطة الطريق"
+
+#: apps/loyalty/models.py:19
+msgid "Gym Earn Rate (SAR per Point)"
+msgstr "معدل اكتساب الصالة (ريال لكل نقطة)"
+
+#: apps/loyalty/models.py:20
+msgid "Trainer Earn Rate (SAR per Point)"
+msgstr "معدل اكتساب المدرب (ريال لكل نقطة)"
+
+#: apps/loyalty/models.py:21
+msgid "Store Earn Rate (SAR per Point)"
+msgstr "معدل اكتساب المتجر (ريال لكل نقطة)"
+
+#: apps/loyalty/models.py:22
+msgid "Restaurant Earn Rate (SAR per Point)"
+msgstr "معدل اكتساب المطعم (ريال لكل نقطة)"
+
+#: apps/loyalty/models.py:23
+msgid "Point to Fiat Rate (Points per SAR)"
+msgstr "معدل تحويل النقاط إلى رصيد نقدي (نقاط لكل ريال)"
+
+#: apps/loyalty/models.py:28
+msgid "Max Points Discount: Points Packages (%)"
+msgstr "الحد الأقصى لخصم النقاط: باقات النقاط (%)"
+
+#: apps/loyalty/models.py:33
+msgid "Loyalty Global Setting"
+msgstr "الإعداد العام للولاء"
+
+#: apps/loyalty/models.py:34
+msgid "Loyalty Global Settings"
+msgstr "الإعدادات العامة للولاء"
+
+#: apps/loyalty/models.py:65
+msgid "Package Name"
+msgstr "اسم الباقة"
+
+#: apps/loyalty/models.py:66
+msgid "Points Amount"
+msgstr "كمية النقاط"
+
+#: apps/loyalty/models.py:67
 #: apps/provider_portal/forms/restaurant_store_forms.py:42
 #: apps/provider_portal/forms/restaurant_store_forms.py:98
 msgid "Price (SAR)"
 msgstr "السعر (ريال)"
 
-#: apps/provider_portal/forms/gym_forms.py:156
-msgid "0.00"
-msgstr "0.00"
+#: apps/loyalty/models.py:72
+msgid "Point Package"
+msgstr "باقة النقاط"
 
-#: apps/provider_portal/forms/gym_forms.py:161
-msgid "Transferable (can be resold)"
-msgstr "قابل للتحويل (يمكن إعادة بيعه)"
+#: apps/loyalty/models.py:73
+msgid "Point Packages"
+msgstr "باقات النقاط"
 
-#: apps/provider_portal/forms/gym_forms.py:171
-msgid "Features"
-msgstr "المميزات"
+#: apps/loyalty/models.py:83
+msgid "Fiat Balance (SAR)"
+msgstr "الرصيد النقدي (ريال)"
 
-#: apps/provider_portal/forms/gym_forms.py:175
-msgid "One feature per line"
-msgstr "ميزة واحدة في كل سطر"
+#: apps/loyalty/models.py:84
+msgid "Spendable Points"
+msgstr "النقاط القابلة للإنفاق"
 
-#: apps/provider_portal/forms/gym_forms.py:177
-msgid "Enter each feature on a new line."
-msgstr "أدخل كل ميزة في سطر جديد."
+#: apps/loyalty/models.py:85
+msgid "Lifetime Points"
+msgstr "نقاط مدى الحياة"
 
-#: apps/provider_portal/forms/profile_forms.py:35
+#: apps/loyalty/models.py:89
+msgid "Customer Wallet"
+msgstr "محفظة العميل"
+
+#: apps/loyalty/models.py:90
+msgid "Customer Wallets"
+msgstr "محافظ العملاء"
+
+#: apps/loyalty/models.py:98
+msgid "Bought Points via Gateway"
+msgstr "شراء نقاط عبر البوابة"
+
+#: apps/loyalty/models.py:99
+msgid "Spent on Roaming Visit"
+msgstr "أُنفق على زيارة تجوال"
+
+#: apps/loyalty/models.py:100
+msgid "Spent on Discount"
+msgstr "أُنفق على خصم"
+
+#: apps/loyalty/models.py:101
+msgid "Fiat Earned from Selling Sub"
+msgstr "رصيد نقدي مكتسب من بيع اشتراك"
+
+#: apps/loyalty/models.py:102
+msgid "Fiat Withdrawal"
+msgstr "سحب نقدي"
+
+#: apps/loyalty/models.py:107 apps/payments/models.py:20
+msgid "Pending"
+msgstr "معلق"
+
+#: apps/loyalty/models.py:123
+msgid "Wallet Transaction"
+msgstr "معاملة المحفظة"
+
+#: apps/loyalty/models.py:124
+msgid "Wallet Transactions"
+msgstr "معاملات المحفظة"
+
+#: apps/loyalty/models.py:163
+msgid "Free Roaming Visits"
+msgstr "زيارات تجوال مجانية"
+
+#: apps/loyalty/models.py:164
+msgid "Subscription Extension (Days)"
+msgstr "تمديد الاشتراك (بالأيام)"
+
+#: apps/loyalty/models.py:165
+msgid "Discount Coupon"
+msgstr "كوبون خصم"
+
+#: apps/loyalty/models.py:166
+msgid "Physical Gift (e.g. T-Shirt, Meal)"
+msgstr "هدية مادية (مثل تي شيرت، وجبة)"
+
+#: apps/loyalty/models.py:170
+msgid "Immediate / System Applied"
+msgstr "فوري / مُطبق من النظام"
+
+#: apps/loyalty/models.py:171
+msgid "Contextual / Checkout"
+msgstr "سياقي / عند الدفع"
+
+#: apps/loyalty/models.py:172
+msgid "In-Person / QR Scanned"
+msgstr "حضور شخصي / مسح QR"
+
+#: apps/loyalty/models.py:173
+msgid "Shipped / Delivered"
+msgstr "مشحون / مُسلم"
+
+#: apps/loyalty/models.py:177
+msgid "Reward Name"
+msgstr "اسم المكافأة"
+
+#: apps/loyalty/models.py:179
+msgid "Days / Visits Amount"
+msgstr "عدد الأيام / الزيارات"
+
+#: apps/loyalty/models.py:179
+msgid "Ignore this field if you are creating a Discount Coupon."
+msgstr "تجاهل هذا الحقل إذا كنت تقوم بإنشاء كوبون خصم."
+
+#: apps/loyalty/models.py:187
+msgid "Coupon Template"
+msgstr "قالب الكوبون"
+
+#: apps/loyalty/models.py:188
+msgid "Required ONLY if you selected 'Discount Coupon' above."
+msgstr "مطلوب فقط إذا اخترت 'كوبون خصم' أعلاه."
+
+#: apps/loyalty/models.py:196
+msgid "Milestone Reward Definition"
+msgstr "تعريف مكافأة الإنجاز"
+
+#: apps/loyalty/models.py:197
+msgid "Milestone Reward Definitions"
+msgstr "تعريفات مكافآت الإنجاز"
+
+#: apps/loyalty/models.py:204
+msgid "Milestone Title"
+msgstr "عنوان الإنجاز"
+
+#: apps/loyalty/models.py:212
+msgid "Milestone"
+msgstr "الإنجاز"
+
+#: apps/loyalty/models.py:213
+msgid "Milestones"
+msgstr "الإنجازات"
+
+#: apps/loyalty/models.py:235
+msgid "Reward Payload (QR/Coupon)"
+msgstr "بيانات المكافأة (QR/كوبون)"
+
+#: apps/loyalty/models.py:243
+msgid "User Milestone"
+msgstr "إنجاز المستخدم"
+
+#: apps/loyalty/models.py:244
+msgid "User Milestones"
+msgstr "إنجازات المستخدمين"
+
+#: apps/loyalty/services.py:186
+msgid "Starter"
+msgstr "المبتدئ"
+
+#: apps/loyalty/services.py:205
+msgid "MAX"
+msgstr "الأقصى"
+
+#: apps/notifications/apps.py:12
+#: templates/provider_portal/provider_base.html:386
+msgid "Notifications"
+msgstr "الإشعارات"
+
+#: apps/payments/apps.py:12
+msgid "Payments"
+msgstr "المدفوعات"
+
+#: apps/payments/models.py:14
+msgid "Mock Gateway (Testing)"
+msgstr "بوابة وهمية (للتجارب)"
+
+#: apps/payments/models.py:15
+msgid "Stripe"
+msgstr "سترايب (Stripe)"
+
+#: apps/payments/models.py:16
+msgid "HyperPay"
+msgstr "هايبر باي (HyperPay)"
+
+#: apps/payments/models.py:21
+msgid "Success"
+msgstr "ناجح"
+
+#: apps/payments/models.py:38
+#: templates/provider_portal/finance/earnings.html:119
+#: templates/provider_portal/finance/earnings.html:149
+msgid "Amount"
+msgstr "المبلغ"
+
+#: apps/payments/models.py:39
+msgid "Currency"
+msgstr "العملة"
+
+#: apps/payments/models.py:45
+msgid "Payment Gateway"
+msgstr "بوابة الدفع"
+
+#: apps/payments/models.py:51 apps/providers/admin.py:93
+#: apps/providers/models.py:83
+#: templates/provider_portal/finance/earnings.html:120
+#: templates/provider_portal/gym/plans/form.html:150
+#: templates/provider_portal/gym/subscribers/list.html:240
+msgid "Status"
+msgstr "الحالة"
+
+#: apps/payments/models.py:58
+msgid "Unique transaction ID returned by the payment gateway."
+msgstr "معرف المعاملة الفريد المرجع من بوابة الدفع."
+
+#: apps/payments/models.py:60
+msgid "Error Message"
+msgstr "رسالة الخطأ"
+
+#: apps/payments/models.py:66
+msgid "Payment Transaction"
+msgstr "معاملة الدفع"
+
+#: apps/payments/models.py:67
+msgid "Payment Transactions"
+msgstr "معاملات الدفع"
+
+#: apps/payments/models.py:98
+msgid "VAT Percentage (%)"
+msgstr "نسبة ضريبة القيمة المضافة (%)"
+
+#: apps/payments/models.py:99
+msgid "Global Value Added Tax applied to purchases."
+msgstr "ضريبة القيمة المضافة العامة المطبقة على المشتريات."
+
+#: apps/payments/models.py:105
+msgid ""
+"Number of days before provider earnings become available for withdrawal."
+msgstr "عدد الأيام قبل أن تصبح أرباح مزود الخدمة متاحة للسحب."
+
+#: apps/payments/models.py:109
+msgid "Payment Global Setting"
+msgstr "الإعداد العام للمدفوعات"
+
+#: apps/payments/models.py:110
+msgid "Payment Global Settings"
+msgstr "الإعدادات العامة للمدفوعات"
+
+#: apps/payments/models.py:122
+msgid "Global Financial Settings"
+msgstr "الإعدادات المالية العامة"
+
+#: apps/payments/models.py:136
+msgid "Pending Balance"
+msgstr "الرصيد المعلق"
+
+#: apps/payments/models.py:137
+#: templates/provider_portal/dashboard/dashboard.html:135
+#: templates/provider_portal/finance/earnings.html:241
+msgid "Available Balance"
+msgstr "الرصيد المتاح"
+
+#: apps/payments/models.py:138
+#: templates/provider_portal/dashboard/dashboard.html:153
+msgid "Total Withdrawn"
+msgstr "إجمالي المسحوبات"
+
+#: apps/payments/models.py:147
+msgid "Earning (Pending Clearance)"
+msgstr "أرباح (بانتظار التخليص)"
+
+#: apps/payments/models.py:148
+msgid "Earning (Cleared to Available)"
+msgstr "أرباح (تم تخليصها للمتاح)"
+
+#: apps/payments/models.py:149
+msgid "Withdrawal (Locked Funds)"
+msgstr "سحب (أموال محتجزة)"
+
+#: apps/payments/models.py:150
+msgid "Withdrawal Failed (Refunded)"
+msgstr "فشل السحب (مُسترد)"
+
+#: apps/payments/models.py:199
+msgid "Pending Admin Review"
+msgstr "بانتظار مراجعة الإدارة"
+
+#: apps/payments/models.py:200
+msgid "Processing Bank Transfer"
+msgstr "جاري معالجة التحويل البنكي"
+
+#: apps/payments/models.py:202 apps/providers/constants.py:15
+#: apps/providers/models.py:533
+msgid "Rejected"
+msgstr "مرفوض"
+
+#: apps/payments/services/checkout_service.py:45
+#: templates/provider_portal/finance/earnings.html:143
+#: templates/provider_portal/gym/branches/detail.html:283
+#: templates/provider_portal/gym/branches/detail.html:352
+#: templates/provider_portal/gym/plans/detail.html:73
+#: templates/provider_portal/gym/plans/list.html:67
+msgid "Days"
+msgstr "أيام"
+
+#: apps/payments/services/checkout_service.py:53
+msgid "Secondary Market Subscription"
+msgstr "اشتراك السوق الثانوي"
+
+#: apps/payments/services/checkout_service.py:63
+msgid "Roaming Visit"
+msgstr "زيارة تجوال"
+
+#: apps/payments/services/checkout_service.py:71
+msgid "Points Package"
+msgstr "باقة نقاط"
+
+#: apps/payments/services/checkout_service.py:75
+msgid "Invalid item_type provided."
+msgstr "نوع العنصر (item_type) المقدم غير صالح."
+
+#: apps/payments/services/checkout_service.py:79
+msgid "The requested item does not exist or is currently unavailable."
+msgstr "العنصر المطلوب غير موجود أو غير متاح حالياً."
+
+#: apps/payments/services/checkout_service.py:104
+msgid "Invalid or previously used coupon code."
+msgstr "كوبون غير صالح أو تم استخدامه مسبقاً."
+
+#: apps/payments/services/checkout_service.py:124
+msgid "Points to redeem cannot be negative."
+msgstr "النقاط المراد استبدالها لا يمكن أن تكون سالبة."
+
+#: apps/payments/services/checkout_service.py:305
+msgid "Purchase completed successfully."
+msgstr "تمت عملية الشراء بنجاح."
+
+#: apps/provider_portal/apps.py:12 templates/auth/base_auth.html:522
+#: templates/provider_portal/provider_base.html:4
+msgid "Provider Portal"
+msgstr "بوابة مزودي الخدمات"
+
+#: apps/provider_portal/decorators.py:52
+msgid "Your account is under review. You cannot access this feature yet."
+msgstr "حسابك قيد المراجعة. لا يمكنك الوصول إلى هذه الميزة بعد."
+
+#: apps/provider_portal/decorators.py:67
+msgid "You do not have permission to access this page."
+msgstr "ليس لديك صلاحية للوصول إلى هذه الصفحة."
+
+#: apps/provider_portal/forms/auth_forms.py:31
+#: apps/provider_portal/forms/profile_forms.py:23 apps/users/models.py:107
+#: templates/provider_portal/auth/register.html:40
+msgid "Full name"
+msgstr "الاسم الكامل"
+
+#: apps/provider_portal/forms/auth_forms.py:34
+msgid "Enter your full name"
+msgstr "أدخل اسمك الكامل"
+
+#: apps/provider_portal/forms/auth_forms.py:39
+#: apps/provider_portal/forms/auth_forms.py:198
+#: apps/providers/api/serializers.py:17 apps/users/models.py:102
+#: templates/provider_portal/auth/register.html:49
+msgid "Email address"
+msgstr "البريد الإلكتروني"
+
+#: apps/provider_portal/forms/auth_forms.py:41
+#: apps/provider_portal/forms/auth_forms.py:200
+msgid "example@domain.com"
+msgstr "example@domain.com"
+
+#: apps/provider_portal/forms/auth_forms.py:46
+#: apps/provider_portal/forms/profile_forms.py:28 apps/users/models.py:111
+#: templates/provider_portal/auth/register.html:58
+msgid "Phone number"
+msgstr "رقم الهاتف"
+
+#: apps/provider_portal/forms/auth_forms.py:49
+#: apps/provider_portal/forms/gym_forms.py:44
+#: apps/provider_portal/forms/profile_forms.py:31
+msgid "05XXXXXXXX"
+msgstr "05XXXXXXXX"
+
+#: apps/provider_portal/forms/auth_forms.py:54
+#: apps/provider_portal/forms/auth_forms.py:205
+#: templates/provider_portal/auth/login.html:38
+#: templates/provider_portal/auth/register.html:67
+msgid "Password"
+msgstr "كلمة المرور"
+
+#: apps/provider_portal/forms/auth_forms.py:56
+msgid "Minimum 8 characters"
+msgstr "٨ أحرف على الأقل"
+
+#: apps/provider_portal/forms/auth_forms.py:61
+#: templates/provider_portal/auth/register.html:82
+msgid "Confirm password"
+msgstr "تأكيد كلمة المرور"
+
+#: apps/provider_portal/forms/auth_forms.py:63
+msgid "Repeat your password"
+msgstr "أعد إدخال كلمة المرور"
+
+#: apps/provider_portal/forms/auth_forms.py:73
+#: apps/provider_portal/services/auth_service.py:73
+msgid "This email address is already registered."
+msgstr "هذا البريد الإلكتروني مسجل بالفعل."
+
+#: apps/provider_portal/forms/auth_forms.py:94
+#: apps/provider_portal/forms/profile_forms.py:50
+msgid "Enter a valid Saudi phone number (e.g. 0512345678)."
+msgstr "أدخل رقم هاتف سعودياً صحيحاً (مثال: 0512345678)."
+
+#: apps/provider_portal/forms/auth_forms.py:103
+#: apps/provider_portal/forms/profile_forms.py:167
+#, python-format
+msgid "Password must be at least %(min)d characters long."
+msgstr "يجب أن تتكون كلمة المرور من %(min)d أحرف على الأقل."
+
+#: apps/provider_portal/forms/auth_forms.py:115
+#: apps/provider_portal/forms/profile_forms.py:178
+msgid "Passwords do not match."
+msgstr "كلمتا المرور غير متطابقتين."
+
+#: apps/provider_portal/forms/auth_forms.py:126 apps/providers/models.py:75
+msgid "Provider type"
+msgstr "نوع مزود الخدمة"
+
+#: apps/provider_portal/forms/auth_forms.py:136
+msgid "Please select a valid provider type."
+msgstr "يرجى اختيار نوع مزود خدمة صحيح."
+
+#: apps/provider_portal/forms/auth_forms.py:147
+#: apps/provider_portal/forms/profile_forms.py:61 apps/providers/models.py:92
+#: templates/provider_portal/auth/register.html:191
+msgid "Business name"
+msgstr "اسم النشاط التجاري"
+
+#: apps/provider_portal/forms/auth_forms.py:150
+msgid "Your gym, studio, or brand name"
+msgstr "اسم صالتك الرياضية، الاستوديو أو العلامة التجارية"
+
+#: apps/provider_portal/forms/auth_forms.py:155
+#: apps/provider_portal/forms/gym_forms.py:26
+#: apps/provider_portal/forms/profile_forms.py:78
+#: templates/provider_portal/auth/register.html:204
+msgid "Select a city"
+msgstr "اختر مدينة"
+
+#: apps/provider_portal/forms/auth_forms.py:158
+#: apps/provider_portal/forms/profile_forms.py:86 apps/providers/models.py:124
+msgid "Commercial registration number"
+msgstr "رقم السجل التجاري"
+
+#: apps/provider_portal/forms/auth_forms.py:162
+msgid "CR number (optional)"
+msgstr "رقم السجل التجاري (اختياري)"
+
+#: apps/provider_portal/forms/auth_forms.py:166
+#: apps/provider_portal/forms/profile_forms.py:99 apps/providers/models.py:130
+msgid "Tax ID number"
+msgstr "الرقم الضريبي"
+
+#: apps/provider_portal/forms/auth_forms.py:170
+msgid "VAT registration number (optional)"
+msgstr "رقم التسجيل في ضريبة القيمة المضافة (اختياري)"
+
+#: apps/provider_portal/forms/auth_forms.py:174
+msgid "Brief description"
+msgstr "وصف مختصر"
+
+#: apps/provider_portal/forms/auth_forms.py:179
+msgid "Tell clients what makes your service unique"
+msgstr "أخبر العملاء بما يميز خدمتك"
+
+#: apps/provider_portal/forms/auth_forms.py:187
+#: apps/provider_portal/forms/profile_forms.py:112
+msgid "Please select your city."
+msgstr "يرجى اختيار مدينتك."
+
+#: apps/provider_portal/forms/auth_forms.py:207
+msgid "Your password"
+msgstr "كلمة المرور الخاصة بك"
+
+#: apps/provider_portal/forms/gym_forms.py:20
+msgid "Branch name"
+msgstr "اسم الفرع"
+
+#: apps/provider_portal/forms/gym_forms.py:22
+msgid "e.g. Main Branch - Riyadh"
+msgstr "مثال: الفرع الرئيسي - الرياض"
+
+#: apps/provider_portal/forms/gym_forms.py:29
+#: apps/provider_portal/forms/profile_forms.py:81 apps/providers/models.py:116
+#: apps/users/models.py:162
+#: templates/provider_portal/gym/branches/detail.html:156
+msgid "Address"
+msgstr "العنوان"
+
+#: apps/provider_portal/forms/gym_forms.py:33
+msgid "Will be auto-filled from the map"
+msgstr "سيتم تعبئته تلقائياً من الخريطة"
+
+#: apps/provider_portal/forms/gym_forms.py:41
+msgid "Branch phone number"
+msgstr "رقم هاتف الفرع"
+
+#: apps/provider_portal/forms/gym_forms.py:47
+#: templates/provider_portal/gym/branches/list.html:43
+#: templates/provider_portal/gym/branches/list.html:45
+#: templates/provider_portal/gym/branches/list.html:47
+#: templates/provider_portal/gym/branches/list.html:120
+msgid "Emergency Close"
+msgstr "إغلاق طارئ"
+
+#: apps/provider_portal/forms/gym_forms.py:54
+msgid "Describe this branch, its atmosphere, and rules..."
+msgstr "صف هذا الفرع، الجو العام، والقواعد..."
+
+#: apps/provider_portal/forms/gym_forms.py:72
+msgid "Estimated Stay Duration"
+msgstr "مدة البقاء المقدرة"
+
+#: apps/provider_portal/forms/gym_forms.py:79
+msgid "Select sports..."
+msgstr "اختر الرياضات..."
+
+#: apps/provider_portal/forms/gym_forms.py:82
+msgid "Types of Sports Offered"
+msgstr "أنواع الرياضات المقدمة"
+
+#: apps/provider_portal/forms/gym_forms.py:89
+msgid "Select amenities..."
+msgstr "اختر المرافق..."
+
+#: apps/provider_portal/forms/gym_forms.py:92
+msgid "Branch Amenities"
+msgstr "مرافق الفرع"
+
+#: apps/provider_portal/forms/gym_forms.py:95
+msgid "Branch Logo (Optional)"
+msgstr "شعار الفرع (اختياري)"
+
+#: apps/provider_portal/forms/gym_forms.py:101
+msgid "Request Tier Upgrade"
+msgstr "طلب ترقية المستوى"
+
+#: apps/provider_portal/forms/gym_forms.py:102
+msgid "Keep Current Tier"
+msgstr "الاحتفاظ بالمستوى الحالي"
+
+#: apps/provider_portal/forms/gym_forms.py:131
+msgid "Please select a city."
+msgstr "يرجى اختيار مدينة."
+
+#: apps/provider_portal/forms/gym_forms.py:144
+msgid "A valid visit price is required to enable roaming."
+msgstr "مطلوب سعر زيارة صالح لتفعيل التجوال."
+
+#: apps/provider_portal/forms/gym_forms.py:158
+msgid "e.g. Monthly Premium"
+msgstr "مثال: اشتراك شهري مميز"
+
+#: apps/provider_portal/forms/gym_forms.py:164
+msgid "What is included in this plan?"
+msgstr "ما المشمول في هذه الخطة؟"
+
+#: apps/provider_portal/forms/gym_forms.py:183
+#: templates/provider_portal/gym/plans/detail.html:152
+msgid "Available Branches"
+msgstr "الفروع المتاحة"
+
+#: apps/provider_portal/forms/gym_forms.py:190
+msgid "Select amenities included..."
+msgstr "اختر المرافق المشمولة..."
+
+#: apps/provider_portal/forms/gym_forms.py:193
+#: templates/provider_portal/gym/plans/detail.html:120
+#: templates/provider_portal/gym/plans/form.html:126
+msgid "Included Amenities"
+msgstr "المرافق المشمولة"
+
+#: apps/provider_portal/forms/gym_forms.py:200
+msgid "Select sports included..."
+msgstr "اختر الرياضات المشمولة..."
+
+#: apps/provider_portal/forms/gym_forms.py:203
+#: templates/provider_portal/gym/plans/detail.html:111
+#: templates/provider_portal/gym/plans/form.html:132
+msgid "Included Sports"
+msgstr "الرياضات المشمولة"
+
+#: apps/provider_portal/forms/profile_forms.py:36
 msgid "Profile photo"
 msgstr "الصورة الشخصية"
 
-#: apps/provider_portal/forms/profile_forms.py:80
-msgid "Street, district, building"
-msgstr "الشارع، الحي، المبنى"
+#: apps/provider_portal/forms/profile_forms.py:57
+#: templates/provider_portal/auth/login.html:22
+msgid "Email Address"
+msgstr "البريد الإلكتروني"
 
-#: apps/provider_portal/forms/profile_forms.py:94
+#: apps/provider_portal/forms/profile_forms.py:58
+msgid "e.g. admin@gym.com"
+msgstr "مثال: admin@gym.com"
+
+#: apps/provider_portal/forms/profile_forms.py:65 apps/providers/models.py:97
+msgid "Business phone"
+msgstr "هاتف العمل"
+
+#: apps/provider_portal/forms/profile_forms.py:68
+msgid "e.g. 05XXXXXXXX"
+msgstr "مثال: 05XXXXXXXX"
+
+#: apps/provider_portal/forms/profile_forms.py:71
+#: apps/provider_portal/forms/restaurant_store_forms.py:33
+#: apps/provider_portal/forms/restaurant_store_forms.py:89
+#: apps/providers/models.py:103
+#: templates/provider_portal/auth/register.html:231
+#: templates/provider_portal/finance/earnings.html:185
+#: templates/provider_portal/gym/branches/detail.html:174
+msgid "Description"
+msgstr "الوصف"
+
+#: apps/provider_portal/forms/profile_forms.py:91
+#: templates/provider_portal/profile/edit.html:106
+msgid "Official Documents"
+msgstr "الوثائق الرسمية"
+
+#: apps/provider_portal/forms/profile_forms.py:104
 msgid "Business logo"
 msgstr "شعار النشاط التجاري"
 
-#: apps/provider_portal/forms/profile_forms.py:114 apps/providers/models.py:144
+#: apps/provider_portal/forms/profile_forms.py:118 apps/providers/models.py:138
 msgid "Bank name"
 msgstr "اسم البنك"
 
-#: apps/provider_portal/forms/profile_forms.py:117
+#: apps/provider_portal/forms/profile_forms.py:121
 msgid "e.g. Al Rajhi Bank"
 msgstr "مثال: بنك الراجحي"
 
-#: apps/provider_portal/forms/profile_forms.py:121 apps/providers/models.py:150
+#: apps/provider_portal/forms/profile_forms.py:125 apps/providers/models.py:144
+#: apps/users/models.py:436
 msgid "IBAN"
 msgstr "رقم الآيبان"
 
-#: apps/provider_portal/forms/profile_forms.py:124
+#: apps/provider_portal/forms/profile_forms.py:128
 msgid "SA followed by 22 digits"
 msgstr "SA متبوعة بـ 22 رقم"
 
-#: apps/provider_portal/forms/profile_forms.py:129 apps/providers/models.py:156
+#: apps/provider_portal/forms/profile_forms.py:133 apps/providers/models.py:150
 msgid "Bank account number"
 msgstr "رقم الحساب البنكي"
 
-#: apps/provider_portal/forms/profile_forms.py:140
+#: apps/provider_portal/forms/profile_forms.py:143
 msgid "Enter a valid Saudi IBAN (SA followed by 22 digits)."
 msgstr "أدخل رقم آيبان سعودياً صحيحاً (SA متبوعة بـ 22 رقم)."
 
-#: apps/provider_portal/forms/profile_forms.py:152
+#: apps/provider_portal/forms/profile_forms.py:150
 msgid "Current password"
 msgstr "كلمة المرور الحالية"
 
-#: apps/provider_portal/forms/profile_forms.py:156
+#: apps/provider_portal/forms/profile_forms.py:154
 msgid "New password"
 msgstr "كلمة المرور الجديدة"
 
-#: apps/provider_portal/forms/profile_forms.py:160
+#: apps/provider_portal/forms/profile_forms.py:158
 msgid "Confirm new password"
 msgstr "تأكيد كلمة المرور الجديدة"
 
@@ -726,7 +1741,7 @@ msgstr "مثال: واي بروتين 1 كجم"
 
 #: apps/provider_portal/forms/restaurant_store_forms.py:85
 msgid "e.g. Supplements, Equipment"
-msgstr "مثال: مكملات غذائية، معدات"
+msgstr "مثال: مكملات، معدات"
 
 #: apps/provider_portal/forms/restaurant_store_forms.py:94
 msgid "Product details, specifications"
@@ -851,42 +1866,51 @@ msgstr "النهاية"
 #: apps/provider_portal/forms/trainer_forms.py:109
 #, python-format
 msgid "Start time is required for %(day)s."
-msgstr ""
+msgstr "وقت البدء مطلوب ليوم %(day)s."
 
 #: apps/provider_portal/forms/trainer_forms.py:114
 #, python-format
 msgid "End time is required for %(day)s."
-msgstr ""
+msgstr "وقت الانتهاء مطلوب ليوم %(day)s."
 
 #: apps/provider_portal/forms/trainer_forms.py:119
 #, python-format
 msgid "End time must be after start time for %(day)s."
-msgstr ""
+msgstr "يجب أن يكون وقت الانتهاء بعد وقت البدء ليوم %(day)s."
 
 #: apps/provider_portal/forms/verification_forms.py:14
 msgid "File size cannot exceed 5MB."
-msgstr ""
+msgstr "حجم الملف لا يمكن أن يتجاوز 5 ميجابايت."
 
 #: apps/provider_portal/forms/verification_forms.py:22
-#, fuzzy
-#| msgid "Commercial registration"
 msgid "Commercial Register"
 msgstr "السجل التجاري"
 
 #: apps/provider_portal/forms/verification_forms.py:23
 #: apps/provider_portal/forms/verification_forms.py:28
 msgid "Accepted formats: PDF, JPG, PNG. Max size: 5MB."
-msgstr ""
+msgstr "التنسيقات المقبولة: PDF، JPG، PNG. الحد الأقصى: 5 ميجابايت."
 
 #: apps/provider_portal/forms/verification_forms.py:27
 msgid "Owner ID / Passport"
-msgstr ""
+msgstr "هوية المالك / الجواز"
+
+#: apps/provider_portal/mixins.py:19 apps/provider_portal/mixins.py:45
+msgid ""
+"Admin accounts cannot access the Provider Portal. You have been logged out."
+msgstr "لا يمكن لحسابات الإدارة الوصول إلى بوابة المزود. تم تسجيل خروجك."
+
+#: apps/provider_portal/mixins.py:25 apps/provider_portal/mixins.py:51
+msgid "Your account is not registered as a Provider."
+msgstr "حسابك غير مسجل كمزود خدمة."
+
+#: apps/provider_portal/mixins.py:56
+msgid "Access denied. This section is for Gym providers only."
+msgstr "تم رفض الوصول. هذا القسم مخصص لمزودي خدمات الصالات الرياضية فقط."
 
 #: apps/provider_portal/services/auth_service.py:42 apps/providers/emails.py:64
-#, fuzzy
-#| msgid "Verify your email"
 msgid "Verify your FitZone account"
-msgstr "قم بتأكيد بريدك الإلكتروني"
+msgstr "قم بتأكيد حسابك في فيت زون"
 
 #: apps/provider_portal/services/auth_service.py:117
 msgid "Registration failed due to a system error. Please try again."
@@ -898,10 +1922,8 @@ msgid "Invalid email or password. Please try again."
 msgstr "البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى."
 
 #: apps/provider_portal/services/auth_service.py:129
-#, fuzzy
-#| msgid "This account has been deactivated. Please contact support."
 msgid "This account has been deactivated."
-msgstr "تم تعطيل هذا الحساب. يرجى التواصل مع الدعم."
+msgstr "تم تعطيل هذا الحساب."
 
 #: apps/provider_portal/services/auth_service.py:150
 msgid "Current password is incorrect."
@@ -920,97 +1942,284 @@ msgstr "مبلغ السحب يتجاوز رصيدك المتاح البالغ %(
 msgid "Failed to submit withdrawal request. Please try again."
 msgstr "فشل إرسال طلب السحب. يرجى المحاولة مرة أخرى."
 
-#: apps/provider_portal/services/gym_service.py:63
+#: apps/provider_portal/services/gym_service.py:64
 msgid "Branch not found."
 msgstr "الفرع غير موجود."
 
-#: apps/provider_portal/services/gym_service.py:111
+#: apps/provider_portal/services/gym_service.py:121
 msgid "Failed to create branch. Please try again."
 msgstr "فشل إنشاء الفرع. يرجى المحاولة مرة أخرى."
 
-#: apps/provider_portal/services/gym_service.py:158
+#: apps/provider_portal/services/gym_service.py:176
 msgid "Failed to update branch. Please try again."
 msgstr "فشل تحديث الفرع. يرجى المحاولة مرة أخرى."
 
-#: apps/provider_portal/services/gym_service.py:185
+#: apps/provider_portal/services/gym_service.py:203
 msgid "Failed to delete branch. Please try again."
 msgstr "فشل حذف الفرع. يرجى المحاولة مرة أخرى."
 
-#: apps/provider_portal/services/gym_service.py:251
+#: apps/provider_portal/services/gym_service.py:246
 msgid "Subscription plan not found."
 msgstr "خطة الاشتراك غير موجودة."
 
-#: apps/provider_portal/services/gym_service.py:288
+#: apps/provider_portal/services/gym_service.py:283
 msgid "Failed to create plan. Please try again."
 msgstr "فشل إنشاء الخطة. يرجى المحاولة مرة أخرى."
 
-#: apps/provider_portal/services/gym_service.py:328
+#: apps/provider_portal/services/gym_service.py:323
 msgid "Failed to update plan. Please try again."
 msgstr "فشل تحديث الخطة. يرجى المحاولة مرة أخرى."
 
-#: apps/provider_portal/services/trainer_service.py:67
+#: apps/provider_portal/services/trainer_service.py:68
 msgid "Failed to update profile. Please try again."
 msgstr "فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى."
 
-#: apps/provider_portal/services/trainer_service.py:109
+#: apps/provider_portal/services/trainer_service.py:110
 msgid "Failed to save availability. Please try again."
 msgstr "فشل حفظ أوقات الإتاحة. يرجى المحاولة مرة أخرى."
 
-#: apps/provider_portal/services/trainer_service.py:171
+#: apps/provider_portal/services/trainer_service.py:172
 msgid "Booking not found."
 msgstr "الحجز غير موجود."
 
-#: apps/provider_portal/services/trainer_service.py:191
+#: apps/provider_portal/services/trainer_service.py:192
 msgid "Only pending bookings can be accepted."
 msgstr "يمكن قبول الحجوزات المعلقة فقط."
 
-#: apps/provider_portal/services/trainer_service.py:220
+#: apps/provider_portal/services/trainer_service.py:221
 msgid "Only pending bookings can be rejected."
 msgstr "يمكن رفض الحجوزات المعلقة فقط."
 
-#: apps/provider_portal/views/auth_views.py:248
+#: apps/provider_portal/views/auth_views.py:245
 msgid "Your session expired. Please start over."
 msgstr "انتهت صلاحية جلستك. يرجى البدء من جديد."
 
-#: apps/provider_portal/views/auth_views.py:298
+#: apps/provider_portal/views/auth_views.py:295
 msgid "This verification link has expired or has already been used."
-msgstr ""
+msgstr "انتهت صلاحية رابط التحقق هذا أو تم استخدامه بالفعل."
 
-#: apps/provider_portal/views/auth_views.py:309
+#: apps/provider_portal/views/auth_views.py:306
 msgid "Email verified successfully! Welcome to your dashboard."
 msgstr "تم تأكيد البريد الإلكتروني بنجاح! أهلاً بك في لوحة التحكم."
 
-#: apps/provider_portal/views/auth_views.py:313
+#: apps/provider_portal/views/auth_views.py:310
 msgid "Invalid verification link."
-msgstr ""
+msgstr "رابط تحقق غير صالح."
 
-#: apps/provider_portal/views/auth_views.py:327
-#, fuzzy
-#| msgid "This email address is already registered."
+#: apps/provider_portal/views/auth_views.py:324
 msgid "Your email is already verified."
-msgstr "هذا البريد الإلكتروني مسجل بالفعل."
+msgstr "بريدك الإلكتروني موثق بالفعل."
 
-#: apps/provider_portal/views/auth_views.py:333
+#: apps/provider_portal/views/auth_views.py:330
 msgid "A new activation link has been sent to your email."
 msgstr "تم إرسال رابط تفعيل جديد إلى بريدك الإلكتروني."
 
-#: apps/provider_portal/views/gym_views.py:112
-msgid ""
-"Branch added successfully, but will remain inactive until your account is "
-"verified."
-msgstr ""
+#: apps/provider_portal/views/earnings_views.py:102
+msgid "General"
+msgstr "عام"
 
-#: apps/provider_portal/views/gym_views.py:114
+#: apps/provider_portal/views/earnings_views.py:131
+msgid "You must link a bank account before withdrawing funds."
+msgstr "يجب عليك ربط حساب بنكي قبل سحب الأموال."
+
+#: apps/provider_portal/views/earnings_views.py:136
+msgid "Minimum withdrawal amount is 100."
+msgstr "الحد الأدنى لمبلغ السحب هو 100."
+
+#: apps/provider_portal/views/earnings_views.py:138
+msgid "Insufficient available balance."
+msgstr "الرصيد المتاح غير كافٍ."
+
+#: apps/provider_portal/views/earnings_views.py:157
+msgid "Withdrawal request #"
+msgstr "رقم طلب السحب #"
+
+#: apps/provider_portal/views/earnings_views.py:161
+msgid "Withdrawal request submitted successfully. It is now pending review."
+msgstr "تم إرسال طلب السحب بنجاح. هو الآن بانتظار المراجعة."
+
+#: apps/provider_portal/views/earnings_views.py:164
+msgid "Invalid amount format."
+msgstr "تنسيق المبلغ غير صالح."
+
+#: apps/provider_portal/views/earnings_views.py:167
+msgid "An internal error occurred while processing your request."
+msgstr "حدث خطأ داخلي أثناء معالجة طلبك."
+
+#: apps/provider_portal/views/earnings_views.py:182
+msgid "Bank account details updated successfully."
+msgstr "تم تحديث تفاصيل الحساب البنكي بنجاح."
+
+#: apps/provider_portal/views/earnings_views.py:184
+msgid "Please provide both Bank Name and IBAN."
+msgstr "يرجى تقديم كل من اسم البنك ورقم الآيبان."
+
+#: apps/provider_portal/views/gym_views.py:111
+msgid "Branch added successfully, but remains inactive until verification."
+msgstr "تمت إضافة الفرع بنجاح، لكنه سيظل غير نشط حتى يتم التحقق."
+
+#: apps/provider_portal/views/gym_views.py:113
 msgid "Branch added successfully."
-msgstr ""
+msgstr "تمت إضافة الفرع بنجاح."
+
+#: apps/provider_portal/views/gym_views.py:216
+msgid "Branch updated successfully."
+msgstr "تم تحديث الفرع بنجاح."
+
+#: apps/provider_portal/views/gym_views.py:223
+msgid "Branch deleted successfully."
+msgstr "تم حذف الفرع بنجاح."
+
+#: apps/provider_portal/views/gym_views.py:310
+msgid "Photo deleted successfully."
+msgstr "تم حذف الصورة بنجاح."
+
+#: apps/provider_portal/views/gym_views.py:315
+msgid "Photos uploaded successfully."
+msgstr "تم رفع الصور بنجاح."
+
+#: apps/provider_portal/views/gym_views.py:329
+msgid "Branch activated successfully."
+msgstr "تم تفعيل الفرع بنجاح."
+
+#: apps/provider_portal/views/gym_views.py:329
+msgid "Branch hidden from users."
+msgstr "تم إخفاء الفرع عن المستخدمين."
+
+#: apps/provider_portal/views/gym_views.py:332
+msgid "Branch is marked as EMERGENCY CLOSED."
+msgstr "تم وضع علامة على الفرع كـ مغلق لحالة طارئة."
+
+#: apps/provider_portal/views/gym_views.py:332
+msgid "Branch is now OPEN normally."
+msgstr "الفرع الآن مفتوح بشكل طبيعي."
+
+#: apps/provider_portal/views/gym_views.py:423
+msgid "Subscription plan added successfully."
+msgstr "تمت إضافة خطة الاشتراك بنجاح."
+
+#: apps/provider_portal/views/gym_views.py:504
+msgid "Subscription plan updated successfully."
+msgstr "تم تحديث خطة الاشتراك بنجاح."
+
+#: apps/provider_portal/views/gym_views.py:523
+msgid ""
+"Plan '{}' was archived because it has active subscribers. It is hidden from "
+"new users but will remain active for current subscribers."
+msgstr "تم أرشفة الخطة '{}' لأن بها مشتركين نشطين. سيتم إخفاؤها عن المستخدمين الجدد ولكنها ستظل نشطة للمشتركين الحاليين."
+
+#: apps/provider_portal/views/gym_views.py:527
+msgid "Subscription plan '{}' was successfully deleted."
+msgstr "تم حذف خطة الاشتراك '{}' بنجاح."
+
+#: apps/provider_portal/views/gym_views.py:543
+msgid "Subscription plan '{}' has been restored and is active again."
+msgstr "تم استعادة خطة الاشتراك '{}' وهي نشطة مجدداً."
+
+#: apps/provider_portal/views/gym_views.py:557
+msgid "activated"
+msgstr "مُفعل"
+
+#: apps/provider_portal/views/gym_views.py:557
+msgid "deactivated"
+msgstr "مُعطل"
+
+#: apps/provider_portal/views/gym_views.py:558
+#, python-format
+msgid "Plan %(status)s successfully."
+msgstr "تم %(status)s الخطة بنجاح."
+
+#: apps/provider_portal/views/gym_views.py:582
+msgid "Invalid Data"
+msgstr "بيانات غير صالحة"
+
+#: apps/provider_portal/views/gym_views.py:583
+msgid "QR Code or Branch ID missing."
+msgstr "رمز QR أو معرف الفرع مفقود."
+
+#: apps/provider_portal/views/gym_views.py:595
+msgid "Invalid Format"
+msgstr "تنسيق غير صالح"
+
+#: apps/provider_portal/views/gym_views.py:596
+msgid "Unrecognized QR Code prefix."
+msgstr "بادئة رمز QR غير معروفة."
+
+#: apps/provider_portal/views/gym_views.py:605
+msgid "Security Alert"
+msgstr "تنبيه أمني"
+
+#: apps/provider_portal/views/gym_views.py:734
+msgid "Access Granted"
+msgstr "تم منح الوصول"
+
+#: apps/provider_portal/views/gym_views.py:735
+msgid "Check-in successful"
+msgstr "تم تسجيل الدخول بنجاح"
+
+#: apps/provider_portal/views/gym_views.py:735
+msgid "Roaming Pass Consumed"
+msgstr "تم استهلاك تصريح التجوال"
+
+#: apps/provider_portal/views/gym_views.py:763
+msgid "System Error"
+msgstr "خطأ في النظام"
+
+#: apps/provider_portal/views/gym_views.py:783
+msgid "No QR token provided."
+msgstr "لم يتم توفير رمز QR."
+
+#: apps/provider_portal/views/gym_views.py:803
+msgid "Roaming pass verified."
+msgstr "تم التحقق من تصريح التجوال."
+
+#: apps/provider_portal/views/gym_views.py:812
+msgid "Subscriber not found or invalid QR."
+msgstr "المشترك غير موجود أو رمز QR غير صالح."
+
+#: apps/provider_portal/views/gym_views.py:927
+msgid "A reason is required to block a subscriber."
+msgstr "مطلوب سبب لحظر المشترك."
+
+#: apps/provider_portal/views/gym_views.py:940
+msgid "Subscriber has been blocked successfully."
+msgstr "تم حظر المشترك بنجاح."
+
+#: apps/provider_portal/views/gym_views.py:949
+msgid "A resolution note is required to unblock a subscriber."
+msgstr "مطلوب ملاحظة الحل لإلغاء حظر المشترك."
+
+#: apps/provider_portal/views/gym_views.py:959
+msgid "Subscriber access has been restored successfully."
+msgstr "تم استعادة وصول المشترك بنجاح."
+
+#: apps/provider_portal/views/profile_views.py:46
+msgid "This email is already in use by another account."
+msgstr "هذا البريد الإلكتروني مستخدم بالفعل بواسطة حساب آخر."
+
+#: apps/provider_portal/views/profile_views.py:74
+msgid "Business profile updated successfully."
+msgstr "تم تحديث الملف التجاري بنجاح."
+
+#: apps/provider_portal/views/profile_views.py:102
+msgid "Financial information updated successfully."
+msgstr "تم تحديث المعلومات المالية بنجاح."
+
+#: apps/provider_portal/views/profile_views.py:121
+msgid "Incorrect current password."
+msgstr "كلمة المرور الحالية غير صحيحة."
+
+#: apps/provider_portal/views/profile_views.py:127
+msgid "Password updated successfully."
+msgstr "تم تحديث كلمة المرور بنجاح."
 
 #: apps/provider_portal/views/verification_views.py:37
 msgid "Your documents are already under review or your account is active."
-msgstr ""
+msgstr "مستنداتك قيد المراجعة بالفعل أو أن حسابك نشط."
 
 #: apps/provider_portal/views/verification_views.py:62
 msgid "Documents uploaded successfully. Our team will review them shortly."
-msgstr ""
+msgstr "تم رفع المستندات بنجاح. سيقوم فريقنا بمراجعتها قريباً."
 
 #: apps/providers/admin.py:57 templates/provider_portal/auth/register.html:20
 #: templates/provider_portal/auth/register.html:287
@@ -1018,221 +2227,394 @@ msgid "Business"
 msgstr "النشاط التجاري"
 
 #: apps/providers/admin.py:64
-#, fuzzy
-#| msgid "Financial"
 msgid "Legal & Financial"
-msgstr "المعلومات المالية"
+msgstr "قانوني ومالي"
 
-#: apps/providers/admin.py:74
-#, fuzzy
-#| msgid "Registration steps"
+#: apps/providers/admin.py:75
 msgid "Registration status"
-msgstr "خطوات التسجيل"
+msgstr "حالة التسجيل"
 
-#: apps/providers/admin.py:81 apps/users/admin.py:28
+#: apps/providers/admin.py:82 apps/users/admin.py:61
 msgid "Timestamps"
-msgstr "التواريخ"
+msgstr "الطوابع الزمنية"
 
-#: apps/providers/admin.py:88
-#, fuzzy
-#| msgid "Verify Email"
+#: apps/providers/admin.py:89
 msgid "Owner email"
-msgstr "تأكيد البريد الإلكتروني"
+msgstr "بريد المالك"
 
-#: apps/providers/admin.py:92 apps/providers/models.py:83
-msgid "Status"
-msgstr "الحالة"
-
-#: apps/providers/admin.py:111
+#: apps/providers/admin.py:112
 msgid "Approve selected providers"
 msgstr "قبول مزودي الخدمات المحددين"
 
-#: apps/providers/admin.py:145
-#, fuzzy
-#| msgid "Activate selected providers"
+#: apps/providers/admin.py:146
 msgid "Reject selected providers"
-msgstr "تفعيل مزودي الخدمات المحددين"
+msgstr "رفض مزودي الخدمات المحددين"
 
-#: apps/providers/apps.py:14 apps/providers/models.py:227
+#: apps/providers/apps.py:14 apps/providers/models.py:221
 msgid "Providers"
 msgstr "مزودو الخدمات"
 
-#: apps/providers/constants.py:33
-#: templates/provider_portal/auth/register.html:128
-#: templates/provider_portal/base.html:163
-msgid "Gym"
-msgstr "صالة رياضية"
-
-#: apps/providers/constants.py:34
+#: apps/providers/constants.py:6
 #: templates/provider_portal/auth/register.html:138
-#: templates/provider_portal/base.html:179
 msgid "Trainer"
 msgstr "مدرب شخصي"
 
-#: apps/providers/constants.py:35
+#: apps/providers/constants.py:7
 #: templates/provider_portal/auth/register.html:148
-#: templates/provider_portal/base.html:195
 msgid "Restaurant"
 msgstr "مطعم صحي"
 
-#: apps/providers/constants.py:36
+#: apps/providers/constants.py:8
 #: templates/provider_portal/auth/register.html:158
-#: templates/provider_portal/base.html:207
 msgid "Store"
 msgstr "متجر رياضي"
 
-#: apps/providers/constants.py:64 apps/providers/models.py:537
-#, fuzzy
-#| msgid "Under Review"
+#: apps/providers/constants.py:11 apps/providers/models.py:531
 msgid "Pending Review"
 msgstr "قيد المراجعة"
 
-#: apps/providers/constants.py:65 apps/providers/models.py:538
+#: apps/providers/constants.py:12 apps/providers/models.py:532
 msgid "Approved"
 msgstr "مقبول"
 
-#: apps/providers/constants.py:67
+#: apps/providers/constants.py:14
 msgid "Suspended"
 msgstr "موقوف"
 
-#: apps/providers/constants.py:68 apps/providers/models.py:539
-msgid "Rejected"
-msgstr ""
-
 #: apps/providers/emails.py:99
-#, fuzzy
-#| msgid "Selected providers have been approved."
 msgid "Your FitZone provider application has been approved!"
-msgstr "تم قبول مزودي الخدمات المحددين."
+msgstr "تمت الموافقة على طلبك كمزود خدمة في فيت زون!"
 
 #: apps/providers/emails.py:133
 msgid "Update on your FitZone provider application"
-msgstr ""
+msgstr "تحديث بشأن طلب مزود الخدمة الخاص بك في فيت زون"
 
-#: apps/providers/models.py:70 apps/users/models.py:215
+#: apps/providers/models.py:70 apps/users/models.py:233
+#: apps/users/models.py:432
 msgid "User"
 msgstr "مستخدم"
 
-#: apps/providers/models.py:97 apps/providers/serializers.py:50
-#, fuzzy
-#| msgid "Business name"
-msgid "Business phone"
-msgstr "اسم النشاط التجاري"
-
-#: apps/providers/models.py:109
-msgid "Logo"
-msgstr "الشعار"
-
-#: apps/providers/models.py:164
-#, fuzzy
-#| msgid "Phone verified"
+#: apps/providers/models.py:158
 msgid "Email verified"
-msgstr "تم التحقق من الهاتف"
+msgstr "تم التحقق من البريد الإلكتروني"
 
-#: apps/providers/models.py:168
-#, fuzzy
-#| msgid "Verified"
+#: apps/providers/models.py:162
 msgid "Verified at"
-msgstr "موثق"
+msgstr "تم التحقق في"
+
+#: apps/providers/models.py:172 templates/provider_portal/profile/edit.html:60
+msgid "Business Logo"
+msgstr "شعار العمل"
+
+#: apps/providers/models.py:177
+msgid "Percentage"
+msgstr "نسبة مئوية"
 
 #: apps/providers/models.py:178
-#, fuzzy
-#| msgid "Business logo"
-msgid "Business Logo"
-msgstr "شعار النشاط التجاري"
-
-#: apps/providers/models.py:183
-msgid "Percentage"
-msgstr ""
+msgid "Fixed Amount"
+msgstr "مبلغ ثابت"
 
 #: apps/providers/models.py:184
-msgid "Fixed Amount"
-msgstr ""
+msgid "Commission Type"
+msgstr "نوع العمولة"
 
 #: apps/providers/models.py:190
-msgid "Commission Type"
-msgstr ""
-
-#: apps/providers/models.py:196
 msgid "Commission Value"
-msgstr ""
+msgstr "قيمة العمولة"
 
-#: apps/providers/models.py:206
-#, fuzzy
-#| msgid "Review"
+#: apps/providers/models.py:200
 msgid "Reviewed by"
-msgstr "المراجعة"
+msgstr "تمت المراجعة بواسطة"
 
-#: apps/providers/models.py:209
-#, fuzzy
-#| msgid "Review"
+#: apps/providers/models.py:203
 msgid "Reviewed at"
-msgstr "المراجعة"
+msgstr "تاريخ المراجعة"
 
-#: apps/providers/models.py:214
+#: apps/providers/models.py:208
 msgid "Rejection note"
-msgstr ""
+msgstr "ملاحظة الرفض"
 
-#: apps/providers/models.py:218
+#: apps/providers/models.py:212
 msgid "Shown to the provider in the rejection email."
-msgstr ""
+msgstr "يُعرض لمزود الخدمة في بريد الرفض الإلكتروني."
 
-#: apps/providers/models.py:222 apps/providers/models.py:459
+#: apps/providers/models.py:216 apps/providers/models.py:453
 msgid "Created at"
 msgstr "تاريخ الإنشاء"
 
-#: apps/providers/models.py:223 apps/users/models.py:205
+#: apps/providers/models.py:217 apps/users/models.py:223
 msgid "Updated at"
 msgstr "تاريخ التحديث"
 
-#: apps/providers/models.py:226 apps/providers/models.py:449
-#: apps/users/models.py:23 templates/provider_portal/auth/register.html:279
-msgid "Provider"
-msgstr "مزود خدمة"
+#: apps/providers/models.py:446
+msgid "Token"
+msgstr "الرمز"
+
+#: apps/providers/models.py:451
+msgid "Expires at"
+msgstr "ينتهي في"
 
 #: apps/providers/models.py:452
-msgid "Token"
-msgstr ""
+msgid "Used"
+msgstr "مستخدم"
+
+#: apps/providers/models.py:456
+msgid "Email verification token"
+msgstr "رمز التحقق من البريد الإلكتروني"
 
 #: apps/providers/models.py:457
-msgid "Expires at"
-msgstr ""
-
-#: apps/providers/models.py:458
-msgid "Used"
-msgstr ""
-
-#: apps/providers/models.py:462
-#, fuzzy
-#| msgid "Certification document"
-msgid "Email verification token"
-msgstr "وثيقة الاعتماد"
-
-#: apps/providers/models.py:463
-#, fuzzy
-#| msgid "Certification document"
 msgid "Email verification tokens"
-msgstr "وثيقة الاعتماد"
+msgstr "رموز التحقق من البريد الإلكتروني"
 
-#: apps/providers/models.py:549
-#, fuzzy
-#| msgid "Commercial registration number"
+#: apps/providers/models.py:543
 msgid "e.g., Commercial Register, Owner ID"
-msgstr "رقم السجل التجاري"
+msgstr "مثال: السجل التجاري، هوية المالك"
 
-#: apps/providers/serializers.py:82
-#, fuzzy
-#| msgid "Certification document"
-msgid "Verification token"
-msgstr "وثيقة الاعتماد"
+#: apps/providers/services/provider_service.py:256
+#: apps/providers/services/provider_service.py:260
+msgid "Invalid email or password."
+msgstr "البريد الإلكتروني أو كلمة المرور غير صالحة."
 
-#: apps/providers/serializers.py:145
-msgid "Refresh token"
-msgstr ""
+#: apps/providers/services/provider_service.py:264
+msgid "No provider profile found for this account."
+msgstr "لم يتم العثور على ملف تعريف مزود خدمة لهذا الحساب."
+
+#: apps/providers/services/provider_service.py:268
+msgid "Email is not verified."
+msgstr "البريد الإلكتروني غير مؤكد."
+
+#: apps/providers/services/provider_service.py:272
+msgid "This account has been disabled by the administrator."
+msgstr "تم تعطيل هذا الحساب من قبل الإدارة."
+
+#: apps/resale/api/views.py:242
+msgid "Subscription listed successfully in the marketplace."
+msgstr "تم إدراج الاشتراك بنجاح في السوق."
+
+#: apps/resale/api/views.py:249
+msgid "An internal error occurred."
+msgstr "حدث خطأ داخلي."
+
+#: apps/resale/api/views.py:262
+msgid "Listing cancelled successfully."
+msgstr "تم إلغاء الإدراج بنجاح."
+
+#: apps/resale/api/views.py:282
+msgid "Purchase successful. Subscription has been transferred to your account."
+msgstr "الشراء ناجح. تم تحويل الاشتراك إلى حسابك."
+
+#: apps/resale/api/views.py:290
+msgid "An internal error occurred during purchase."
+msgstr "حدث خطأ داخلي أثناء الشراء."
 
 #: apps/resale/apps.py:12
 msgid "Resale"
 msgstr "إعادة البيع"
+
+#: apps/resale/models.py:27
+msgid "The percentage of the resale price the app takes as commission."
+msgstr "النسبة المئوية من سعر إعادة البيع التي يأخذها التطبيق كعمولة."
+
+#: apps/resale/models.py:34
+msgid ""
+"The immediate value reduction percentage applied to a subscription to "
+"prevent selling at the original purchase price."
+msgstr "نسبة خفض القيمة الفورية المطبقة على الاشتراك لمنع البيع بسعر الشراء الأصلي."
+
+#: apps/resale/models.py:39
+msgid ""
+"Subscriptions cannot be listed if the remaining days are less than this "
+"value."
+msgstr "لا يمكن إدراج الاشتراكات إذا كانت الأيام المتبقية أقل من هذه القيمة."
+
+#: apps/resale/models.py:44
+msgid ""
+"How long the funds are held after purchase before being released to the "
+"seller."
+msgstr "مدة احتجاز الأموال بعد الشراء قبل تحريرها للبائع."
+
+#: apps/resale/models.py:48
+msgid "Resale Global Setting"
+msgstr "الإعداد العام لإعادة البيع"
+
+#: apps/resale/models.py:49
+msgid "Resale Global Settings"
+msgstr "الإعدادات العامة لإعادة البيع"
+
+#: apps/resale/models.py:61
+msgid "Resale Settings"
+msgstr "إعدادات إعادة البيع"
+
+#: apps/resale/models.py:65
+msgid "Active / Listed"
+msgstr "نشط / مُدرج"
+
+#: apps/resale/models.py:66
+msgid "Sold"
+msgstr "مُباع"
+
+#: apps/resale/models.py:67
+msgid "Cancelled by Seller"
+msgstr "تم الإلغاء من قبل البائع"
+
+#: apps/resale/models.py:68
+msgid "Expired (Removed by System)"
+msgstr "منتهي (تمت الإزالة بواسطة النظام)"
+
+#: apps/resale/models.py:79
+msgid "Seller"
+msgstr "البائع"
+
+#: apps/resale/models.py:85
+msgid "Original Subscription"
+msgstr "الاشتراك الأصلي"
+
+#: apps/resale/models.py:91
+msgid "Asking Price (SAR)"
+msgstr "السعر المطلوب (ريال)"
+
+#: apps/resale/models.py:92
+msgid "The price the seller is asking for. Must be <= fair value."
+msgstr "السعر الذي يطلبه البائع. يجب أن يكون <= القيمة العادلة."
+
+#: apps/resale/models.py:97
+msgid "Fair Value at Listing"
+msgstr "القيمة العادلة عند الإدراج"
+
+#: apps/resale/models.py:98
+msgid "System calculated pro-rata value when listed to prevent scalping."
+msgstr "القيمة التناسبية المحسوبة بواسطة النظام عند الإدراج لمنع التلاعب بالأسعار."
+
+#: apps/resale/models.py:105
+msgid "Listing Status"
+msgstr "حالة الإدراج"
+
+#: apps/resale/models.py:112
+msgid "Subscription Resale Listing"
+msgstr "إدراج إعادة بيع الاشتراك"
+
+#: apps/resale/models.py:113
+msgid "Subscription Resale Listings"
+msgstr "إدراجات إعادة بيع الاشتراكات"
+
+#: apps/resale/models.py:122
+msgid "This subscription has already been resold and cannot be listed again."
+msgstr "لقد تم بالفعل إعادة بيع هذا الاشتراك ولا يمكن إدراجه مرة أخرى."
+
+#: apps/resale/models.py:125
+msgid "Only active subscriptions can be listed for resale."
+msgstr "يمكن إدراج الاشتراكات النشطة فقط لإعادة البيع."
+
+#: apps/resale/models.py:132
+#, python-format
+msgid ""
+"Cannot list subscription. Remaining days (%(days)d) is less than the "
+"required buffer (%(buffer)d)."
+msgstr "لا يمكن إدراج الاشتراك. الأيام المتبقية (%(days)d) أقل من الحد الأدنى المطلوب (%(buffer)d)."
+
+#: apps/resale/models.py:138
+msgid "Asking price cannot exceed the current fair value of the subscription."
+msgstr "السعر المطلوب لا يمكن أن يتجاوز القيمة العادلة الحالية للاشتراك."
+
+#: apps/resale/models.py:142
+msgid "In Escrow (Pending Clearance)"
+msgstr "في الضمان (بانتظار التخليص)"
+
+#: apps/resale/models.py:143
+msgid "Completed (Funds Released)"
+msgstr "مكتمل (تم تحرير الأموال)"
+
+#: apps/resale/models.py:144
+msgid "Disputed & Refunded"
+msgstr "متنازع عليه ومسترد"
+
+#: apps/resale/models.py:156
+msgid "Resale Listing"
+msgstr "إدراج إعادة البيع"
+
+#: apps/resale/models.py:162
+msgid "Buyer"
+msgstr "المشتري"
+
+#: apps/resale/models.py:169
+msgid "Payment Record"
+msgstr "سجل الدفع"
+
+#: apps/resale/models.py:172
+msgid "Final Sale Price"
+msgstr "سعر البيع النهائي"
+
+#: apps/resale/models.py:173
+msgid "App Commission"
+msgstr "عمولة التطبيق"
+
+#: apps/resale/models.py:174
+msgid "Seller Earnings"
+msgstr "أرباح البائع"
+
+#: apps/resale/models.py:180
+msgid "Transaction Status"
+msgstr "حالة المعاملة"
+
+#: apps/resale/models.py:184
+msgid "Funds Cleared At"
+msgstr "تم تخليص الأموال في"
+
+#: apps/resale/models.py:187
+msgid "Resale Transaction"
+msgstr "معاملة إعادة البيع"
+
+#: apps/resale/models.py:188
+msgid "Resale Transactions"
+msgstr "معاملات إعادة البيع"
+
+#: apps/resale/services.py:71
+msgid "Subscription not found or does not belong to you."
+msgstr "الاشتراك غير موجود أو لا ينتمي إليك."
+
+#: apps/resale/services.py:74
+msgid "This subscription is already listed in the marketplace."
+msgstr "هذا الاشتراك مدرج بالفعل في السوق."
+
+#: apps/resale/services.py:79
+#, python-format
+msgid "Asking price cannot exceed the fair value (%(val)s SAR)."
+msgstr "لا يمكن أن يتجاوز السعر المطلوب القيمة العادلة (%(val)s ريال)."
+
+#: apps/resale/services.py:83
+#, python-format
+msgid "Asking price is too low. Minimum allowed is %(val)s SAR."
+msgstr "السعر المطلوب منخفض جداً. الحد الأدنى المسموح به هو %(val)s ريال."
+
+#: apps/resale/services.py:90
+#, python-format
+msgid ""
+"Cannot list this subscription. You have consumed the points earned from it. "
+"You need at least %(pts)d points in your balance to return them."
+msgstr "لا يمكن إدراج هذا الاشتراك. لقد استهلكت النقاط المكتسبة منه. تحتاج إلى %(pts)d نقطة على الأقل في رصيدك لإرجاعها."
+
+#: apps/resale/services.py:115
+msgid "Active listing not found."
+msgstr "الإدراج النشط غير موجود."
+
+#: apps/resale/services.py:131
+msgid "This listing is no longer available."
+msgstr "هذا الإدراج لم يعد متاحاً."
+
+#: apps/resale/services.py:134
+msgid "You cannot purchase your own listing."
+msgstr "لا يمكنك شراء الإدراج الخاص بك."
+
+#: apps/resale/services.py:141
+msgid ""
+"This subscription has expired from the marketplace due to minimum days rule."
+msgstr "انتهت صلاحية هذا الاشتراك من السوق بسبب قاعدة الحد الأدنى للأيام."
+
+#: apps/resale/services.py:149
+msgid ""
+"Transaction failed. The seller no longer has enough points to cover the "
+"transfer. Listing has been removed."
+msgstr "فشلت المعاملة. البائع لم يعد لديه نقاط كافية لتغطية التحويل. تمت إزالة الإدراج."
 
 #: apps/restaurants/apps.py:12
 msgid "Restaurants"
@@ -1255,124 +2637,324 @@ msgid "Trainers"
 msgstr "المدربون"
 
 #: apps/users/admin.py:21
+msgid "Bank Account Details"
+msgstr "تفاصيل الحساب البنكي"
+
+#: apps/users/admin.py:34
+msgid "Customer Wallet & Points"
+msgstr "محفظة العميل والنقاط"
+
+#: apps/users/admin.py:54
 msgid "Credentials"
 msgstr "بيانات الدخول"
 
-#: apps/users/admin.py:22
+#: apps/users/admin.py:55
 msgid "Personal info"
 msgstr "المعلومات الشخصية"
 
-#: apps/users/admin.py:23 apps/users/models.py:137
+#: apps/users/admin.py:56 apps/users/models.py:155
 msgid "Location"
 msgstr "الموقع"
 
-#: apps/users/admin.py:24
+#: apps/users/admin.py:57
 msgid "Role & Status"
 msgstr "الدور والحالة"
 
-#: apps/users/admin.py:25 apps/users/models.py:180
+#: apps/users/admin.py:58 apps/users/models.py:198
 msgid "Premium"
 msgstr "مميز"
 
-#: apps/users/admin.py:26
+#: apps/users/admin.py:59
 msgid "Points"
 msgstr "النقاط"
 
-#: apps/users/admin.py:27
+#: apps/users/admin.py:60
 msgid "Permissions"
 msgstr "الصلاحيات"
 
-#: apps/users/apps.py:14 apps/users/models.py:216
+#: apps/users/apps.py:14 apps/users/models.py:234
+#: templates/provider_portal/gym/branches/detail.html:72
 msgid "Users"
 msgstr "المستخدمون"
 
-#: apps/users/models.py:22
-msgid "Customer"
-msgstr "عميل"
-
-#: apps/users/models.py:24
+#: apps/users/models.py:30
 msgid "Admin"
 msgstr "مدير"
 
-#: apps/users/models.py:29
+#: apps/users/models.py:35
 msgid "Male"
 msgstr "ذكر"
 
-#: apps/users/models.py:30
+#: apps/users/models.py:36
 msgid "Female"
 msgstr "أنثى"
 
-#: apps/users/models.py:31
+#: apps/users/models.py:37
 msgid "Unspecified"
 msgstr "غير محدد"
 
-#: apps/users/models.py:49
+#: apps/users/models.py:55
 msgid "Email address is required."
 msgstr "البريد الإلكتروني مطلوب."
 
-#: apps/users/models.py:73
+#: apps/users/models.py:79
 msgid "Superuser must have is_staff=True."
 msgstr "يجب أن يكون المدير العام موظفاً."
 
-#: apps/users/models.py:75
+#: apps/users/models.py:81
 msgid "Superuser must have is_superuser=True."
 msgstr "يجب تفعيل صلاحيات المدير العام."
 
-#: apps/users/models.py:112
+#: apps/users/models.py:118
 msgid "Phone verified"
 msgstr "تم التحقق من الهاتف"
 
-#: apps/users/models.py:118
+#: apps/users/models.py:124
 msgid "Avatar"
 msgstr "الصورة الشخصية"
 
-#: apps/users/models.py:124
-msgid "Date of birth"
-msgstr "تاريخ الميلاد"
-
-#: apps/users/models.py:129
+#: apps/users/models.py:131
+#: templates/provider_portal/components/qr_scanner.html:82
 msgid "Gender"
 msgstr "الجنس"
 
-#: apps/users/models.py:159
+#: apps/users/models.py:139
+msgid "Real Face Image"
+msgstr "صورة الوجه الحقيقية"
+
+#: apps/users/models.py:143
+msgid "Required for gym subscription check-ins."
+msgstr "مطلوب لتسجيل دخول اشتراكات الصالات الرياضية."
+
+#: apps/users/models.py:146
+msgid "ID Card Image"
+msgstr "صورة بطاقة الهوية"
+
+#: apps/users/models.py:150
+msgid "Required for identity verification."
+msgstr "مطلوب للتحقق من الهوية."
+
+#: apps/users/models.py:177
 msgid "Role"
 msgstr "الدور"
 
-#: apps/users/models.py:170
+#: apps/users/models.py:188
 msgid "Staff"
 msgstr "موظف"
 
-#: apps/users/models.py:174
+#: apps/users/models.py:192
 msgid "Verified"
 msgstr "موثق"
 
-#: apps/users/models.py:184
+#: apps/users/models.py:202
 msgid "Premium since"
 msgstr "عضوية مميزة منذ"
 
-#: apps/users/models.py:191
+#: apps/users/models.py:209
 msgid "Points balance"
 msgstr "رصيد النقاط"
 
-#: apps/users/models.py:195
+#: apps/users/models.py:213
 msgid "Total points earned"
 msgstr "إجمالي النقاط المكتسبة"
 
-#: apps/users/models.py:201
+#: apps/users/models.py:219
 msgid "Date joined"
 msgstr "تاريخ التسجيل"
 
-#: templates/provider_portal/auth/base_auth.html:524
+#: apps/users/models.py:434 templates/provider_portal/finance/earnings.html:267
+msgid "Bank Name"
+msgstr "اسم البنك"
+
+#: apps/users/models.py:435
+msgid "Account Number"
+msgstr "رقم الحساب"
+
+#: apps/users/models.py:437
+msgid "Beneficiary Name"
+msgstr "اسم المستفيد"
+
+#: apps/users/models.py:443
+msgid "User Bank Account"
+msgstr "الحساب البنكي للمستخدم"
+
+#: apps/users/models.py:444
+msgid "User Bank Accounts"
+msgstr "الحسابات البنكية للمستخدمين"
+
+#: templates/auth/base_auth.html:523
 msgid "Welcome!"
 msgstr "أهلاً بك!"
 
-#: templates/provider_portal/auth/base_auth.html:526
+#: templates/auth/base_auth.html:525
 msgid "Your Path to Strength"
 msgstr "طريقك إلى القوة"
 
-#: templates/provider_portal/auth/base_auth.html:528
+#: templates/auth/base_auth.html:528
 msgid "Provider Portal — Live"
-msgstr "بوابة مزودي الخدمة — مباشر"
+msgstr "بوابة المزودين — مباشر"
+
+#: templates/dashboard/layout.html:22
+msgid "Core"
+msgstr "الأساس"
+
+#: templates/dashboard/layout.html:31
+msgid "Ecosystem"
+msgstr "النظام البيئي"
+
+#: templates/dashboard/layout.html:35
+msgid "Gyms & Providers"
+msgstr "الصالات ومزودو الخدمات"
+
+#: templates/dashboard/layout.html:40
+msgid "Resale Market"
+msgstr "السوق الثانوي"
+
+#: templates/dashboard/layout.html:46
+msgid "Administration"
+msgstr "الإدارة"
+
+#: templates/dashboard/layout.html:50
+msgid "Users & Roles"
+msgstr "المستخدمون والأدوار"
+
+#: templates/dashboard/layout.html:55
+msgid "Global Settings"
+msgstr "الإعدادات العامة"
+
+#: templates/dashboard/layout.html:66
+msgid "Log Out"
+msgstr "تسجيل الخروج"
+
+#: templates/dashboard/layout.html:84
+msgid "Welcome back,"
+msgstr "مرحباً بعودتك،"
+
+#: templates/dashboard/login.html:4
+msgid "Mastermind Authentication"
+msgstr "المصادقة الرئيسية (Mastermind)"
+
+#: templates/dashboard/login.html:17
+msgid "Mastermind Portal"
+msgstr "البوابة الرئيسية (Mastermind)"
+
+#: templates/dashboard/login.html:18
+msgid "System Control"
+msgstr "تحكم النظام"
+
+#: templates/dashboard/login.html:19
+msgid "Global Administration Ecosystem"
+msgstr "النظام البيئي للإدارة العامة"
+
+#: templates/dashboard/login.html:33
+msgid "Admin Authentication"
+msgstr "مصادقة المشرف"
+
+#: templates/dashboard/login.html:34
+msgid "Enter your Mastermind credentials to access the ecosystem."
+msgstr "أدخل بيانات الدخول الرئيسية للوصول إلى النظام البيئي."
+
+#: templates/dashboard/login.html:41
+msgid "Admin Email"
+msgstr "بريد المشرف"
+
+#: templates/dashboard/login.html:56
+msgid "Passcode"
+msgstr "رمز المرور"
+
+#: templates/dashboard/login.html:80
+msgid "Authenticate"
+msgstr "مصادقة"
+
+#: templates/dashboard/settings.html:11
+msgid "System Configuration"
+msgstr "تكوين النظام"
+
+#: templates/dashboard/settings.html:12
+msgid ""
+"Welcome to the Command Center. Manage all platform rules, ecosystems, and "
+"global financial variables from this unified interface."
+msgstr "مرحباً بك في مركز القيادة. أدر جميع قواعد المنصة، الأنظمة البيئية، والمتغيرات المالية العامة من هذه الواجهة الموحدة."
+
+#: templates/dashboard/settings.html:27
+msgid "Ecosystem Modules"
+msgstr "وحدات النظام البيئي"
+
+#: templates/dashboard/settings.html:32
+msgid "Loyalty & Economy"
+msgstr "الولاء والاقتصاد"
+
+#: templates/dashboard/settings.html:37
+msgid "Secondary Market"
+msgstr "السوق الثانوي"
+
+#: templates/dashboard/settings.html:42
+msgid "Gyms & Roaming"
+msgstr "الصالات والتجوال"
+
+#: templates/dashboard/settings.html:47 templates/dashboard/settings.html:178
+msgid "Finance & Payouts"
+msgstr "المالية والمدفوعات"
+
+#: templates/dashboard/settings.html:52
+msgid "App Config & Cache"
+msgstr "إعدادات التطبيق والذاكرة المخبأة"
+
+#: templates/dashboard/settings.html:64 templates/dashboard/settings.html:175
+msgid "Loyalty Points Ecosystem"
+msgstr "نظام نقاط الولاء"
+
+#: templates/dashboard/settings.html:65 templates/dashboard/settings.html:175
+msgid "Configure earn rates, conversions, and discount caps."
+msgstr "تكوين معدلات الاكتساب، التحويلات، وحدود الخصم."
+
+#: templates/dashboard/settings.html:70
+msgid "Commit Changes"
+msgstr "تطبيق التغييرات"
+
+#: templates/dashboard/settings.html:84
+msgid "Points Spending & Discount Caps"
+msgstr "حدود إنفاق النقاط والخصومات"
+
+#: templates/dashboard/settings.html:117
+msgid "Taxation & Compliance"
+msgstr "الضرائب والامتثال"
+
+#: templates/dashboard/settings.html:123
+msgid "Payout Holds & Clearance"
+msgstr "حجز المدفوعات والتخليص"
+
+#: templates/dashboard/settings.html:148
+msgid "Data Caching & Versioning"
+msgstr "تخزين البيانات والإصدارات"
+
+#: templates/dashboard/settings.html:176
+msgid "Secondary Market Policies"
+msgstr "سياسات السوق الثانوي"
+
+#: templates/dashboard/settings.html:176
+msgid "Manage escrow holds, depreciation, and app commissions."
+msgstr "إدارة حجوزات الضمان، الاستهلاك، وعمولات التطبيق."
+
+#: templates/dashboard/settings.html:177
+msgid "Gym Access & Roaming"
+msgstr "دخول الصالات والتجوال"
+
+#: templates/dashboard/settings.html:177
+msgid "Control auto-checkouts and branch roaming incentives."
+msgstr "تحكم في الخروج التلقائي وحوافز تجوال الفروع."
+
+#: templates/dashboard/settings.html:178
+msgid "Define taxes and clearance holds before funds are withdrawable."
+msgstr "تحديد الضرائب وفترات الحجز قبل أن تصبح الأموال قابلة للسحب."
+
+#: templates/dashboard/settings.html:179
+msgid "Mobile App Configuration"
+msgstr "إعدادات تطبيق الجوال"
+
+#: templates/dashboard/settings.html:179
+msgid "Force updates and manage local device data caches."
+msgstr "إجبار التحديثات وإدارة التخزين المؤقت للبيانات على الأجهزة."
 
 #: templates/provider_portal/auth/login.html:4
 #: templates/provider_portal/auth/login.html:14
@@ -1381,13 +2963,7 @@ msgstr "تسجيل الدخول"
 
 #: templates/provider_portal/auth/login.html:15
 msgid "Enter your credentials to access your account"
-msgstr "أدخل بيانات حسابك للوصول إلى لوحة التحكم"
-
-#: templates/provider_portal/auth/login.html:22
-#, fuzzy
-#| msgid "Email address"
-msgid "Email Address"
-msgstr "البريد الإلكتروني"
+msgstr "أدخل بياناتك للوصول إلى حسابك"
 
 #: templates/provider_portal/auth/login.html:39
 msgid "Forgot password?"
@@ -1427,7 +3003,7 @@ msgstr "إجراء مطلوب"
 
 #: templates/provider_portal/auth/pending.html:20
 msgid "Verify your email"
-msgstr "قم بتأكيد بريدك الإلكتروني"
+msgstr "تأكيد بريدك الإلكتروني"
 
 #: templates/provider_portal/auth/pending.html:23
 msgid ""
@@ -1455,7 +3031,6 @@ msgid "Create Account"
 msgstr "إنشاء حساب"
 
 #: templates/provider_portal/auth/register.html:18
-#: templates/provider_portal/base.html:224
 msgid "Account"
 msgstr "الحساب"
 
@@ -1466,11 +3041,11 @@ msgstr "النوع"
 
 #: templates/provider_portal/auth/register.html:21
 msgid "Review"
-msgstr "المراجعة"
+msgstr "مراجعة"
 
 #: templates/provider_portal/auth/register.html:32
 msgid "Create your account"
-msgstr "إنشاء حسابك"
+msgstr "إنشئ حسابك"
 
 #: templates/provider_portal/auth/register.html:33
 msgid "Personal information to get started"
@@ -1478,7 +3053,7 @@ msgstr "المعلومات الشخصية للبدء"
 
 #: templates/provider_portal/auth/register.html:43
 msgid "Your full name"
-msgstr "اكتب اسمك الكامل"
+msgstr "اسمك الكامل"
 
 #: templates/provider_portal/auth/register.html:70
 msgid "Min. 8 characters"
@@ -1500,7 +3075,7 @@ msgstr "تسجيل الدخول"
 
 #: templates/provider_portal/auth/register.html:114
 msgid "What do you offer?"
-msgstr "ما الذي تقدمه؟"
+msgstr "ماذا تقدم؟"
 
 #: templates/provider_portal/auth/register.html:115
 msgid "Select your provider category"
@@ -1525,19 +3100,16 @@ msgstr "المنتجات والمعدات"
 #: templates/provider_portal/auth/register.html:170
 #: templates/provider_portal/auth/register.html:242
 #: templates/provider_portal/auth/register.html:309
-#: templates/provider_portal/gym/branches/form.html:134
-#: templates/provider_portal/gym/branches/form.html:157
-#: templates/provider_portal/gym/branches/form.html:184
 msgid "Back"
 msgstr "رجوع"
 
 #: templates/provider_portal/auth/register.html:183
 msgid "Your business"
-msgstr "نشاطك التجاري"
+msgstr "عملك التجاري"
 
 #: templates/provider_portal/auth/register.html:184
 msgid "Tell us about your business"
-msgstr "أخبرنا عن نشاطك التجاري"
+msgstr "حدثنا عن عملك التجاري"
 
 #: templates/provider_portal/auth/register.html:194
 msgid "Your brand name"
@@ -1576,11 +3148,11 @@ msgstr "مراجعة وتأكيد"
 
 #: templates/provider_portal/auth/register.html:256
 msgid "Check your details before submitting"
-msgstr "تحقق من بياناتك قبل الإرسال"
+msgstr "تأكد من تفاصيلك قبل الإرسال"
 
 #: templates/provider_portal/auth/register.html:263
 msgid "Personal"
-msgstr "الشخصية"
+msgstr "شخصي"
 
 #: templates/provider_portal/auth/register.html:265
 #: templates/provider_portal/auth/register.html:289
@@ -1588,10 +3160,12 @@ msgid "Name"
 msgstr "الاسم"
 
 #: templates/provider_portal/auth/register.html:269
+#: templates/provider_portal/gym/subscribers/list.html:240
 msgid "Email"
 msgstr "البريد الإلكتروني"
 
 #: templates/provider_portal/auth/register.html:273
+#: templates/provider_portal/gym/subscribers/list.html:240
 msgid "Phone"
 msgstr "الهاتف"
 
@@ -1601,288 +3175,1649 @@ msgstr "إنشاء الحساب"
 
 #: templates/provider_portal/auth/suspended.html:4
 msgid "Account Suspended"
-msgstr "الحساب موقوف"
+msgstr "تم تعليق الحساب"
 
 #: templates/provider_portal/auth/suspended.html:17
 msgid "Access restricted"
-msgstr "الوصول مقيّد"
+msgstr "الوصول مقيد"
 
 #: templates/provider_portal/auth/suspended.html:20
 msgid "Account suspended"
-msgstr "الحساب موقوف"
+msgstr "الحساب معلق"
 
 #: templates/provider_portal/auth/suspended.html:23
 msgid ""
 "Your provider account has been suspended. Contact our support team to "
 "understand the reason and restore access."
 msgstr ""
-"تم إيقاف حساب مزود الخدمة الخاص بك. تواصل مع فريق الدعم لمعرفة السبب "
+"تم تعليق حساب مزود الخدمة الخاص بك. اتصل بفريق الدعم لمعرفة السبب "
 "واستعادة الوصول."
 
 #: templates/provider_portal/auth/suspended.html:27
 msgid "Support email"
-msgstr "البريد الإلكتروني للدعم"
+msgstr "بريد الدعم الإلكتروني"
 
-#: templates/provider_portal/base.html:150
-msgid "Main navigation"
-msgstr "التنقل الرئيسي"
+#: templates/provider_portal/components/lightbox.html:3
+msgid "Close"
+msgstr "إغلاق"
 
-#: templates/provider_portal/base.html:166
-#: templates/provider_portal/dashboard/dashboard.html:189
-msgid "Branches"
-msgstr "الفروع"
+#: templates/provider_portal/components/lightbox.html:4
+msgid "Enlarged Image"
+msgstr "صورة مكبرة"
 
-#: templates/provider_portal/base.html:170
-msgid "Subscription Plans"
-msgstr "خطط الاشتراك"
+#: templates/provider_portal/components/qr_scanner.html:8
+msgid "Open Check-in Desk"
+msgstr "فتح مكتب التسجيل"
 
-#: templates/provider_portal/base.html:174
-msgid "Subscribers"
-msgstr "المشتركون"
+#: templates/provider_portal/components/qr_scanner.html:23
+msgid "FitZone Identity Terminal"
+msgstr "محطة هوية FitZone"
 
-#: templates/provider_portal/base.html:182
-msgid "Professional Profile"
-msgstr "الملف المهني"
+#: templates/provider_portal/components/qr_scanner.html:30
+msgid "Select active branch for scanning"
+msgstr "اختر فرعاً نشطاً للمسح"
 
-#: templates/provider_portal/base.html:186
-msgid "Availability"
-msgstr "أوقات الإتاحة"
+#: templates/provider_portal/components/qr_scanner.html:38
+msgid "Gym Occupancy:"
+msgstr "إشغال الصالة:"
 
-#: templates/provider_portal/base.html:190
-msgid "Bookings"
-msgstr "الحجوزات"
+#: templates/provider_portal/components/qr_scanner.html:55
+#: templates/provider_portal/components/qr_scanner.html:167
+msgid "Scanner Ready"
+msgstr "الماسح الضوئي جاهز"
 
-#: templates/provider_portal/base.html:198
-msgid "Menu"
-msgstr "القائمة"
+#: templates/provider_portal/components/qr_scanner.html:56
+#: templates/provider_portal/components/qr_scanner.html:168
+msgid "Awaiting QR presentation"
+msgstr "في انتظار إبراز رمز QR"
 
-#: templates/provider_portal/base.html:202
-#: templates/provider_portal/base.html:214
-msgid "Orders"
-msgstr "الطلبات"
+#: templates/provider_portal/components/qr_scanner.html:64
+msgid "System Standby"
+msgstr "النظام في وضع الاستعداد"
 
-#: templates/provider_portal/base.html:210
-msgid "Products"
-msgstr "المنتجات"
+#: templates/provider_portal/components/qr_scanner.html:65
+msgid "Scanned member data will appear here."
+msgstr "ستظهر بيانات العضو الممسوحة هنا."
 
-#: templates/provider_portal/base.html:218
-msgid "Finance"
-msgstr "المالية"
+#: templates/provider_portal/components/qr_scanner.html:78
+#: templates/provider_portal/gym/subscribers/list.html:240
+msgid "Full Name"
+msgstr "الاسم الكامل"
 
-#: templates/provider_portal/base.html:221
-msgid "Earnings"
-msgstr "الأرباح"
+#: templates/provider_portal/components/qr_scanner.html:86
+#: templates/provider_portal/gym/branches/detail.html:165
+#: templates/provider_portal/gym/branches/form.html:175
+msgid "Phone Number"
+msgstr "رقم الهاتف"
 
-#: templates/provider_portal/base.html:227
-msgid "Profile"
-msgstr "الملف الشخصي"
+#: templates/provider_portal/components/qr_scanner.html:90
+msgid "City & Address"
+msgstr "المدينة والعنوان"
 
-#: templates/provider_portal/base.html:238
-msgid "Logout"
-msgstr "تسجيل الخروج"
+#: templates/provider_portal/components/qr_scanner.html:95
+msgid "Zoom Document"
+msgstr "تكبير المستند"
 
-#: templates/provider_portal/base.html:246
-msgid "Toggle menu"
-msgstr "فتح/إغلاق القائمة"
+#: templates/provider_portal/components/qr_scanner.html:97
+msgid "Identity Verified"
+msgstr "تم التحقق من الهوية"
 
-#: templates/provider_portal/base.html:256
-msgid "unread notifications"
-msgstr "إشعارات غير مقروءة"
+#: templates/provider_portal/components/qr_scanner.html:98
+msgid "Click thumbnail to expand"
+msgstr "انقر على الصورة المصغرة للتكبير"
 
-#: templates/provider_portal/dashboard/dashboard.html:156
-#, fuzzy
-#| msgid "Welcome!"
-msgid "Welcome back"
-msgstr "أهلاً بك!"
+#: templates/provider_portal/components/qr_scanner.html:115
+msgid "Visit Type & Plan"
+msgstr "نوع الزيارة والخطة"
 
-#: templates/provider_portal/dashboard/dashboard.html:157
-msgid "Here is what's happening with your business today."
-msgstr ""
+#: templates/provider_portal/components/qr_scanner.html:126
+msgid "Days Left"
+msgstr "الأيام المتبقية"
 
-#: templates/provider_portal/dashboard/dashboard.html:164
+#: templates/provider_portal/components/qr_scanner.html:136
+msgid "Chronological Attendance Track"
+msgstr "مسار الحضور الزمني"
+
+#: templates/provider_portal/components/qr_scanner.html:152
+msgid "Review Member Identity"
+msgstr "مراجعة هوية العضو"
+
+#: templates/provider_portal/components/qr_scanner.html:166
+msgid "Unknown"
+msgstr "غير معروف"
+
+#: templates/provider_portal/components/qr_scanner.html:169
+msgid "Latest Visit"
+msgstr "آخر زيارة"
+
+#: templates/provider_portal/components/qr_scanner.html:170
+msgid "First Visit"
+msgstr "الزيارة الأولى"
+
+#: templates/provider_portal/components/qr_scanner.html:171
+msgid "Just now"
+msgstr "الآن فقط"
+
+#: templates/provider_portal/components/qr_scanner.html:172
+msgid "Camera access required."
+msgstr "مطلوب إذن الوصول للكاميرا."
+
+#: templates/provider_portal/dashboard/dashboard.html:4
+#: templates/provider_portal/dashboard/dashboard.html:18
+msgid "Command Center"
+msgstr "مركز القيادة"
+
+#: templates/provider_portal/dashboard/dashboard.html:19
+msgid "Real-time operational insights and financial analytics."
+msgstr "رؤى تشغيلية وتحليلات مالية بالوقت الفعلي."
+
+#: templates/provider_portal/dashboard/dashboard.html:28
 msgid "Complete Your Profile"
-msgstr ""
+msgstr "أكمل ملفك الشخصي"
 
-#: templates/provider_portal/dashboard/dashboard.html:165
+#: templates/provider_portal/dashboard/dashboard.html:29
 msgid ""
 "Your account needs verification. Please upload your commercial register and "
 "ID to unlock all features and start receiving clients."
-msgstr ""
+msgstr "حسابك بحاجة إلى التحقق. يرجى رفع السجل التجاري والهوية لفتح جميع الميزات والبدء في استقبال العملاء."
 
-#: templates/provider_portal/dashboard/dashboard.html:169
+#: templates/provider_portal/dashboard/dashboard.html:33
 msgid "Upload Documents"
-msgstr ""
+msgstr "رفع المستندات"
 
-#: templates/provider_portal/dashboard/dashboard.html:175
+#: templates/provider_portal/dashboard/dashboard.html:39
 msgid "Under Review"
 msgstr "قيد المراجعة"
 
-#: templates/provider_portal/dashboard/dashboard.html:176
+#: templates/provider_portal/dashboard/dashboard.html:40
 msgid ""
 "Your documents have been received and are currently being reviewed by our "
 "team. We'll notify you once your account is fully activated."
-msgstr ""
+msgstr "تم استلام مستنداتك ويتم مراجعتها حالياً من قبل فريقنا. سنقوم بإعلامك بمجرد تفعيل حسابك بالكامل."
 
-#: templates/provider_portal/dashboard/dashboard.html:198
-#, fuzzy
-#| msgid "Active users"
-msgid "Active Subscribers"
-msgstr "مستخدم نشط"
+#: templates/provider_portal/dashboard/dashboard.html:50
+msgid "Live Occupancy"
+msgstr "الإشغال المباشر"
 
-#: templates/provider_portal/dashboard/dashboard.html:209
+#: templates/provider_portal/dashboard/dashboard.html:53
+#: templates/provider_portal/dashboard/dashboard.html:119
+msgid "Members"
+msgstr "أعضاء"
+
+#: templates/provider_portal/dashboard/dashboard.html:64
+#: templates/provider_portal/gym/subscribers/list.html:34
+msgid "Active Subscriptions"
+msgstr "اشتراكات نشطة"
+
+#: templates/provider_portal/dashboard/dashboard.html:67
+#: templates/provider_portal/gym/branches/detail.html:92
+#: templates/provider_portal/gym/branches/list.html:96
+msgid "Plans"
+msgstr "خطط"
+
+#: templates/provider_portal/dashboard/dashboard.html:77
 msgid "Total Revenue"
-msgstr ""
+msgstr "إجمالي الإيرادات"
 
-#: templates/provider_portal/gym/branches/form.html:4
-#: templates/provider_portal/gym/branches/list.html:103
-msgid "Add New Branch"
-msgstr ""
+#: templates/provider_portal/dashboard/dashboard.html:90
+msgid "Active Branches"
+msgstr "الفروع النشطة"
 
-#: templates/provider_portal/gym/branches/form.html:75
-#, fuzzy
-#| msgid "Branches"
-msgid "Branch Identity"
-msgstr "الفروع"
+#: templates/provider_portal/dashboard/dashboard.html:93
+msgid "Locations"
+msgstr "المواقع"
 
-#: templates/provider_portal/gym/branches/form.html:80
-#, fuzzy
-#| msgid "Branch not found."
-msgid "Branch Logo"
-msgstr "الفرع غير موجود."
+#: templates/provider_portal/dashboard/dashboard.html:103
+msgid "Today's Check-ins"
+msgstr "تسجيلات الدخول اليوم"
 
-#: templates/provider_portal/gym/branches/form.html:82
+#: templates/provider_portal/dashboard/dashboard.html:106
+msgid "Visits"
+msgstr "زيارات"
+
+#: templates/provider_portal/dashboard/dashboard.html:116
+msgid "New Subs (This Month)"
+msgstr "اشتراكات جديدة (هذا الشهر)"
+
+#: templates/provider_portal/dashboard/dashboard.html:144
+#: templates/provider_portal/finance/earnings.html:82
+msgid "Pending Clearance"
+msgstr "بانتظار التخليص"
+
+#: templates/provider_portal/dashboard/dashboard.html:165
+#: templates/provider_portal/finance/earnings.html:91
+msgid "Revenue Trend (6 Months)"
+msgstr "اتجاه الإيرادات (6 أشهر)"
+
+#: templates/provider_portal/dashboard/dashboard.html:177
+msgid "Attendance (Last 7 Days)"
+msgstr "الحضور (آخر 7 أيام)"
+
+#: templates/provider_portal/dashboard/dashboard.html:192
+msgid "Peak Hours Analysis (30 Days)"
+msgstr "تحليل ساعات الذروة (30 يوم)"
+
+#: templates/provider_portal/dashboard/dashboard.html:204
+msgid "Demographics"
+msgstr "التركيبة السكانية"
+
+#: templates/provider_portal/dashboard/dashboard.html:219
+msgid "Top Plans Performance"
+msgstr "أداء أفضل الخطط"
+
+#: templates/provider_portal/dashboard/dashboard.html:231
+msgid "subscribers"
+msgstr "مشتركون"
+
+#: templates/provider_portal/dashboard/dashboard.html:246
+msgid "No active plans yet. Create your first subscription plan."
+msgstr "لا توجد خطط نشطة بعد. قم بإنشاء خطة الاشتراك الأولى الخاصة بك."
+
+#: templates/provider_portal/dashboard/dashboard.html:256
+msgid "Branch Capacity"
+msgstr "سعة الفرع"
+
+#: templates/provider_portal/dashboard/dashboard.html:275
+msgid "No active branches yet."
+msgstr "لا توجد فروع نشطة بعد."
+
+#: templates/provider_portal/dashboard/dashboard.html:288
+msgid "Live Activity Feed"
+msgstr "تغذية النشاط المباشر"
+
+#: templates/provider_portal/dashboard/dashboard.html:292
+#: templates/provider_portal/gym/subscribers/list.html:23
+msgid "Export CSV"
+msgstr "تصدير CSV"
+
+#: templates/provider_portal/dashboard/dashboard.html:299
+msgid "Member Details"
+msgstr "تفاصيل العضو"
+
+#: templates/provider_portal/dashboard/dashboard.html:300
+msgid "Subscription Plan"
+msgstr "خطة الاشتراك"
+
+#: templates/provider_portal/dashboard/dashboard.html:301
+msgid "Branch Location"
+msgstr "موقع الفرع"
+
+#: templates/provider_portal/dashboard/dashboard.html:302
+msgid "Timestamp"
+msgstr "الطابع الزمني"
+
+#: templates/provider_portal/dashboard/dashboard.html:303
+msgid "Current Status"
+msgstr "الحالة الحالية"
+
+#: templates/provider_portal/dashboard/dashboard.html:332
+msgid "Inside Gym"
+msgstr "داخل الصالة"
+
+#: templates/provider_portal/dashboard/dashboard.html:334
+msgid "Checked Out"
+msgstr "تم تسجيل الخروج"
+
+#: templates/provider_portal/dashboard/dashboard.html:341
+msgid "No activity recorded recently."
+msgstr "لم يتم تسجيل أي نشاط مؤخراً."
+
+#: templates/provider_portal/dashboard/dashboard.html:354
+msgid "Expiring Soon"
+msgstr "تنتهي قريباً"
+
+#: templates/provider_portal/dashboard/dashboard.html:370
+msgid "No subscriptions expiring soon."
+msgstr "لا توجد اشتراكات تنتهي قريباً."
+
+#: templates/provider_portal/finance/earnings.html:4
+msgid "Financial Intelligence"
+msgstr "الذكاء المالي"
+
+#: templates/provider_portal/finance/earnings.html:17
+msgid "Earnings & Financial Growth"
+msgstr "الأرباح والنمو المالي"
+
+#: templates/provider_portal/finance/earnings.html:18
 msgid ""
-"By default, the main provider logo is used. You can upload a specific logo "
-"for this branch."
-msgstr ""
+"Monitor your revenue streams, pending clearance, and withdrawal history."
+msgstr "راقب مصادر إيراداتك، المبالغ بانتظار التخليص، وسجل المسحوبات."
 
-#: templates/provider_portal/gym/branches/form.html:86
-msgid "Upload Custom Logo"
-msgstr ""
+#: templates/provider_portal/finance/earnings.html:23
+msgid "Export Ledger"
+msgstr "تصدير السجل"
 
-#: templates/provider_portal/gym/branches/form.html:102
-#, fuzzy
-#| msgid "Location"
-msgid "Next: Location"
-msgstr "الموقع"
+#: templates/provider_portal/finance/earnings.html:27
+msgid "Withdraw Funds"
+msgstr "سحب الأموال"
 
-#: templates/provider_portal/gym/branches/form.html:107
-#, fuzzy
-#| msgid "Location"
-msgid "Precise Location"
-msgstr "الموقع"
+#: templates/provider_portal/finance/earnings.html:39
+msgid "Immediate Action: Bank Details Required"
+msgstr "إجراء عاجل: تفاصيل البنك مطلوبة"
 
-#: templates/provider_portal/gym/branches/form.html:115
-msgid "Pinpoint on Map"
-msgstr ""
+#: templates/provider_portal/finance/earnings.html:40
+msgid ""
+"Payouts are disabled until you provide a valid bank account for transfers."
+msgstr "المدفوعات معطلة حتى تقدم حساباً بنكياً صالحاً للتحويلات."
 
-#: templates/provider_portal/gym/branches/form.html:117
-msgid "Drag the pin to your branch. The address will be auto-filled."
-msgstr ""
+#: templates/provider_portal/finance/earnings.html:44
+msgid "Add Bank Account"
+msgstr "إضافة حساب بنكي"
+
+#: templates/provider_portal/finance/earnings.html:59
+msgid "Update Details"
+msgstr "تحديث التفاصيل"
+
+#: templates/provider_portal/finance/earnings.html:68
+msgid "Lifetime Platform Earnings"
+msgstr "أرباح المنصة مدى الحياة"
+
+#: templates/provider_portal/finance/earnings.html:75
+msgid "Current Available Balance"
+msgstr "الرصيد المتاح الحالي"
+
+#: templates/provider_portal/finance/earnings.html:80
+msgid "Holding for clearance security period"
+msgstr "مُحتجز لفترة ضمان التخليص"
+
+#: templates/provider_portal/finance/earnings.html:100
+msgid "Service/Branch Performance"
+msgstr "أداء الخدمة/الفرع"
+
+#: templates/provider_portal/finance/earnings.html:112
+msgid "Recent Payouts & Requests"
+msgstr "أحدث المدفوعات والطلبات"
+
+#: templates/provider_portal/finance/earnings.html:118
+msgid "Requested Date"
+msgstr "تاريخ الطلب"
+
+#: templates/provider_portal/finance/earnings.html:133
+msgid "No withdrawals requested yet."
+msgstr "لم يتم طلب أي مسحوبات بعد."
+
+#: templates/provider_portal/finance/earnings.html:142
+msgid "Pending Release Schedule"
+msgstr "جدول الإصدار المعلق"
+
+#: templates/provider_portal/finance/earnings.html:143
+msgid "Policy"
+msgstr "السياسة"
+
+#: templates/provider_portal/finance/earnings.html:150
+msgid "Clearance Date"
+msgstr "تاريخ التخليص"
+
+#: templates/provider_portal/finance/earnings.html:151
+msgid "Time Left"
+msgstr "الوقت المتبقي"
+
+#: templates/provider_portal/finance/earnings.html:162
+msgid "Available Today"
+msgstr "متاح اليوم"
+
+#: templates/provider_portal/finance/earnings.html:162
+msgid "Days left"
+msgstr "أيام متبقية"
+
+#: templates/provider_portal/finance/earnings.html:167
+msgid "No funds currently on hold."
+msgstr "لا توجد أموال قيد الاحتجاز حالياً."
+
+#: templates/provider_portal/finance/earnings.html:177
+msgid "Master Wallet Ledger"
+msgstr "السجل الرئيسي للمحفظة"
+
+#: templates/provider_portal/finance/earnings.html:183
+msgid "Transaction Date"
+msgstr "تاريخ المعاملة"
+
+#: templates/provider_portal/finance/earnings.html:184
+msgid "Classification"
+msgstr "التصنيف"
+
+#: templates/provider_portal/finance/earnings.html:186
+msgid "Net Amount"
+msgstr "الصافي"
+
+#: templates/provider_portal/finance/earnings.html:187
+msgid "Funds Status"
+msgstr "حالة الأموال"
+
+#: templates/provider_portal/finance/earnings.html:205
+msgid "Cleared"
+msgstr "مُخلص"
+
+#: templates/provider_portal/finance/earnings.html:207
+msgid "On Hold"
+msgstr "قيد الاحتجاز"
+
+#: templates/provider_portal/finance/earnings.html:212
+msgid "No transaction history found."
+msgstr "لم يتم العثور على سجل معاملات."
+
+#: templates/provider_portal/finance/earnings.html:233
+msgid "Secure Payout Request"
+msgstr "طلب سحب آمن"
+
+#: templates/provider_portal/finance/earnings.html:241
+msgid "SAR"
+msgstr "ر.س"
+
+#: templates/provider_portal/finance/earnings.html:245
+msgid "Enter Amount"
+msgstr "أدخل المبلغ"
+
+#: templates/provider_portal/finance/earnings.html:249
+msgid "Request Instant Payout"
+msgstr "طلب سحب فوري"
+
+#: templates/provider_portal/finance/earnings.html:258
+msgid "Settlement Bank Account"
+msgstr "حساب التسوية البنكي"
+
+#: templates/provider_portal/finance/earnings.html:271
+msgid "IBAN Number (SA...)"
+msgstr "رقم الآيبان (SA...)"
+
+#: templates/provider_portal/finance/earnings.html:273
+msgid "Secure Save Details"
+msgstr "حفظ التفاصيل بأمان"
+
+#: templates/provider_portal/gym/branches/detail.html:4
+msgid "Branch Details"
+msgstr "تفاصيل الفرع"
+
+#: templates/provider_portal/gym/branches/detail.html:37
+msgid "Emergency Closed"
+msgstr "مغلق لحالة طوارئ"
+
+#: templates/provider_portal/gym/branches/detail.html:43
+#: templates/provider_portal/gym/branches/list.html:43
+#: templates/provider_portal/gym/branches/list.html:45
+#: templates/provider_portal/gym/branches/list.html:47
+msgid "Hidden"
+msgstr "مخفي"
+
+#: templates/provider_portal/gym/branches/detail.html:54
+#: templates/provider_portal/gym/branches/photos.html:23
+#: templates/provider_portal/gym/plans/detail.html:38
+#: templates/provider_portal/gym/subscribers/detail.html:44
+msgid "Go Back"
+msgstr "العودة"
+
+#: templates/provider_portal/gym/branches/detail.html:58
+msgid "Edit Branch"
+msgstr "تعديل الفرع"
+
+#: templates/provider_portal/gym/branches/detail.html:71
+#: templates/provider_portal/gym/branches/form.html:268
+msgid "Max Capacity"
+msgstr "السعة القصوى"
+
+#: templates/provider_portal/gym/branches/detail.html:81
+#: templates/provider_portal/gym/branches/list.html:100
+msgid "Avg Stay"
+msgstr "متوسط البقاء"
+
+#: templates/provider_portal/gym/branches/detail.html:82
+msgid "Min"
+msgstr "دقيقة"
+
+#: templates/provider_portal/gym/branches/detail.html:91
+#: templates/provider_portal/gym/branches/detail.html:271
+msgid "Linked Plans"
+msgstr "الخطط المرتبطة"
+
+#: templates/provider_portal/gym/branches/detail.html:102
+#: templates/provider_portal/gym/branches/detail.html:112
+#: templates/provider_portal/gym/branches/detail.html:122
+msgid "Audience"
+msgstr "الجمهور"
+
+#: templates/provider_portal/gym/branches/detail.html:123
+msgid "Both"
+msgstr "كلاهما"
+
+#: templates/provider_portal/gym/branches/detail.html:139
+msgid "Working Hours"
+msgstr "ساعات العمل"
+
+#: templates/provider_portal/gym/branches/detail.html:147
+msgid "Contact & Information"
+msgstr "التواصل والمعلومات"
+
+#: templates/provider_portal/gym/branches/detail.html:175
+msgid "No description provided."
+msgstr "لم يتم تقديم وصف."
+
+#: templates/provider_portal/gym/branches/detail.html:185
+msgid "Facilities & Sports"
+msgstr "المرافق والرياضات"
+
+#: templates/provider_portal/gym/branches/detail.html:188
+msgid "Sports Offered"
+msgstr "الرياضات المتوفرة"
+
+#: templates/provider_portal/gym/branches/detail.html:193
+msgid "No sports listed."
+msgstr "لا توجد رياضات مدرجة."
+
+#: templates/provider_portal/gym/branches/detail.html:197
+msgid "Amenities"
+msgstr "المرافق"
+
+#: templates/provider_portal/gym/branches/detail.html:202
+msgid "No amenities listed."
+msgstr "لا توجد مرافق مدرجة."
+
+#: templates/provider_portal/gym/branches/detail.html:215
+msgid "Global Roaming Access"
+msgstr "الوصول العالمي للتجوال"
+
+#: templates/provider_portal/gym/branches/detail.html:222
+msgid "Current Tier"
+msgstr "المستوى الحالي"
+
+#: templates/provider_portal/gym/branches/detail.html:223
+#: templates/provider_portal/gym/branches/list.html:54
+msgid "Basic"
+msgstr "أساسي"
+
+#: templates/provider_portal/gym/branches/detail.html:232
+msgid "Roaming Status"
+msgstr "حالة التجوال"
+
+#: templates/provider_portal/gym/branches/detail.html:236
+msgid "Disabled"
+msgstr "معطل"
+
+#: templates/provider_portal/gym/branches/detail.html:251
+msgid "Roaming Visit Price"
+msgstr "سعر زيارة التجوال"
+
+#: templates/provider_portal/gym/branches/detail.html:259
+msgid "Pending Upgrade"
+msgstr "بانتظار الترقية"
+
+#: templates/provider_portal/gym/branches/detail.html:260
+msgid "Requested:"
+msgstr "مطلوب:"
+
+#: templates/provider_portal/gym/branches/detail.html:273
+msgid "Add Plan"
+msgstr "إضافة خطة"
+
+#: templates/provider_portal/gym/branches/detail.html:289
+msgid "Unlink Plan"
+msgstr "إلغاء ربط الخطة"
+
+#: templates/provider_portal/gym/branches/detail.html:296
+msgid "No active plans linked."
+msgstr "لا توجد خطط نشطة مرتبطة."
+
+#: templates/provider_portal/gym/branches/detail.html:307
+msgid "Gallery"
+msgstr "المعرض"
+
+#: templates/provider_portal/gym/branches/detail.html:308
+msgid "Manage"
+msgstr "إدارة"
+
+#: templates/provider_portal/gym/branches/detail.html:323
+msgid "No photos uploaded."
+msgstr "لم يتم رفع أي صور."
+
+#: templates/provider_portal/gym/branches/detail.html:337
+msgid "Link Subscription Plan"
+msgstr "ربط خطة اشتراك"
+
+#: templates/provider_portal/gym/branches/detail.html:344
+msgid ""
+"Select an existing plan to link to this branch, or create a completely new "
+"one."
+msgstr "حدد خطة موجودة لربطها بهذا الفرع، أو قم بإنشاء خطة جديدة كلياً."
+
+#: templates/provider_portal/gym/branches/detail.html:355
+msgid "Link Plan"
+msgstr "ربط الخطة"
+
+#: templates/provider_portal/gym/branches/detail.html:360
+msgid "All active plans are already linked to this branch."
+msgstr "جميع الخطط النشطة مرتبطة بالفعل بهذا الفرع."
+
+#: templates/provider_portal/gym/branches/detail.html:367
+#: templates/provider_portal/gym/plans/form.html:5
+#: templates/provider_portal/gym/plans/form.html:20
+msgid "Create New Plan"
+msgstr "إنشاء خطة جديدة"
+
+#: templates/provider_portal/gym/branches/form.html:5
+#: templates/provider_portal/gym/branches/form.html:125
+msgid "Edit Branch:"
+msgstr "تعديل الفرع:"
+
+#: templates/provider_portal/gym/branches/form.html:5
+#: templates/provider_portal/gym/branches/form.html:125
+#: templates/provider_portal/gym/branches/list.html:22
+msgid "Add New Branch"
+msgstr "إضافة فرع جديد"
 
 #: templates/provider_portal/gym/branches/form.html:126
-msgid "Address is generated automatically from the map coordinates."
-msgstr ""
+msgid ""
+"Manage your facility's identity, location, and advanced scheduling in one "
+"place."
+msgstr "إدارة هوية منشأتك، موقعها، والجدولة المتقدمة في مكان واحد."
 
-#: templates/provider_portal/gym/branches/form.html:135
-msgid "Next: Amenities"
-msgstr ""
+#: templates/provider_portal/gym/branches/form.html:143
+msgid "Identity & Contact"
+msgstr "الهوية والتواصل"
 
-#: templates/provider_portal/gym/branches/form.html:140
-msgid "Details & Amenities"
-msgstr ""
+#: templates/provider_portal/gym/branches/form.html:152
+#: templates/provider_portal/gym/branches/form.html:156
+msgid "Update Logo"
+msgstr "تحديث الشعار"
 
-#: templates/provider_portal/gym/branches/form.html:148
-#, fuzzy
-#| msgid "Branches"
-msgid "Branch Amenities"
-msgstr "الفروع"
-
-#: templates/provider_portal/gym/branches/form.html:150
-msgid "e.g., Swimming Pool, Sauna..."
-msgstr ""
-
-#: templates/provider_portal/gym/branches/form.html:151
-#, fuzzy
-#| msgid "Address"
-msgid "Add"
-msgstr "العنوان"
-
-#: templates/provider_portal/gym/branches/form.html:158
-msgid "Next: Operating Hours"
-msgstr ""
+#: templates/provider_portal/gym/branches/form.html:160
+msgid "Branch Logo"
+msgstr "شعار الفرع"
 
 #: templates/provider_portal/gym/branches/form.html:163
-msgid "Operating Hours"
-msgstr ""
-
-#: templates/provider_portal/gym/branches/form.html:167
-msgid "Opening"
-msgstr ""
-
-#: templates/provider_portal/gym/branches/form.html:167
-msgid "Closing"
-msgstr ""
-
-#: templates/provider_portal/gym/branches/form.html:180
-msgid "Branch is Active"
-msgstr ""
+msgid "Uses main logo by default"
+msgstr "يستخدم الشعار الرئيسي افتراضياً"
 
 #: templates/provider_portal/gym/branches/form.html:185
-#, fuzzy
-#| msgid "Branches"
-msgid "Save Branch"
-msgstr "الفروع"
+msgid "Location Intelligence"
+msgstr "ذكاء الموقع"
+
+#: templates/provider_portal/gym/branches/form.html:190
+msgid "Select City"
+msgstr "اختر مدينة"
+
+#: templates/provider_portal/gym/branches/form.html:200
+msgid "Full Address (Locked to Map)"
+msgstr "العنوان الكامل (مُقفل على الخريطة)"
+
+#: templates/provider_portal/gym/branches/form.html:209
+msgid "Branch Classification (Tier)"
+msgstr "تصنيف الفرع (المستوى)"
+
+#: templates/provider_portal/gym/branches/form.html:213
+msgid ""
+"The branch tier dictates the quality of services and determines roaming "
+"access rights. Upgrades are verified and approved exclusively by FitZone "
+"Administration."
+msgstr "مستوى الفرع يحدد جودة الخدمات وحقوق الوصول للتجوال. الترقيات يتم التحقق منها والموافقة عليها حصرياً من إدارة FitZone."
+
+#: templates/provider_portal/gym/branches/form.html:219
+msgid "Current Approved Tier"
+msgstr "المستوى الحالي المعتمد"
+
+#: templates/provider_portal/gym/branches/form.html:225
+msgid "Basic (Default)"
+msgstr "أساسي (افتراضي)"
+
+#: templates/provider_portal/gym/branches/form.html:236
+msgid "Pending Upgrade Request"
+msgstr "طلب ترقية معلق"
+
+#: templates/provider_portal/gym/branches/form.html:237
+msgid "You requested an upgrade to"
+msgstr "لقد طلبت ترقية إلى"
+
+#: templates/provider_portal/gym/branches/form.html:237
+msgid "Awaiting admin approval."
+msgstr "بانتظار موافقة الإدارة."
+
+#: templates/provider_portal/gym/branches/form.html:243
+msgid "Request a New Tier Upgrade"
+msgstr "طلب ترقية مستوى جديد"
+
+#: templates/provider_portal/gym/branches/form.html:248
+msgid "No tiers configured in the system yet."
+msgstr "لا توجد مستويات مكونة في النظام بعد."
+
+#: templates/provider_portal/gym/branches/form.html:250
+msgid "Please add GymTiers in Django Admin first."
+msgstr "يرجى إضافة GymTiers في لوحة إدارة جانغو أولاً."
+
+#: templates/provider_portal/gym/branches/form.html:261
+msgid "Operational Parameters"
+msgstr "المعايير التشغيلية"
+
+#: templates/provider_portal/gym/branches/form.html:272
+msgid "Stay Duration (Min)"
+msgstr "مدة البقاء (دقيقة)"
+
+#: templates/provider_portal/gym/branches/form.html:277
+msgid "Who is this branch for?"
+msgstr "لمن هذا الفرع؟"
+
+#: templates/provider_portal/gym/branches/form.html:278
+msgid "Your schedule will dynamically adapt to this choice."
+msgstr "جدولك سيتكيف ديناميكياً مع هذا الاختيار."
+
+#: templates/provider_portal/gym/branches/form.html:305
+msgid "Smart Working Hours"
+msgstr "ساعات العمل الذكية"
+
+#: templates/provider_portal/gym/branches/form.html:312
+msgid "Sun"
+msgstr "الأحد"
+
+#: templates/provider_portal/gym/branches/form.html:313
+msgid "Mon"
+msgstr "الاثنين"
+
+#: templates/provider_portal/gym/branches/form.html:314
+msgid "Tue"
+msgstr "الثلاثاء"
+
+#: templates/provider_portal/gym/branches/form.html:315
+msgid "Wed"
+msgstr "الأربعاء"
+
+#: templates/provider_portal/gym/branches/form.html:316
+msgid "Thu"
+msgstr "الخميس"
+
+#: templates/provider_portal/gym/branches/form.html:317
+msgid "Fri"
+msgstr "الجمعة"
+
+#: templates/provider_portal/gym/branches/form.html:318
+msgid "Sat"
+msgstr "السبت"
+
+#: templates/provider_portal/gym/branches/form.html:324
+msgid "Opens At"
+msgstr "يفتح في"
+
+#: templates/provider_portal/gym/branches/form.html:329
+msgid "Closes At"
+msgstr "يغلق في"
+
+#: templates/provider_portal/gym/branches/form.html:334
+msgid "Reserved For"
+msgstr "مخصص لـ"
+
+#: templates/provider_portal/gym/branches/form.html:353
+msgid "Men's Schedule"
+msgstr "جدول الرجال"
+
+#: templates/provider_portal/gym/branches/form.html:360
+msgid "Women's Schedule"
+msgstr "جدول النساء"
+
+#: templates/provider_portal/gym/branches/form.html:369
+msgid "Mixed / Both Schedule"
+msgstr "الجدول المختلط / للجميع"
+
+#: templates/provider_portal/gym/branches/form.html:382
+msgid "Services & Facilities"
+msgstr "الخدمات والمرافق"
+
+#: templates/provider_portal/gym/branches/form.html:387
+msgid "Sports Categories"
+msgstr "فئات الرياضات"
+
+#: templates/provider_portal/gym/branches/form.html:392
+msgid "Available Amenities"
+msgstr "المرافق المتاحة"
+
+#: templates/provider_portal/gym/branches/form.html:398
+msgid "About the Branch (Optional)"
+msgstr "حول الفرع (اختياري)"
+
+#: templates/provider_portal/gym/branches/form.html:410
+msgid "Visibility Status"
+msgstr "حالة الظهور"
+
+#: templates/provider_portal/gym/branches/form.html:415
+#: templates/provider_portal/gym/plans/form.html:155
+msgid "Live Status"
+msgstr "الحالة المباشرة"
+
+#: templates/provider_portal/gym/branches/form.html:416
+msgid "Visible in consumer app"
+msgstr "مرئي في تطبيق العملاء"
+
+#: templates/provider_portal/gym/branches/form.html:426
+msgid "Maintenance"
+msgstr "صيانة"
+
+#: templates/provider_portal/gym/branches/form.html:427
+msgid "Mark branch as CLOSED"
+msgstr "وضع علامة على الفرع كمغلق"
+
+#: templates/provider_portal/gym/branches/form.html:439
+msgid "Global Roaming Network"
+msgstr "شبكة التجوال العالمية"
+
+#: templates/provider_portal/gym/branches/form.html:446
+msgid "Boost Your Revenue!"
+msgstr "عزز إيراداتك!"
+
+#: templates/provider_portal/gym/branches/form.html:449
+msgid ""
+"Enable Roaming to allow users from other gyms to visit your branch. You will "
+"receive a dynamic discount on app commissions for ALL your regular "
+"subscriptions!"
+msgstr "قم بتفعيل التجوال للسماح للمستخدمين من الصالات الأخرى بزيارة فرعك. ستحصل على خصم ديناميكي على عمولات التطبيق لجميع اشتراكاتك العادية!"
+
+#: templates/provider_portal/gym/branches/form.html:455
+msgid "Accept Roaming Entries"
+msgstr "قبول الدخول بالتجوال"
+
+#: templates/provider_portal/gym/branches/form.html:466
+msgid "Price per Visit"
+msgstr "السعر لكل زيارة"
+
+#: templates/provider_portal/gym/branches/form.html:473
+msgid ""
+"This is the required fiat value you will earn per visit. It converts "
+"dynamically to points for the user. Cannot be empty if roaming is active."
+msgstr "هذه هي القيمة النقدية المطلوبة التي ستكسبها لكل زيارة. تتحول ديناميكياً إلى نقاط للمستخدم. لا يمكن أن تكون فارغة إذا كان التجوال نشطاً."
+
+#: templates/provider_portal/gym/branches/form.html:483
+msgid "Update Branch"
+msgstr "تحديث الفرع"
+
+#: templates/provider_portal/gym/branches/form.html:483
+msgid "Create Branch"
+msgstr "إنشاء فرع"
+
+#: templates/provider_portal/gym/branches/form.html:487
+#: templates/provider_portal/gym/plans/form.html:172
+msgid "Discard Changes"
+msgstr "إلغاء التغييرات"
 
 #: templates/provider_portal/gym/branches/list.html:4
-#, fuzzy
-#| msgid "Branches"
-msgid "Manage Branches"
-msgstr "الفروع"
+msgid "Gym Branches"
+msgstr "فروع الصالة الرياضية"
 
-#: templates/provider_portal/gym/branches/list.html:100
-#, fuzzy
-#| msgid "Branches"
-msgid "Your Branches"
-msgstr "الفروع"
+#: templates/provider_portal/gym/branches/list.html:17
+msgid "Branches Management"
+msgstr "إدارة الفروع"
 
-#: templates/provider_portal/gym/branches/list.html:116
-#, fuzzy
-#| msgid "Active"
-msgid "Inactive"
-msgstr "نشط"
+#: templates/provider_portal/gym/branches/list.html:18
+msgid "Control your locations, operational visibility, and emergency status."
+msgstr "تحكم في مواقعك، ظهورك التشغيلي، وحالات الطوارئ."
 
-#: templates/provider_portal/gym/branches/list.html:140
-#, fuzzy
-#| msgid "Branches"
-msgid "No Branches Yet"
-msgstr "الفروع"
+#: templates/provider_portal/gym/branches/list.html:60
+msgid "Roaming"
+msgstr "التجوال"
 
-#: templates/provider_portal/gym/branches/list.html:141
+#: templates/provider_portal/gym/branches/list.html:92
+msgid "Capacity"
+msgstr "السعة"
+
+#: templates/provider_portal/gym/branches/list.html:107
+msgid "Visible to Users"
+msgstr "مرئي للمستخدمين"
+
+#: templates/provider_portal/gym/branches/list.html:108
+msgid "Appears on app map and search"
+msgstr "يظهر على خريطة التطبيق والبحث"
+
+#: templates/provider_portal/gym/branches/list.html:113
+msgid "Are you sure you want to change the visibility of this branch?"
+msgstr "هل أنت متأكد من تغيير حالة الظهور لهذا الفرع؟"
+
+#: templates/provider_portal/gym/branches/list.html:121
+msgid "Forces branch to show as CLOSED"
+msgstr "يجبر الفرع على الظهور كمغلق"
+
+#: templates/provider_portal/gym/branches/list.html:126
 msgid ""
-"You haven't added any gym branches. Add your first branch to start creating "
-"subscription plans."
-msgstr ""
+"WARNING: This will immediately show the gym as CLOSED to all users. Proceed?"
+msgstr "تحذير: سيؤدي هذا فوراً إلى إظهار الصالة كمغلقة لجميع المستخدمين. متابعة؟"
+
+#: templates/provider_portal/gym/branches/list.html:137
+msgid "Photos"
+msgstr "الصور"
 
 #: templates/provider_portal/gym/branches/list.html:142
+#: templates/provider_portal/gym/plans/list.html:101
+msgid "Edit"
+msgstr "تعديل"
+
+#: templates/provider_portal/gym/branches/list.html:145
+msgid "CRITICAL: Are you sure you want to completely delete this branch?"
+msgstr "حرج: هل أنت متأكد أنك تريد حذف هذا الفرع تماماً؟"
+
+#: templates/provider_portal/gym/branches/list.html:149
+#: templates/provider_portal/gym/plans/list.html:136
+msgid "Delete"
+msgstr "حذف"
+
+#: templates/provider_portal/gym/branches/list.html:161
+msgid "No Branches Yet"
+msgstr "لا توجد فروع بعد"
+
+#: templates/provider_portal/gym/branches/list.html:163
+msgid "Start by adding your physical gym location to manage its operations."
+msgstr "ابدأ بإضافة الموقع الفعلي لصالتك الرياضية لإدارة عملياتها."
+
+#: templates/provider_portal/gym/branches/list.html:167
 msgid "Add First Branch"
-msgstr ""
+msgstr "إضافة أول فرع"
+
+#: templates/provider_portal/gym/branches/photos.html:4
+msgid "Branch Gallery"
+msgstr "معرض صور الفرع"
+
+#: templates/provider_portal/gym/branches/photos.html:17
+msgid "Manage Photos"
+msgstr "إدارة الصور"
+
+#: templates/provider_portal/gym/branches/photos.html:18
+msgid "Upload and manage high-quality photos for your branch."
+msgstr "ارفع وأدر صوراً عالية الجودة لفرعك."
+
+#: templates/provider_portal/gym/branches/photos.html:30
+msgid "Upload Branch Photos"
+msgstr "رفع صور الفرع"
+
+#: templates/provider_portal/gym/branches/photos.html:32
+msgid ""
+"High quality photos help attract more clients. You can select multiple "
+"images at once (Max 5MB each)."
+msgstr "الصور عالية الجودة تساعد في جذب المزيد من العملاء. يمكنك تحديد صور متعددة مرة واحدة (الحد الأقصى 5 ميجابايت لكل منها)."
+
+#: templates/provider_portal/gym/branches/photos.html:40
+msgid "Select Images"
+msgstr "تحديد صور"
+
+#: templates/provider_portal/gym/branches/photos.html:54
+msgid "Are you sure you want to delete this photo?"
+msgstr "هل أنت متأكد أنك تريد حذف هذه الصورة؟"
+
+#: templates/provider_portal/gym/branches/photos.html:57
+msgid "Delete Photo"
+msgstr "حذف الصورة"
+
+#: templates/provider_portal/gym/branches/photos.html:68
+msgid "No Photos Yet"
+msgstr "لا توجد صور بعد"
+
+#: templates/provider_portal/gym/branches/photos.html:70
+msgid ""
+"The first photo you upload will automatically be used as the cover image for "
+"this branch in the user app."
+msgstr "الصورة الأولى التي تقوم برفعها سيتم استخدامها تلقائياً كصورة غلاف لهذا الفرع في تطبيق المستخدم."
+
+#: templates/provider_portal/gym/plans/detail.html:4
+msgid "Plan Details"
+msgstr "تفاصيل الخطة"
+
+#: templates/provider_portal/gym/plans/detail.html:26
+msgid "Active Plan"
+msgstr "خطة نشطة"
+
+#: templates/provider_portal/gym/plans/detail.html:28
+#: templates/provider_portal/gym/plans/list.html:39
+msgid "Inactive"
+msgstr "غير نشطة"
+
+#: templates/provider_portal/gym/plans/detail.html:42
+msgid "Edit Plan"
+msgstr "تعديل الخطة"
+
+#: templates/provider_portal/gym/plans/detail.html:72
+msgid "Duration"
+msgstr "المدة"
+
+#: templates/provider_portal/gym/plans/detail.html:82
+msgid "Available In"
+msgstr "متاح في"
+
+#: templates/provider_portal/gym/plans/detail.html:83
+#: templates/provider_portal/gym/plans/list.html:71
+#: templates/provider_portal/gym/subscribers/list.html:167
+#: templates/provider_portal/gym/subscribers/list.html:240
+#: templates/provider_portal/provider_base.html:335
+msgid "Branches"
+msgstr "الفروع"
+
+#: templates/provider_portal/gym/plans/detail.html:99
+msgid "No description provided for this plan."
+msgstr "لم يتم تقديم وصف لهذه الخطة."
+
+#: templates/provider_portal/gym/plans/detail.html:107
+msgid "Included in this Plan"
+msgstr "مشمول في هذه الخطة"
+
+#: templates/provider_portal/gym/plans/detail.html:116
+msgid "No specific sports restricted."
+msgstr "لا توجد رياضات محددة مقيدة."
+
+#: templates/provider_portal/gym/plans/detail.html:125
+msgid "No specific amenities restricted."
+msgstr "لا توجد مرافق محددة مقيدة."
+
+#: templates/provider_portal/gym/plans/detail.html:130
+msgid "Additional Features"
+msgstr "ميزات إضافية"
+
+#: templates/provider_portal/gym/plans/detail.html:178
+msgid "This plan is not assigned to any branch yet."
+msgstr "لم يتم تعيين هذه الخطة لأي فرع بعد."
+
+#: templates/provider_portal/gym/plans/form.html:5
+#: templates/provider_portal/gym/plans/form.html:20
+msgid "Edit Plan:"
+msgstr "تعديل الخطة:"
+
+#: templates/provider_portal/gym/plans/form.html:21
+msgid "Define your pricing, duration, and link this plan to specific branches."
+msgstr "حدد أسعارك، المدة، واربط هذه الخطة بفروع معينة."
+
+#: templates/provider_portal/gym/plans/form.html:27
+msgid "Please fill in all required fields and select at least one branch."
+msgstr "يرجى ملء جميع الحقول المطلوبة وتحديد فرع واحد على الأقل."
+
+#: templates/provider_portal/gym/plans/form.html:37
+msgid "Plan Details & Pricing"
+msgstr "تفاصيل الخطة والتسعير"
+
+#: templates/provider_portal/gym/plans/form.html:59
+msgid "Duration (Days)"
+msgstr "المدة (بالأيام)"
+
+#: templates/provider_portal/gym/plans/form.html:66
+msgid "Description (Optional)"
+msgstr "الوصف (اختياري)"
+
+#: templates/provider_portal/gym/plans/form.html:75
+msgid "Branch Availability"
+msgstr "إتاحة الفرع"
+
+#: templates/provider_portal/gym/plans/form.html:81
+msgid "Select Branches"
+msgstr "تحديد الفروع"
+
+#: templates/provider_portal/gym/plans/form.html:81
+msgid "Branches Selected"
+msgstr "الفروع المحددة"
+
+#: templates/provider_portal/gym/plans/form.html:88
+msgid "Select All"
+msgstr "تحديد الكل"
+
+#: templates/provider_portal/gym/plans/form.html:88
+msgid "Deselect All"
+msgstr "إلغاء تحديد الكل"
+
+#: templates/provider_portal/gym/plans/form.html:98
+msgid "No branches found. Please add a branch first."
+msgstr "لم يتم العثور على فروع. يرجى إضافة فرع أولاً."
+
+#: templates/provider_portal/gym/plans/form.html:112
+msgid "Select Branches First"
+msgstr "حدد الفروع أولاً"
+
+#: templates/provider_portal/gym/plans/form.html:113
+msgid ""
+"Please select at least one branch to view and select the available amenities "
+"and sports."
+msgstr "يرجى تحديد فرع واحد على الأقل لعرض واختيار المرافق والرياضات المتاحة."
+
+#: templates/provider_portal/gym/plans/form.html:118
+msgid "Included Facilities & Sports"
+msgstr "المرافق والرياضات المشمولة"
+
+#: templates/provider_portal/gym/plans/form.html:122
+msgid ""
+"Select the amenities and sports included in this subscription plan to "
+"restrict access properly."
+msgstr "اختر المرافق والرياضات المشمولة في خطة الاشتراك هذه لتقييد الوصول بشكل صحيح."
+
+#: templates/provider_portal/gym/plans/form.html:156
+msgid "Visible to users in the app"
+msgstr "مرئي للمستخدمين في التطبيق"
+
+#: templates/provider_portal/gym/plans/form.html:168
+msgid "Update Plan"
+msgstr "تحديث الخطة"
+
+#: templates/provider_portal/gym/plans/form.html:168
+#: templates/provider_portal/gym/plans/list.html:22
+msgid "Create Plan"
+msgstr "إنشاء خطة"
+
+#: templates/provider_portal/gym/plans/list.html:4
+#: templates/provider_portal/gym/plans/list.html:17
+#: templates/provider_portal/provider_base.html:339
+msgid "Subscription Plans"
+msgstr "خطط الاشتراك"
+
+#: templates/provider_portal/gym/plans/list.html:18
+msgid "Manage the memberships and pricing options available to your clients."
+msgstr "إدارة العضويات وخيارات التسعير المتاحة لعملائك."
+
+#: templates/provider_portal/gym/plans/list.html:35
+msgid "Archived"
+msgstr "مؤرشفة"
+
+#: templates/provider_portal/gym/plans/list.html:53
+msgid "Active Subscribers"
+msgstr "المشتركون النشطون"
+
+#: templates/provider_portal/gym/plans/list.html:83
+msgid "No specific features listed."
+msgstr "لا توجد ميزات محددة مدرجة."
+
+#: templates/provider_portal/gym/plans/list.html:89
+msgid "more features..."
+msgstr "المزيد من الميزات..."
+
+#: templates/provider_portal/gym/plans/list.html:109
+msgid "Hide from users"
+msgstr "إخفاء عن المستخدمين"
+
+#: templates/provider_portal/gym/plans/list.html:111
+msgid "Deactivate"
+msgstr "تعطيل"
+
+#: templates/provider_portal/gym/plans/list.html:114
+msgid "Show to users"
+msgstr "إظهار للمستخدمين"
+
+#: templates/provider_portal/gym/plans/list.html:116
+msgid "Activate"
+msgstr "تفعيل"
+
+#: templates/provider_portal/gym/plans/list.html:125
+msgid "Restore Plan"
+msgstr "استعادة الخطة"
+
+#: templates/provider_portal/gym/plans/list.html:127
+msgid "Restore"
+msgstr "استعادة"
+
+#: templates/provider_portal/gym/plans/list.html:132
+msgid "Are you sure you want to delete this plan?"
+msgstr "هل أنت متأكد أنك تريد حذف هذه الخطة؟"
+
+#: templates/provider_portal/gym/plans/list.html:134
+msgid "Delete Plan"
+msgstr "حذف الخطة"
+
+#: templates/provider_portal/gym/plans/list.html:149
+msgid "No Plans Yet"
+msgstr "لا توجد خطط بعد"
+
+#: templates/provider_portal/gym/plans/list.html:150
+msgid "Create your first subscription plan to start accepting members."
+msgstr "أنشئ خطة الاشتراك الأولى للبدء في قبول الأعضاء."
+
+#: templates/provider_portal/gym/plans/list.html:153
+msgid "Create First Plan"
+msgstr "إنشاء الخطة الأولى"
+
+#: templates/provider_portal/gym/subscribers/detail.html:4
+msgid "Subscriber Details"
+msgstr "تفاصيل المشترك"
+
+#: templates/provider_portal/gym/subscribers/detail.html:50
+msgid "Block User"
+msgstr "حظر المستخدم"
+
+#: templates/provider_portal/gym/subscribers/detail.html:55
+msgid "Unblock User"
+msgstr "إلغاء حظر المستخدم"
+
+#: templates/provider_portal/gym/subscribers/detail.html:69
+msgid "Identity Verification"
+msgstr "التحقق من الهوية"
+
+#: templates/provider_portal/gym/subscribers/detail.html:77
+msgid "No Face Uploaded"
+msgstr "لم يتم رفع صورة للوجه"
+
+#: templates/provider_portal/gym/subscribers/detail.html:79
+msgid "Live Face Photo"
+msgstr "صورة الوجه المباشرة"
+
+#: templates/provider_portal/gym/subscribers/detail.html:85
+msgid "No ID Uploaded"
+msgstr "لم يتم رفع بطاقة الهوية"
+
+#: templates/provider_portal/gym/subscribers/detail.html:87
+msgid "Official ID Card"
+msgstr "بطاقة الهوية الرسمية"
+
+#: templates/provider_portal/gym/subscribers/detail.html:91
+msgid ""
+"Click an image to enlarge. Use these to verify the identity of the member at "
+"the reception."
+msgstr "انقر على الصورة لتكبيرها. استخدمها للتحقق من هوية العضو في الاستقبال."
+
+#: templates/provider_portal/gym/subscribers/detail.html:100
+msgid "Security & Block Logs"
+msgstr "سجلات الأمان والحظر"
+
+#: templates/provider_portal/gym/subscribers/detail.html:110
+msgid "Reason:"
+msgstr "السبب:"
+
+#: templates/provider_portal/gym/subscribers/detail.html:113
+msgid "Resolution:"
+msgstr "الحل:"
+
+#: templates/provider_portal/gym/subscribers/detail.html:130
+msgid "Subscription Info"
+msgstr "معلومات الاشتراك"
+
+#: templates/provider_portal/gym/subscribers/detail.html:147
+msgid "Access Branches"
+msgstr "فروع الدخول"
+
+#: templates/provider_portal/gym/subscribers/detail.html:164
+msgid "Recent Visits"
+msgstr "الزيارات الأخيرة"
+
+#: templates/provider_portal/gym/subscribers/detail.html:192
+msgid "No visits recorded yet."
+msgstr "لم يتم تسجيل أي زيارات بعد."
+
+#: templates/provider_portal/gym/subscribers/detail.html:204
+#: templates/provider_portal/gym/subscribers/detail.html:219
+#: templates/provider_portal/gym/subscribers/list.html:263
+#: templates/provider_portal/gym/subscribers/list.html:273
+msgid "Block Subscriber"
+msgstr "حظر المشترك"
+
+#: templates/provider_portal/gym/subscribers/detail.html:212
+#: templates/provider_portal/gym/subscribers/list.html:268
+msgid ""
+"Blocking a subscriber will deny them entry. Please provide a clear reason."
+msgstr "حظر المشترك سيمنعه من الدخول. يرجى تقديم سبب واضح."
+
+#: templates/provider_portal/gym/subscribers/detail.html:216
+#: templates/provider_portal/gym/subscribers/list.html:271
+msgid "Reason for blocking"
+msgstr "سبب الحظر"
+
+#: templates/provider_portal/gym/subscribers/detail.html:228
+#: templates/provider_portal/gym/subscribers/list.html:281
+msgid "Unblock Subscriber"
+msgstr "إلغاء حظر المشترك"
+
+#: templates/provider_portal/gym/subscribers/detail.html:236
+#: templates/provider_portal/gym/subscribers/list.html:286
+msgid ""
+"Unblocking will restore gym access. Please document how the issue was "
+"resolved."
+msgstr "إلغاء الحظر سيعيد صلاحية الدخول. يرجى توثيق كيف تم حل المشكلة."
+
+#: templates/provider_portal/gym/subscribers/detail.html:240
+#: templates/provider_portal/gym/subscribers/list.html:289
+msgid "Resolution Note"
+msgstr "ملاحظة الحل"
+
+#: templates/provider_portal/gym/subscribers/detail.html:243
+#: templates/provider_portal/gym/subscribers/list.html:291
+msgid "Restore Access"
+msgstr "استعادة الوصول"
+
+#: templates/provider_portal/gym/subscribers/list.html:4
+msgid "Subscribers Management"
+msgstr "إدارة المشتركين"
+
+#: templates/provider_portal/gym/subscribers/list.html:17
+msgid "Subscribers & Memberships"
+msgstr "المشتركون والعضويات"
+
+#: templates/provider_portal/gym/subscribers/list.html:18
+msgid "Manage your clients and track active subscriptions."
+msgstr "أدر عملائك وتتبع الاشتراكات النشطة."
+
+#: templates/provider_portal/gym/subscribers/list.html:43
+msgid "Suspended / Blocked"
+msgstr "موقوف / محظور"
+
+#: templates/provider_portal/gym/subscribers/list.html:52
+msgid "Expired Subscriptions"
+msgstr "الاشتراكات المنتهية"
+
+#: templates/provider_portal/gym/subscribers/list.html:59
+msgid "Quickly find a subscriber by scanning their QR"
+msgstr "ابحث عن مشترك بسرعة عبر مسح رمز QR الخاص به"
+
+#: templates/provider_portal/gym/subscribers/list.html:61
+msgid "QR Lookup"
+msgstr "بحث بالـ QR"
+
+#: templates/provider_portal/gym/subscribers/list.html:66
+msgid "Search by name or phone..."
+msgstr "البحث بالاسم أو رقم الهاتف..."
+
+#: templates/provider_portal/gym/subscribers/list.html:71
+msgid "Advanced Filters"
+msgstr "فلاتر متقدمة"
+
+#: templates/provider_portal/gym/subscribers/list.html:78
+msgid "Branch Filter"
+msgstr "تصفية بالفرع"
+
+#: templates/provider_portal/gym/subscribers/list.html:80
+msgid "All Branches"
+msgstr "جميع الفروع"
+
+#: templates/provider_portal/gym/subscribers/list.html:87
+msgid "Status Filter"
+msgstr "تصفية بالحالة"
+
+#: templates/provider_portal/gym/subscribers/list.html:89
+msgid "All Statuses"
+msgstr "جميع الحالات"
+
+#: templates/provider_portal/gym/subscribers/list.html:90
+msgid "Active Only"
+msgstr "النشطة فقط"
+
+#: templates/provider_portal/gym/subscribers/list.html:91
+msgid "Suspended Only"
+msgstr "الموقوفة فقط"
+
+#: templates/provider_portal/gym/subscribers/list.html:92
+msgid "Expired History"
+msgstr "سجل المنتهية"
+
+#: templates/provider_portal/gym/subscribers/list.html:96
+msgid "Plan Type"
+msgstr "نوع الخطة"
+
+#: templates/provider_portal/gym/subscribers/list.html:98
+msgid "All Plans"
+msgstr "جميع الخطط"
+
+#: templates/provider_portal/gym/subscribers/list.html:105
+msgid "Expiring In"
+msgstr "ينتهي في"
+
+#: templates/provider_portal/gym/subscribers/list.html:107
+msgid "Any Time"
+msgstr "أي وقت"
+
+#: templates/provider_portal/gym/subscribers/list.html:108
+msgid "Next 7 Days"
+msgstr "الـ 7 أيام القادمة"
+
+#: templates/provider_portal/gym/subscribers/list.html:109
+msgid "Next 30 Days"
+msgstr "الـ 30 يوماً القادمة"
+
+#: templates/provider_portal/gym/subscribers/list.html:138
+msgid "Has Blocked Plan"
+msgstr "لديه خطة محظورة"
+
+#: templates/provider_portal/gym/subscribers/list.html:140
+msgid "Active Plans"
+msgstr "الخطط النشطة"
+
+#: templates/provider_portal/gym/subscribers/list.html:152
+msgid "Current Subscriptions"
+msgstr "الاشتراكات الحالية"
+
+#: templates/provider_portal/gym/subscribers/list.html:164
+msgid "No Branch"
+msgstr "بدون فرع"
+
+#: templates/provider_portal/gym/subscribers/list.html:189
+msgid "View Details"
+msgstr "عرض التفاصيل"
+
+#: templates/provider_portal/gym/subscribers/list.html:194
+msgid "Block Plan"
+msgstr "حظر الخطة"
+
+#: templates/provider_portal/gym/subscribers/list.html:198
+msgid "Unblock Plan"
+msgstr "إلغاء حظر الخطة"
+
+#: templates/provider_portal/gym/subscribers/list.html:206
+msgid "No active or suspended subscriptions currently."
+msgstr "لا توجد اشتراكات نشطة أو موقوفة حالياً."
+
+#: templates/provider_portal/gym/subscribers/list.html:213
+msgid "Loyalty History (Expired Plans)"
+msgstr "سجل الولاء (الخطط المنتهية)"
+
+#: templates/provider_portal/gym/subscribers/list.html:232
+msgid "No Subscribers Found"
+msgstr "لم يتم العثور على مشتركين"
+
+#: templates/provider_portal/gym/subscribers/list.html:233
+msgid "Adjust your filters or wait for new subscriptions to arrive."
+msgstr "عدل الفلاتر أو انتظر وصول اشتراكات جديدة."
+
+#: templates/provider_portal/gym/subscribers/list.html:252
+msgid "QR Profile Lookup"
+msgstr "بحث بالـ QR الشخصي"
+
+#: templates/provider_portal/gym/subscribers/list.html:255
+msgid ""
+"Scan member's QR code to instantly open their profile without registering a "
+"visit."
+msgstr "امسح رمز QR الخاص بالعضو لفتح ملفه الشخصي فوراً دون تسجيل زيارة."
+
+#: templates/provider_portal/profile/edit.html:4
+#: templates/provider_portal/profile/financial.html:4
+#: templates/provider_portal/profile/security.html:4
+msgid "Settings"
+msgstr "الإعدادات"
+
+#: templates/provider_portal/profile/edit.html:4
+#: templates/provider_portal/profile/sidebar.html:51
+msgid "General Details"
+msgstr "التفاصيل العامة"
+
+#: templates/provider_portal/profile/edit.html:45
+msgid "General & Business Details"
+msgstr "تفاصيل العمل والعامة"
+
+#: templates/provider_portal/profile/edit.html:55
+msgid "Change Logo"
+msgstr "تغيير الشعار"
+
+#: templates/provider_portal/profile/edit.html:61
+msgid "Recommended size 512x512px. PNG or JPG."
+msgstr "الحجم الموصى به 512x512 بكسل. بتنسيق PNG أو JPG."
+
+#: templates/provider_portal/profile/edit.html:116
+msgid "Uploaded successfully"
+msgstr "تم الرفع بنجاح"
+
+#: templates/provider_portal/profile/edit.html:121
+msgid "View File"
+msgstr "عرض الملف"
+
+#: templates/provider_portal/profile/edit.html:129
+msgid "Upload additional files"
+msgstr "رفع ملفات إضافية"
+
+#: templates/provider_portal/profile/edit.html:130
+msgid "You can select multiple files."
+msgstr "يمكنك تحديد ملفات متعددة."
+
+#: templates/provider_portal/profile/edit.html:137
+msgid "Required: Click to upload your official documents."
+msgstr "مطلوب: انقر لرفع وثائقك الرسمية."
+
+#: templates/provider_portal/profile/edit.html:138
+msgid "Supported formats: PDF, JPG, PNG. You can select multiple files."
+msgstr "الصيغ المدعومة: PDF, JPG, PNG. يمكنك تحديد ملفات متعددة."
+
+#: templates/provider_portal/profile/edit.html:146
+msgid "Save Changes"
+msgstr "حفظ التغييرات"
+
+#: templates/provider_portal/profile/edit.html:188
+msgid "files selected"
+msgstr "ملفات محددة"
+
+#: templates/provider_portal/profile/financial.html:4
+#: templates/provider_portal/profile/sidebar.html:55
+msgid "Financial Details"
+msgstr "التفاصيل المالية"
+
+#: templates/provider_portal/profile/financial.html:25
+msgid "Financial Information"
+msgstr "المعلومات المالية"
+
+#: templates/provider_portal/profile/financial.html:28
+msgid ""
+"This information is encrypted in our database. It is used to transfer your "
+"earnings directly to your bank account."
+msgstr "هذه المعلومات مشفرة في قاعدة بياناتنا. تُستخدم لتحويل أرباحك مباشرة إلى حسابك البنكي."
+
+#: templates/provider_portal/profile/financial.html:35
+msgid "Save Information"
+msgstr "حفظ المعلومات"
+
+#: templates/provider_portal/profile/security.html:4
+msgid "Security"
+msgstr "الأمان"
+
+#: templates/provider_portal/profile/security.html:26
+msgid "Change Password"
+msgstr "تغيير كلمة المرور"
+
+#: templates/provider_portal/profile/security.html:45
+msgid "Update Password"
+msgstr "تحديث كلمة المرور"
+
+#: templates/provider_portal/profile/sidebar.html:36
+msgid "No phone added"
+msgstr "لم يتم إضافة هاتف"
+
+#: templates/provider_portal/profile/sidebar.html:41
+msgid "Pending Admin Approval"
+msgstr "بانتظار موافقة الإدارة"
+
+#: templates/provider_portal/profile/sidebar.html:43
+msgid "Account Active"
+msgstr "الحساب نشط"
+
+#: templates/provider_portal/profile/sidebar.html:59
+msgid "Security & Password"
+msgstr "الأمان وكلمة المرور"
+
+#: templates/provider_portal/provider_base.html:318
+msgid "Main navigation"
+msgstr "التنقل الرئيسي"
+
+#: templates/provider_portal/provider_base.html:332
+msgid "Gym Management"
+msgstr "إدارة الصالات الرياضية"
+
+#: templates/provider_portal/provider_base.html:343
+msgid "Subscribers"
+msgstr "المشتركون"
+
+#: templates/provider_portal/provider_base.html:347
+msgid "Finance & Account"
+msgstr "المالية والحساب"
+
+#: templates/provider_portal/provider_base.html:350
+msgid "Earnings"
+msgstr "الأرباح"
+
+#: templates/provider_portal/provider_base.html:354
+msgid "Profile Settings"
+msgstr "إعدادات الملف الشخصي"
+
+#: templates/provider_portal/provider_base.html:365
+msgid "Logout"
+msgstr "تسجيل الخروج"
+
+#: templates/provider_portal/provider_base.html:373
+msgid "Toggle menu"
+msgstr "فتح/إغلاق القائمة"
+
+#: templates/provider_portal/provider_base.html:381
+msgid "Toggle Theme"
+msgstr "تبديل المظهر"
 
 #: templates/provider_portal/verification/upload.html:4
-#, fuzzy
-#| msgid "Certification document"
 msgid "Upload Verification Documents"
-msgstr "وثيقة الاعتماد"
+msgstr "رفع مستندات التحقق"
 
 #: templates/provider_portal/verification/upload.html:72
 msgid ""
 "To activate your account and start receiving clients, we need to verify your "
 "business identity. Please upload clear copies of the following documents."
-msgstr ""
+msgstr "لتفعيل حسابك والبدء باستقبال العملاء، نحتاج إلى التحقق من هويتك التجارية. يرجى رفع نسخ واضحة من المستندات التالية."
 
 #: templates/provider_portal/verification/upload.html:95
 msgid "Submit Documents"
-msgstr ""
+msgstr "إرسال المستندات"
+
+#~ msgid "Plan name"
+#~ msgstr "اسم الخطة"
+
+#~ msgid "e.g. 30"
+#~ msgstr "مثال: 30"
+
+#~ msgid "0.00"
+#~ msgstr "0.00"
+
+#~ msgid "Transferable (can be resold)"
+#~ msgstr "قابل للتحويل (يمكن إعادة بيعه)"
+
+#~ msgid "Features"
+#~ msgstr "المميزات"
+
+#~ msgid "One feature per line"
+#~ msgstr "ميزة واحدة في كل سطر"
+
+#~ msgid "Enter each feature on a new line."
+#~ msgstr "أدخل كل ميزة في سطر جديد."
+
+#~ msgid "Street, district, building"
+#~ msgstr "الشارع، الحي، المبنى"
+
+#~ msgid "Logo"
+#~ msgstr "الشعار"
+
+#~ msgid "Date of birth"
+#~ msgstr "تاريخ الميلاد"
+
+#~ msgid "Professional Profile"
+#~ msgstr "الملف المهني"
+
+#~ msgid "Bookings"
+#~ msgstr "الحجوزات"
+
+#~ msgid "Menu"
+#~ msgstr "القائمة"
+
+#~ msgid "Orders"
+#~ msgstr "الطلبات"
+
+#~ msgid "Products"
+#~ msgstr "المنتجات"
+
+#~ msgid "Profile"
+#~ msgstr "الملف الشخصي"
+
+#~ msgid "unread notifications"
+#~ msgstr "إشعارات غير مقروءة"
+
+#~ msgid "Next: Location"
+#~ msgstr "التالي: الموقع"
+
+#~ msgid "Precise Location"
+#~ msgstr "الموقع الدقيق"
+
+#~ msgid "Add"
+#~ msgstr "إضافة"
+
+#~ msgid "Your Branches"
+#~ msgstr "فروعك"
 
 #~ msgid "Grow your fitness business"
 #~ msgstr "طوّر نشاطك في اللياقة البدنية"
@@ -1894,17 +4829,11 @@ msgstr ""
 #~ "المنصة الشاملة للصالات الرياضية والمدربين والمطاعم والمتاجر الرياضية في "
 #~ "المملكة العربية السعودية."
 
-#~ msgid "Cities"
-#~ msgstr "مدينة"
-
 #~ msgid "Welcome back to your portal"
 #~ msgstr "مرحباً بعودتك إلى بوابتك"
 
 #~ msgid "Manage subscriptions, bookings, and earnings — all in one place."
 #~ msgstr "أدر اشتراكاتك وحجوزاتك وأرباحك — كل شيء في مكان واحد."
-
-#~ msgid "Create one"
-#~ msgstr "أنشئ حساباً"
 
 #~ msgid "Start managing your fitness business"
 #~ msgstr "ابدأ بإدارة نشاطك في اللياقة البدنية"
@@ -1947,9 +4876,6 @@ msgstr ""
 
 #~ msgid "Account setup is incomplete. Please contact support."
 #~ msgstr "إعداد الحساب غير مكتمل. يرجى التواصل مع الدعم."
-
-#~ msgid "Pending"
-#~ msgstr "قيد المراجعة"
 
 #~ msgid "Legal"
 #~ msgstr "المعلومات القانونية"

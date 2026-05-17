@@ -1,0 +1,18 @@
+{# templates/dashboard/components/page_header.html #}
+<div class="bg-primary-light border border-primary-light rounded-[24px] p-6 flex flex-col md:flex-row items-start md:items-center justify-between shadow-sm mb-6 relative overflow-hidden">
+    
+    <div class="absolute inset-y-0 start-0 w-1.5 bg-primary opacity-90"></div>
+
+    <div class="flex flex-col gap-1.5 z-10 ps-3">
+        <h1 class="text-2xl font-black text-text-primary tracking-tight">{{ title }}</h1>
+        <p class="text-[13px] font-bold text-text-secondary">{{ subtitle }}</p>
+    </div>
+    
+    {% if action_url %}
+    <a href="{{ action_url }}" class="btn-action btn-primary z-10 mt-4 md:mt-0">
+        {{ action_icon|safe }}
+        <span>{{ action_text }}</span>
+    </a>
+    {% endif %}
+
+</div>

@@ -1,0 +1,387 @@
+{# templates/dashboard/coupons/coupon_form.html #}
+{% extends "dashboard/layout.html" %}
+{% load i18n humanize %}
+
+{% block content %}
+<div class="flex flex-col gap-8 pb-12">
+
+    {% url 'dashboard:coupons_list' as list_url %}
+    {% trans "Set up a discount coupon to attract customers and boost sales." as subtitle_trans %}
+    {% trans "Back to List" as action_text_trans %}
+    {% include "dashboard/components/page_header.html" with title=page_title subtitle=subtitle_trans action_url=list_url action_text=action_text_trans action_icon='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>' %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <div class="lg:col-span-8">
+            <form method="post" class="bg-surface border border-border shadow-sm rounded-2xl p-8 flex flex-col gap-6" id="coupon-form">
+                {% csrf_token %}
+                
+                <div class="flex items-center gap-3 border-b border-border/50 pb-4 mb-2">
+                    <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    </div>
+                    <h2 class="text-lg font-black text-text-primary">{{ page_title }}</h2>
+                </div>
+
+                <div class="flex flex-col gap-5">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Internal Title" %} <span class="text-error">*</span></label>
+                        {{ form.title }}
+                        {% if form.title.errors %}<span class="text-error text-xs font-bold">{{ form.title.errors.0 }}</span>{% endif %}
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Coupon Code" %} <span class="text-error">*</span></label>
+                        {{ form.code }}
+                        <div class="flex items-center justify-between mt-1">
+                            <p class="text-[11.5px] text-text-muted">{% trans "Use uppercase letters and numbers only. Keep it short." %}</p>
+                            <button type="button" id="btn-generate-code" class="text-[11.5px] font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-md transition-colors shadow-sm">
+                                {% trans "Generate Random" %}
+                            </button>
+                        </div>
+                        {% if form.code.errors %}<span class="text-error text-xs font-bold">{{ form.code.errors.0 }}</span>{% endif %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Discount Type" %} <span class="text-error">*</span></label>
+                        {{ form.coupon_type }}
+                        {% if form.coupon_type.errors %}<span class="text-error text-xs font-bold">{{ form.coupon_type.errors.0 }}</span>{% endif %}
+                    </div>
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Discount Value" %} <span class="text-error">*</span></label>
+                        <div class="relative flex items-center">
+                            {{ form.discount_value }}
+                            <div class="absolute inset-y-0 end-4 flex items-center pointer-events-none" id="input-currency-icon">
+                                <span class="text-[14px] font-black text-text-muted" id="icon-percent">%</span>
+                                <span class="w-4 h-4 text-text-muted hidden" id="icon-fiat">{% include "components/currency_icon.html" %}</span>
+                            </div>
+                        </div>
+                        {% if form.discount_value.errors %}<span class="text-error text-xs font-bold">{{ form.discount_value.errors.0 }}</span>{% endif %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Maximum Usage" %} <span class="text-error">*</span></label>
+                        {{ form.max_usage }}
+                        <p class="text-[11px] text-text-muted mt-1">{% trans "Set to 0 for unlimited usage." %}</p>
+                        {% if form.max_usage.errors %}<span class="text-error text-xs font-bold">{{ form.max_usage.errors.0 }}</span>{% endif %}
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Expiration Date" %}</label>
+                        {{ form.expiration_date }}
+                        <p class="text-[11px] text-text-muted mt-1">{% trans "Leave blank for no expiration." %}</p>
+                        {% if form.expiration_date.errors %}<span class="text-error text-xs font-bold">{{ form.expiration_date.errors.0 }}</span>{% endif %}
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-4 bg-bg border border-border rounded-xl mt-2">
+                    <div class="flex flex-col">
+                        <span class="text-[13px] font-black text-text-primary">{% trans "Active Status" %}</span>
+                        <span class="text-[11.5px] text-text-muted">{% trans "Enable or disable this campaign immediately." %}</span>
+                    </div>
+                    <label class="ui-switch m-0">
+                        {{ form.is_active }}
+                        <span class="ui-slider"></span>
+                    </label>
+                </div>
+
+                <div class="border-t border-border/50 pt-6 mt-2 flex items-center gap-4">
+                    <button type="submit" class="btn-action btn-primary px-8 py-3.5 rounded-xl shadow-md">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                        <span>{{ action_title }}</span>
+                    </button>
+                    <a href="{% url 'dashboard:coupons_list' %}" class="btn-action bg-bg text-text-secondary border border-border hover:bg-border px-8 py-3.5 rounded-xl transition-colors">
+                        {% trans "Cancel" %}
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="lg:col-span-4 sticky top-6">
+            <div class="bg-surface border border-border shadow-sm rounded-2xl p-6 flex flex-col items-center">
+                
+                <div class="flex items-center gap-2 mb-6 w-full justify-center">
+                    <h3 class="text-[14px] font-black text-text-primary">{% trans "Live Preview" %}</h3>
+                    <svg class="w-5 h-5 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                </div>
+
+                <div class="relative w-full flex rounded-[12px] shadow-md overflow-hidden min-h-[160px]">
+                    
+                    <div class="absolute -start-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-surface rounded-full z-10"></div>
+
+                    <div class="w-[25%] flex items-center justify-center relative overflow-hidden" style="background-color: #D49BEB;">
+                        <div class="absolute end-0 inset-y-0 w-px border-e-2 border-dashed border-[#1e293b]/20"></div>
+                        <span class="transform -rotate-90 text-[15px] font-black tracking-[0.25em] uppercase whitespace-nowrap text-[#1e293b]" id="preview-type-vertical">DISCOUNT</span>
+                    </div>
+
+                    <div class="w-[75%] p-5 flex flex-col justify-between relative" style="background: linear-gradient(to right, #B4C4FF, #8BD5FF);">
+                        
+                        <div class="absolute -end-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-surface rounded-full z-10"></div>
+
+                        <div class="flex justify-between items-start pe-2">
+                            <div class="flex items-baseline gap-1 text-[#1e293b] drop-shadow-sm" dir="ltr" id="preview-value-container">
+                                <span class="text-[52px] font-black tracking-tighter leading-none" id="preview-value">0</span>
+                                <span class="text-[20px] font-black leading-none" id="preview-type-pct">%</span>
+                                <span class="w-6 h-6 hidden pb-1 fill-current" id="preview-type-fiat">{% include "components/currency_icon.html" %}</span>
+                                <span class="text-[13px] font-black uppercase ms-1" id="preview-off-text">OFF</span>
+                            </div>
+                            
+                            <span class="bg-[#1e293b]/10 text-[#1e293b] border border-[#1e293b]/20 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest shadow-sm" id="preview-badge">
+                                {% trans "ACTIVE" %}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between items-end mt-4 pe-2">
+                            <div class="flex flex-col items-start gap-1">
+                                <span class="text-[9px] font-black text-[#1e293b]/70 uppercase tracking-widest">{% trans "Coupon Code" %}</span>
+                                <span class="bg-white/40 border border-white/40 px-3 py-1.5 rounded-lg text-[13px] font-mono font-black tracking-widest uppercase shadow-sm text-[#1e293b]" dir="ltr" id="preview-code">YOUR-COUPON</span>
+                            </div>
+
+                            <div class="flex flex-col items-end gap-1 text-end">
+                                <span class="text-[9px] font-black text-[#1e293b]/70 uppercase tracking-widest">{% trans "Valid Until" %}</span>
+                                <span class="text-[11px] font-black leading-tight max-w-[80px] text-[#1e293b]" id="preview-expiry-top">{% trans "No Expiry" %}</span>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <div class="w-full mt-6 flex flex-col gap-3.5 px-1">
+                    <div class="flex justify-between items-center pb-2.5 border-b border-border/50">
+                        <span class="text-[12.5px] font-black text-text-primary uppercase truncate w-[60%] text-end" id="detail-title">Campaign Title</span>
+                        <span class="text-[12px] font-bold text-text-muted">{% trans ":Title" %}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-2.5 border-b border-border/50">
+                        <span class="text-[12.5px] font-black text-text-primary uppercase" id="detail-code">YOUR-COUPON</span>
+                        <span class="text-[12px] font-bold text-text-muted">{% trans ":Code" %}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-2.5 border-b border-border/50">
+                        <span class="text-[12.5px] font-black text-primary" id="detail-discount" dir="ltr">0% OFF</span>
+                        <span class="text-[12px] font-bold text-text-muted">{% trans ":Discount" %}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-2.5 border-b border-border/50">
+                        <span class="text-[12.5px] font-black text-text-primary" id="detail-usage">Unlimited</span>
+                        <span class="text-[12px] font-bold text-text-muted">{% trans ":Max Usage" %}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-2.5 border-b border-border/50">
+                        <span class="text-[12.5px] font-black text-text-primary" id="detail-expiry">-</span>
+                        <span class="text-[12px] font-bold text-text-muted">{% trans ":Expiration" %}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-2.5 border-b border-border/50">
+                        <span class="text-[12.5px] font-black text-success" id="detail-status">{% trans "Active" %}</span>
+                        <span class="text-[12px] font-bold text-text-muted">{% trans ":Status" %}</span>
+                    </div>
+                </div>
+
+                <div class="w-full bg-bg border border-border rounded-xl p-4 mt-5">
+                    <h5 class="text-[11.5px] font-black text-text-primary mb-2 text-end">{% trans ":Usage Notes" %}</h5>
+                    <ul class="text-[11px] text-text-muted flex flex-col gap-1.5 list-disc list-inside px-1 marker:text-primary text-end" dir="rtl">
+                        <li>{% trans "Customer enters code at checkout." %}</li>
+                        <li>{% trans "Limits and expiration are enforced automatically." %}</li>
+                        <li>{% trans "Cannot be combined with other rewards." %}</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .float-input {
+        width: 100%;
+        height: 48px;
+        padding: 0 16px;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        background-color: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        outline: none;
+    }
+    .float-input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        background-color: var(--color-surface);
+    }
+    #id_code { text-transform: uppercase; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Form Inputs
+    const inputTitle = document.getElementById('id_title');
+    const inputCode = document.getElementById('id_code');
+    const inputType = document.getElementById('id_coupon_type');
+    const inputValue = document.getElementById('id_discount_value');
+    const inputUsage = document.getElementById('id_max_usage');
+    const inputExpiry = document.getElementById('id_expiration_date');
+    const inputActive = document.getElementById('id_is_active');
+    
+    // Buttons
+    const btnGenerate = document.getElementById('btn-generate-code');
+    
+    // Preview Elements (Ticket)
+    const prevTypeVertical = document.getElementById('preview-type-vertical');
+    const prevCode = document.getElementById('preview-code');
+    const prevExpiryTop = document.getElementById('preview-expiry-top');
+    const prevBadge = document.getElementById('preview-badge');
+    const prevValue = document.getElementById('preview-value');
+    const prevTypePct = document.getElementById('preview-type-pct');
+    const prevTypeFiat = document.getElementById('preview-type-fiat');
+    const prevOffText = document.getElementById('preview-off-text');
+    
+    // Preview Elements (Details List)
+    const detTitle = document.getElementById('detail-title');
+    const detCode = document.getElementById('detail-code');
+    const detDiscount = document.getElementById('detail-discount');
+    const detUsage = document.getElementById('detail-usage');
+    const detExpiry = document.getElementById('detail-expiry');
+    const detStatus = document.getElementById('detail-status');
+
+    // Input Icons (Right side of value input)
+    const iconPct = document.getElementById('icon-percent');
+    const iconFiat = document.getElementById('icon-fiat');
+
+    // Translation Variables
+    const txtUnlimited = "{% trans 'Unlimited' %}";
+    const txtActive = "{% trans 'ACTIVE' %}";
+    const txtPaused = "{% trans 'PAUSED' %}";
+    const txtDiscountCampaign = "{% trans 'Discount Campaign' %}";
+    const txtNoExpiry = "{% trans 'No Expiry' %}";
+
+    function formatNumber(num) {
+        if (!num || isNaN(num)) return "0";
+        return parseFloat(num).toString();
+    }
+
+    function updatePreview() {
+        // 1. Code
+        const codeVal = inputCode.value.trim().toUpperCase() || 'YOUR-COUPON';
+        prevCode.textContent = codeVal;
+        detCode.textContent = codeVal;
+
+        // 2. Title
+        detTitle.textContent = inputTitle.value.trim() || txtDiscountCampaign;
+
+        // 3. Discount Value & Type
+        const val = formatNumber(inputValue.value);
+        const type = inputType.value;
+        
+        // Reset visibility classes
+        prevValue.classList.remove('hidden');
+        prevOffText.classList.remove('hidden');
+
+        if (type === 'percentage') {
+            prevTypeVertical.textContent = "DISCOUNT";
+            prevValue.textContent = val;
+            prevTypePct.classList.remove('hidden');
+            prevTypeFiat.classList.add('hidden');
+            
+            iconPct.classList.remove('hidden');
+            iconFiat.classList.add('hidden');
+            detDiscount.textContent = val + '% OFF';
+
+        } else if (type === 'fixed_amount') {
+            prevTypeVertical.textContent = "DISCOUNT";
+            prevValue.textContent = val;
+            prevTypePct.classList.add('hidden');
+            prevTypeFiat.classList.remove('hidden');
+            
+            iconPct.classList.add('hidden');
+            iconFiat.classList.remove('hidden');
+            detDiscount.textContent = val + ' DZD OFF';
+
+        } else if (type === 'free_shipping') {
+            prevTypeVertical.textContent = "SHIPPING";
+            prevValue.textContent = "FREE";
+            prevTypePct.classList.add('hidden');
+            prevTypeFiat.classList.add('hidden');
+            prevOffText.classList.add('hidden');
+            detDiscount.textContent = "FREE SHIPPING";
+
+        } else if (type === 'bogo') {
+            prevTypeVertical.textContent = "BOGO";
+            prevValue.textContent = "BOGO";
+            prevTypePct.classList.add('hidden');
+            prevTypeFiat.classList.add('hidden');
+            prevOffText.classList.add('hidden');
+            detDiscount.textContent = "BUY 1 GET 1";
+
+        } else {
+            prevTypeVertical.textContent = "REWARD";
+            prevValue.textContent = "100";
+            prevTypePct.classList.remove('hidden');
+            prevTypeFiat.classList.add('hidden');
+            detDiscount.textContent = "FREE ITEM";
+        }
+
+        // 4. Max Usage
+        const usageVal = parseInt(inputUsage.value);
+        if (!isNaN(usageVal) && usageVal > 0) {
+            detUsage.textContent = usageVal;
+        } else {
+            detUsage.textContent = txtUnlimited;
+        }
+
+        // 5. Expiry Date
+        if (inputExpiry && inputExpiry.value) {
+            const dateObj = new Date(inputExpiry.value);
+            const dateStr = dateObj.toLocaleDateString();
+            prevExpiryTop.textContent = dateStr;
+            detExpiry.textContent = dateStr;
+        } else {
+            prevExpiryTop.textContent = txtNoExpiry;
+            detExpiry.textContent = '-';
+        }
+
+        // 6. Status Check
+        if (inputActive && inputActive.checked) {
+            prevBadge.textContent = txtActive;
+            prevBadge.className = "bg-[#1e293b]/10 text-[#1e293b] border border-[#1e293b]/20 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest shadow-sm";
+            detStatus.textContent = "{% trans 'Active' %}";
+            detStatus.className = "text-[12.5px] font-black text-success";
+        } else {
+            prevBadge.textContent = txtPaused;
+            prevBadge.className = "bg-white/40 text-[#1e293b]/60 border border-white/40 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest shadow-sm";
+            detStatus.textContent = "{% trans 'Paused' %}";
+            detStatus.className = "text-[12.5px] font-black text-text-muted";
+        }
+    }
+
+    // Event Listeners for Real-time Update
+    const inputs = [inputTitle, inputCode, inputType, inputValue, inputUsage, inputExpiry, inputActive];
+    inputs.forEach(input => {
+        if (input) {
+            input.addEventListener('input', updatePreview);
+            input.addEventListener('change', updatePreview);
+        }
+    });
+
+    // Random Code Generator
+    if (btnGenerate) {
+        btnGenerate.addEventListener('click', function() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 8; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            const formattedResult = "FZ-" + result.substring(0, 4) + result.substring(4);
+            inputCode.value = formattedResult;
+            updatePreview();
+        });
+    }
+
+    // Initialize Preview on load
+    updatePreview();
+});
+</script>
+{% endblock %}

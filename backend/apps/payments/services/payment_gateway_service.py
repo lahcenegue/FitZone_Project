@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Tuple
 from django.db import transaction
 
-from .models import PaymentTransaction, PaymentGateway, PaymentStatus
+from apps.payments.models import PaymentTransaction, PaymentGateway, PaymentStatus
 
 logger = logging.getLogger(__name__)
 

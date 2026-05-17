@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "tailwindcss -i ./backend/static/global/css/input.css -o ./backend/static/global/css/output.css --watch",
-    "build": "tailwindcss -i ./backend/static/global/css/input.css -o ./backend/static/global/css/output.css --minify"
+    "build": "tailwindcss -i ./backend/static/global/css/input.css -o ./backend/static/global/css/output.css --minify",
+    "watch": "tailwindcss -i ./backend/static/global/css/input.css -o ./backend/static/global/css/output.css --watch"
   },
   "repository": {
     "type": "git",

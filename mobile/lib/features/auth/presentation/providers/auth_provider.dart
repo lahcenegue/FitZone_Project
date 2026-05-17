@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
-import 'package:fitzone/core/storage/storage_provider.dart';
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/network/api_provider.dart';
+import '../../../../core/routing/auth_intent_provider.dart';
 import '../../../../core/storage/secure_storage_provider.dart';
+import '../../../../core/storage/storage_provider.dart';
+
 import '../../data/models/auth_response_model.dart';
 import '../../data/models/complete_profile_request_model.dart';
 import '../../data/models/register_request_model.dart';
@@ -36,11 +38,10 @@ class AuthController extends _$AuthController {
     try {
       final AuthApiService authService = ref.read(authApiServiceProvider);
       await authService.register(request);
-      // ARCHITECTURE FIX: Registration does not mean logged in.
       state = const AsyncData(null);
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
-      rethrow; // Allows the UI try/catch to handle it linearly
+      rethrow;
     }
   }
 
@@ -126,6 +127,8 @@ class AuthController extends _$AuthController {
     } finally {
       await ref.read(secureStorageServiceProvider).clearAll();
       await ref.read(storageServiceProvider).clearCachedUser();
+      // ARCHITECTURE FIX: Wipe out any pending intents on logout
+      await ref.read(authIntentServiceProvider).clearIntent();
       state = const AsyncData(null);
     }
   }
@@ -174,6 +177,8 @@ class AuthController extends _$AuthController {
 
       await ref.read(secureStorageServiceProvider).clearAll();
       await ref.read(storageServiceProvider).clearCachedUser();
+      // ARCHITECTURE FIX: Wipe out any pending intents on account deletion
+      await ref.read(authIntentServiceProvider).clearIntent();
       state = const AsyncData(null);
     } catch (error) {
       rethrow;

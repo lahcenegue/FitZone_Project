@@ -89,6 +89,16 @@ class PaymentTransaction(models.Model):
 
 class PaymentGlobalSetting(models.Model):
     """Singleton model for global financial configurations."""
+    
+    # --- VAT System (Added in its mathematically and architecturally correct place) ---
+    vat_percentage = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        default=15.00, 
+        verbose_name=_("VAT Percentage (%)"),
+        help_text=_("Global Value Added Tax applied to purchases.")
+    )
+
     earnings_hold_days = models.PositiveIntegerField(
         default=3,
         verbose_name=_("Earnings Hold Period (Days)"),

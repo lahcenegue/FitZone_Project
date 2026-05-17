@@ -2713,6 +2713,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search gyms or subscriptions...'**
   String get searchResale;
+
+  /// No description provided for @orderDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Details'**
+  String get orderDetails;
+
+  /// No description provided for @walletBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Balance'**
+  String get walletBalance;
+
+  /// No description provided for @useWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Use wallet balance'**
+  String get useWallet;
+
+  /// No description provided for @rewardPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward Points'**
+  String get rewardPoints;
+
+  /// No description provided for @redeemPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem Points'**
+  String get redeemPoints;
+
+  /// No description provided for @pointsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Points (e.g., 100)'**
+  String get pointsHint;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
+  /// No description provided for @invoiceSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice Summary'**
+  String get invoiceSummary;
+
+  /// No description provided for @subtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get subtotal;
+
+  /// No description provided for @tax.
+  ///
+  /// In en, this message translates to:
+  /// **'VAT'**
+  String get tax;
+
+  /// No description provided for @discount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get discount;
+
+  /// No description provided for @pointsDeduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Points Deduction'**
+  String get pointsDeduction;
+
+  /// No description provided for @walletDeduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Deduction'**
+  String get walletDeduction;
+
+  /// No description provided for @totalToPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Total to Pay'**
+  String get totalToPay;
+
+  /// No description provided for @expectedRewards.
+  ///
+  /// In en, this message translates to:
+  /// **'You will earn'**
+  String get expectedRewards;
+
+  /// No description provided for @processing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing...'**
+  String get processing;
+
+  /// No description provided for @selectPaymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a payment method for the remaining amount'**
+  String get selectPaymentMethod;
+
+  /// No description provided for @unitDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get unitDays;
+
+  /// No description provided for @unitPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get unitPoints;
+
+  /// No description provided for @unitVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit'**
+  String get unitVisit;
+
+  /// No description provided for @unitItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get unitItem;
+
+  /// No description provided for @provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider:'**
+  String get provider;
+
+  /// No description provided for @enterCouponSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your promo code if any'**
+  String get enterCouponSubtitle;
+
+  /// No description provided for @couponHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Promo Code'**
+  String get couponHint;
+
+  /// No description provided for @maxBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get maxBtn;
+
+  /// No description provided for @couponCampaignPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'This marketing campaign is currently paused.'**
+  String get couponCampaignPaused;
+
+  /// No description provided for @couponExhausted.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid or previously used coupon code.'**
+  String get couponExhausted;
+
+  /// No description provided for @couponAppliedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon applied successfully!'**
+  String get couponAppliedSuccess;
+
+  /// No description provided for @removeBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get removeBtn;
+
+  /// No description provided for @walletCoversTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet balance covers the total, no payment card needed.'**
+  String get walletCoversTotal;
 }
 
 class _AppLocalizationsDelegate

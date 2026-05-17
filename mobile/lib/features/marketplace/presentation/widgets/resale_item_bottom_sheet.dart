@@ -184,8 +184,14 @@ class ResaleItemBottomSheet extends StatelessWidget {
               ElevatedButton(
                 onPressed: () {
                   _logger.info('Proceed to checkout for item: ${item.id}');
-                  context.pop(); // Close sheet
-                  // TODO: Navigate to Resale Checkout (To be implemented next)
+                  context.pop();
+                  context.push(
+                    RoutePaths.checkout,
+                    extra: {
+                      'itemType': 'resale_item', //gym_plan, roaming_pass
+                      'itemId': item.id,
+                    },
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,

@@ -1,0 +1,7 @@
+{% if help_text %}
+<div id="{{ hint_id }}" class="hidden mt-3 animate-fadeIn w-full">
+    <div class="p-3.5 bg-bg border border-border rounded-lg border-l-4 border-l-primary rtl:border-l-0 rtl:border-r-4 rtl:border-r-primary shadow-sm relative z-0">
+        <p class="text-[11.5px] font-medium text-text-secondary leading-relaxed">{{ help_text }}</p>
+    </div>
+</div>
+{% endif %}

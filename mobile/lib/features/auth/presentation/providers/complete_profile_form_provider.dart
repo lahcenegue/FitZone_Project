@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:logging/logging.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/config/app_constants.dart';
 import '../../data/models/complete_profile_request_model.dart';
 
 part 'complete_profile_form_provider.g.dart';
@@ -39,12 +40,8 @@ class CompleteProfileForm extends _$CompleteProfileForm {
   final ImagePicker _picker = ImagePicker();
   final Logger _logger = Logger('CompleteProfileForm');
 
-  // ARCHITECTURE FIX: Extracted magic number to a constant
-  static const int _imageQuality = 80;
-
   @override
   CompleteProfileFormState build() {
-    // Initial clean state, only handling images now
     return CompleteProfileFormState();
   }
 
@@ -55,7 +52,8 @@ class CompleteProfileForm extends _$CompleteProfileForm {
       );
       final XFile? image = await _picker.pickImage(
         source: source,
-        imageQuality: _imageQuality,
+        // ARCHITECTURE FIX: Pulled from AppConstants instead of magic local variable
+        imageQuality: AppConstants.imageCompressionQuality,
       );
 
       if (image != null) {
@@ -68,7 +66,6 @@ class CompleteProfileForm extends _$CompleteProfileForm {
         _logger.info('ID card image picking was canceled by the user.');
       }
     } catch (e, stackTrace) {
-      // ARCHITECTURE FIX: Proper error catching for OS-level exceptions (e.g., permissions)
       _logger.severe('Failed to pick ID card image', e, stackTrace);
     }
   }
@@ -78,7 +75,8 @@ class CompleteProfileForm extends _$CompleteProfileForm {
       _logger.info('Attempting to pick face image from source: ${source.name}');
       final XFile? image = await _picker.pickImage(
         source: source,
-        imageQuality: _imageQuality,
+        // ARCHITECTURE FIX: Pulled from AppConstants
+        imageQuality: AppConstants.imageCompressionQuality,
         preferredCameraDevice: CameraDevice.front,
       );
 

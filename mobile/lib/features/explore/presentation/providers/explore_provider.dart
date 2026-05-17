@@ -3,11 +3,12 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logging/logging.dart';
 
-import 'package:fitzone/core/location/location_provider.dart';
-import 'package:fitzone/core/network/api_provider.dart';
-import 'package:fitzone/features/explore/data/models/gym_model.dart';
-import 'package:fitzone/features/explore/data/services/explore_api_service.dart';
-import 'package:fitzone/features/explore/presentation/providers/explore_filter_state.dart';
+import '../../../../core/config/app_constants.dart';
+import '../../../../core/location/location_provider.dart';
+import '../../../../core/network/api_provider.dart';
+import '../../data/models/gym_model.dart';
+import '../../data/services/explore_api_service.dart';
+import '../providers/explore_filter_state.dart';
 
 part 'explore_provider.g.dart';
 
@@ -65,12 +66,13 @@ Future<List<GymModel>> nearbyPlaces(Ref ref) async {
     return [];
   }
 
-  // ARCHITECTURE FIX: Debounce & Cancellation Logic
   final cancelToken = CancelToken();
   ref.onDispose(cancelToken.cancel);
 
-  // Debounce time: Wait 500ms before making the API call
-  await Future<void>.delayed(const Duration(milliseconds: 500));
+  // ARCHITECTURE FIX: Using centralized debounce constant
+  await Future<void>.delayed(
+    const Duration(milliseconds: AppConstants.debounceMilliseconds),
+  );
   if (cancelToken.isCancelled) {
     _logger.info(
       'Skipping cancelled request (Map is still moving or filters changed).',

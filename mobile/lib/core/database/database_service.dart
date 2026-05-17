@@ -3,6 +3,8 @@ import 'package:path/path.dart';
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../config/app_constants.dart';
+
 part 'database_service.g.dart';
 
 class DatabaseService {
@@ -21,7 +23,8 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 3, // Incremented version to apply architectural fixes
+      // ARCHITECTURE FIX: Using centralized constant
+      version: AppConstants.dbVersion,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: _ensureTablesExist,
@@ -37,8 +40,8 @@ class DatabaseService {
     _logger.info(
       'Upgrading SQLite database from $oldVersion to $newVersion...',
     );
-    // ARCHITECTURE FIX: Drop the old loyalty table as it is now user-specific API driven
-    if (oldVersion < 3) {
+    // ARCHITECTURE FIX: Using centralized constant
+    if (oldVersion < AppConstants.dbVersion) {
       await db.execute('DROP TABLE IF EXISTS loyalty_milestones');
     }
     await _executeTableCreations(db);

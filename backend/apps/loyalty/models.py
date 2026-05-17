@@ -1,3 +1,4 @@
+# apps/loyalty/models.py
 """
 Database models for the Loyalty and Wallet ecosystem.
 Manages customer wallets, point transactions, fiat balances, 
@@ -6,6 +7,7 @@ milestone roadmaps, global conversion settings, and Point Packages.
 
 import uuid
 import logging
+from decimal import Decimal
 from django.db import models, transaction
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -21,7 +23,12 @@ class LoyaltyGlobalSetting(models.Model):
     store_earn_rate = models.DecimalField(max_digits=10, decimal_places=2, default=100.00, verbose_name=_("Store Earn Rate (SAR per Point)"))
     restaurant_earn_rate = models.DecimalField(max_digits=10, decimal_places=2, default=50.00, verbose_name=_("Restaurant Earn Rate (SAR per Point)"))
     point_to_fiat_rate = models.DecimalField(max_digits=10, decimal_places=2, default=100.00, verbose_name=_("Point to Fiat Rate (Points per SAR)"))
-    max_global_discount_percent = models.DecimalField(max_digits=5, decimal_places=2, default=10.00, verbose_name=_("Max Global Discount (%)"))
+    
+    max_discount_gym_plan = models.DecimalField(max_digits=5, decimal_places=2, default=20.00, verbose_name=_("Max Points Discount: Gym Plans (%)"))
+    max_discount_roaming = models.DecimalField(max_digits=5, decimal_places=2, default=100.00, verbose_name=_("Max Points Discount: Roaming (%)"))
+    max_discount_resale = models.DecimalField(max_digits=5, decimal_places=2, default=15.00, verbose_name=_("Max Points Discount: Resale Market (%)"))
+    max_discount_packages = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, verbose_name=_("Max Points Discount: Points Packages (%)"))
+    
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -37,7 +44,10 @@ class LoyaltyGlobalSetting(models.Model):
                     old.store_earn_rate != self.store_earn_rate or
                     old.restaurant_earn_rate != self.restaurant_earn_rate or
                     old.point_to_fiat_rate != self.point_to_fiat_rate or
-                    old.max_global_discount_percent != self.max_global_discount_percent):
+                    old.max_discount_gym_plan != self.max_discount_gym_plan or
+                    old.max_discount_roaming != self.max_discount_roaming or
+                    old.max_discount_resale != self.max_discount_resale or
+                    old.max_discount_packages != self.max_discount_packages):
                     self.roadmap_version += 1
             except Exception:
                 pass
@@ -57,6 +67,11 @@ class PointPackage(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Package Name"))
     points = models.PositiveIntegerField(verbose_name=_("Points Amount"))
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Price (SAR)"))
+    
+    # Advanced Analytics Fields
+    total_purchases = models.PositiveIntegerField(default=0, verbose_name=_("Total Purchases"))
+    total_revenue = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name=_("Total Revenue (SAR)"))
+    
     is_active = models.BooleanField(default=True, verbose_name=_("Is Active"))
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -133,14 +148,10 @@ class WalletTransaction(models.Model):
             wallet_obj.points_balance += points
             wallet_obj.fiat_balance = float(wallet_obj.fiat_balance) + float(fiat)
             
-            # --- STRICT LIFETIME POINTS LOGIC ---
             if points > 0 and t_type in [TransactionType.EARN_PURCHASE, TransactionType.BUY_POINTS]:
-                # 1. Earned points increase lifetime points
                 wallet_obj.lifetime_points += points
             elif points < 0 and t_type == TransactionType.REFUND:
-                # 2. Refunds strictly decrease lifetime points to prevent exploitation
                 wallet_obj.lifetime_points = max(0, wallet_obj.lifetime_points + points)
-            # 3. Normal spending (SPEND_ROAMING, SPEND_DISCOUNT) leaves lifetime_points untouched
                 
             wallet_obj.save(update_fields=['points_balance', 'fiat_balance', 'lifetime_points', 'updated_at'])
 
@@ -169,30 +180,37 @@ class FulfillmentType(models.TextChoices):
     DELIVERY = 'DELIVERY', _('Shipped / Delivered')
 
 
+class DiscountType(models.TextChoices):
+    PERCENTAGE = 'percentage', _('Percentage')
+    FIXED_AMOUNT = 'fixed_amount', _('Fixed Amount')
+
+
 class MilestoneReward(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("Reward Name"))
     action_type = models.CharField(max_length=50, choices=RewardActionType.choices, default=RewardActionType.GENERATE_COUPON)
-    
-    action_value = models.PositiveIntegerField(default=1, verbose_name=_("Days / Visits Amount"), help_text=_("Ignore this field if you are creating a Discount Coupon."))
-    
-    coupon_definition = models.ForeignKey(
-        'coupons.CouponDefinition', 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
-        related_name="milestone_rewards",
-        verbose_name=_("Coupon Template"),
-        help_text=_("Required ONLY if you selected 'Discount Coupon' above.")
-    )
+    action_value = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name=_("Granted Value"))
+    discount_type = models.CharField(max_length=20, choices=DiscountType.choices, null=True, blank=True, verbose_name=_("Discount Type"))
     
     fulfillment_type = models.CharField(max_length=20, choices=FulfillmentType.choices, default=FulfillmentType.IMMEDIATE)
-    
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = _("Milestone Reward Definition")
         verbose_name_plural = _("Milestone Reward Definitions")
+
+    def save(self, *args, **kwargs):
+        if self.action_type == RewardActionType.GENERATE_COUPON:
+            self.fulfillment_type = FulfillmentType.CONTEXTUAL
+        elif self.action_type == RewardActionType.SYSTEM_EXTENSION:
+            self.fulfillment_type = FulfillmentType.IMMEDIATE
+        elif self.action_type in [RewardActionType.SYSTEM_ROAMING, RewardActionType.MANUAL_FULFILLMENT]:
+            self.fulfillment_type = FulfillmentType.QR_VERIFIED
+            
+        if self.action_type != RewardActionType.GENERATE_COUPON:
+            self.discount_type = None
+            
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name} ({self.get_action_type_display()})"

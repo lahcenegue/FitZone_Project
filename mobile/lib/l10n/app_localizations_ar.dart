@@ -674,7 +674,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get changePasswordSubtitle => 'أدخل كلمة المرور الحالية والجديدة.';
 
   @override
-  String get checkoutTitle => 'الدفع';
+  String get checkoutTitle => 'إتمام الشراء';
 
   @override
   String get orderSummary => 'ملخص الطلب';
@@ -1348,4 +1348,97 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get searchResale => 'ابحث عن صالة أو اشتراك...';
+
+  @override
+  String get orderDetails => 'تفاصيل الطلب';
+
+  @override
+  String get walletBalance => 'رصيد المحفظة';
+
+  @override
+  String get useWallet => 'استخدام رصيد المحفظة';
+
+  @override
+  String get rewardPoints => 'نقاط المكافآت';
+
+  @override
+  String get redeemPoints => 'استبدال النقاط';
+
+  @override
+  String get pointsHint => 'عدد النقاط (مثال: 100)';
+
+  @override
+  String get apply => 'تطبيق';
+
+  @override
+  String get invoiceSummary => 'ملخص الفاتورة';
+
+  @override
+  String get subtotal => 'المجموع الفرعي';
+
+  @override
+  String get tax => 'ضريبة القيمة المضافة';
+
+  @override
+  String get discount => 'الخصم';
+
+  @override
+  String get pointsDeduction => 'خصم النقاط';
+
+  @override
+  String get walletDeduction => 'المسحوب من المحفظة';
+
+  @override
+  String get totalToPay => 'الإجمالي المطلوب';
+
+  @override
+  String get expectedRewards => 'ستكسب بعد الشراء';
+
+  @override
+  String get processing => 'جاري المعالجة...';
+
+  @override
+  String get selectPaymentMethod =>
+      'الرجاء اختيار طريقة الدفع لتكملة المبلغ المتبقي';
+
+  @override
+  String get unitDays => 'يوم';
+
+  @override
+  String get unitPoints => 'نقطة';
+
+  @override
+  String get unitVisit => 'زيارة';
+
+  @override
+  String get unitItem => 'عنصر';
+
+  @override
+  String get provider => 'المزود:';
+
+  @override
+  String get enterCouponSubtitle => 'أدخل كود الخصم المتاح لديك';
+
+  @override
+  String get couponHint => 'رمز الكوبون';
+
+  @override
+  String get maxBtn => 'الكل';
+
+  @override
+  String get couponCampaignPaused =>
+      'عذراً، هذه الحملة التسويقية متوقفة حالياً.';
+
+  @override
+  String get couponExhausted => 'رمز الكوبون غير صالح أو تم استخدامه مسبقاً.';
+
+  @override
+  String get couponAppliedSuccess => 'تم تطبيق الكوبون بنجاح!';
+
+  @override
+  String get removeBtn => 'إلغاء';
+
+  @override
+  String get walletCoversTotal =>
+      'رصيد المحفظة يغطي كامل المبلغ، لا حاجة لبطاقة دفع.';
 }

@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/config/app_constants.dart';
 import '../../../../core/network/api_provider.dart';
 import '../../data/models/loyalty_models.dart';
 import '../../data/services/loyalty_api_service.dart';
@@ -27,7 +28,6 @@ Future<List<LoyaltyPackage>> loyaltyPackages(Ref ref) async {
 @riverpod
 Future<List<UserMilestone>> allUserMilestones(Ref ref) async {
   final apiService = ref.watch(loyaltyApiServiceProvider);
-  // 'all' passes null to backend to get unlocked, claimed, and consumed
   final paginatedData = await apiService.getMyMilestones();
   return paginatedData.results;
 }
@@ -42,7 +42,10 @@ Future<List<UserMilestone>> consumedRewards(Ref ref) async {
 @riverpod
 Future<PaginatedTransactions> dashboardTransactions(Ref ref) async {
   final apiService = ref.watch(loyaltyApiServiceProvider);
-  return await apiService.getTransactions(limit: 5);
+  // ARCHITECTURE FIX: Using centralized constant
+  return await apiService.getTransactions(
+    limit: AppConstants.dashboardItemsLimit,
+  );
 }
 
 @riverpod
@@ -69,16 +72,22 @@ Future<PaginatedTransactions> filteredTransactions(
 @riverpod
 Future<PaginatedUserMilestones> dashboardRewards(Ref ref) async {
   final apiService = ref.watch(loyaltyApiServiceProvider);
-  return await apiService.getMyMilestones(limit: 5, status: 'claimed');
+  // ARCHITECTURE FIX: Using centralized constant
+  return await apiService.getMyMilestones(
+    limit: AppConstants.dashboardItemsLimit,
+    status: 'claimed',
+  );
 }
 
 @riverpod
 Future<PaginatedPointsTransactions> dashboardPoints(Ref ref) async {
   final apiService = ref.watch(loyaltyApiServiceProvider);
-  return await apiService.getPointsHistory(limit: 5);
+  // ARCHITECTURE FIX: Using centralized constant
+  return await apiService.getPointsHistory(
+    limit: AppConstants.dashboardItemsLimit,
+  );
 }
 
-// ARCHITECTURE FIX: Fetch the user-specific roadmap with its Meta Progress
 @riverpod
 Future<LoyaltyRoadmapResponse> loyaltyRoadmap(Ref ref) async {
   final apiService = ref.watch(loyaltyApiServiceProvider);

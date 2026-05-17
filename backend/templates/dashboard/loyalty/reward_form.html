@@ -1,0 +1,365 @@
+{# templates/dashboard/loyalty/reward_form.html #}
+{% extends "dashboard/layout.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="flex flex-col gap-8 pb-12">
+
+    {% url 'dashboard:rewards_list' as list_url %}
+    {% trans "Configure the specifics of a reward to be granted to loyal customers." as subtitle_trans %}
+    {% trans "Back to List" as action_text_trans %}
+    {% include "dashboard/components/page_header.html" with title=page_title subtitle=subtitle_trans action_url=list_url action_text=action_text_trans action_icon='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>' %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <div class="lg:col-span-8">
+            <form method="post" class="bg-surface border border-border shadow-sm rounded-2xl p-8 flex flex-col gap-6" id="reward-form">
+                {% csrf_token %}
+                
+                <div class="flex items-center gap-3 border-b border-border/50 pb-4 mb-2">
+                    <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                    </div>
+                    <h2 class="text-lg font-black text-text-primary">{{ page_title }}</h2>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Reward Name" %} <span class="text-error">*</span></label>
+                    {{ form.name }}
+                    {% if form.name.errors %}<span class="text-error text-xs font-bold">{{ form.name.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Reward Action Type" %} <span class="text-error">*</span></label>
+                        <div class="custom-select-wrapper relative w-full">
+                            <input type="hidden" name="action_type" id="id_action_type" value="{{ form.action_type.value|default:'' }}">
+                            <div class="select-trigger h-[48px] bg-bg border border-border rounded-[12px] px-4 flex items-center justify-between cursor-pointer hover:border-primary/50 transition-all shadow-sm">
+                                <span class="text-[14px] font-bold text-text-primary select-label">{% trans "Select Type..." %}</span>
+                                <svg class="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                            <div class="select-dropdown absolute top-full start-0 w-full mt-1.5 bg-surface border border-border rounded-xl shadow-lg hidden z-50 py-1.5">
+                                {% for choice_val, choice_label in form.fields.action_type.choices %}
+                                    {% if choice_val %}
+                                        <div class="select-option px-4 py-2.5 text-[13px] font-bold hover:bg-bg cursor-pointer transition-colors" data-value="{{ choice_val }}">{{ choice_label }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% if form.action_type.errors %}<span class="text-error text-xs font-bold">{{ form.action_type.errors.0 }}</span>{% endif %}
+                    </div>
+
+                    <div class="flex flex-col gap-2 hidden" id="wrapper-discount-type">
+                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Discount Type" %} <span class="text-error">*</span></label>
+                        <div class="custom-select-wrapper relative w-full">
+                            <input type="hidden" name="discount_type" id="id_discount_type" value="{{ form.discount_type.value|default:'' }}">
+                            <div class="select-trigger h-[48px] bg-bg border border-border rounded-[12px] px-4 flex items-center justify-between cursor-pointer hover:border-primary/50 transition-all shadow-sm">
+                                <span class="text-[14px] font-bold text-text-primary select-label">{% trans "Select Discount Type..." %}</span>
+                                <svg class="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                            <div class="select-dropdown absolute top-full start-0 w-full mt-1.5 bg-surface border border-border rounded-xl shadow-lg hidden z-50 py-1.5">
+                                {% for choice_val, choice_label in form.fields.discount_type.choices %}
+                                    {% if choice_val %}
+                                        <div class="select-option px-4 py-2.5 text-[13px] font-bold hover:bg-bg cursor-pointer transition-colors" data-value="{{ choice_val }}">{{ choice_label }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% if form.discount_type.errors %}<span class="text-error text-xs font-bold">{{ form.discount_type.errors.0 }}</span>{% endif %}
+                    </div>
+
+                    <div class="flex flex-col gap-2 w-full" id="wrapper-action-value">
+                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider" id="label-action-value">{% trans "Granted Value" %} <span class="text-error">*</span></label>
+                        <div class="relative flex items-center">
+                            {{ form.action_value }}
+                            <div class="absolute inset-y-0 end-4 flex items-center pointer-events-none">
+                                <span class="text-[12px] font-black text-text-muted uppercase hidden" id="unit-action-value-text">UNITS</span>
+                                <span class="w-4 h-4 text-text-muted hidden" id="unit-action-value-icon">{% include "components/currency_icon.html" %}</span>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-text-muted mt-1" id="hint-action-value">{% trans "Enter the numeric value associated with the reward." %}</p>
+                        {% if form.action_value.errors %}<span class="text-error text-xs font-bold">{{ form.action_value.errors.0 }}</span>{% endif %}
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-4 bg-bg border border-border rounded-xl mt-4">
+                    <div class="flex flex-col">
+                        <span class="text-[13px] font-black text-text-primary">{% trans "Active Status" %}</span>
+                        <span class="text-[11.5px] text-text-muted">{% trans "Make this reward available for milestones." %}</span>
+                    </div>
+                    <label class="ui-switch m-0">
+                        {{ form.is_active }}
+                        <span class="ui-slider"></span>
+                    </label>
+                </div>
+
+                <div class="border-t border-border/50 pt-6 mt-2 flex items-center gap-4">
+                    <button type="submit" class="btn-action btn-primary px-8 py-3.5 rounded-xl shadow-md">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                        <span>{{ action_title }}</span>
+                    </button>
+                    <a href="{% url 'dashboard:rewards_list' %}" class="btn-action bg-bg text-text-secondary border border-border hover:bg-border px-8 py-3.5 rounded-xl transition-colors">
+                        {% trans "Cancel" %}
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="lg:col-span-4 sticky top-6">
+            <div class="bg-surface border border-border shadow-sm rounded-[24px] p-6 flex flex-col items-center">
+                
+                <div class="flex items-center gap-2 mb-6 w-full justify-center">
+                    <h3 class="text-[14px] font-black text-text-primary">{% trans "Live Preview" %}</h3>
+                    <svg class="w-5 h-5 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                </div>
+
+                <div class="relative w-full flex rounded-[12px] shadow-md overflow-hidden min-h-[160px]" id="preview-ticket">
+                    
+                    <div class="absolute -start-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-surface rounded-full z-10"></div>
+
+                    <div class="w-[25%] flex items-center justify-center relative overflow-hidden" id="preview-color-band" style="background-color: #F97316;">
+                        <div class="absolute end-0 inset-y-0 w-px border-e-2 border-dashed border-[#1e293b]/20"></div>
+                        <span class="transform -rotate-90 text-[15px] font-black tracking-[0.25em] uppercase whitespace-nowrap text-[#1e293b]" id="preview-type-vertical">REWARD</span>
+                    </div>
+
+                    <div class="w-[75%] p-5 flex flex-col justify-between relative" id="preview-gradient-band" style="background: linear-gradient(to right, #FFEDD5, #FFDED1);">
+                        <div class="absolute -end-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-surface rounded-full z-10"></div>
+
+                        <div class="flex justify-between items-start pe-2">
+                            <div class="flex items-baseline gap-1 text-[#1e293b] drop-shadow-sm" dir="ltr">
+                                <span class="text-[44px] font-black tracking-tighter leading-none" id="preview-value">0</span>
+                                <span class="text-[16px] font-black leading-none hidden" id="preview-unit-text">UNITS</span>
+                                <span class="w-6 h-6 hidden pb-1 fill-current" id="preview-unit-icon">{% include "components/currency_icon.html" %}</span>
+                                <span class="text-[14px] font-black uppercase ms-1 hidden" id="preview-off-text">OFF</span>
+                            </div>
+                            <span class="bg-[#1e293b]/10 text-[#1e293b] border border-[#1e293b]/20 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest shadow-sm" id="preview-badge">
+                                {% trans "ACTIVE" %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full mt-6 flex flex-col gap-3.5 px-1">
+                    <div class="flex justify-between items-center pb-2.5 border-b border-border/50">
+                        <span class="text-[12.5px] font-black text-text-primary uppercase truncate w-[60%] text-end" id="detail-title">{% trans "REWARD NAME" %}</span>
+                        <span class="text-[12px] font-bold text-text-muted">{% trans ":Title" %}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-2.5 border-b border-border/50">
+                        <span class="text-[12.5px] font-black text-text-primary" id="detail-fulfillment">{% trans "System Applied" %}</span>
+                        <span class="text-[12px] font-bold text-text-muted">{% trans ":Delivery" %}</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .float-input {
+        width: 100%;
+        height: 48px;
+        padding: 0 16px;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        background-color: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        outline: none;
+    }
+    .float-input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        background-color: var(--color-surface);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Custom Select Initialization (from filter_bar logic)
+    const wrappers = document.querySelectorAll('.custom-select-wrapper');
+    wrappers.forEach(wrapper => {
+        const trigger = wrapper.querySelector('.select-trigger');
+        const label = wrapper.querySelector('.select-label');
+        const dropdown = wrapper.querySelector('.select-dropdown');
+        const hiddenInput = wrapper.querySelector('input[type="hidden"]');
+        const options = wrapper.querySelectorAll('.select-option');
+
+        // Set initial label text based on default value
+        options.forEach(opt => {
+            if(opt.dataset.value === hiddenInput.value) { label.textContent = opt.textContent; }
+        });
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.select-dropdown').forEach(d => {
+                if(d !== dropdown) d.classList.add('hidden');
+            });
+            dropdown.classList.toggle('hidden');
+        });
+
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                hiddenInput.value = option.dataset.value;
+                label.textContent = option.textContent;
+                dropdown.classList.add('hidden');
+                hiddenInput.dispatchEvent(new Event('change')); // Trigger update preview
+            });
+        });
+    });
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.select-dropdown').forEach(d => d.classList.add('hidden'));
+    });
+
+    // Form Fields
+    const inputName = document.getElementById('id_name');
+    const inputActionType = document.getElementById('id_action_type');
+    const inputDiscountType = document.getElementById('id_discount_type');
+    const inputValue = document.getElementById('id_action_value');
+    const inputActive = document.getElementById('id_is_active');
+    
+    // Form Wrappers & Labels
+    const wrapperDiscountType = document.getElementById('wrapper-discount-type');
+    const wrapperActionValue = document.getElementById('wrapper-action-value');
+    const labelActionValue = document.getElementById('label-action-value');
+    const unitActionValueText = document.getElementById('unit-action-value-text');
+    const unitActionValueIcon = document.getElementById('unit-action-value-icon');
+    const hintActionValue = document.getElementById('hint-action-value');
+
+    // Preview Elements
+    const prevTitle = document.getElementById('detail-title');
+    const prevFulfillment = document.getElementById('detail-fulfillment');
+    const prevTypeVertical = document.getElementById('preview-type-vertical');
+    const prevValue = document.getElementById('preview-value');
+    const prevUnitText = document.getElementById('preview-unit-text');
+    const prevUnitIcon = document.getElementById('preview-unit-icon');
+    const prevOffText = document.getElementById('preview-off-text');
+    const prevBadge = document.getElementById('preview-badge');
+    
+    const colorBand = document.getElementById('preview-color-band');
+    const gradBand = document.getElementById('preview-gradient-band');
+
+    function updatePreview() {
+        const actionType = inputActionType.value;
+        const discountType = inputDiscountType.value;
+        const value = parseFloat(inputValue.value) || 0;
+
+        // 1. Title Update
+        prevTitle.textContent = inputName.value.trim() || "{% trans 'REWARD NAME' %}";
+
+        // 2. Active Status Update
+        if (inputActive && inputActive.checked) {
+            prevBadge.textContent = "{% trans 'ACTIVE' %}";
+            prevBadge.className = "px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-success/10 text-success border border-success/20";
+        } else {
+            prevBadge.textContent = "{% trans 'PAUSED' %}";
+            prevBadge.className = "px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-white/40 text-text-muted border border-border";
+        }
+
+        // Reset visibility
+        unitActionValueText.classList.add('hidden');
+        unitActionValueIcon.classList.add('hidden');
+        prevUnitText.classList.add('hidden');
+        prevUnitIcon.classList.add('hidden');
+        prevOffText.classList.add('hidden');
+
+        // 3. Dynamic Fields & UI Update based on Action Type
+        if (actionType === 'gen_coupon') {
+            wrapperDiscountType.classList.remove('hidden');
+            wrapperActionValue.classList.remove('hidden');
+            
+            labelActionValue.innerHTML = '{% trans "Discount Value" %} <span class="text-error">*</span>';
+            hintActionValue.textContent = '{% trans "Enter the amount to be discounted." %}';
+            
+            prevTypeVertical.textContent = "COUPON";
+            prevFulfillment.textContent = "{% trans 'Checkout Cart' %}";
+            colorBand.style.backgroundColor = "#D49BEB";
+            gradBand.style.background = "linear-gradient(to right, #B4C4FF, #8BD5FF)";
+            prevOffText.classList.remove('hidden');
+
+            if (discountType === 'percentage') {
+                unitActionValueText.textContent = "%";
+                unitActionValueText.classList.remove('hidden');
+                prevUnitText.textContent = "%";
+                prevUnitText.classList.remove('hidden');
+                prevValue.textContent = value.toString();
+            } else if (discountType === 'fixed_amount') {
+                unitActionValueIcon.classList.remove('hidden');
+                prevUnitIcon.classList.remove('hidden');
+                prevValue.textContent = value.toFixed(2);
+            } else {
+                prevValue.textContent = "0";
+            }
+
+        } else if (actionType === 'sys_roaming') {
+            wrapperDiscountType.classList.add('hidden');
+            wrapperActionValue.classList.remove('hidden');
+            
+            labelActionValue.innerHTML = '{% trans "Granted Visits" %} <span class="text-error">*</span>';
+            unitActionValueText.textContent = "VISITS";
+            unitActionValueText.classList.remove('hidden');
+            hintActionValue.textContent = '{% trans "Number of free roaming visits." %}';
+            
+            prevTypeVertical.textContent = "ROAMING";
+            prevFulfillment.textContent = "{% trans 'QR Verified' %}";
+            colorBand.style.backgroundColor = "#14B8A6";
+            gradBand.style.background = "linear-gradient(to right, #CCFBF1, #99F6E4)";
+            
+            prevValue.textContent = parseInt(value).toString();
+            prevUnitText.textContent = "VISITS";
+            prevUnitText.classList.remove('hidden');
+
+        } else if (actionType === 'sys_extension') {
+            wrapperDiscountType.classList.add('hidden');
+            wrapperActionValue.classList.remove('hidden');
+            
+            labelActionValue.innerHTML = '{% trans "Granted Days" %} <span class="text-error">*</span>';
+            unitActionValueText.textContent = "DAYS";
+            unitActionValueText.classList.remove('hidden');
+            hintActionValue.textContent = '{% trans "Number of days added to subscription." %}';
+            
+            prevTypeVertical.textContent = "EXTENSION";
+            prevFulfillment.textContent = "{% trans 'Immediate / System' %}";
+            colorBand.style.backgroundColor = "#3B82F6";
+            gradBand.style.background = "linear-gradient(to right, #DBEAFE, #BFDBFE)";
+            
+            prevValue.textContent = parseInt(value).toString();
+            prevUnitText.textContent = "DAYS";
+            prevUnitText.classList.remove('hidden');
+
+        } else if (actionType === 'manual') {
+            wrapperDiscountType.classList.add('hidden');
+            wrapperActionValue.classList.add('hidden'); 
+            
+            prevTypeVertical.textContent = "GIFT";
+            prevFulfillment.textContent = "{% trans 'QR Verified (Manual)' %}";
+            colorBand.style.backgroundColor = "#F59E0B";
+            gradBand.style.background = "linear-gradient(to right, #FEF3C7, #FDE68A)";
+            
+            prevValue.textContent = "1";
+            prevUnitText.textContent = "ITEM";
+            prevUnitText.classList.remove('hidden');
+        } else {
+            wrapperDiscountType.classList.add('hidden');
+            wrapperActionValue.classList.remove('hidden');
+            prevTypeVertical.textContent = "REWARD";
+            prevValue.textContent = "0";
+        }
+    }
+
+    [inputName, inputActionType, inputDiscountType, inputValue, inputActive].forEach(input => {
+        if (input) {
+            input.addEventListener('input', updatePreview);
+            input.addEventListener('change', updatePreview);
+        }
+    });
+
+    updatePreview();
+});
+</script>
+{% endblock %}

@@ -30,7 +30,7 @@ import '../../features/profile/presentation/screens/personal_info_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/subscriptions/data/models/subscription_model.dart';
-import '../../features/subscriptions/presentation/screens/checkout_screen.dart';
+import '../../features/checkout/presentation/screens/checkout_screen.dart';
 import '../../features/subscriptions/presentation/screens/my_subscriptions_screen.dart';
 import '../../features/subscriptions/presentation/screens/subscription_details_screen.dart';
 import 'main_shell_screen.dart';
@@ -192,11 +192,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
           return CheckoutScreen(
-            planId: extra['planId'] ?? 0,
-            planName: extra['planName'] ?? '',
-            price: extra['price'] ?? 0.0,
-            rewardPoints: extra['rewardPoints'] ?? 0,
-            gymName: extra['gymName'] ?? '',
+            itemType: extra['itemType']?.toString() ?? 'unknown',
+            itemId: int.tryParse(extra['itemId']?.toString() ?? '0') ?? 0,
           );
         },
       ),

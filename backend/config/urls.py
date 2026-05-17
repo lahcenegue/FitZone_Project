@@ -29,6 +29,12 @@ urlpatterns = [
     path("api/v1/", include("apps.core.api.urls")),
 
     path("api/v1/resale/", include("apps.resale.api.urls")),
+    
+    # تمت إضافة مسار الكوبونات هنا
+    path("api/v1/coupons/", include("apps.coupons.api.urls")),
+    
+    # Payments & Centralized Checkout Endpoints
+    path("api/v1/", include("apps.payments.api.urls")),
 ]
 
 # ---------------------------------------------------------------------------

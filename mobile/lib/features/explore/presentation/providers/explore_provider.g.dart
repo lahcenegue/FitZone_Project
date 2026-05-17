@@ -197,4 +197,4 @@ final class NearbyPlacesProvider
   }
 }
 
-String _$nearbyPlacesHash() => r'b67dba02c92bf05f6ab62b7afdba58a9d59a590d';
+String _$nearbyPlacesHash() => r'0d5ccc36568504ca9c1a16875f46aac5814dd8e0';

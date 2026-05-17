@@ -1,6 +1,9 @@
+# apps/loyalty/services.py
+
 import logging
 from decimal import Decimal
 from django.db import transaction
+from django.db.models import F
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
@@ -40,6 +43,12 @@ class LoyaltyService:
             fiat=0.00,
             description=f"Purchased package: {package.name} via {gateway_name}",
             status=TransactionStatus.COMPLETED
+        )
+
+        # Securely increment the package's analytical sales data using F() to avoid race conditions
+        PointPackage.objects.filter(id=package.id).update(
+            total_purchases=F('total_purchases') + 1,
+            total_revenue=F('total_revenue') + package.price
         )
 
         LoyaltyService.check_and_unlock_milestones(user)
@@ -236,7 +245,6 @@ class LoyaltyService:
                 "beneficiary_name": bank.beneficiary_name
             }
 
-        # Calculate pending escrow balance from Resale Market
         from apps.resale.models import ResaleTransaction, ResaleTransactionStatus
         from django.db.models import Sum
         pending_escrow = ResaleTransaction.objects.filter(

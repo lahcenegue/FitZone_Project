@@ -73,6 +73,7 @@
 
             <div class="relative z-10">
                 
+                <!-- Loyalty Tab -->
                 <div id="tab-loyalty" class="settings-tab-content block animate-fadeIn">
                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-12 gap-y-10">
                         {% include "dashboard/components/setting_field.html" with field=form.gym_earn_rate show_currency=True %}
@@ -80,13 +81,21 @@
                         {% include "dashboard/components/setting_field.html" with field=form.store_earn_rate show_currency=True %}
                         {% include "dashboard/components/setting_field.html" with field=form.restaurant_earn_rate show_currency=True %}
                         
-                        <div class="xl:col-span-2 pt-4 border-t border-border mt-2"></div>
+                        <div class="xl:col-span-2 pt-4 border-t border-border mt-2">
+                            <h4 class="text-[13px] font-black text-primary uppercase tracking-widest mb-8">{% trans "Points Spending & Discount Caps" %}</h4>
+                        </div>
                         
                         {% include "dashboard/components/setting_field.html" with field=form.point_to_fiat_rate show_currency=True %}
-                        {% include "dashboard/components/setting_field.html" with field=form.max_global_discount_percent %}
+                        <div class="hidden xl:block"></div> 
+                        
+                        {% include "dashboard/components/setting_field.html" with field=form.max_discount_gym_plan %}
+                        {% include "dashboard/components/setting_field.html" with field=form.max_discount_roaming %}
+                        {% include "dashboard/components/setting_field.html" with field=form.max_discount_resale %}
+                        {% include "dashboard/components/setting_field.html" with field=form.max_discount_packages %}
                     </div>
                 </div>
 
+                <!-- Resale Tab -->
                 <div id="tab-resale" class="settings-tab-content hidden animate-fadeIn">
                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-12 gap-y-10">
                         {% include "dashboard/components/setting_field.html" with field=form.app_commission_percentage %}
@@ -96,6 +105,7 @@
                     </div>
                 </div>
 
+                <!-- Gyms Tab -->
                 <div id="tab-gyms" class="settings-tab-content hidden animate-fadeIn">
                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-12 gap-y-10">
                         {% include "dashboard/components/setting_field.html" with field=form.auto_checkout_hours %}
@@ -104,13 +114,24 @@
                     </div>
                 </div>
 
+                <!-- Finance Tab -->
                 <div id="tab-finance" class="settings-tab-content hidden animate-fadeIn">
                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-12 gap-y-10">
+                        <div class="xl:col-span-2 pt-2">
+                            <h4 class="text-[13px] font-black text-primary uppercase tracking-widest mb-2">{% trans "Taxation & Compliance" %}</h4>
+                        </div>
+                        {% include "dashboard/components/setting_field.html" with field=form.vat_percentage %}
+                        <div class="hidden xl:block"></div>
+                        
+                        <div class="xl:col-span-2 pt-4 border-t border-border mt-2">
+                            <h4 class="text-[13px] font-black text-primary uppercase tracking-widest mb-2">{% trans "Payout Holds & Clearance" %}</h4>
+                        </div>
                         {% include "dashboard/components/setting_field.html" with field=form.gym_earnings_hold_days %}
                         {% include "dashboard/components/setting_field.html" with field=form.provider_earnings_hold_days %}
                     </div>
                 </div>
 
+                <!-- Core Tab -->
                 <div id="tab-core" class="settings-tab-content hidden animate-fadeIn">
                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-12 gap-y-10">
                         {% include "dashboard/components/setting_field.html" with field=form.android_version %}
@@ -159,7 +180,7 @@
         'loyalty': { title: '{% trans "Loyalty Points Ecosystem" %}', sub: '{% trans "Configure earn rates, conversions, and discount caps." %}' },
         'resale': { title: '{% trans "Secondary Market Policies" %}', sub: '{% trans "Manage escrow holds, depreciation, and app commissions." %}' },
         'gyms': { title: '{% trans "Gym Access & Roaming" %}', sub: '{% trans "Control auto-checkouts and branch roaming incentives." %}' },
-        'finance': { title: '{% trans "Finance & Payouts" %}', sub: '{% trans "Define clearance holds before funds are withdrawable." %}' },
+        'finance': { title: '{% trans "Finance & Payouts" %}', sub: '{% trans "Define taxes and clearance holds before funds are withdrawable." %}' },
         'core': { title: '{% trans "Mobile App Configuration" %}', sub: '{% trans "Force updates and manage local device data caches." %}' }
     };
 

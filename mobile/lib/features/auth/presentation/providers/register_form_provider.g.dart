@@ -41,7 +41,7 @@ final class RegisterFormProvider
   }
 }
 
-String _$registerFormHash() => r'55865d885095d38217e4cbda764217bb443d7d68';
+String _$registerFormHash() => r'8e13c54e9ac97f2f7c0dada184dec340d2432cf4';
 
 abstract class _$RegisterForm extends $Notifier<RegisterFormState> {
   RegisterFormState build();

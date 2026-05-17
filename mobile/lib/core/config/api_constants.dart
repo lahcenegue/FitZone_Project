@@ -24,9 +24,12 @@ class ApiConstants {
   static const String updateProfile = '/users/profile/update/';
   static const String deleteAccount = '/users/profile/delete/';
 
-  // --- Subscriptions & Checkout ---
-  static const String checkout = '/gyms/checkout/';
+  // --- Subscriptions  ---
   static const String mySubscriptions = '/users/my-subscriptions/';
+
+  // --- Centralized Checkout System ---
+  static const String checkoutPreview = '/checkout/preview/';
+  static const String checkoutProcess = '/checkout/process/';
 
   // --- Map Discovery ---
   static const String mapDiscover = '/providers/discover/';

@@ -23,9 +23,19 @@ class CouponType(models.TextChoices):
     FREE_ITEM = "free_item", _("Free Specific Item")
 
 
+class CouponSource(models.TextChoices):
+    MARKETING = "marketing", _("Marketing Campaign")
+    LOYALTY = "loyalty", _("Loyalty System Reward")
+
+
 class CouponDefinition(models.Model):
     title = models.CharField(max_length=255, verbose_name=_("Internal Title"))
     coupon_type = models.CharField(max_length=50, choices=CouponType.choices)
+    source = models.CharField(max_length=50, choices=CouponSource.choices, default=CouponSource.MARKETING, verbose_name=_("Coupon Source"))
+    
+    code = models.CharField(max_length=50, unique=True, null=True, blank=True, verbose_name=_("Public Coupon Code"), help_text=_("Required for Marketing campaigns. Leave blank for Loyalty."))
+    max_usage = models.PositiveIntegerField(default=0, verbose_name=_("Maximum Total Usages"), help_text=_("0 means unlimited usage."))
+    expiration_date = models.DateTimeField(null=True, blank=True, verbose_name=_("Campaign Expiration Date"))
     
     discount_value = models.DecimalField(
         max_digits=10, 
@@ -68,6 +78,9 @@ class CouponDefinition(models.Model):
             if self.discount_value <= 0:
                 raise ValidationError({"discount_value": _("This coupon type requires a discount value greater than 0.")})
 
+        if self.source == CouponSource.MARKETING and not self.code:
+            raise ValidationError({"code": _("Marketing campaigns require a specific public coupon code.")})
+
     def generate_coupon_code(self, length=8):
         """Generates a secure, readable random string for the coupon code."""
         alphabet = string.ascii_uppercase + string.digits
@@ -99,11 +112,12 @@ class UserCoupon(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="coupons")
     definition = models.ForeignKey(CouponDefinition, on_delete=models.PROTECT, related_name="generated_coupons")
     
-    code = models.CharField(max_length=20, unique=True, db_index=True, verbose_name=_("Coupon Code"))
+    code = models.CharField(max_length=50, db_index=True, verbose_name=_("Coupon Code"))
     
     is_used = models.BooleanField(default=False, verbose_name=_("Is Used"))
     used_at = models.DateTimeField(null=True, blank=True, verbose_name=_("Used At"))
-    expires_at = models.DateTimeField(verbose_name=_("Expiration Date"))
+    fiat_discount_applied = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name=_("Fiat Discount Applied (SAR)"))
+    expires_at = models.DateTimeField(null=True, blank=True, verbose_name=_("Expiration Date"))
     
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -119,16 +133,17 @@ class UserCoupon(models.Model):
         """Checks if the coupon is ready to be consumed."""
         if self.is_used:
             raise ValidationError(_("This coupon has already been used."))
-        if timezone.now() > self.expires_at:
+        if self.expires_at and timezone.now() > self.expires_at:
             raise ValidationError(_("This coupon has expired."))
         if not self.definition.is_active:
             raise ValidationError(_("The base definition for this coupon is no longer active."))
         return True
 
-    def mark_as_used(self):
-        """Marks the coupon as consumed."""
+    def mark_as_used(self, discount_amount):
+        """Marks the coupon as consumed and records the actual fiat value saved."""
         self.validate_usability()
         self.is_used = True
         self.used_at = timezone.now()
-        self.save(update_fields=['is_used', 'used_at'])
-        logger.info(f"Coupon {self.code} marked as used by user {self.user.id}")
+        self.fiat_discount_applied = discount_amount
+        self.save(update_fields=['is_used', 'used_at', 'fiat_discount_applied'])
+        logger.info(f"Coupon {self.code} marked as used by user {self.user.id}, saving {discount_amount} SAR")

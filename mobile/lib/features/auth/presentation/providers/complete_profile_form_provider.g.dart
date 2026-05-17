@@ -42,7 +42,7 @@ final class CompleteProfileFormProvider
 }
 
 String _$completeProfileFormHash() =>
-    r'9021572a11d9635aae0888b7930d0cefcd34d308';
+    r'c6d7abe5ca5ab72312b26f338b81bcc123a5a6c8';
 
 abstract class _$CompleteProfileForm
     extends $Notifier<CompleteProfileFormState> {

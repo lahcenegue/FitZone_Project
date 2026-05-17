@@ -7,9 +7,8 @@ import 'package:fitzone/l10n/app_localizations.dart';
 class ApiException implements Exception {
   final String message;
   final int? statusCode;
-  final String?
-  code; // ARCHITECTURE FIX: Added to support smart routing (e.g., EMAIL_NOT_VERIFIED)
-  final String? email; // ARCHITECTURE FIX: Added to pass email for OTP resend
+  final String? code;
+  final String? email;
 
   ApiException(this.message, {this.statusCode, this.code, this.email});
 
@@ -80,14 +79,20 @@ class ApiException implements Exception {
       }
     }
 
-    // ARCHITECTURE FIX: Intercept raw English backend messages and translate them via l10n
+    // Intercept raw English backend messages and translate them via l10n
     final String lowerMsg = serverMessage.toLowerCase();
+
     if (lowerMsg.contains('invalid or missing verification code') ||
         lowerMsg.contains('invalid otp')) {
       serverMessage = l10n.invalidOtp;
     } else if (errorCode == 'EMAIL_NOT_VERIFIED' ||
         lowerMsg.contains('email is not verified')) {
       serverMessage = l10n.awaitingVerificationSubtitle;
+    } else if (errorCode == 'campaign_paused') {
+      serverMessage = l10n.couponCampaignPaused;
+    } else if (errorCode == 'coupon_exhausted' ||
+        errorCode == 'invalid_coupon') {
+      serverMessage = l10n.couponExhausted;
     } else if (serverMessage.isEmpty) {
       switch (statusCode) {
         case 400:

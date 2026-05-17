@@ -46,4 +46,17 @@ class AppConstants {
   static const double maxdistamceKm = 200;
 
   static const double minimumWithdrawalAmount = 50.0;
+
+  // ARCHITECTURE FIX: Extracted Magic Numbers to Centralized Constants
+  static const int defaultPremiumPoints = 1000;
+  static const int apiTimeoutSeconds = 10;
+  static const int locationTimeoutSeconds = 15;
+  static const int dbVersion = 3;
+
+  // ARCHITECTURE FIX: Image compression quality constant
+  static const int imageCompressionQuality = 80;
+
+  // ARCHITECTURE FIX: Centralized constants for UI behavior and pagination
+  static const int debounceMilliseconds = 500;
+  static const int dashboardItemsLimit = 5;
 }

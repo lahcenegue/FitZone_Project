@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme_provider.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../checkout/presentation/screens/checkout_screen.dart'; // ARCHITECTURE FIX: Import centralized checkout
 import '../../data/models/loyalty_models.dart';
 import '../providers/loyalty_dashboard_providers.dart';
 
@@ -20,7 +21,6 @@ class LoyaltyPackagesScreen extends ConsumerStatefulWidget {
 
 class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
   LoyaltyPackage? _selectedPackage;
-  bool _isProcessing = false;
   static final Logger _logger = Logger('LoyaltyPackagesScreen');
 
   @override
@@ -51,7 +51,9 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
             _buildHeader(colors, l10n),
             Expanded(
               child: packagesAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () => Center(
+                  child: CircularProgressIndicator(color: colors.primary),
+                ),
                 error: (e, s) => _buildErrorState(colors, l10n, ref),
                 data: (packages) => _buildPackagesList(packages, colors, l10n),
               ),
@@ -65,6 +67,7 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
     );
   }
 
+  // UI: HEADER SECTION
   Widget _buildHeader(AppColors colors, AppLocalizations l10n) {
     return Padding(
       padding: EdgeInsets.all(Dimensions.spacingLarge),
@@ -106,6 +109,7 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
     );
   }
 
+  // UI: PACKAGES LIST
   Widget _buildPackagesList(
     List<LoyaltyPackage> packages,
     AppColors colors,
@@ -122,7 +126,6 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
       itemBuilder: (context, index) {
         final package = packages[index];
         final bool isSelected = _selectedPackage?.id == package.id;
-        // Business Logic: Highlight the middle package as popular
         final bool isPopular = index == 1 && packages.length > 1;
 
         return _buildPackageCard(package, isSelected, isPopular, colors, l10n);
@@ -130,6 +133,7 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
     );
   }
 
+  // UI: INDIVIDUAL PACKAGE CARD
   Widget _buildPackageCard(
     LoyaltyPackage package,
     bool isSelected,
@@ -219,7 +223,7 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
                         children: [
                           Icon(
                             Icons.toll_rounded,
-                            color: colors.warning, // Golden coin color
+                            color: colors.warning,
                             size: Dimensions.iconMedium,
                           ),
                           SizedBox(width: Dimensions.spacingTiny),
@@ -280,6 +284,7 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
     );
   }
 
+  // UI: BOTTOM NAVIGATION ACTION BAR
   Widget _buildCheckoutBar(AppColors colors, AppLocalizations l10n) {
     if (_selectedPackage == null) return const SizedBox.shrink();
 
@@ -330,7 +335,8 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
               width: Dimensions.screenWidth * 0.45,
               height: Dimensions.buttonHeight,
               child: ElevatedButton(
-                onPressed: _isProcessing ? null : _processPurchase,
+                // ARCHITECTURE FIX: Delegating the checkout process to the unified CheckoutScreen
+                onPressed: _navigateToCheckout,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
                   foregroundColor: colors.surface,
@@ -339,24 +345,13 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: _isProcessing
-                    ? SizedBox(
-                        width: Dimensions.iconMedium,
-                        height: Dimensions.iconMedium,
-                        child: CircularProgressIndicator(
-                          color: colors.surface,
-                          strokeWidth: 2.0,
-                        ),
-                      )
-                    : Text(
-                        l10n.payAmount(
-                          _selectedPackage!.price.toStringAsFixed(2),
-                        ),
-                        style: TextStyle(
-                          fontSize: Dimensions.fontButton,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
+                child: Text(
+                  l10n.continueToCheckout,
+                  style: TextStyle(
+                    fontSize: Dimensions.fontButton,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ),
             ),
           ],
@@ -365,6 +360,7 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
     );
   }
 
+  // UI: ERROR STATE
   Widget _buildErrorState(
     AppColors colors,
     AppLocalizations l10n,
@@ -397,52 +393,23 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
     );
   }
 
-  Future<void> _processPurchase() async {
+  // NAVIGATION: ROUTE TO UNIFIED CHECKOUT
+  void _navigateToCheckout() {
     if (_selectedPackage == null) return;
 
-    setState(() => _isProcessing = true);
-    final AppLocalizations l10n = AppLocalizations.of(context)!;
+    _logger.info(
+      'Routing to unified checkout for points package ID: ${_selectedPackage!.id}',
+    );
 
-    try {
-      final apiService = ref.read(loyaltyApiServiceProvider);
-
-      // Defaulting to "mock" gateway as per API requirements
-      final bool success = await apiService.purchasePoints(
-        packageId: _selectedPackage!.id,
-        gateway: 'mock',
-      );
-
-      if (success && mounted) {
-        // Force refresh the wallet and transactions to show new data
-        ref.invalidate(loyaltyWalletProvider);
-        ref.invalidate(dashboardTransactionsProvider);
-        ref.invalidate(loyaltyRoadmapProvider);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.purchaseSuccessful),
-            backgroundColor: ref.read(appThemeProvider).success,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-
-        context.pop(); // Go back to the dashboard
-      }
-    } catch (e, stackTrace) {
-      _logger.severe('Purchase failed', e, stackTrace);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.errorOops),
-            backgroundColor: ref.read(appThemeProvider).error,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isProcessing = false);
-      }
-    }
+    // ARCHITECTURE FIX: Using standard Navigator push to ensure decoupled flexibility.
+    // We pass 'points_package' as agreed upon with the backend schema.
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => CheckoutScreen(
+          itemType: 'points_package',
+          itemId: _selectedPackage!.id,
+        ),
+      ),
+    );
   }
 }

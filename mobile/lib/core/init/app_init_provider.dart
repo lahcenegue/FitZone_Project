@@ -7,6 +7,7 @@ import 'package:internet_connection_checker_plus/internet_connection_checker_plu
 import 'package:geolocator/geolocator.dart';
 
 import '../config/api_constants.dart';
+import '../config/app_constants.dart';
 import '../network/api_provider.dart';
 import '../database/database_service.dart';
 import '../location/location_provider.dart';
@@ -37,8 +38,6 @@ class AppInitService {
 
   Future<void> initializeApp() async {
     try {
-      // ARCHITECTURE FIX: Check if we have a baseline roadmap version cached.
-      // If version is > 0, it means this is NOT the first launch.
       final double localRoadmapVersion = await _dbService.getVersion(
         'loyalty_roadmap_version',
       );
@@ -64,25 +63,30 @@ class AppInitService {
     }
   }
 
-  /// Fetches /init/ and handles routing syncs to the background
   Future<void> _fetchAndSyncInit() async {
     try {
       final Response initResponse = await _dio.get(
         ApiConstants.initConfig,
-        options: Options(receiveTimeout: const Duration(seconds: 10)),
+        // ARCHITECTURE FIX: Using centralized constant
+        options: Options(
+          receiveTimeout: const Duration(
+            seconds: AppConstants.apiTimeoutSeconds,
+          ),
+        ),
       );
       final Map<String, dynamic> initData =
           initResponse.data as Map<String, dynamic>;
 
+      // ARCHITECTURE FIX: Using centralized constant
       final int premiumPoints =
-          initData['premium_points_required'] as int? ?? 1000;
+          initData['premium_points_required'] as int? ??
+          AppConstants.defaultPremiumPoints;
       await _storageService.setPremiumPointsRequired(premiumPoints);
 
       final double roadmapVersion =
           (initData['loyalty_roadmap_version'] as num?)?.toDouble() ?? 0.0;
       await _dbService.setVersion('loyalty_roadmap_version', roadmapVersion);
 
-      // ARCHITECTURE FIX: Fire and forget the heavy SQLite syncs
       _logger.info(
         'Spawning background task for heavy SQLite synchronizations...',
       );
@@ -92,7 +96,6 @@ class AppInitService {
     }
   }
 
-  /// Runs completely in the background without blocking the UI Thread
   Future<void> _runBackgroundSync(Map<String, dynamic> initData) async {
     _logger.info('Background Sync Started: Verifying versions...');
     try {
@@ -184,7 +187,6 @@ Future<StartupStatus> appStartup(Ref ref) async {
   logger.info(
     'Phase 2: Verifying Real Internet Access via Hyper-Fast Checker...',
   );
-  // ARCHITECTURE FIX: Replaced raw InternetAddress with optimized InternetConnection plugin
   final bool hasInternet = await InternetConnection().hasInternetAccess;
   if (!hasInternet) {
     logger.warning('Real Internet check failed.');
@@ -219,7 +221,8 @@ Future<bool> _fetchLocationWithTimeout(Ref ref, Logger logger) async {
     await ref
         .read(userLocationProvider.notifier)
         .fetchLocation()
-        .timeout(const Duration(seconds: 15));
+        // ARCHITECTURE FIX: Using centralized constant
+        .timeout(const Duration(seconds: AppConstants.locationTimeoutSeconds));
     logger.info('GPS logic resolved successfully.');
     return false;
   } catch (e) {

@@ -27,11 +27,7 @@
     </div>
 
     {% if field.help_text %}
-    <div id="hint-{{ field.name }}" class="hidden mt-3 animate-fadeIn">
-        <div class="p-3.5 bg-bg border border-border rounded-lg border-l-4 border-l-primary rtl:border-l-0 rtl:border-r-4 rtl:border-r-primary shadow-sm">
-            <p class="text-[11.5px] font-medium text-text-secondary leading-relaxed">{{ field.help_text }}</p>
-        </div>
-    </div>
+        {% include "dashboard/components/helper_box.html" with help_text=field.help_text hint_id="hint-"|add:field.name %}
     {% endif %}
 
     {% if field.errors %}

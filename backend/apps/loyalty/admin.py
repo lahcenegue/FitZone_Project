@@ -12,16 +12,30 @@ from apps.loyalty.models import (
 
 @admin.register(LoyaltyGlobalSetting)
 class LoyaltyGlobalSettingAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'roadmap_version', 'point_to_fiat_rate', 'max_global_discount_percent', 'updated_at']
+    list_display = [
+        '__str__', 
+        'roadmap_version', 
+        'point_to_fiat_rate', 
+        'max_discount_gym_plan',
+        'max_discount_roaming',
+        'max_discount_resale',
+        'updated_at'
+    ]
     fieldsets = (
         (_("Roadmap Versioning"), {
-            'fields': ('roadmap_version',),
+            'fields': ('roadmap_version',)
         }),
         (_("Earning Rates (Spend to get 1 Point)"), {
             'fields': ('gym_earn_rate', 'trainer_earn_rate', 'store_earn_rate', 'restaurant_earn_rate')
         }),
         (_("Redemption Rates & Limits"), {
-            'fields': ('point_to_fiat_rate', 'max_global_discount_percent')
+            'fields': (
+                'point_to_fiat_rate', 
+                'max_discount_gym_plan', 
+                'max_discount_roaming', 
+                'max_discount_resale', 
+                'max_discount_packages'
+            )
         }),
     )
 
@@ -41,7 +55,7 @@ class PointPackageAdmin(admin.ModelAdmin):
 
 @admin.register(MilestoneReward)
 class MilestoneRewardAdmin(admin.ModelAdmin):
-    list_display = ['name', 'action_type', 'coupon_definition', 'is_active']
+    list_display = ['name', 'action_type', 'discount_type', 'is_active']
     list_filter = ['action_type', 'is_active']
     search_fields = ['name']
     list_editable = ['is_active']
@@ -54,7 +68,7 @@ class MilestoneRewardAdmin(admin.ModelAdmin):
             'fields': ('name', 'action_type', 'is_active'),
         }),
         (_("Value Configuration"), {
-            'fields': ('action_value', 'coupon_definition'),
+            'fields': ('action_value', 'discount_type'),
         }),
     )
 

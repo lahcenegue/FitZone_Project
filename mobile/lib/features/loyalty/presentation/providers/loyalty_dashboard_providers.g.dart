@@ -258,7 +258,7 @@ final class DashboardTransactionsProvider
 }
 
 String _$dashboardTransactionsHash() =>
-    r'1e7266904864b5a424be2ed9a38b038f7239d8c8';
+    r'c14fdc7c14f9ce06d3fe4dbcc655ab2ee1deb842';
 
 @ProviderFor(transactionSummary)
 final transactionSummaryProvider = TransactionSummaryProvider._();
@@ -431,7 +431,7 @@ final class DashboardRewardsProvider
   }
 }
 
-String _$dashboardRewardsHash() => r'82fdc4f4bbaa6d4db99d706732a60bacbd75723b';
+String _$dashboardRewardsHash() => r'6bbc96321df44bf8997b30919aeef6049e0f1577';
 
 @ProviderFor(dashboardPoints)
 final dashboardPointsProvider = DashboardPointsProvider._();
@@ -472,7 +472,7 @@ final class DashboardPointsProvider
   }
 }
 
-String _$dashboardPointsHash() => r'6bbf8afa14e34d64f1ce42d7407bb178289361b9';
+String _$dashboardPointsHash() => r'60f52bd4a62a4c4ee984577b89a2f46d79bda5f6';
 
 @ProviderFor(loyaltyRoadmap)
 final loyaltyRoadmapProvider = LoyaltyRoadmapProvider._();

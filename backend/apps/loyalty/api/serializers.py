@@ -1,3 +1,5 @@
+# apps/loyalty/api/serializers.py
+
 from decimal import Decimal
 from rest_framework import serializers
 from django.utils.translation import gettext as _
@@ -6,9 +8,15 @@ from apps.loyalty.models import PointPackage, MilestoneReward, Milestone, UserMi
 from apps.users.models import UserBankAccount
 
 class PointPackageSerializer(serializers.ModelSerializer):
+    is_best_seller = serializers.SerializerMethodField()
+
     class Meta:
         model = PointPackage
-        fields = ['id', 'name', 'points', 'price']
+        fields = ['id', 'name', 'points', 'price', 'is_best_seller']
+
+    def get_is_best_seller(self, obj):
+        best_seller_id = self.context.get('best_seller_id')
+        return obj.id == best_seller_id if best_seller_id else False
 
 class MilestoneRewardSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
@@ -23,13 +31,13 @@ class MilestoneRewardSerializer(serializers.ModelSerializer):
         return str(_(obj.name))
 
     def get_coupon_type(self, obj):
-        if obj.action_type == 'gen_coupon' and hasattr(obj, 'coupon_definition') and obj.coupon_definition:
-            return obj.coupon_definition.coupon_type
+        if obj.action_type == 'gen_coupon':
+            return obj.discount_type
         return None
 
     def get_discount_value(self, obj):
-        if obj.action_type == 'gen_coupon' and hasattr(obj, 'coupon_definition') and obj.coupon_definition:
-            return float(obj.coupon_definition.discount_value)
+        if obj.action_type == 'gen_coupon':
+            return float(obj.action_value)
         return None
 
 class MilestoneSerializer(serializers.ModelSerializer):
@@ -107,7 +115,6 @@ class MilestoneUsageSerializer(serializers.Serializer):
     user_milestone_id = serializers.IntegerField()
     consumed_details = serializers.JSONField(required=False, allow_null=True)
 
-# UPDATED: Enriched Serializer for the merged UI requirements
 class AggregatedFiatTransactionSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     title = serializers.CharField()
