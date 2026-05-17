@@ -1,3 +1,8 @@
+"""
+Django Admin configurations for the Gyms application.
+Secures interface visualization for branches, tiers, ratings, and analytics.
+"""
+
 from django.contrib.gis import admin
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
@@ -5,7 +10,7 @@ from .models import (
     GymAmenity, GymBranch, BranchImage, SubscriptionPlan, 
     PlanFeature, GymSubscription, GymSubscriptionDispute, 
     GymVisit, GymGlobalSetting, GymAttendance, GymSport, 
-    GymBranchSchedule, GymReview, GymTier
+    GymBranchSchedule, GymReview, GymReviewTag, GymTier
 )
 
 # ---------------------------------------------------------
@@ -104,7 +109,7 @@ class SubscriptionPlanAdmin(admin.ModelAdmin):
     list_display = ('name', 'provider', 'price', 'duration_days', 'is_active', 'is_archived')
     list_filter = ('is_active', 'is_archived', 'provider')
     search_fields = ('name', 'provider__business_name')
-    inlines = [PlanFeatureInline]
+    box_inlines = [PlanFeatureInline]
 
 
 # 3. User Subscriptions & Disputes
@@ -135,7 +140,7 @@ class GymVisitAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'branch')
 
 
-# 5. Simple Tables & Reviews
+# 5. Simple Tables, Tags & Advanced Dynamic Reviews
 @admin.register(GymAmenity)
 class GymAmenityAdmin(admin.ModelAdmin):
     list_display = ('name', 'icon_image')
@@ -147,11 +152,28 @@ class GymSportAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     ordering = ('name',)
 
+
+@admin.register(GymReviewTag)
+class GymReviewTagAdmin(admin.ModelAdmin):
+    list_display = ('id', 'slug', 'name')
+    search_fields = ('slug', 'name')
+
+
 @admin.register(GymReview)
 class GymReviewAdmin(admin.ModelAdmin):
-    list_display = ('user', 'branch', 'rating', 'created_at')
-    list_filter = ('rating',)
-    search_fields = ('user__email', 'branch__name')
+    list_display = ('user', 'branch', 'cleanliness_rating', 'equipment_rating', 'vibe_rating', 'get_assigned_tags', 'created_at')
+    list_filter = ('cleanliness_rating', 'equipment_rating', 'vibe_rating', 'branch')
+    search_fields = ('user__email', 'branch__name', 'review_text')
+    filter_horizontal = ('tags',)
+
+    def get_queryset(self, request):
+        """Optimizes DB lookup utilizing prefetch_related for associated review micro-tags."""
+        return super().get_queryset(request).prefetch_related('tags')
+
+    @admin.display(description=_("Assigned Micro Tags"))
+    def get_assigned_tags(self, obj):
+        """Returns comma separated string labels of selected review tags."""
+        return ", ".join([tag.name for tag in obj.tags.all()])
 
 
 # 6. Global Settings (Singleton)

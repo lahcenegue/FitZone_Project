@@ -1,5 +1,5 @@
 """
-API views for Gym access and management operations.
+API views for Gym access, review submissions and management operations.
 """
 
 import logging
@@ -11,20 +11,32 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from django.db.models import Prefetch
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
-from apps.gyms.models import GymBranch, SubscriptionPlan, GymSport, GymAmenity, GymVisit, GymSubscription, RoamingPass
+from apps.gyms.models import GymBranch, SubscriptionPlan, GymSport, GymAmenity, GymVisit, GymSubscription, RoamingPass, GymReview, GymReviewTag
 from apps.gyms.api.serializers import (
     GymSportSerializer, GymAmenitySerializer, GymBranchDetailSerializer, 
     GymCheckoutSerializer, GymSubscriptionSerializer, RoamingCheckoutSerializer,
-    RoamingPassSerializer, QRScanSerializer
+    RoamingPassSerializer, QRScanSerializer, GymReviewSubmissionSerializer, GymReviewTagSerializer
 )
 from ..services import GymSubscriptionService, GymAccessService
 from apps.users.services.user_service import UserDashboardService
 from apps.users.api.serializers import AggregatedSubscriptionSerializer
 
-
 logger = logging.getLogger(__name__)
+
+
+class GymReviewTagListView(ListAPIView):
+    """
+    Public lookup endpoint providing the mobile application with available 
+    review classification tags managed dynamically via Django Admin.
+    """
+    queryset = GymReviewTag.objects.all().order_by('name')
+    serializer_class = GymReviewTagSerializer
+    authentication_classes = []
+    permission_classes = [AllowAny]
+    pagination_class = None
 
 
 class GymBranchDetailView(APIView):
@@ -38,6 +50,7 @@ class GymBranchDetailView(APIView):
                 'sports',
                 'schedules',
                 'reviews__user',
+                'reviews__tags',
                 'visits',
                 Prefetch(
                     'available_plans', 
@@ -56,7 +69,51 @@ class GymBranchDetailView(APIView):
             context={'request': request, 'gym_setting': gym_setting}
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
+
+class GymReviewSubmissionAPIView(APIView):
+    """
+    POST /api/v1/providers/gyms/{gym_id}/reviews/
+    Enforces One Review Per User constraint securely utilizing automated Upsert mechanisms.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, gym_id):
+        branch = get_object_or_404(GymBranch, id=gym_id, is_active=True)
+        serializer = GymReviewSubmissionSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Secure check or update (Upsert pattern implementation)
+        review, created = GymReview.objects.update_or_create(
+            branch=branch,
+            user=request.user,
+            defaults={
+                'cleanliness_rating': serializer.validated_data['cleanliness_rating'],
+                'equipment_rating': serializer.validated_data['equipment_rating'],
+                'vibe_rating': serializer.validated_data['vibe_rating'],
+                'review_text': serializer.validated_data.get('review_text', '')
+            }
+        )
+
+        # Clear or assign associated M2M tags identifiers safely
+        if 'tags' in serializer.validated_data:
+            review.tags.set(serializer.validated_data['tags'])
+        else:
+            review.tags.clear()
+
+        response_status = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+        message = "Review submitted successfully." if created else "Review updated successfully."
+
+        logger.info(f"Review entity upserted successfully for branch #{branch.id} by user {request.user.email}. Created: {created}")
+
+        return Response({
+            "message": message,
+            "review_id": review.id
+        }, status=response_status)
+
+
 class GymSportListAPIView(ListAPIView):
     queryset = GymSport.objects.all().order_by('name')
     serializer_class = GymSportSerializer
@@ -64,12 +121,14 @@ class GymSportListAPIView(ListAPIView):
     permission_classes = []
     pagination_class = None
 
+
 class GymAmenityListAPIView(ListAPIView):
     queryset = GymAmenity.objects.all().order_by('name')
     serializer_class = GymAmenitySerializer
     authentication_classes = [] 
     permission_classes = []
     pagination_class = None
+
 
 class GymCheckoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -104,6 +163,7 @@ class GymCheckoutAPIView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+
 class RoamingCheckoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -137,11 +197,8 @@ class RoamingCheckoutAPIView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+
 class QRScanView(APIView):
-    """
-    POST /api/v1/gyms/scan-qr/
-    Process a user's QR code for gym check-in and builds a rich UI response.
-    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):

@@ -5,6 +5,7 @@ Utilizes PostGIS for geographical location data.
 """
 
 import uuid
+import logging
 from django.contrib.gis.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -13,6 +14,8 @@ from django.core.signing import Signer
 
 from apps.providers.models import Provider
 from apps.core.constants import BRANCH_GENDER_CHOICES
+
+logger = logging.getLogger(__name__)
 
 # ==========================================
 # ROAMING & TIER SYSTEM
@@ -226,7 +229,35 @@ class GymBranchSchedule(models.Model):
     def __str__(self):
         return f"{self.branch.name} - {self.get_day_display()}"
 
+
+# ==========================================
+# NEW DYNAMIC VIBE RATING & TAG SYSTEM
+# ==========================================
+
+class GymReviewTag(models.Model):
+    """Independent table storing micro-tags for structured granular customer reviews."""
+    slug = models.SlugField(max_length=100, unique=True, verbose_name=_("Tag Slug"))
+    name = models.CharField(max_length=100, verbose_name=_("Default Label Name"))
+    translations = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Format: {"ar": "أجهزة حديثة", "en": "Modern Equipment"}'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Gym Review Tag")
+        verbose_name_plural = _("Gym Review Tags")
+
+    def __str__(self):
+        return self.name
+
+
 class GymReview(models.Model):
+    """
+    Advanced multi-metric gym review system.
+    Enforces a maximum of one review per customer per branch via Meta constraints.
+    """
     branch = models.ForeignKey(
         'GymBranch', 
         on_delete=models.CASCADE, 
@@ -239,20 +270,43 @@ class GymReview(models.Model):
         related_name='gym_reviews',
         verbose_name=_("Customer")
     )
-    rating = models.FloatField(
-        validators=[MinValueValidator(1.0), MaxValueValidator(5.0)],
-        verbose_name=_("Rating")
+    
+    # Granular multi-axis metrics mapped explicitly strictly from 1 to 5
+    cleanliness_rating = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name=_("Cleanliness Rating")
     )
-    comment = models.TextField(verbose_name=_("Comment"))
+    equipment_rating = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name=_("Equipment Rating")
+    )
+    vibe_rating = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name=_("Vibe Rating")
+    )
+    
+    review_text = models.TextField(blank=True, null=True, default="", verbose_name=_("Review Commentary"))
+    tags = models.ManyToManyField(GymReviewTag, blank=True, related_name="reviews", verbose_name=_("Micro Tags"))
+    
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
     class Meta:
         verbose_name = _("Gym Review")
         verbose_name_plural = _("Gym Reviews")
         ordering = ['-created_at']
+        # Strict architectural unique constraints enforcing Upsert mechanisms securely
+        constraints = [
+            models.UniqueConstraint(fields=['branch', 'user'], name='unique_branch_user_review')
+        ]
 
     def __str__(self):
-        return f"Review by {self.user.email} for {self.branch.name}"
+        return f"Review by {self.user.email} for {self.branch.name} (Cleanliness: {self.cleanliness_rating})"
+
+
+# ==========================================
+# SUBSCRIPTION & ATTENDANCE SYSTEMS
+# ==========================================
 
 class SubscriptionPlan(models.Model):
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, related_name="gym_plans")
