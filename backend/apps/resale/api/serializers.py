@@ -1,7 +1,10 @@
+# apps/resale/api/serializers.py
+
 from decimal import Decimal
 from rest_framework import serializers
 from django.utils import timezone
 from apps.resale.models import SubscriptionResaleListing, ResaleGlobalSetting
+from apps.resale.services import ResaleMarketService
 from apps.gyms.models import GymSubscription
 from apps.payments.models import PaymentGateway
 
@@ -9,7 +12,7 @@ class ResaleListingSerializer(serializers.ModelSerializer):
     """
     Serializer for displaying active listings in the marketplace.
     Provides a nested, structured JSON including geospatial data, 
-    financial transparency, and trust indicators.
+    financial transparency, and trust indicators with daily real-time pricing decay.
     """
     seller = serializers.SerializerMethodField()
     gym = serializers.SerializerMethodField()
@@ -25,7 +28,6 @@ class ResaleListingSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         avatar_url = request.build_absolute_uri(user.avatar.url) if getattr(user, 'avatar', None) and request else None
         
-        # Note: Seller rating can be implemented here in the future if a seller rating system is added.
         return {
             "name": getattr(user, 'full_name', user.email),
             "avatar": avatar_url
@@ -39,7 +41,6 @@ class ResaleListingSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         logo_url = request.build_absolute_uri(branch.branch_logo.url) if getattr(branch, 'branch_logo', None) and request else None
 
-        # Fetch annotated distance and rating from queryset
         distance_km = getattr(obj, 'distance_km', None)
         branch_rating = getattr(obj, 'branch_rating', 0.0)
 
@@ -55,22 +56,18 @@ class ResaleListingSerializer(serializers.ModelSerializer):
         }
 
     def get_plan(self, obj):
-        today = timezone.now().date()
-        sub = obj.subscription
-        
-        if sub.start_date > today:
-            days_left = (sub.end_date - sub.start_date).days + 1
-        else:
-            days_left = (sub.end_date - today).days
-
+        # Apply the centralized unified dynamic pricing decay engine
+        decayed_data = ResaleMarketService.calculate_current_fair_price(obj)
         return {
-            "name": sub.plan.name,
-            "days_left": max(0, days_left)
+            "name": obj.subscription.plan.name,
+            "days_left": decayed_data["days_left"]
         }
 
     def get_pricing(self, obj):
-        asking = obj.asking_price
-        fair = obj.fair_value_at_listing
+        # Refactored to drop static attributes and force dynamic mathematical proportional reduction
+        decayed_data = ResaleMarketService.calculate_current_fair_price(obj)
+        asking = decayed_data["current_asking_price"]
+        fair = decayed_data["current_fair_value"]
         
         discount = Decimal('0.00')
         if fair > 0:

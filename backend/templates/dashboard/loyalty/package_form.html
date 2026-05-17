@@ -3,14 +3,14 @@
 {% load i18n humanize %}
 
 {% block content %}
-<div class="flex flex-col gap-8 pb-12">
+<div class="flex flex-col gap-8 pb-12 pt-2">
 
     {% url 'dashboard:packages_list' as list_url %}
     {% trans "Configure a point package for customers to purchase." as subtitle_trans %}
     {% trans "Back to List" as action_text_trans %}
     {% include "dashboard/components/page_header.html" with title=page_title subtitle=subtitle_trans action_url=list_url action_text=action_text_trans action_icon='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>' %}
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-2">
         
         <div class="lg:col-span-8">
             <form method="post" class="bg-surface border border-border shadow-sm rounded-2xl p-8 flex flex-col gap-6" id="package-form">
@@ -23,35 +23,17 @@
                     <h2 class="text-lg font-black text-text-primary">{{ page_title }}</h2>
                 </div>
 
-                <div class="flex flex-col gap-5">
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Package Name" %} <span class="text-error">*</span></label>
-                        {{ form.name }}
-                        {% if form.name.errors %}<span class="text-error text-xs font-bold">{{ form.name.errors.0 }}</span>{% endif %}
-                    </div>
+                <div class="flex flex-col gap-0">
+                    {% include "dashboard/components/form_field.html" with field=form.name %}
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Points Amount" %} <span class="text-error">*</span></label>
-                        <div class="relative flex items-center">
-                            {{ form.points }}
-                            <div class="absolute inset-y-0 end-4 flex items-center pointer-events-none">
-                                <span class="text-[12px] font-black text-text-muted uppercase">PTS</span>
-                            </div>
-                        </div>
-                        {% if form.points.errors %}<span class="text-error text-xs font-bold">{{ form.points.errors.0 }}</span>{% endif %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-0">
+                    <div>
+                        {% include "dashboard/components/form_field.html" with field=form.points %}
                     </div>
                     
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Price" %} <span class="text-error">*</span></label>
-                        <div class="relative flex items-center">
-                            {{ form.price }}
-                            <div class="absolute inset-y-0 end-4 flex items-center pointer-events-none">
-                                <span class="text-[12px] font-black text-text-muted uppercase">SAR</span>
-                            </div>
-                        </div>
-                        {% if form.price.errors %}<span class="text-error text-xs font-bold">{{ form.price.errors.0 }}</span>{% endif %}
+                    <div>
+                        {% include "dashboard/components/form_field.html" with field=form.price show_currency=True %}
                     </div>
                 </div>
 
@@ -106,7 +88,9 @@
 
                         <div class="mt-4 py-1.5 px-4 bg-bg rounded-lg border border-border/60 flex items-center gap-2">
                             <span id="preview-price" class="text-[14px] font-black text-text-primary">0.00</span>
-                            <span class="text-[9px] font-bold text-text-muted uppercase tracking-widest">SAR</span>
+                            <span class="w-4 h-4 text-primary flex items-center justify-center" id="preview-unit-currency">
+                                {% include "components/currency_icon.html" %}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -117,6 +101,17 @@
 </div>
 
 <style>
+    /* Locks styling symmetry and strips native browser input number spinner layouts */
+    .custom-django-field-wrapper input[type="number"]::-webkit-inner-spin-button,
+    .custom-django-field-wrapper input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none !important;
+        margin: 0 !important;
+    }
+    .custom-django-field-wrapper input[type="number"] {
+        -moz-appearance: textfield !important;
+    }
+
+    /* Core master layout inputs rules alignment strictly locked */
     .float-input {
         width: 100%;
         height: 48px;

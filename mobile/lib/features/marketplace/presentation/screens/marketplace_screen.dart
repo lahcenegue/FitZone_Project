@@ -48,8 +48,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   Widget build(BuildContext context) {
     final AppColors colors = ref.watch(appThemeProvider);
     final AppLocalizations l10n = AppLocalizations.of(context)!;
+    final EdgeInsets safeArea = MediaQuery.of(context).padding;
 
-    // ARCHITECTURE FIX: Watch both data and filter states
     final marketplaceState = ref.watch(marketplaceControllerProvider);
     final filterState = ref.watch(marketplaceFilterProvider);
 
@@ -68,7 +68,6 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             letterSpacing: -0.5,
           ),
         ),
-        // ARCHITECTURE FIX: Integrated Premium Search Bar
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(
             Dimensions.searchBarHeight + Dimensions.spacingMedium,
@@ -106,6 +105,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
         ),
       ),
       body: SafeArea(
+        bottom:
+            false, // ARCHITECTURE FIX: We handle bottom padding manually for extendBody
         child: marketplaceState.when(
           loading: () =>
               Center(child: CircularProgressIndicator(color: colors.primary)),
@@ -163,8 +164,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                   top: Dimensions.spacingMedium,
                   left: Dimensions.spacingLarge,
                   right: Dimensions.spacingLarge,
-                  // ARCHITECTURE FIX: Bottom padding prevents overlapping with floating nav dock
-                  bottom: Dimensions.spacingExtraLarge * 4,
+                  // ARCHITECTURE FIX: Precise Pixel-Perfect Calculation for floating dock clearance
+                  bottom: safeArea.bottom + (Dimensions.buttonHeight * 1.6),
                 ),
                 itemCount: state.items.length + (state.isLoadMore ? 1 : 0),
                 itemBuilder: (context, index) {

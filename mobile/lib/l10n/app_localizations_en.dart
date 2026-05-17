@@ -1466,4 +1466,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get walletCoversTotal =>
       'Wallet balance covers the total, no payment card needed.';
+
+  @override
+  String get couponProhibitedForPackages =>
+      'Coupons or points cannot be used when purchasing point packages.';
 }

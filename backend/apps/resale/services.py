@@ -1,5 +1,7 @@
+# apps/resale/services.py
+
 import logging
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from django.db import transaction
 from django.utils import timezone
 from django.core.exceptions import ValidationError
@@ -61,6 +63,52 @@ class ResaleMarketService:
         fair_value = raw_fair_value * depreciation_rate
         
         return fair_value.quantize(Decimal('0.01'))
+
+    @staticmethod
+    def calculate_current_fair_price(listing: SubscriptionResaleListing) -> dict:
+        """
+        Dynamically calculates the decayed price and fair value based on real-time elapsed days.
+        Ensures perfect alignment across discovery APIs and the core payment processing tunnel.
+        """
+        today = timezone.now().date()
+        sub = listing.subscription
+
+        # Days remaining right now
+        if sub.start_date > today:
+            current_days_left = (sub.end_date - sub.start_date).days + 1
+        else:
+            current_days_left = (sub.end_date - today).days
+        
+        current_days_left = max(0, current_days_left)
+
+        # Days remaining when originally listed
+        listing_date = listing.created_at.date()
+        if sub.start_date > listing_date:
+            days_at_listing = (sub.end_date - sub.start_date).days + 1
+        else:
+            days_at_listing = (sub.end_date - listing_date).days
+        
+        days_at_listing = max(1, days_at_listing)
+
+        # Calculate proportional price decay scale
+        if current_days_left <= 0:
+            return {
+                "current_asking_price": Decimal("0.00"),
+                "current_fair_value": Decimal("0.00"),
+                "days_left": 0
+            }
+
+        # Mathematical proportional decay formula to maintain consumer fairness
+        decay_factor = Decimal(str(current_days_left)) / Decimal(str(days_at_listing))
+        
+        current_fair_value = (listing.fair_value_at_listing * decay_factor).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        current_asking_price = (listing.asking_price * decay_factor).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+        return {
+            "current_asking_price": current_asking_price,
+            "current_fair_value": current_fair_value,
+            "days_left": current_days_left
+        }
 
     @staticmethod
     @transaction.atomic
@@ -134,10 +182,16 @@ class ResaleMarketService:
             raise ValidationError(_("You cannot purchase your own listing."))
 
         settings = ResaleGlobalSetting.load()
-        days_left = (listing.subscription.end_date - timezone.now().date()).days
+        
+        decayed_pricing = ResaleMarketService.calculate_current_fair_price(listing)
+        final_decayed_price = decayed_pricing["current_asking_price"]
+        days_left = decayed_pricing["days_left"]
+
         if days_left < settings.minimum_days_buffer:
             listing.status = ResaleListingStatus.EXPIRED
             listing.save(update_fields=['status', 'updated_at'])
+            # Trigger smart hook notification for dynamic execution on purchase attempt failure
+            ResaleMarketService._send_listing_expiry_notification(listing.seller, listing)
             raise ValidationError(_("This subscription has expired from the marketplace due to minimum days rule."))
 
         points_to_clawback = ResaleMarketService._calculate_earned_points(listing.subscription)
@@ -159,20 +213,20 @@ class ResaleMarketService:
 
         payment_txn = PaymentService.process_payment(
             user=buyer,
-            amount=listing.asking_price,
+            amount=final_decayed_price,
             currency="SAR",
             gateway_name=gateway_name
         )
 
         commission_rate = Decimal(str(settings.app_commission_percentage)) / Decimal('100.0')
-        app_commission = (listing.asking_price * commission_rate).quantize(Decimal('0.01'))
-        seller_earnings = listing.asking_price - app_commission
+        app_commission = (final_decayed_price * commission_rate).quantize(Decimal('0.01'))
+        seller_earnings = final_decayed_price - app_commission
 
         resale_txn = ResaleTransaction.objects.create(
             listing=listing,
             buyer=buyer,
             payment=payment_txn,
-            sale_price=listing.asking_price,
+            sale_price=final_decayed_price,
             app_commission=app_commission,
             seller_earnings=seller_earnings,
             status=ResaleTransactionStatus.ESCROW
@@ -201,8 +255,8 @@ class ResaleMarketService:
 
         loyalty_settings = LoyaltyGlobalSetting.load()
         earn_rate = Decimal(str(loyalty_settings.gym_earn_rate))
-        if listing.asking_price > 0 and earn_rate > Decimal('0.00'):
-            points_earned = int(listing.asking_price / earn_rate)
+        if final_decayed_price > 0 and earn_rate > Decimal('0.00'):
+            points_earned = int(final_decayed_price / earn_rate)
             if points_earned > 0:
                 buyer_wallet, created = CustomerWallet.objects.get_or_create(user=buyer)
                 WalletTransaction.execute_transaction(
@@ -253,3 +307,53 @@ class ResaleMarketService:
         if released_count > 0:
             logger.info(f"Escrow release complete: {released_count} transactions cleared to sellers.")
         return released_count
+
+    @staticmethod
+    def _send_listing_expiry_notification(user, listing: SubscriptionResaleListing) -> None:
+        """
+        Architecture Notification Hook. Acts as a strict future-proof event placeholder.
+        When the Notification System is fully implemented, trigger push/SMS pipelines here.
+        """
+        # Right now we log the intent as required for clean architecture decoupling
+        logger.info(
+            f"Notification Event Triggered: Resale Listing #{listing.id} for "
+            f"Subscription #{listing.subscription.id} has expired. "
+            f"Target recipient: {user.email}"
+        )
+        # TODO: Connect with NotificationService when initialized:
+        # NotificationService.send_push(user=user, title="Listing Expired", body="...")
+
+    @staticmethod
+    @transaction.atomic
+    def expire_invalid_listings() -> int:
+        """
+        Automated cron service function to parse all active listings, verify remaining days
+        against dynamic marketplace configuration rules, and flag violations as EXPIRED.
+        """
+        resale_settings = ResaleGlobalSetting.load()
+        buffer_days = resale_settings.minimum_days_buffer
+        today = timezone.now().date()
+
+        active_listings = SubscriptionResaleListing.objects.filter(
+            status=ResaleListingStatus.ACTIVE
+        ).select_for_update()
+
+        expired_count = 0
+        for listing in active_listings:
+            sub = listing.subscription
+            if sub.start_date > today:
+                days_left = (sub.end_date - sub.start_date).days + 1
+            else:
+                days_left = (sub.end_date - today).days
+
+            if days_left < buffer_days:
+                listing.status = ResaleListingStatus.EXPIRED
+                listing.save(update_fields=['status', 'updated_at'])
+                
+                # Execute the architecture hook to log/notify the seller instantly
+                ResaleMarketService._send_listing_expiry_notification(listing.seller, listing)
+                
+                expired_count += 1
+                logger.info(f"Listing #{listing.id} for sub #{sub.id} automatically marked EXPIRED. Days left: {days_left}")
+
+        return expired_count

@@ -271,12 +271,14 @@ class LoyaltyPackage {
   final String name;
   final int points;
   final double price;
+  final bool isBestSeller;
 
   const LoyaltyPackage({
     required this.id,
     required this.name,
     required this.points,
     required this.price,
+    required this.isBestSeller,
   });
 
   factory LoyaltyPackage.fromJson(Map<String, dynamic> json) {
@@ -287,10 +289,18 @@ class LoyaltyPackage {
         name: json['name']?.toString() ?? '',
         points: int.tryParse(json['points']?.toString() ?? '0') ?? 0,
         price: double.tryParse(json['price']?.toString() ?? '0.0') ?? 0.0,
+        // Map the new backend field correctly
+        isBestSeller: json['is_best_seller'] as bool? ?? false,
       );
     } catch (e, stackTrace) {
       logger.severe('Error parsing LoyaltyPackage', e, stackTrace);
-      return const LoyaltyPackage(id: 0, name: '', points: 0, price: 0.0);
+      return const LoyaltyPackage(
+        id: 0,
+        name: '',
+        points: 0,
+        price: 0.0,
+        isBestSeller: false,
+      );
     }
   }
 }
@@ -406,8 +416,7 @@ class WalletSummary {
   final int spendablePoints;
   final int lifetimePoints;
   final double fiatBalance;
-  final double
-  pendingFiatBalance; // ARCHITECTURE FIX: Added pending fiat balance
+  final double pendingFiatBalance;
   final int unlockedRewardsCount;
   final BankAccount? bankAccount;
 

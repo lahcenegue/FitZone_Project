@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme_provider.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../checkout/presentation/screens/checkout_screen.dart'; // ARCHITECTURE FIX: Import centralized checkout
+import '../../../checkout/presentation/screens/checkout_screen.dart';
 import '../../data/models/loyalty_models.dart';
 import '../providers/loyalty_dashboard_providers.dart';
 
@@ -126,7 +125,9 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
       itemBuilder: (context, index) {
         final package = packages[index];
         final bool isSelected = _selectedPackage?.id == package.id;
-        final bool isPopular = index == 1 && packages.length > 1;
+
+        // ARCHITECTURE FIX: Read directly from Backend model instead of hardcoding logic
+        final bool isPopular = package.isBestSeller;
 
         return _buildPackageCard(package, isSelected, isPopular, colors, l10n);
       },
@@ -335,7 +336,6 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
               width: Dimensions.screenWidth * 0.45,
               height: Dimensions.buttonHeight,
               child: ElevatedButton(
-                // ARCHITECTURE FIX: Delegating the checkout process to the unified CheckoutScreen
                 onPressed: _navigateToCheckout,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
@@ -401,8 +401,6 @@ class _LoyaltyPackagesScreenState extends ConsumerState<LoyaltyPackagesScreen> {
       'Routing to unified checkout for points package ID: ${_selectedPackage!.id}',
     );
 
-    // ARCHITECTURE FIX: Using standard Navigator push to ensure decoupled flexibility.
-    // We pass 'points_package' as agreed upon with the backend schema.
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => CheckoutScreen(

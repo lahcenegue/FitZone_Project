@@ -22,10 +22,10 @@ class MapZoomControls extends StatelessWidget {
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
         boxShadow: [
           BoxShadow(
-            color: colors.shadow,
+            color: colors.shadow.withValues(alpha: 0.1),
             blurRadius: Dimensions.shadowBlurRadius,
-            spreadRadius: Dimensions.shadowSpreadRadius,
-            offset: Offset(0, Dimensions.shadowOffsetY),
+            spreadRadius: Dimensions.shadowSpreadRadius * 0.5,
+            offset: Offset(0, Dimensions.shadowOffsetY * 0.5),
           ),
         ],
       ),
@@ -33,7 +33,7 @@ class MapZoomControls extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _ZoomButton(
-            icon: Icons.add,
+            icon: Icons.add_rounded,
             color: colors.textPrimary,
             onTap: onZoomIn,
             isTop: true,
@@ -44,7 +44,7 @@ class MapZoomControls extends StatelessWidget {
             color: colors.background,
           ),
           _ZoomButton(
-            icon: Icons.remove,
+            icon: Icons.remove_rounded,
             color: colors.textPrimary,
             onTap: onZoomOut,
             isBottom: true,

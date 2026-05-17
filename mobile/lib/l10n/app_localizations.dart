@@ -2893,6 +2893,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wallet balance covers the total, no payment card needed.'**
   String get walletCoversTotal;
+
+  /// No description provided for @couponProhibitedForPackages.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupons or points cannot be used when purchasing point packages.'**
+  String get couponProhibitedForPackages;
 }
 
 class _AppLocalizationsDelegate

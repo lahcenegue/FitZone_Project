@@ -197,7 +197,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final selectedPlace = ref.watch(selectedPlaceProvider);
     final locationState = ref.watch(userLocationProvider);
 
-    // Fetch current explore filter state to pass to the PremiumSearchBar
     final filterState = ref.watch(exploreFilterProvider);
 
     final LatLng initialPos =
@@ -265,13 +264,20 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       }
     });
 
-    final double controlsBottomOffset = displayPlaces.isNotEmpty
-        ? Dimensions.heightPercent(32.0).clamp(220.0, 280.0) +
-              Dimensions.spacingMedium
-        : Dimensions.mapFabBottomOffset;
-
     final bool showLocationWarning =
         !locationState.isServiceEnabled || !locationState.isPermissionGranted;
+
+    // ARCHITECTURE FIX: Exact Mathematical offset formulation
+    final double floatingDockOffset = Dimensions.floatingNavBarClearance;
+
+    // The exact height of the horizontal list is card height + spacing*2 for shadows
+    final double horizontalListHeight =
+        Dimensions.mapCardCollapsedHeight + (Dimensions.spacingSmall * 2);
+
+    final double controlsBottomOffset =
+        floatingDockOffset +
+        (displayPlaces.isNotEmpty ? horizontalListHeight : 0) +
+        Dimensions.spacingMedium;
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -310,7 +316,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             right: Dimensions.spacingMedium,
             child: Column(
               children: [
-                // ARCHITECTURE FIX: Properly instantiating the generalized PremiumSearchBar
                 PremiumSearchBar(
                   colors: colors,
                   hintText: l10n.searchPlaces,
@@ -398,6 +403,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             ),
           ),
 
+          // ARCHITECTURE FIX: Controls strictly bound by exact mathematical offset
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
@@ -421,7 +427,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           ),
 
           Positioned(
-            bottom: 0,
+            bottom: floatingDockOffset,
             left: 0,
             right: 0,
             child: AnimatedSwitcher(

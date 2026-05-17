@@ -24,58 +24,48 @@
                 </div>
 
                 <div class="flex flex-col gap-5">
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Internal Title" %} <span class="text-error">*</span></label>
-                        {{ form.title }}
-                        {% if form.title.errors %}<span class="text-error text-xs font-bold">{{ form.title.errors.0 }}</span>{% endif %}
-                    </div>
+                    {% include "dashboard/components/form_field.html" with field=form.title %}
 
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Coupon Code" %} <span class="text-error">*</span></label>
-                        {{ form.code }}
-                        <div class="flex items-center justify-between mt-1">
-                            <p class="text-[11.5px] text-text-muted">{% trans "Use uppercase letters and numbers only. Keep it short." %}</p>
-                            <button type="button" id="btn-generate-code" class="text-[11.5px] font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-md transition-colors shadow-sm">
+                    <div class="flex flex-col w-full -mb-2">
+                        {% include "dashboard/components/form_field.html" with field=form.code %}
+                        <div class="flex items-center justify-between -mt-3.5 px-1 w-full z-20">
+                            <button type="button" id="btn-generate-code" class="text-[11.5px] font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-md transition-colors shadow-sm focus:outline-none">
                                 {% trans "Generate Random" %}
                             </button>
+                            <p class="text-[11.5px] text-text-muted">{% trans "Use uppercase letters and numbers only. Keep it short." %}</p>
                         </div>
-                        {% if form.code.errors %}<span class="text-error text-xs font-bold">{{ form.code.errors.0 }}</span>{% endif %}
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">
                     <div class="flex flex-col gap-2">
                         <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Discount Type" %} <span class="text-error">*</span></label>
-                        {{ form.coupon_type }}
+                        <div class="custom-select-wrapper relative w-full">
+                            <input type="hidden" name="coupon_type" id="id_coupon_type" value="{{ form.coupon_type.value|default:'' }}">
+                            <div class="select-trigger h-[48px] bg-bg border border-border rounded-[12px] px-4 flex items-center justify-between cursor-pointer hover:border-primary/50 transition-all shadow-sm">
+                                <span class="text-[14px] font-bold text-text-primary select-label">{% trans "Select Type..." %}</span>
+                                <svg class="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                            <div class="select-dropdown absolute top-full start-0 w-full mt-1.5 bg-surface border border-border rounded-xl shadow-lg hidden z-50 py-1.5 max-h-60 overflow-y-auto">
+                                {% for choice_val, choice_label in form.fields.coupon_type.choices %}
+                                    <div class="select-option px-4 py-2.5 text-[13px] font-bold hover:bg-bg cursor-pointer transition-colors" data-value="{{ choice_val }}">{{ choice_label }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
                         {% if form.coupon_type.errors %}<span class="text-error text-xs font-bold">{{ form.coupon_type.errors.0 }}</span>{% endif %}
                     </div>
                     
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Discount Value" %} <span class="text-error">*</span></label>
-                        <div class="relative flex items-center">
-                            {{ form.discount_value }}
-                            <div class="absolute inset-y-0 end-4 flex items-center pointer-events-none" id="input-currency-icon">
-                                <span class="text-[14px] font-black text-text-muted" id="icon-percent">%</span>
-                                <span class="w-4 h-4 text-text-muted hidden" id="icon-fiat">{% include "components/currency_icon.html" %}</span>
-                            </div>
-                        </div>
-                        {% if form.discount_value.errors %}<span class="text-error text-xs font-bold">{{ form.discount_value.errors.0 }}</span>{% endif %}
+                    <div>
+                        {% include "dashboard/components/form_field.html" with field=form.discount_value show_currency=True %}
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Maximum Usage" %} <span class="text-error">*</span></label>
-                        {{ form.max_usage }}
-                        <p class="text-[11px] text-text-muted mt-1">{% trans "Set to 0 for unlimited usage." %}</p>
-                        {% if form.max_usage.errors %}<span class="text-error text-xs font-bold">{{ form.max_usage.errors.0 }}</span>{% endif %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-0">
+                    <div>
+                        {% include "dashboard/components/form_field.html" with field=form.max_usage %}
                     </div>
-
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Expiration Date" %}</label>
-                        {{ form.expiration_date }}
-                        <p class="text-[11px] text-text-muted mt-1">{% trans "Leave blank for no expiration." %}</p>
-                        {% if form.expiration_date.errors %}<span class="text-error text-xs font-bold">{{ form.expiration_date.errors.0 }}</span>{% endif %}
+                    <div>
+                        {% include "dashboard/components/form_field.html" with field=form.expiration_date %}
                     </div>
                 </div>
 
@@ -111,7 +101,6 @@
                 </div>
 
                 <div class="relative w-full flex rounded-[12px] shadow-md overflow-hidden min-h-[160px]">
-                    
                     <div class="absolute -start-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-surface rounded-full z-10"></div>
 
                     <div class="w-[25%] flex items-center justify-center relative overflow-hidden" style="background-color: #D49BEB;">
@@ -120,7 +109,6 @@
                     </div>
 
                     <div class="w-[75%] p-5 flex flex-col justify-between relative" style="background: linear-gradient(to right, #B4C4FF, #8BD5FF);">
-                        
                         <div class="absolute -end-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-surface rounded-full z-10"></div>
 
                         <div class="flex justify-between items-start pe-2">
@@ -130,7 +118,6 @@
                                 <span class="w-6 h-6 hidden pb-1 fill-current" id="preview-type-fiat">{% include "components/currency_icon.html" %}</span>
                                 <span class="text-[13px] font-black uppercase ms-1" id="preview-off-text">OFF</span>
                             </div>
-                            
                             <span class="bg-[#1e293b]/10 text-[#1e293b] border border-[#1e293b]/20 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest shadow-sm" id="preview-badge">
                                 {% trans "ACTIVE" %}
                             </span>
@@ -147,7 +134,6 @@
                                 <span class="text-[11px] font-black leading-tight max-w-[80px] text-[#1e293b]" id="preview-expiry-top">{% trans "No Expiry" %}</span>
                             </div>
                         </div>
-                        
                     </div>
                 </div>
 
@@ -193,23 +179,14 @@
 </div>
 
 <style>
-    .float-input {
-        width: 100%;
-        height: 48px;
-        padding: 0 16px;
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--color-text-primary);
-        background-color: var(--color-bg);
-        border: 1px solid var(--color-border);
-        border-radius: 12px;
-        transition: all 0.2s ease;
-        outline: none;
+    /* CRITICAL UI CLEANUP: Completely strips native spin buttons to lock styling symmetry with settings */
+    .custom-django-field-wrapper input[type="number"]::-webkit-inner-spin-button,
+    .custom-django-field-wrapper input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none !important;
+        margin: 0 !important;
     }
-    .float-input:focus {
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        background-color: var(--color-surface);
+    .custom-django-field-wrapper input[type="number"] {
+        -moz-appearance: textfield !important;
     }
     #id_code { text-transform: uppercase; }
 </style>
@@ -217,6 +194,41 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     
+    // Custom Select Initialization (Uniform UI for the dropdown fields)
+    const wrappers = document.querySelectorAll('.custom-select-wrapper');
+    wrappers.forEach(wrapper => {
+        const trigger = wrapper.querySelector('.select-trigger');
+        const label = wrapper.querySelector('.select-label');
+        const dropdown = wrapper.querySelector('.select-dropdown');
+        const hiddenInput = wrapper.querySelector('input[type="hidden"]');
+        const options = wrapper.querySelectorAll('.select-option');
+
+        options.forEach(opt => {
+            if(opt.dataset.value === hiddenInput.value) { label.textContent = opt.textContent; }
+        });
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.select-dropdown').forEach(d => {
+                if(d !== dropdown) d.classList.add('hidden');
+            });
+            dropdown.classList.toggle('hidden');
+        });
+
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                hiddenInput.value = option.dataset.value;
+                label.textContent = option.textContent;
+                dropdown.classList.add('hidden');
+                hiddenInput.dispatchEvent(new Event('change')); // Trigger Preview Update
+            });
+        });
+    });
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.select-dropdown').forEach(d => d.classList.add('hidden'));
+    });
+
     // Form Inputs
     const inputTitle = document.getElementById('id_title');
     const inputCode = document.getElementById('id_code');
@@ -226,10 +238,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const inputExpiry = document.getElementById('id_expiration_date');
     const inputActive = document.getElementById('id_is_active');
     
-    // Buttons
     const btnGenerate = document.getElementById('btn-generate-code');
     
-    // Preview Elements (Ticket)
     const prevTypeVertical = document.getElementById('preview-type-vertical');
     const prevCode = document.getElementById('preview-code');
     const prevExpiryTop = document.getElementById('preview-expiry-top');
@@ -239,7 +249,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevTypeFiat = document.getElementById('preview-type-fiat');
     const prevOffText = document.getElementById('preview-off-text');
     
-    // Preview Elements (Details List)
     const detTitle = document.getElementById('detail-title');
     const detCode = document.getElementById('detail-code');
     const detDiscount = document.getElementById('detail-discount');
@@ -247,11 +256,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const detExpiry = document.getElementById('detail-expiry');
     const detStatus = document.getElementById('detail-status');
 
-    // Input Icons (Right side of value input)
-    const iconPct = document.getElementById('icon-percent');
-    const iconFiat = document.getElementById('icon-fiat');
-
-    // Translation Variables
     const txtUnlimited = "{% trans 'Unlimited' %}";
     const txtActive = "{% trans 'ACTIVE' %}";
     const txtPaused = "{% trans 'PAUSED' %}";
@@ -264,19 +268,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updatePreview() {
-        // 1. Code
         const codeVal = inputCode.value.trim().toUpperCase() || 'YOUR-COUPON';
         prevCode.textContent = codeVal;
         detCode.textContent = codeVal;
-
-        // 2. Title
         detTitle.textContent = inputTitle.value.trim() || txtDiscountCampaign;
 
-        // 3. Discount Value & Type
         const val = formatNumber(inputValue.value);
         const type = inputType.value;
         
-        // Reset visibility classes
         prevValue.classList.remove('hidden');
         prevOffText.classList.remove('hidden');
 
@@ -285,21 +284,13 @@ document.addEventListener('DOMContentLoaded', function() {
             prevValue.textContent = val;
             prevTypePct.classList.remove('hidden');
             prevTypeFiat.classList.add('hidden');
-            
-            iconPct.classList.remove('hidden');
-            iconFiat.classList.add('hidden');
             detDiscount.textContent = val + '% OFF';
-
         } else if (type === 'fixed_amount') {
             prevTypeVertical.textContent = "DISCOUNT";
             prevValue.textContent = val;
             prevTypePct.classList.add('hidden');
             prevTypeFiat.classList.remove('hidden');
-            
-            iconPct.classList.add('hidden');
-            iconFiat.classList.remove('hidden');
-            detDiscount.textContent = val + ' DZD OFF';
-
+            detDiscount.textContent = val + ' SAR OFF';
         } else if (type === 'free_shipping') {
             prevTypeVertical.textContent = "SHIPPING";
             prevValue.textContent = "FREE";
@@ -307,7 +298,6 @@ document.addEventListener('DOMContentLoaded', function() {
             prevTypeFiat.classList.add('hidden');
             prevOffText.classList.add('hidden');
             detDiscount.textContent = "FREE SHIPPING";
-
         } else if (type === 'bogo') {
             prevTypeVertical.textContent = "BOGO";
             prevValue.textContent = "BOGO";
@@ -315,7 +305,6 @@ document.addEventListener('DOMContentLoaded', function() {
             prevTypeFiat.classList.add('hidden');
             prevOffText.classList.add('hidden');
             detDiscount.textContent = "BUY 1 GET 1";
-
         } else {
             prevTypeVertical.textContent = "REWARD";
             prevValue.textContent = "100";
@@ -324,7 +313,6 @@ document.addEventListener('DOMContentLoaded', function() {
             detDiscount.textContent = "FREE ITEM";
         }
 
-        // 4. Max Usage
         const usageVal = parseInt(inputUsage.value);
         if (!isNaN(usageVal) && usageVal > 0) {
             detUsage.textContent = usageVal;
@@ -332,7 +320,6 @@ document.addEventListener('DOMContentLoaded', function() {
             detUsage.textContent = txtUnlimited;
         }
 
-        // 5. Expiry Date
         if (inputExpiry && inputExpiry.value) {
             const dateObj = new Date(inputExpiry.value);
             const dateStr = dateObj.toLocaleDateString();
@@ -343,10 +330,9 @@ document.addEventListener('DOMContentLoaded', function() {
             detExpiry.textContent = '-';
         }
 
-        // 6. Status Check
         if (inputActive && inputActive.checked) {
             prevBadge.textContent = txtActive;
-            prevBadge.className = "bg-[#1e293b]/10 text-[#1e293b] border border-[#1e293b]/20 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest shadow-sm";
+            prevBadge.className = "bg-[#1e293b]/10 text-[#1e293b] border border-[#1e293b]/15 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest shadow-sm";
             detStatus.textContent = "{% trans 'Active' %}";
             detStatus.className = "text-[12.5px] font-black text-success";
         } else {
@@ -357,7 +343,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Event Listeners for Real-time Update
     const inputs = [inputTitle, inputCode, inputType, inputValue, inputUsage, inputExpiry, inputActive];
     inputs.forEach(input => {
         if (input) {
@@ -366,7 +351,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Random Code Generator
     if (btnGenerate) {
         btnGenerate.addEventListener('click', function() {
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -380,7 +364,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize Preview on load
     updatePreview();
 });
 </script>

@@ -48,13 +48,10 @@ class Dimensions {
 
   // Structural Elements
   static double get borderRadius => _scale(16.0);
-  static double get radiusPill => _scale(50.0); // For the target UI search bar
+  static double get radiusPill => _scale(50.0);
   static double get buttonHeight => _scale(48.0);
   static double get searchBarHeight => _scale(56.0);
   static double get fabSize => _scale(56.0);
-
-  static const double cardMaxWidth = 500.0;
-  static const double maxContentWidth = 800.0;
 
   // Map Specific Dimensions
   static double get mapFabBottomOffset => _scale(110.0);
@@ -71,11 +68,19 @@ class Dimensions {
 
   // Typography Extensions
   static double get fontTitleMedium => _scale(18.0);
-  static double get fontTitleLarge =>
-      _scale(22.0); // ADDED: Required for PersonalInfoScreen
+  static double get fontTitleLarge => _scale(22.0);
 
   // Structural Elements
   static double get borderRadiusLarge => _scale(24.0);
+
+  // ARCHITECTURE FIX: Increased clearance to strictly prevent bottom nav bar overlap
+  static double get floatingNavBarHeight => _scale(75.0);
+  static double get floatingNavBarClearance =>
+      _scale(105.0); // Pushed up safely
+
+  // ARCHITECTURE FIX: Optimized heights to prevent any inner pixel overflow
+  static double get mapCardCollapsedHeight => _scale(160.0);
+  static double get mapCardExpandedHeight => _scale(400.0);
 
   static double widthPercent(double percent, {double? max}) {
     double calculatedWidth = screenWidth * (percent / 100);

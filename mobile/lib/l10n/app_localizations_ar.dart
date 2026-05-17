@@ -1441,4 +1441,8 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get walletCoversTotal =>
       'رصيد المحفظة يغطي كامل المبلغ، لا حاجة لبطاقة دفع.';
+
+  @override
+  String get couponProhibitedForPackages =>
+      'لا يمكن استخدام الكوبونات أو النقاط عند شراء باقات النقاط.';
 }

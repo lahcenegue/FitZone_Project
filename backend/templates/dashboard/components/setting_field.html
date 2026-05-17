@@ -1,37 +1,45 @@
-<div class="flex flex-col w-full mb-2 group/field">
+{# templates/dashboard/components/setting_field.html #}
+{% load i18n %}
+
+<div class="flex flex-col w-full mb-6 group/field">
     
-    <div class="flex items-center justify-between mb-2 px-1">
-        <div class="flex items-center gap-1">
-            <label class="text-[13.5px] font-black text-text-primary tracking-wide uppercase" for="{{ field.id_for_label }}">
+    <div class="flex items-center justify-between mb-2 px-1 relative">
+        <div class="flex items-center gap-1.5">
+            <label class="text-[13.5px] font-black text-text-primary tracking-wide uppercase cursor-pointer" for="{{ field.id_for_label }}">
                 {{ field.label }}
             </label>
         </div>
         
         {% if field.help_text %}
-        <button type="button" onclick="toggleHint('hint-{{ field.name }}')" class="text-text-muted hover:text-primary transition-colors focus:outline-none shrink-0" title="Information">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </button>
+        <div class="custom-tooltip relative z-20">
+            <button type="button" class="text-text-muted hover:text-primary transition-colors focus:outline-none" title="{% trans 'Read Information Description' %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </button>
+            <div class="custom-tooltip-content absolute bottom-[130%] right-0 translate-y-2 opacity-0 invisible w-[280px] p-4 bg-bg border border-border shadow-primary-lg rounded-2xl text-[12.5px] font-bold text-text-secondary leading-relaxed transition-all duration-300 pointer-events-none group-hover:opacity-100 group-hover:invisible group-hover:translate-y-0 text-center animate-fadeIn">
+                {{ field.help_text }}
+                <div class="absolute top-full right-5 w-3 h-3 bg-bg border-r border-b border-border transform rotate-45"></div>
+            </div>
+        </div>
         {% endif %}
     </div>
     
-    <div class="relative flex items-center rounded-xl overflow-hidden">
-        <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-primary to-accent opacity-0 group-focus-within/field:opacity-100 blur-[3px] transition-opacity duration-300"></div>
+    <div class="relative flex items-center rounded-xl bg-bg border border-border/80 custom-field-input-wrapper transition-all duration-300 w-full h-14">
         
-        {{ field }}
+        <div class="w-full h-full flex items-center px-4 custom-input-native-parent">
+            {{ field }}
+        </div>
 
         {% if show_currency %}
-        <div class="absolute inset-y-0 end-4 flex items-center pointer-events-none text-primary/60 group-focus-within/field:text-primary transition-colors z-20">
+        <div class="absolute inset-y-0 end-4 flex items-center pointer-events-none text-primary group-focus-within/field:text-primary transition-colors z-20">
             {% include "components/currency_icon.html" %}
         </div>
         {% endif %}
     </div>
 
-    {% if field.help_text %}
-        {% include "dashboard/components/helper_box.html" with help_text=field.help_text hint_id="hint-"|add:field.name %}
-    {% endif %}
-
     {% if field.errors %}
-        <span class="text-[11px] text-error font-bold mt-2 px-1">{{ field.errors.0 }}</span>
+        <span class="text-[11px] text-error font-bold mt-2 px-1 block animate-slideUp">{{ field.errors.0 }}</span>
     {% endif %}
     
 </div>

@@ -3,14 +3,14 @@
 {% load i18n %}
 
 {% block content %}
-<div class="flex flex-col gap-8 pb-12">
+<div class="flex flex-col gap-8 pb-12 pt-2">
 
     {% url 'dashboard:rewards_list' as list_url %}
     {% trans "Configure the specifics of a reward to be granted to loyal customers." as subtitle_trans %}
     {% trans "Back to List" as action_text_trans %}
     {% include "dashboard/components/page_header.html" with title=page_title subtitle=subtitle_trans action_url=list_url action_text=action_text_trans action_icon='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>' %}
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-2">
         
         <div class="lg:col-span-8">
             <form method="post" class="bg-surface border border-border shadow-sm rounded-2xl p-8 flex flex-col gap-6" id="reward-form">
@@ -23,13 +23,11 @@
                     <h2 class="text-lg font-black text-text-primary">{{ page_title }}</h2>
                 </div>
 
-                <div class="flex flex-col gap-2">
-                    <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Reward Name" %} <span class="text-error">*</span></label>
-                    {{ form.name }}
-                    {% if form.name.errors %}<span class="text-error text-xs font-bold">{{ form.name.errors.0 }}</span>{% endif %}
+                <div class="flex flex-col gap-0">
+                    {% include "dashboard/components/form_field.html" with field=form.name %}
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-0">
                     
                     <div class="flex flex-col gap-2">
                         <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Reward Action Type" %} <span class="text-error">*</span></label>
@@ -39,7 +37,7 @@
                                 <span class="text-[14px] font-bold text-text-primary select-label">{% trans "Select Type..." %}</span>
                                 <svg class="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </div>
-                            <div class="select-dropdown absolute top-full start-0 w-full mt-1.5 bg-surface border border-border rounded-xl shadow-lg hidden z-50 py-1.5">
+                            <div class="select-dropdown absolute top-full start-0 w-full mt-1.5 bg-surface border border-border rounded-xl shadow-lg hidden z-50 py-1.5 max-h-60 overflow-y-auto">
                                 {% for choice_val, choice_label in form.fields.action_type.choices %}
                                     {% if choice_val %}
                                         <div class="select-option px-4 py-2.5 text-[13px] font-bold hover:bg-bg cursor-pointer transition-colors" data-value="{{ choice_val }}">{{ choice_label }}</div>
@@ -58,7 +56,7 @@
                                 <span class="text-[14px] font-bold text-text-primary select-label">{% trans "Select Discount Type..." %}</span>
                                 <svg class="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </div>
-                            <div class="select-dropdown absolute top-full start-0 w-full mt-1.5 bg-surface border border-border rounded-xl shadow-lg hidden z-50 py-1.5">
+                            <div class="select-dropdown absolute top-full start-0 w-full mt-1.5 bg-surface border border-border rounded-xl shadow-lg hidden z-50 py-1.5 max-h-60 overflow-y-auto">
                                 {% for choice_val, choice_label in form.fields.discount_type.choices %}
                                     {% if choice_val %}
                                         <div class="select-option px-4 py-2.5 text-[13px] font-bold hover:bg-bg cursor-pointer transition-colors" data-value="{{ choice_val }}">{{ choice_label }}</div>
@@ -69,21 +67,21 @@
                         {% if form.discount_type.errors %}<span class="text-error text-xs font-bold">{{ form.discount_type.errors.0 }}</span>{% endif %}
                     </div>
 
-                    <div class="flex flex-col gap-2 w-full" id="wrapper-action-value">
-                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider" id="label-action-value">{% trans "Granted Value" %} <span class="text-error">*</span></label>
-                        <div class="relative flex items-center">
+                    <div class="flex flex-col gap-0 w-full hidden" id="wrapper-action-value">
+                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider mb-2.5" id="label-action-value">{% trans "Granted Value" %} <span class="text-error">*</span></label>
+                        <div class="relative flex items-center w-full custom-django-field-wrapper">
                             {{ form.action_value }}
-                            <div class="absolute inset-y-0 end-4 flex items-center pointer-events-none">
+                            <div class="absolute inset-y-0 end-4 flex items-center pointer-events-none z-20">
                                 <span class="text-[12px] font-black text-text-muted uppercase hidden" id="unit-action-value-text">UNITS</span>
                                 <span class="w-4 h-4 text-text-muted hidden" id="unit-action-value-icon">{% include "components/currency_icon.html" %}</span>
                             </div>
                         </div>
-                        <p class="text-[11px] text-text-muted mt-1" id="hint-action-value">{% trans "Enter the numeric value associated with the reward." %}</p>
-                        {% if form.action_value.errors %}<span class="text-error text-xs font-bold">{{ form.action_value.errors.0 }}</span>{% endif %}
+                        <p class="text-[11px] text-text-muted mt-2" id="hint-action-value">{% trans "Enter the numeric value associated with the reward." %}</p>
+                        {% if form.action_value.errors %}<span class="text-error text-xs font-bold mt-1 block">{{ form.action_value.errors.0 }}</span>{% endif %}
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between p-4 bg-bg border border-border rounded-xl mt-4">
+                <div class="flex items-center justify-between p-4 bg-bg border border-border rounded-xl mt-2">
                     <div class="flex flex-col">
                         <span class="text-[13px] font-black text-text-primary">{% trans "Active Status" %}</span>
                         <span class="text-[11.5px] text-text-muted">{% trans "Make this reward available for milestones." %}</span>
@@ -115,7 +113,6 @@
                 </div>
 
                 <div class="relative w-full flex rounded-[12px] shadow-md overflow-hidden min-h-[160px]" id="preview-ticket">
-                    
                     <div class="absolute -start-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-surface rounded-full z-10"></div>
 
                     <div class="w-[25%] flex items-center justify-center relative overflow-hidden" id="preview-color-band" style="background-color: #F97316;">
@@ -130,7 +127,7 @@
                             <div class="flex items-baseline gap-1 text-[#1e293b] drop-shadow-sm" dir="ltr">
                                 <span class="text-[44px] font-black tracking-tighter leading-none" id="preview-value">0</span>
                                 <span class="text-[16px] font-black leading-none hidden" id="preview-unit-text">UNITS</span>
-                                <span class="w-6 h-6 hidden pb-1 fill-current" id="preview-unit-icon">{% include "components/currency_icon.html" %}</span>
+                                <span class="w-4 h-4 hidden pb-1 fill-current" id="preview-unit-icon">{% include "components/currency_icon.html" %}</span>
                                 <span class="text-[14px] font-black uppercase ms-1 hidden" id="preview-off-text">OFF</span>
                             </div>
                             <span class="bg-[#1e293b]/10 text-[#1e293b] border border-[#1e293b]/20 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest shadow-sm" id="preview-badge">
@@ -157,7 +154,18 @@
 </div>
 
 <style>
-    .float-input {
+    /* Locks styling symmetry and strips native browser input number spinner layouts */
+    .custom-django-field-wrapper input[type="number"]::-webkit-inner-spin-button,
+    .custom-django-field-wrapper input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none !important;
+        margin: 0 !important;
+    }
+    .custom-django-field-wrapper input[type="number"] {
+        -moz-appearance: textfield !important;
+    }
+    
+    /* Strict preservation of the master project float-input masterclasses */
+    .float-input, select {
         width: 100%;
         height: 48px;
         padding: 0 16px;
@@ -170,7 +178,7 @@
         transition: all 0.2s ease;
         outline: none;
     }
-    .float-input:focus {
+    .float-input:focus, select:focus {
         border-color: var(--color-primary);
         box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         background-color: var(--color-surface);
@@ -180,7 +188,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Custom Select Initialization (from filter_bar logic)
+    // Custom Select Initialization (Uniform UI Dropdown Engine)
     const wrappers = document.querySelectorAll('.custom-select-wrapper');
     wrappers.forEach(wrapper => {
         const trigger = wrapper.querySelector('.select-trigger');
@@ -189,7 +197,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const hiddenInput = wrapper.querySelector('input[type="hidden"]');
         const options = wrapper.querySelectorAll('.select-option');
 
-        // Set initial label text based on default value
         options.forEach(opt => {
             if(opt.dataset.value === hiddenInput.value) { label.textContent = opt.textContent; }
         });
@@ -262,19 +269,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Reset visibility
-        unitActionValueText.classList.add('hidden');
-        unitActionValueIcon.classList.add('hidden');
+        if(unitActionValueText) unitActionValueText.classList.add('hidden');
+        if(unitActionValueIcon) unitActionValueIcon.classList.add('hidden');
         prevUnitText.classList.add('hidden');
         prevUnitIcon.classList.add('hidden');
         prevOffText.classList.add('hidden');
 
         // 3. Dynamic Fields & UI Update based on Action Type
         if (actionType === 'gen_coupon') {
-            wrapperDiscountType.classList.remove('hidden');
-            wrapperActionValue.classList.remove('hidden');
+            if(wrapperDiscountType) wrapperDiscountType.classList.remove('hidden');
+            if(wrapperActionValue) wrapperActionValue.classList.remove('hidden');
             
-            labelActionValue.innerHTML = '{% trans "Discount Value" %} <span class="text-error">*</span>';
-            hintActionValue.textContent = '{% trans "Enter the amount to be discounted." %}';
+            if(labelActionValue) labelActionValue.innerHTML = '{% trans "Discount Value" %} <span class="text-error">*</span>';
+            if(hintActionValue) hintActionValue.textContent = '{% trans "Enter the amount to be discounted." %}';
             
             prevTypeVertical.textContent = "COUPON";
             prevFulfillment.textContent = "{% trans 'Checkout Cart' %}";
@@ -283,13 +290,12 @@ document.addEventListener('DOMContentLoaded', function() {
             prevOffText.classList.remove('hidden');
 
             if (discountType === 'percentage') {
-                unitActionValueText.textContent = "%";
-                unitActionValueText.classList.remove('hidden');
+                if(unitActionValueText) { unitActionValueText.textContent = "%"; unitActionValueText.classList.remove('hidden'); }
                 prevUnitText.textContent = "%";
                 prevUnitText.classList.remove('hidden');
                 prevValue.textContent = value.toString();
             } else if (discountType === 'fixed_amount') {
-                unitActionValueIcon.classList.remove('hidden');
+                if(unitActionValueIcon) unitActionValueIcon.classList.remove('hidden');
                 prevUnitIcon.classList.remove('hidden');
                 prevValue.textContent = value.toFixed(2);
             } else {
@@ -297,13 +303,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
         } else if (actionType === 'sys_roaming') {
-            wrapperDiscountType.classList.add('hidden');
-            wrapperActionValue.classList.remove('hidden');
+            if(wrapperDiscountType) wrapperDiscountType.classList.add('hidden');
+            if(wrapperActionValue) wrapperActionValue.classList.remove('hidden');
             
-            labelActionValue.innerHTML = '{% trans "Granted Visits" %} <span class="text-error">*</span>';
-            unitActionValueText.textContent = "VISITS";
-            unitActionValueText.classList.remove('hidden');
-            hintActionValue.textContent = '{% trans "Number of free roaming visits." %}';
+            if(labelActionValue) labelActionValue.innerHTML = '{% trans "Granted Visits" %} <span class="text-error">*</span>';
+            if(unitActionValueText) { unitActionValueText.textContent = "VISITS"; unitActionValueText.classList.remove('hidden'); }
+            if(hintActionValue) hintActionValue.textContent = '{% trans "Number of free roaming visits." %}';
             
             prevTypeVertical.textContent = "ROAMING";
             prevFulfillment.textContent = "{% trans 'QR Verified' %}";
@@ -315,13 +320,12 @@ document.addEventListener('DOMContentLoaded', function() {
             prevUnitText.classList.remove('hidden');
 
         } else if (actionType === 'sys_extension') {
-            wrapperDiscountType.classList.add('hidden');
-            wrapperActionValue.classList.remove('hidden');
+            if(wrapperDiscountType) wrapperDiscountType.classList.add('hidden');
+            if(wrapperActionValue) wrapperActionValue.classList.remove('hidden');
             
-            labelActionValue.innerHTML = '{% trans "Granted Days" %} <span class="text-error">*</span>';
-            unitActionValueText.textContent = "DAYS";
-            unitActionValueText.classList.remove('hidden');
-            hintActionValue.textContent = '{% trans "Number of days added to subscription." %}';
+            if(labelActionValue) labelActionValue.innerHTML = '{% trans "Granted Days" %} <span class="text-error">*</span>';
+            if(unitActionValueText) { unitActionValueText.textContent = "DAYS"; unitActionValueText.classList.remove('hidden'); }
+            if(hintActionValue) hintActionValue.textContent = '{% trans "Number of days added to subscription." %}';
             
             prevTypeVertical.textContent = "EXTENSION";
             prevFulfillment.textContent = "{% trans 'Immediate / System' %}";
@@ -333,8 +337,8 @@ document.addEventListener('DOMContentLoaded', function() {
             prevUnitText.classList.remove('hidden');
 
         } else if (actionType === 'manual') {
-            wrapperDiscountType.classList.add('hidden');
-            wrapperActionValue.classList.add('hidden'); 
+            if(wrapperDiscountType) wrapperDiscountType.classList.add('hidden');
+            if(wrapperActionValue) wrapperActionValue.classList.add('hidden'); 
             
             prevTypeVertical.textContent = "GIFT";
             prevFulfillment.textContent = "{% trans 'QR Verified (Manual)' %}";
@@ -345,14 +349,15 @@ document.addEventListener('DOMContentLoaded', function() {
             prevUnitText.textContent = "ITEM";
             prevUnitText.classList.remove('hidden');
         } else {
-            wrapperDiscountType.classList.add('hidden');
-            wrapperActionValue.classList.remove('hidden');
+            if(wrapperDiscountType) wrapperDiscountType.classList.add('hidden');
+            if(wrapperActionValue) wrapperActionValue.classList.remove('hidden');
             prevTypeVertical.textContent = "REWARD";
             prevValue.textContent = "0";
         }
     }
 
-    [inputName, inputActionType, inputDiscountType, inputValue, inputActive].forEach(input => {
+    const inputs = [inputName, inputActionType, inputDiscountType, inputValue, inputActive];
+    inputs.forEach(input => {
         if (input) {
             input.addEventListener('input', updatePreview);
             input.addEventListener('change', updatePreview);

@@ -3,14 +3,14 @@
 {% load i18n humanize %}
 
 {% block content %}
-<div class="flex flex-col gap-8 pb-12">
+<div class="flex flex-col gap-8 pb-12 pt-2">
 
     {% url 'dashboard:milestones_list' as list_url %}
     {% trans "Set up a progression tier and assign a reward for reaching it." as subtitle_trans %}
     {% trans "Back to List" as action_text_trans %}
     {% include "dashboard/components/page_header.html" with title=page_title subtitle=subtitle_trans action_url=list_url action_text=action_text_trans action_icon='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>' %}
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-2">
         
         <div class="lg:col-span-8">
             <form method="post" class="bg-surface border border-border shadow-sm rounded-2xl p-8 flex flex-col gap-6" id="milestone-form">
@@ -23,24 +23,14 @@
                     <h2 class="text-lg font-black text-text-primary">{{ page_title }}</h2>
                 </div>
 
-                <div class="flex flex-col gap-2">
-                    <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Milestone Title" %} <span class="text-error">*</span></label>
-                    {{ form.title }}
-                    {% if form.title.errors %}<span class="text-error text-xs font-bold">{{ form.title.errors.0 }}</span>{% endif %}
+                <div class="flex flex-col gap-0">
+                    {% include "dashboard/components/form_field.html" with field=form.title %}
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-0">
                     
-                    <div class="flex flex-col gap-2 w-full">
-                        <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Required Lifetime Points" %} <span class="text-error">*</span></label>
-                        <div class="relative flex items-center">
-                            {{ form.required_lifetime_points }}
-                            <div class="absolute inset-y-0 end-4 flex items-center pointer-events-none">
-                                <span class="text-[12px] font-black text-text-muted uppercase">{% trans "PTS" %}</span>
-                            </div>
-                        </div>
-                        <p class="text-[11px] text-text-muted mt-1">{% trans "Cumulative points needed to unlock this tier." %}</p>
-                        {% if form.required_lifetime_points.errors %}<span class="text-error text-xs font-bold">{{ form.required_lifetime_points.errors.0 }}</span>{% endif %}
+                    <div>
+                        {% include "dashboard/components/form_field.html" with field=form.required_lifetime_points %}
                     </div>
 
                     <div class="flex flex-col gap-2">
@@ -60,19 +50,15 @@
                                 {% endfor %}
                             </div>
                         </div>
-                        <p class="text-[11px] text-text-muted mt-1">{% trans "Optional: Select the reward granted upon reaching this milestone." %}</p>
                         {% if form.reward.errors %}<span class="text-error text-xs font-bold">{{ form.reward.errors.0 }}</span>{% endif %}
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-2 mt-2">
-                    <label class="text-[12px] font-black text-text-primary uppercase tracking-wider">{% trans "Description" %}</label>
-                    {{ form.description }}
-                    <p class="text-[11px] text-text-muted mt-1 text-end">{% trans "Internal note about this tier (optional)." %}</p>
-                    {% if form.description.errors %}<span class="text-error text-xs font-bold">{{ form.description.errors.0 }}</span>{% endif %}
+                <div class="flex flex-col gap-0 mt-0">
+                    {% include "dashboard/components/form_field.html" with field=form.description %}
                 </div>
 
-                <div class="flex items-center justify-between p-4 bg-bg border border-border rounded-xl mt-4">
+                <div class="flex items-center justify-between p-4 bg-bg border border-border rounded-xl mt-2">
                     <div class="flex flex-col">
                         <span class="text-[13px] font-black text-text-primary">{% trans "Active Status" %}</span>
                         <span class="text-[11.5px] text-text-muted">{% trans "Make this milestone part of the progression roadmap." %}</span>
@@ -149,7 +135,18 @@
 </div>
 
 <style>
-    .float-input {
+    /* Locks styling symmetry and strips native browser input number spinner layouts */
+    .custom-django-field-wrapper input[type="number"]::-webkit-inner-spin-button,
+    .custom-django-field-wrapper input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none !important;
+        margin: 0 !important;
+    }
+    .custom-django-field-wrapper input[type="number"] {
+        -moz-appearance: textfield !important;
+    }
+    
+    /* Strict preservation of the master project float-input masterclasses */
+    .float-input, select {
         width: 100%;
         height: 48px;
         padding: 0 16px;
@@ -162,7 +159,7 @@
         transition: all 0.2s ease;
         outline: none;
     }
-    .float-input:focus {
+    .float-input:focus, select:focus {
         border-color: var(--color-primary);
         box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         background-color: var(--color-surface);
@@ -172,7 +169,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     
-    // 1. Custom Select Initialization (Uniform UI)
+    // Custom Select Initialization (Uniform UI Dropdown Engine)
     const wrappers = document.querySelectorAll('.custom-select-wrapper');
     wrappers.forEach(wrapper => {
         const trigger = wrapper.querySelector('.select-trigger');
@@ -207,13 +204,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.select-dropdown').forEach(d => d.classList.add('hidden'));
     });
 
-    // 2. Form Fields for Preview
+    // Form Fields for Preview
     const inputTitle = document.getElementById('id_title');
     const inputPoints = document.getElementById('id_required_lifetime_points');
     const inputReward = document.getElementById('id_reward');
     const inputActive = document.getElementById('id_is_active');
     
-    // 3. Preview DOM Elements
+    // Preview DOM Elements
     const prevTitle = document.getElementById('preview-title');
     const prevPoints = document.getElementById('preview-points');
     const prevStatus = document.getElementById('preview-status');
@@ -226,7 +223,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevRewardIconBg = document.getElementById('preview-reward-icon-bg');
     const prevRewardIcon = document.getElementById('preview-reward-icon');
 
-    // 4. Update Function
     function updatePreview() {
         // Update Title
         prevTitle.textContent = inputTitle.value.trim() || "{% trans 'TIER NAME' %}";
@@ -236,32 +232,37 @@ document.addEventListener('DOMContentLoaded', function() {
         prevPoints.textContent = pointsVal.toLocaleString();
 
         // Update Reward Info
-        const selectedRewardText = document.querySelector('#id_reward').parentElement.querySelector('.select-label').textContent;
-        const rewardValue = inputReward.value;
+        const selectEl = document.querySelector('#id_reward');
+        let selectedRewardText = "{% trans 'No Reward Attached' %}";
+        if (selectEl && selectEl.parentElement) {
+            const labelEl = selectEl.parentElement.querySelector('.select-label');
+            if (labelEl) selectedRewardText = labelEl.textContent;
+        }
+        const rewardValue = inputReward ? inputReward.value : '';
 
         if (rewardValue && rewardValue !== "") {
             prevRewardName.textContent = selectedRewardText;
             prevRewardBox.style.backgroundColor = "rgba(255,255,255,0.15)";
             prevRewardBox.style.borderColor = "rgba(255,255,255,0.3)";
-            prevRewardIconBg.style.backgroundColor = "#10B981"; // Emerald color for reward
-            prevRewardIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>';
+            if(prevRewardIconBg) prevRewardIconBg.style.backgroundColor = "#10B981"; 
+            if(prevRewardIcon) prevRewardIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>';
         } else {
             prevRewardName.textContent = "{% trans 'No Reward Attached' %}";
             prevRewardBox.style.backgroundColor = "rgba(255,255,255,0.05)";
             prevRewardBox.style.borderColor = "rgba(255,255,255,0.1)";
-            prevRewardIconBg.style.backgroundColor = "rgba(255,255,255,0.1)";
-            prevRewardIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>';
+            if(prevRewardIconBg) prevRewardIconBg.style.backgroundColor = "rgba(255,255,255,0.1)";
+            if(prevRewardIcon) prevRewardIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>';
         }
 
         // Update Active/Paused Visual State
         if (inputActive && inputActive.checked) {
             prevStatus.textContent = "{% trans 'ACTIVE' %}";
-            prevStatus.style.backgroundColor = "rgba(16, 185, 129, 0.2)"; // Emerald tint
+            prevStatus.style.backgroundColor = "rgba(16, 185, 129, 0.2)"; 
             prevStatus.style.borderColor = "rgba(16, 185, 129, 0.4)";
             prevStatus.style.color = "#34d399";
             
-            prevCard.style.background = "linear-gradient(135deg, #1e1b4b, #312e81)"; // Deep Indigo
-            prevMainIcon.style.background = "linear-gradient(to right, #f59e0b, #f97316)"; // Bright Orange
+            prevCard.style.background = "linear-gradient(135deg, #1e1b4b, #312e81)"; 
+            prevMainIcon.style.background = "linear-gradient(to right, #f59e0b, #f97316)"; 
             prevBgIcon.style.opacity = "0.1";
         } else {
             prevStatus.textContent = "{% trans 'PAUSED' %}";
@@ -269,21 +270,20 @@ document.addEventListener('DOMContentLoaded', function() {
             prevStatus.style.borderColor = "rgba(255,255,255,0.2)";
             prevStatus.style.color = "#cbd5e1";
             
-            prevCard.style.background = "linear-gradient(135deg, #334155, #475569)"; // Slate Grayscale
-            prevMainIcon.style.background = "linear-gradient(to right, #94a3b8, #cbd5e1)"; // Gray
+            prevCard.style.background = "linear-gradient(135deg, #334155, #475569)"; 
+            prevMainIcon.style.background = "linear-gradient(to right, #94a3b8, #cbd5e1)"; 
             prevBgIcon.style.opacity = "0.05";
         }
     }
 
-    // 5. Bind Listeners
-    [inputTitle, inputPoints, inputReward, inputActive].forEach(input => {
+    const inputs = [inputTitle, inputPoints, inputReward, inputActive];
+    inputs.forEach(input => {
         if (input) {
             input.addEventListener('input', updatePreview);
             input.addEventListener('change', updatePreview);
         }
     });
 
-    // Init state on page load
     updatePreview();
 });
 </script>

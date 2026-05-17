@@ -93,6 +93,9 @@ class ApiException implements Exception {
     } else if (errorCode == 'coupon_exhausted' ||
         errorCode == 'invalid_coupon') {
       serverMessage = l10n.couponExhausted;
+    } else if (errorCode == 'package_coupon_prohibited') {
+      // ARCHITECTURE FIX: Catch points package security error
+      serverMessage = l10n.couponProhibitedForPackages;
     } else if (serverMessage.isEmpty) {
       switch (statusCode) {
         case 400:

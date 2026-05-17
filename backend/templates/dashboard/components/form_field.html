@@ -1,24 +1,32 @@
 {# templates/dashboard/components/form_field.html #}
-<div class="flex flex-col w-full mb-5 group/field">
+{% load i18n %}
+
+<div class="flex flex-col w-full mb-6 group/field">
     
-    <div class="flex items-center justify-between mb-2.5 px-1">
-        <div class="flex items-center gap-1">
-            <label class="text-[13px] font-black text-text-secondary uppercase tracking-widest" for="{{ field.id_for_label }}">
+    <div class="flex items-center justify-between mb-2.5 px-1 relative">
+        <div class="flex items-center gap-1.5">
+            <label class="text-[13px] font-black text-text-secondary uppercase tracking-widest cursor-pointer" for="{{ field.id_for_label }}">
                 {{ field.label }}
                 {% if field.field.required %}<span class="text-error ms-1">*</span>{% endif %}
             </label>
         </div>
         
         {% if field.help_text %}
-        <button type="button" onclick="toggleHint('hint-{{ field.name }}')" class="text-text-muted hover:text-primary transition-colors focus:outline-none shrink-0" title="Information">
-            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </button>
+        <div class="relative custom-tooltip-container group/tooltip">
+            <button type="button" class="text-text-muted hover:text-primary transition-colors focus:outline-none shrink-0" title="{% trans 'Information' %}">
+                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </button>
+            <div class="absolute bottom-[140%] end-0 opacity-0 invisible translate-y-1 w-[260px] p-3.5 bg-surface border border-border shadow-xl rounded-xl text-[12px] font-bold text-text-secondary leading-relaxed transition-all duration-200 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:visible group-hover/tooltip:translate-y-0 text-start z-50">
+                {{ field.help_text }}
+                <div class="absolute top-full end-1.5 w-2.5 h-2.5 bg-surface border-e border-b border-border transform rotate-45 -mt-1.5"></div>
+            </div>
+        </div>
         {% endif %}
     </div>
     
-    <div class="relative flex items-center rounded-2xl overflow-hidden shadow-sm group-focus-within/field:shadow-md transition-shadow duration-300">
-        <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/30 to-accent/30 opacity-0 group-focus-within/field:opacity-100 blur-[4px] transition-opacity duration-300"></div>
-        
+    <div class="relative flex items-center w-full rounded-2xl custom-django-field-wrapper">
         {{ field }}
 
         {% if show_currency %}
@@ -28,12 +36,8 @@
         {% endif %}
     </div>
 
-    {% if field.help_text %}
-        {% include "dashboard/components/helper_box.html" with help_text=field.help_text hint_id="hint-"|add:field.name %}
-    {% endif %}
-
     {% if field.errors %}
-        <div class="mt-2.5 px-1 flex flex-col gap-1.5">
+        <div class="mt-2.5 px-1 flex flex-col gap-1.5 animate-fadeIn">
             {% for error in field.errors %}
                 <span class="text-[12px] font-bold text-error flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-error shrink-0"></span>
@@ -44,3 +48,41 @@
     {% endif %}
     
 </div>
+
+<style>
+    /* Injects Float-Input Premium Metrics Perfectly into Django Auto-generated Input Nodes */
+    .custom-django-field-wrapper input,
+    .custom-django-field-wrapper select,
+    .custom-django-field-wrapper textarea {
+        width: 100% !important;
+        height: 48px !important;
+        padding: 0 16px !important;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        color: var(--color-text-primary) !important;
+        background-color: var(--color-bg) !important;
+        border: 1px solid var(--color-border) !important;
+        border-radius: 12px !important;
+        transition: all 0.2s ease !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    
+    .custom-django-field-wrapper input:focus,
+    .custom-django-field-wrapper select:focus,
+    .custom-django-field-wrapper textarea:focus {
+        border-color: var(--color-primary) !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+        background-color: var(--color-surface) !important;
+    }
+
+    .custom-django-field-wrapper textarea {
+        height: auto !important;
+        padding: 12px 16px !important;
+    }
+    {% if show_currency %}
+    .custom-django-field-wrapper input {
+        padding-right: 2.75rem !important;
+    }
+    {% endif %}
+</style>

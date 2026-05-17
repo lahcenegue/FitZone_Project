@@ -510,5 +510,6 @@
   "couponExhausted": "Invalid or previously used coupon code.",
   "couponAppliedSuccess": "Coupon applied successfully!",
   "removeBtn": "Remove",
-  "walletCoversTotal": "Wallet balance covers the total, no payment card needed."
+  "walletCoversTotal": "Wallet balance covers the total, no payment card needed.",
+  "couponProhibitedForPackages": "Coupons or points cannot be used when purchasing point packages."
 }

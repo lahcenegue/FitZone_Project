@@ -1,7 +1,10 @@
+# apps/payments/services/checkout_service.py
+
 import logging
 from decimal import Decimal, ROUND_HALF_UP
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.core.signals import request_finished  # generic safe metadata import if needed
 from django.utils import timezone
 from datetime import timedelta
 
@@ -39,6 +42,27 @@ class CheckoutService:
         return None
 
     @staticmethod
+    def validate_package_discounts(item_type: str, coupon_code: str, points_to_redeem: int) -> None:
+        """
+        Validates and rejects any coupon code or points redemption attempts 
+        whenever a user is purchasing a points package. 
+        Protects the platform's economic integrity against system loops.
+        """
+        if item_type == "points_package":
+            if coupon_code and coupon_code.strip() != "":
+                logger.warning("Attempted to apply a coupon discount on a points package purchase.")
+                raise ValidationError(
+                    message="Coupons cannot be applied when purchasing points packages.",
+                    code="package_coupon_prohibited"
+                )
+            if points_to_redeem > 0:
+                logger.warning("Attempted to redeem loyalty points to purchase a points package.")
+                raise ValidationError(
+                    message="Loyalty points cannot be used to purchase points packages.",
+                    code="package_points_prohibited"
+                )
+
+    @staticmethod
     def _fetch_item_details(request, item_type: str, item_id: int, loyalty_settings: LoyaltyGlobalSetting) -> dict:
         """
         Validates the requested item and extracts its details securely from the database.
@@ -63,12 +87,18 @@ class CheckoutService:
                 
             elif item_type == "resale_item":
                 item = SubscriptionResaleListing.objects.select_related('subscription__plan__provider').get(id=item_id, status=ResaleListingStatus.ACTIVE)
+                
+                
+                from apps.resale.services import ResaleMarketService
+                decayed_pricing = ResaleMarketService.calculate_current_fair_price(item)
+                current_decayed_asking_price = decayed_pricing["current_asking_price"]
+
                 plan = item.subscription.plan
                 provider = plan.provider
                 image_url = CheckoutService._get_absolute_image_url(request, provider.logo)
                 return {
                     "item_type": "resale_item",
-                    "price": item.asking_price,
+                    "price": current_decayed_asking_price, 
                     "original_price": plan.price,
                     "max_discount_pct": loyalty_settings.max_discount_resale,
                     "earn_rate": Decimal("0.00"),
@@ -138,10 +168,8 @@ class CheckoutService:
             )
             return validation_result.get("discount_amount", Decimal("0.00"))
         except ValidationError as e:
-            # Safely extract the raw error message
             error_msg = e.message if hasattr(e, 'message') else (e.messages[0] if hasattr(e, 'messages') else str(e))
             
-            # Map exception message to precise error codes for the mobile app
             error_code = "invalid_coupon"
             msg_lower = error_msg.lower()
             
@@ -170,6 +198,9 @@ class CheckoutService:
         if points_to_redeem < 0:
             raise ValidationError(message="Points to redeem cannot be negative.", code="invalid_points")
 
+        # Strict Security Business Validation Step
+        CheckoutService.validate_package_discounts(item_type, coupon_code, points_to_redeem)
+
         loyalty_settings = LoyaltyGlobalSetting.load()
         payment_settings = PaymentGlobalSetting.load()
         wallet, _ = CustomerWallet.objects.get_or_create(user=user)
@@ -190,8 +221,8 @@ class CheckoutService:
         max_fiat_discount_allowed = (grand_total * item_details["max_discount_pct"]) / Decimal("100.00")
         max_points_allowed_by_rules = int(max_fiat_discount_allowed * loyalty_settings.point_to_fiat_rate)
         
-        actual_max_points_allowed = min(max_points_allowed_by_rules, wallet.points_balance)
-        final_points_redeemed = min(points_to_redeem, actual_max_points_allowed)
+        opacity_max_points_allowed = min(max_points_allowed_by_rules, wallet.points_balance)
+        final_points_redeemed = min(points_to_redeem, opacity_max_points_allowed)
         
         points_fiat_value = Decimal(final_points_redeemed) / loyalty_settings.point_to_fiat_rate
         price_after_points = max(Decimal("0.00"), grand_total - points_fiat_value)
@@ -234,7 +265,7 @@ class CheckoutService:
                 "subtotal": float(subtotal.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
                 "tax_amount": float(tax_amount.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
                 "discount_amount": float(coupon_discount.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
-                "max_points_allowed": actual_max_points_allowed,
+                "max_points_allowed": opacity_max_points_allowed,
                 "points_value_applied": float(points_fiat_value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
                 "wallet_balance_applied": float(wallet_fiat_applied.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
                 "remaining_total_to_pay": float(remaining_total_to_pay.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
@@ -252,12 +283,17 @@ class CheckoutService:
         Applies deductions, processes payments, and fulfills the requested item.
         """
         user = request.user
+        item_type = payload.get("item_type")
+        coupon_code = payload.get("coupon_code", "").strip()
+        points_to_redeem = int(payload.get("points_to_redeem", 0))
+
+        # Strict Runtime Core Integrity Validation Step
+        CheckoutService.validate_package_discounts(item_type, coupon_code, points_to_redeem)
+
         preview_data = CheckoutService.preview_checkout(request, payload)
         invoice = preview_data["invoice"]
         
-        item_type = payload.get("item_type")
         item_id = payload.get("item_id")
-        coupon_code = payload.get("coupon_code", "").strip()
         gateway_name = payload.get("payment_gateway", "mock")
         
         points_to_deduct = invoice["actual_points_deducted"]

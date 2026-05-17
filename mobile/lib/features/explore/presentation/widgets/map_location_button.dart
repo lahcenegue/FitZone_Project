@@ -22,10 +22,10 @@ class MapLocationButton extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: colors.shadow,
+            color: colors.shadow.withValues(alpha: 0.1),
             blurRadius: Dimensions.shadowBlurRadius,
-            spreadRadius: Dimensions.shadowSpreadRadius,
-            offset: Offset(0, Dimensions.shadowOffsetY),
+            spreadRadius: Dimensions.shadowSpreadRadius * 0.5,
+            offset: Offset(0, Dimensions.shadowOffsetY * 0.5),
           ),
         ],
       ),
